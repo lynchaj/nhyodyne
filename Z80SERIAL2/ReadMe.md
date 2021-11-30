@@ -11,3 +11,5 @@ Chip Select LED
 Interrupt LED
 
 Receive and Transmit LEDs
+
+Default IO port $68
