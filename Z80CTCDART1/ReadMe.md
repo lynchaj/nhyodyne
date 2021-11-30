@@ -2,7 +2,7 @@
 
 Add CTC system timer and DART dual serial ports
 
-External interrupts
+External interrupts with Zilog compatible interrupt priority modes
 
 Fully configurable CTC settings for multiple timers and system ticks
 
