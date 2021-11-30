@@ -4,6 +4,8 @@
 
 26 Pin Parallel Port Interface (PPI) for DSKY and other legacy Z80 SBC PPI peripherals
 
+Optional power supply for both PPI and IDE connectors
+
 Power LED
 
 Chip Select LED
