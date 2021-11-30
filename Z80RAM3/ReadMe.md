@@ -6,6 +6,8 @@ Provides Random Access Memory (RAM) for Z80 MBC
 
 Uses 32 pin SRAMs 128KB or 512KB
 
+Uses two DS1210 Non-Volatile Memory Controllers with CR2032 for battery backed NVRAM
+
 RAM Memory Page Configuration Latch for 32KB Upper and/or Lower memory pages
 
 Boot jumper, capacity for multiple RAM boards in system, only one must be bootable
