@@ -1,4 +1,4 @@
-# Updated and extended backplane for Z80 Modular Backplane Computer
+# Extended backplane for Z80 Modular Backplane Computer
 
 Sixteen backplane slots
 
