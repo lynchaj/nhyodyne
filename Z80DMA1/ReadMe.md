@@ -15,3 +15,5 @@ DMA transfer LED
 DMA Ready LED
 
 Default IO ports $E0-$E1
+
+Note: The Z80 DMA V2 board has not yet gone to PCB production however the differences between it and the Z80 DMA V1 board are very minor.
