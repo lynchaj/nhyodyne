@@ -10,4 +10,4 @@ Intended for Video Terminal Console, 80 column mode
 
 Some graphics and color capability as well
 
-Default IO ports [add here]
+Default IO ports $E4-$E5
