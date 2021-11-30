@@ -1,5 +1,7 @@
 # Counter / Timer Channels (CTC) and Dual Asynchronous Receiver Transmitter (DART) board for Z80 Modular Backplane Computer
 
+# NOTE: THIS BOARD IS STILL IN DEVELOPMENT, NO GERBER FILES AVAILABLE YET
+
 Adds CTC system timer and DART dual serial ports
 
 External interrupts with Zilog compatible interrupt priority modes
