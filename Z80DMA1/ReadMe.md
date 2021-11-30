@@ -14,4 +14,4 @@ DMA transfer LED
 
 DMA Ready LED
 
-Default IO ports [add here]
+Default IO ports $E0-$E1
