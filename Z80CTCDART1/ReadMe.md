@@ -10,7 +10,7 @@ Uses built in 4.9152 MHz clock or system CPU clock
 
 Clock dividers for system ticker at selected tick frequencies
 
-Dual RS-232 ports plus dual TTL serial ports
+Dual RS-232 level serial ports plus dual TTL level serial ports for USB adapters
 
 Power LED
 
