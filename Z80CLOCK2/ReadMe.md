@@ -15,3 +15,10 @@ User Button for Diagnostic acknowledge
 Power LED, Run and Halt LEDs, User 0 and User 1 diagnostic LEDs, Chip Select LED, and Turbo Mode LED
 
 Default IO port $70
+
+# Jumpers
+K1, PPI Power, 1-2 closed default, 2-3 closed Power enabled
+
+K2, IDE Power, 1-2 closed default, 2-3 closed Power enabled
+
+JP1, external IDE Activity LED, pin 2 positive
