@@ -13,12 +13,12 @@ Z80 DUART (PLCC-44)
 Z80 PPIDE V1
 Z80 FDC V1
 Z80 DMA V1
-
-Upcoming boards to be released:
-
 Z80 prototype V2
 Z80 VDC V1
 Z80 KBDMSE V1
+
+Upcoming boards to be released:
+
 Z80 CTCDART V1
 Z80 DUALPIO V1
 Z80 USD-SD V1
