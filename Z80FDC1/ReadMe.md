@@ -8,6 +8,8 @@ Integrated WD37C65 Floppy Drive Controller
 
 Polling or Interrupt modes supported
 
+Selectable Interrupt connector
+
 External DMA connector
 
 Default IO port [add here]
