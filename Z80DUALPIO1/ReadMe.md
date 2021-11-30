@@ -1,6 +1,6 @@
 # Dual Parallel IO board for Z80 Modular Backplane Computer
 
-Add a pair of PIOs with external connectors, 48 GPIO plus 4 strobes, acknowledges, and power pins 
+Add a pair of PIOs with external connectors, 32 GPIO pins plus 4 strobe pins, 4 ready pins, and power pins 
 
 External interrupts with Zilog compatible interrupt priority modes
 
