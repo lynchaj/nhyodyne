@@ -16,11 +16,11 @@ Z80 DMA V2
 Z80 prototype V2
 Z80 VDC V1
 Z80 KBDMSE V1
+Z80 CTCDART V1 (in development)
+Z80 DUALPIO V1 (in development)
 
 Upcoming boards to be released:
 
-Z80 CTCDART V1
-Z80 DUALPIO V1
 Z80 USD-SD V1
 Z80 PRINT V1
 Z80 SOUND V1
