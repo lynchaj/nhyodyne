@@ -35,5 +35,5 @@ Seventh, lower build cost by using inexpensive off-the-shelf components and PCBs
 
 ![IMG-1692](https://user-images.githubusercontent.com/86925539/144116345-c4b32c04-1b2d-48f0-a56d-0735849f6f7f.jpg)
 
-Photo: Wayne Warthen's early version of Z80 MBC with prototype DSKY V3.  Contains Z80BCKPLN1, Z80PROC, Z80CLOCK, Z80ROM, Z80RAM, Z80PPIDE boards.  CF adapter installed. 
+Photo: Wayne Warthen's early version of Z80 MBC with prototype DSKY V3.  Contains Z80BCKPLN1 (underneath), Z80CLOCK, Z80PROC, Z80ROM, Z80RAM, Z80PPIDE boards.  CF adapter installed. 
 DSKY V3 by Dan Werner  https://www.retrobrewcomputers.org/doku.php?id=boards:ecb:dskyng
