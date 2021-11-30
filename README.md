@@ -7,8 +7,11 @@ The MBC consists of four core boards: Z80 backplane, Z80 processor, Z80 clock, a
 
 # Tools
 RomWBW Dev Branch  https://github.com/wwarthen/romwbw/tree/dev
+
 KiCAD version 5 or later  https://www.kicad.org/
+
 FreeRouting  https://github.com/freerouting/freerouting
+
 JLCPCB  https://jlcpcb.com/
 
 # Additional Design Goals
