@@ -32,3 +32,8 @@ Fifth, implementing a fully buffered Z80 processor with configurable wait state 
 Sixth, maintain backwards compatibility to the extent possible (two exceptions so far) to reuse existing SBC software. Target software is current ROMWBW
 
 Seventh, lower build cost by using inexpensive off-the-shelf components and PCBs. All parts come from Jameco or eBay (like bus connectors). Use simple 9vdc 1A unregulated power supply. Keep part count on boards low so they are effectively disposable eliminating the need for sockets and further lowering builder costs. Make non-essential components optionally do-not-populate.
+
+![IMG-1692](https://user-images.githubusercontent.com/86925539/144116345-c4b32c04-1b2d-48f0-a56d-0735849f6f7f.jpg)
+
+Photo: Wayne Warthen's early version of Z80 MBC with prototype DSKY V3.  
+DSKY V3 by Dan Werner  https://www.retrobrewcomputers.org/doku.php?id=boards:ecb:dskyng
