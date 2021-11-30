@@ -12,4 +12,8 @@ Selectable Interrupt connector
 
 External DMA connector
 
-Default IO port [add here]
+Power LED
+
+Chip Select LED
+
+Default IO ports $30-$37
