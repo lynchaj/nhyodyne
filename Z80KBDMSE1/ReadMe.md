@@ -10,4 +10,4 @@ Power LED
 
 Chip Select LED
 
-Default IO port [add here]
+Default IO ports $E2-$E3
