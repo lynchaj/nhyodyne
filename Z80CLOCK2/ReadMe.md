@@ -21,3 +21,5 @@ User 0 and User 1 diagnostic LEDs
 Chip Select LED
 
 Turbo Mode LED
+
+Default IO port $70
