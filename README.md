@@ -6,6 +6,8 @@ The purpose of this project is to revisit the design concepts behind my original
 The MBC consists of four core boards: Z80 backplane, Z80 processor, Z80 clock, and Z80 ROM. These are sufficient to build a working system of minimum capability. However  the core boards are designed in such a way that they can be individually redesigned and replaced with improved designs and/or customized to suit the builder. It achieves low coupling by implementing a simple bus using off-the-shelf 2×25 2.54mm spaced pin headers and socket strips. The backplane is a replication of a fully buffered Z80 CPU pin out in the same order. Each board has high cohesion by being limited to a single function consisting of only parts specifically related to to perform its task. This lowers builder cost by eliminating unnecessary parts and improves system reliability by having fewer parts to fail. Likewise, if a component or whole board fails it can be replaced without affecting the remaining boards.
 
 # Tools
+Open Source tools and software are used to the maximum extend possible to keep costs down for people building the Z80 MBC.  The target software for Z80 MBC is ROMWBW and is supported in the Dev Branch.  All boards are designed using KiCAD version 5 or later and FreeRouting for PCB trace autorouting.  Gerber files are supplied for most boards and can be obtained from JLCPCB or the PCB manufacturer of your choice.
+
 RomWBW Dev Branch  https://github.com/wwarthen/romwbw/tree/dev
 
 KiCAD version 5 or later  https://www.kicad.org/
