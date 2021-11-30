@@ -8,6 +8,8 @@ Two Real RS-232 level serial port
 
 Two TTL level serial port for USB adapters with optional power supplies
 
+External experimental connector with spare GPIO pins
+
 Power LED
 
 Chip Select LED
