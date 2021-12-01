@@ -15,3 +15,8 @@ Chip Select LED
 Interrupt LED
 
 Default IO ports $88-$8F
+
+# Jumpers
+
+J1 is Interrupt Selection, close 1-2 for INT#, close 2-3 for NMI#, none for no interrupt.
+Note: pin 2 can be connected to Z80 Processor IM2 connector via flying lead
