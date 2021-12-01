@@ -13,3 +13,11 @@ Chip Select LED
 IDE Active LED
 
 Default IO port $60-$64
+
+# Jumpers
+
+K1 PPI Power selection, pins 1-2 closed for Ground, pins 2-3 for VCC, none for no connection, default is none
+
+K2 IDE Power selection, pins 1-2 closed for Ground, pins 2-3 for VCC, none for no connection, default is none
+
+JP1 is External IDE Activity LED, pin 1 is positive
