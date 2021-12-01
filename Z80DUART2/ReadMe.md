@@ -20,12 +20,3 @@ Receive and Transmit LEDs
 
 Default IO port $80-$8F
 
-# Jumpers
-
-JP1 is connector for External Recovery Button (on-momentary close).  Do not jumper, default is none
-
-J7 is TTL Level Serial Port A Power select, close 1-2 for TTL serial port Power, Open for none, default is none
-
-J11 is TTL Level Serial Port B Power select, close 1-2 for TTL serial port Power, Open for none, default is none
-
-J5 is External DMA connector with DUART Interrupts channels A & B.  Do not apply Jumpers to these pins.
