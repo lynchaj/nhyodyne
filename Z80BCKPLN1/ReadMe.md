@@ -9,3 +9,7 @@ Power LED
 Uses either LM7805 5VDC voltage regulator or Pololu 5VDC switching power supply
 
 Voltage regulator can be bypassed for direct 5VDC feed from power supply
+
+# Jumpers
+
+No jumpers or selectable options
