@@ -7,3 +7,7 @@ Power LED indicator
 Onboard power switch
 
 Power input screw terminals for direct feed of 5V DC from power supply
+
+# Jumpers
+
+No jumpers or selectable options
