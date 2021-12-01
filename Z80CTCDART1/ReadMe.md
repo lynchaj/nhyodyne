@@ -21,3 +21,12 @@ Chip Select LED
 Interrupt LED
 
 Default IO ports $80-$87
+
+# Jumpers
+
+J1 Interrupt Select, connect 1-2 for INT# default, connect 2-3 for NMI#, none for no interrupt
+Note: can connect J1 pin 2 via flying lead to Z80 processor IM2 connector
+
+J2 TTL Level Serial Ports Power, connect 1-2 for Port A Power, connect 3-4 for Port B Power, default is none
+
+P10 connect 1-2 for system timer, none for no system timer, default is 1-2  
