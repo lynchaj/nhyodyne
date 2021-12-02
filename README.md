@@ -37,3 +37,11 @@ Seventh, lower build cost by using inexpensive off-the-shelf components and PCBs
 
 Photo: Wayne Warthen's early version of Z80 MBC with prototype DSKY V3.  From left to right; contains boards Z80BCKPLN1 (underneath), Z80CLOCK, Z80PROC, Z80RAM, Z80ROM, Z80SERIAL, and Z80PPIDE with CF adapter installed.  Z80PPIDE is also connected to DSKY V3 via legacy PPI connector.
 DSKY V3 by Dan Werner  https://www.retrobrewcomputers.org/doku.php?id=boards:ecb:dskyng
+
+# About the name...
+
+The name nyhodyne is completely made up in an attempt to be unique.  It is pronounced like "neodyne"
+
+https://www.howtopronounce.com/neo meaning "new"
+https://www.howtopronounce.com/dyne meaning "force"
+
