@@ -1,4 +1,4 @@
-# Direct Memory Adapter for Z80 Modular Backplane Computer system
+# Direct Memory Access for Z80 Modular Backplane Computer system
 
 Optional DMA for Z80 processor
 
