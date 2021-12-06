@@ -39,12 +39,9 @@ Photo: Wayne Warthen's early version of Z80 MBC with prototype DSKY V3.  From le
 DSKY V3 by Dan Werner  https://www.retrobrewcomputers.org/doku.php?id=boards:ecb:dskyng
 
 # Frequently Asked Questions
-What is "nhyodyne"?  The name nyhodyne is completely made up in an attempt to be unique.  It is pronounced like "neodyne"
+What is "nhyodyne"?  The name nyhodyne is completely made up in an attempt to be unique.  It is pronounced like "neodyne".  https://www.howtopronounce.com/neo meaning "new" and https://www.howtopronounce.com/dyne meaning "force"
 
-https://www.howtopronounce.com/neo meaning "new"
-https://www.howtopronounce.com/dyne meaning "force"
-
-Who is the intended audience?  Electronic and retrocomputing hobbyists of all ages and experience.  From brand new beginners to experienced designers, all are welcome.  Help is available on the discussion forum as needed or get in contact with me personally.  The boards are designed with beginners in mind and use common off-the-shelf tools and components.  I try to keep specialized parts to a minimum as well as SMD and/or programmable logic devices.  
+Who is the intended audience?  Electronic and retrocomputing hobbyists of all ages and experience.  From brand new beginners to experienced designers, all are welcome.  Help is available on the discussion forum as needed or get in contact with me personally.  The boards are designed with beginners in mind and use common off-the-shelf tools and components.  I try to keep specialized parts to a minimum as well as surface mount devices (SMD) and/or programmable logic devices (GALs, CPLDs, FPGAs).  
 
 Can I use these designs in my science fair, school project, etc?  Sure, but please cite your source so others can find this project too.
 
