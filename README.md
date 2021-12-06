@@ -39,15 +39,15 @@ Photo: Wayne Warthen's early version of Z80 MBC with prototype DSKY V3.  From le
 DSKY V3 by Dan Werner  https://www.retrobrewcomputers.org/doku.php?id=boards:ecb:dskyng
 
 # Frequently Asked Questions
-What is "nhyodyne"?  The name nyhodyne is completely made up in an attempt to be unique.  It is pronounced like "neodyne".  https://www.howtopronounce.com/neo meaning "new" and https://www.howtopronounce.com/dyne meaning "force"
+  What is "nhyodyne"?  The name nyhodyne is completely made up in an attempt to be unique.  It is pronounced like "neodyne".  https://www.howtopronounce.com/neo meaning "new" and https://www.howtopronounce.com/dyne meaning "force"
 
-Who is the intended audience?  Electronic and retrocomputing hobbyists of all ages and experience.  From brand new beginners to experienced designers, all are welcome.  Help is available on the discussion forum as needed or get in contact with me personally.  The boards are designed with beginners in mind and use common off-the-shelf tools and components.  I try to keep specialized parts to a minimum as well as surface mount devices (SMD) and/or programmable logic devices (GALs, CPLDs, FPGAs).  
+  Who is the intended audience?  Electronic and retrocomputing hobbyists of all ages and experience.  From brand new beginners to experienced designers, all are welcome.  Help is available on the discussion forum as needed or get in contact with me personally.  The boards are designed with beginners in mind and use common off-the-shelf tools and components.  I try to keep specialized parts to a minimum as well as surface mount devices (SMD) and/or programmable logic devices (GALs, CPLDs, FPGAs).  
 
 Can I use these designs in my science fair, school project, etc?  Sure, but please cite your source so others can find this project too.
 
 What if I want to fork my own project based on your work?  It's OK with me and I wish you the best of luck.  I'll be happy to answer questions as best I can and as time allows.
 
-Can these designs be used commercially?  Maybe, but I'd prefer they be kept for hobbyists because that's they're intended purpose.  If you take these designs partially or in whole commercial you are on your own.  These are intended for hobbyist and educational use only.
+Can these designs be used commercially?  Not really and I'd prefer they be kept for hobbyists because that's they're intended purpose.  If you take these designs partially or in whole commercial you are on your own and accept all associated risk.  These are intended for hobbyist and educational use only.
 
 Why are all the PCBS green?  I like green PCBs and am a bit of a traditionalist from back in the day when PCBs only came in green.  Also it is a good color choice to see the traces underneath and provides good contrast compared to other colors.  That being said, you can make your PCBs any color you like when you order them.
 
