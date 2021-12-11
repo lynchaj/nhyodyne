@@ -1105,7 +1105,7 @@ Wire Wire Line
 Wire Wire Line
 	13500 5150 13200 5150
 Text Notes 11900 6050 0    60   ~ 0
-Interrupt outputs from the\n8042/82C42 controller
+Interrupt outputs from the\n82C42 type controller
 Text Label 11650 6650 0    60   ~ 0
 P25-BF
 Text Label 11650 6450 0    60   ~ 0
@@ -1364,7 +1364,7 @@ L Z80KBDMSE-rescue:8042-ColorVDU-cache U19
 U 1 1 4ED0F4F9
 P 12750 2450
 F 0 "U19" H 12920 3750 60  0000 C CNN
-F 1 "8042" H 12750 1150 60  0000 C CNN
+F 1 "PS/2 Keyboard Controller" H 12750 1150 60  0000 C CNN
 F 2 "Package_DIP:DIP-40_W15.24mm" H 12750 2450 60  0001 C CNN
 F 3 "" H 12750 2450 60  0001 C CNN
 	1    12750 2450
@@ -1811,4 +1811,6 @@ NoConn ~ 14600 8350
 NoConn ~ 8900 6000
 Wire Wire Line
 	3650 7750 4650 7750
+Text Notes 9250 3450 0    60   ~ 12
+NOTE: IMPORTANT\n\nKNOWN TO WORK:\n- VT82C42N (VIA)\n\nLIKELY TO WORK BUT UNTESTED:\n- HT6542B (Holtek)\n- 83C42 (Western Digital)\n- KBD42W11 (SMSC)\n\nKNOWN DO NOT WORK:\n- 8042 (Intel & clones of PC/AT era)
 $EndSCHEMATC
