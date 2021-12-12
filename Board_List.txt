@@ -18,6 +18,7 @@ Z80 ROM V2
 Z80 serial V2 (DIP-40)
 Z80 serial V3 (PLCC-44)
 Z80 VDC V1
+6502 processor (in development)
 
 Upcoming boards to be released:
 
