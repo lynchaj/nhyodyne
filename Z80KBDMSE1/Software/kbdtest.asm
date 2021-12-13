@@ -20,19 +20,11 @@
 KEY_DATA	.EQU	0E2H		;Port used to access keyboard & Mouse (also sometimes Controller itself)
 KEY_CTRL	.EQU	0E3H		;Port for VT82C42 PS/2 Keyboard & Mouse Controller
 
-; PC/XT scan codes
-;ESC		.EQU	1BH
-;CR		.EQU	0DH
-;LF		.EQU	0AH
-;TAB		.EQU	09H
-;BELL		.EQU	07H
-
-; PC/AT scan codes 
-ESC		.EQU	01H
-CR		.EQU	1CH
-LF		.EQU	0AH ; don't know
-TAB		.EQU	0FH
-BELL		.EQU	07H ; don't know
+ESC		.EQU	1BH
+CR		.EQU	0DH
+LF		.EQU	0AH
+TAB		.EQU	09H
+BELL		.EQU	07H
 
 		.ORG	0100H
 START:
@@ -281,11 +273,11 @@ IBM2_MSG:
 IBM1TBL:			;The "Normal" table
 			;00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 0a, 0b, 0c, 0d, 0e, 0f
 ; PC/XT		.DB	  0,"*",  0,"*","*","*","*","*",  0,"*","*","*","*",09H,"`",00H
-		.DB	  0,"*","1","2","3","4","5","6","7","8","9","0","-","=",00H,00H
+		.DB	  0,01H,"1","2","3","4","5","6","7","8","9","0","-","=",00H,00H
 
 			;10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1a, 1b, 1c, 1d, 1e, 1f
 ; PC/XT		.DB   	  0,  0,  0,  0,  0,"q","1",  0,  0,  0,"z","s","a","w","2",0
-		.DB   	 "q","w","e","r","t","y","u","i","o","p","[","]",00H,00H,"a","s"
+		.DB   	 "q","w","e","r","t","y","u","i","o","p","[","]",1DH,00H,"a","s"
 
 			;20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 2a, 2b, 2c, 2d, 2e, 2f
 ; PC/XT		.DB   	  0,"c","x","d","e","4","3",  0,  0," ","v","f","t","r","5",0
