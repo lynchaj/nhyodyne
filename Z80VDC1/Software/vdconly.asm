@@ -24,13 +24,15 @@ I8242Data 	.EQU	$E2
 ;__________________________________________________________________________________________________
 INITVDU:
     	CALL	VDU_INIT		; INIT VDU
-	CALL 	KB_INITIALIZE		; INIT KB
+;	CALL 	KB_INITIALIZE		; INIT KB
 
     	CALL	DSPMATRIX		; DISPLAY INIT MATRIX SCREEN
-	CALL	WAIT_KBHIT		; WAIT FOR A KEYSTROKE
+;	CALL	WAIT_KBHIT		; WAIT FOR A KEYSTROKE
 
 LOOP1:
-	CALL	GET_KEY
+;	CALL	GET_KEY
+	LD	A,27			; SIMULATE KEYSTROKE TO END PROGRAM
+
 	LD	C,14
 	CP	13
 	JP	Z,LOOP2
@@ -62,19 +64,19 @@ LOOP4:
 ; 	SCROLL THE SCREEN UP ONE LINE
 ;__________________________________________________________________________________________________			
 DO_SCROLL:
-	PUSH	AF			; STORE AF	
+	PUSH	AF			; STORE AF
 DO_SCROLLE1:
 	PUSH	HL			; STORE HL
 	PUSH	BC			; STORE BC
-	
-    	LD 	B, 24			; GET REGISTER 24	
+
+    	LD 	B, 24			; GET REGISTER 24
 	CALL	VDU_GREG		;
 	OR	80H			; TURN ON COPY BIT
        	LD	D,A			; PARK IT
-     	
+
 	LD 	HL, (VDU_DISPLAY_START)	; GET UP START OF DISPLAY
 	LD	E,23			;
-DO_SCROLL1:	
+DO_SCROLL1:
     	LD 	B, 18			; SET UPDATE(DEST) POS IN VDU
     	LD	A,H			;
     	CALL	VDU_WREG		; WRITE IT
@@ -89,11 +91,11 @@ DO_SCROLL1:
     	LD 	B, 33			; SET SOURCE POS IN VDU
     	LD	A,L			;
     	CALL	VDU_WREG		; WRITE IT
-    	
+
     	LD 	B, 24			; SET COPY
     	LD	A,D			;
     	CALL	VDU_WREG		; WRITE IT
- 	    	
+
     	LD 	B, 30			; SET AMOUNT TO COPY
     	LD	A,050H			;
     	CALL	VDU_WREG		; WRITE IT
@@ -101,12 +103,12 @@ DO_SCROLL1:
     	LD	A,E			;
     	CP	00H			;
       	JP	NZ,DO_SCROLL1		; LOOP TILL DONE
-      	
+
 	LD 	HL, (VDU_DISPLAY_START)	; GET UP START OF DISPLAY
 	LD	BC,0820H		;
 	ADD	HL,BC			;
 	LD	E,23
-DO_SCROLL2:	
+DO_SCROLL2:
     	LD 	B, 18			; SET UPDATE(DEST) POS IN VDU
     	LD	A,H			;
     	CALL	VDU_WREG		; WRITE IT
@@ -121,20 +123,20 @@ DO_SCROLL2:
     	LD 	B, 33			; SET SOURCE POS IN VDU
     	LD	A,L			;
     	CALL	VDU_WREG		; WRITE IT
-    	
+
     	LD 	B, 24			; SET COPY
     	LD	A,D			;
     	CALL	VDU_WREG		; WRITE IT
- 	    	
+
     	LD 	B, 30			; SET AMOUNT TO COPY
     	LD	A,050H			;
     	CALL	VDU_WREG		; WRITE IT
 	DEC	E
     	LD	A,E			;
     	CP	00H			;
-      	JP	NZ,DO_SCROLL2		; LOOP TILL DONE      	
+      	JP	NZ,DO_SCROLL2		; LOOP TILL DONE
 
-    	
+
     	LD	A,23			; SET CURSOR TO BEGINNING OF LAST LINE
     	LD	(TERM_Y),A		;
     	LD	A,(TERM_X)		;
@@ -143,33 +145,33 @@ DO_SCROLL2:
     	LD	(TERM_X),A		;
     	CALL	GOTO_XY			; SET CURSOR POSITION TO BEGINNING OF LINE
 	POP	AF			; RESTORE X COORD
-    	POP	BC			; RESTORE BC	
+    	POP	BC			; RESTORE BC
     	CALL	PERF_ERASE_EOL		; ERASE SCROLLED LINE
 	LD	(TERM_X),A		;
    	CALL	GOTO_XY			; SET CURSOR POSITION
     	POP	HL			; RESTORE HL
     	POP	AF			; RESTORE AF
     	RET				;
-    	
+
 ;__REVERSE_SCROLL__________________________________________________________________________________
 ;
 ; 	SCROLL THE SCREEN DOWN ONE LINE
 ;__________________________________________________________________________________________________			
 REVERSE_SCROLL:
-	PUSH	AF			; STORE AF	
+	PUSH	AF			; STORE AF
 	PUSH	HL			; STORE HL
 	PUSH	BC			; STORE BC
-	
-    	LD 	B, 24			; GET REGISTER 24	
+
+    	LD 	B, 24			; GET REGISTER 24
 	CALL	VDU_GREG		;
 	OR	80H			; TURN ON COPY BIT
        	LD	E,A			; PARK IT
-     	
+
 	LD 	HL, (VDU_DISPLAY_START)	; GET UP START OF DISPLAY
 	LD	BC,0730H		;
 	ADD  	HL,BC
 	LD	D,23			;
-REVERSE_SCROLL1:	
+REVERSE_SCROLL1:
     	LD 	B, 18			; SET UPDATE(DEST) POS IN VDU
     	LD	A,H			;
     	CALL	VDU_WREG		; WRITE IT
@@ -184,11 +186,11 @@ REVERSE_SCROLL1:
     	LD 	B, 33			; SET SOURCE POS IN VDU
     	LD	A,L			;
     	CALL	VDU_WREG		; WRITE IT
-    	
+
     	LD 	B, 24			; SET COPY
     	LD	A,E			;
     	CALL	VDU_WREG		; WRITE IT
- 	    	
+
     	LD 	B, 30			; SET AMOUNT TO COPY
     	LD	A,050H			;
     	CALL	VDU_WREG		; WRITE IT
@@ -198,12 +200,12 @@ REVERSE_SCROLL1:
     	CP	00H			;
       	JP	NZ,REVERSE_SCROLL1	; LOOP TILL DONE
 
-     	
+
 	LD 	HL, (VDU_DISPLAY_START)	; GET UP START OF DISPLAY
 	LD	BC,0F50H		;
 	ADD	HL,BC
 	LD	D,23			;
-REVERSE_SCROLL2:	
+REVERSE_SCROLL2:
     	LD 	B, 18			; SET UPDATE(DEST) POS IN VDU
     	LD	A,H			;
     	CALL	VDU_WREG		; WRITE IT
@@ -218,11 +220,11 @@ REVERSE_SCROLL2:
     	LD 	B, 33			; SET SOURCE POS IN VDU
     	LD	A,L			;
     	CALL	VDU_WREG		; WRITE IT
-    	
+
     	LD 	B, 24			; SET COPY
     	LD	A,E			;
     	CALL	VDU_WREG		; WRITE IT
- 	    	
+
     	LD 	B, 30			; SET AMOUNT TO COPY
     	LD	A,050H			;
     	CALL	VDU_WREG		; WRITE IT
@@ -230,7 +232,7 @@ REVERSE_SCROLL2:
 	DEC	D
     	LD	A,D			;
     	CP	00H			;
-      	JP	NZ,REVERSE_SCROLL2	; LOOP TILL DONE    	
+      	JP	NZ,REVERSE_SCROLL2	; LOOP TILL DONE
     	LD	A,0			; SET CURSOR TO BEGINNING OF FIRST LINE
     	LD	(TERM_Y),A		;
     	LD	A,(TERM_X)		;
@@ -246,8 +248,6 @@ REVERSE_SCROLL2:
     	POP	HL			; RESTORE HL
     	POP	AF			; RESTORE AF
     	RET				;
-	
-	
 
 ;__VDU_INIT_________________________________________________________________________________________
 ;
@@ -259,10 +259,10 @@ VDU_INIT:
 	PUSH 	HL			; STORE HL
 	PUSH	BC			; STORE BC
 
-	CALL 	VDU_CRTInit		; INIT 8563 VDU CHIP	
+	CALL 	VDU_CRTInit		; INIT 8563 VDU CHIP
 	CALL	VDU_LOADFONT		;
 	CALL	PERF_CURSOR_HOME	; CURSOR HOME
-	LD	C,14			;	
+	LD	C,14			;
 	CALL	PERF_ERASE_EOS		; CLEAR SCREEN
     	CALL 	VDU_CursorOn		; TURN ON CURSOR
 
@@ -271,8 +271,8 @@ VDU_INIT:
 	POP 	DE			;
 	POP 	AF			;
 
-   	RET	
-	
+   	RET
+
 ;__PERF_CURSOR_HOME________________________________________________________________________________
 ;
 ; 	PERFORM CURSOR HOME
@@ -288,7 +288,7 @@ PERF_CURSOR_HOME:
 ; 	PERFORM ERASE FROM CURSOR POS TO END OF SCREEN
 ;       C= DEFAULT COLOR
 ;__________________________________________________________________________________________________	
-PERF_ERASE_EOS:	
+PERF_ERASE_EOS:
 	PUSH	HL
 	PUSH	AF
 	PUSH	BC
@@ -299,10 +299,10 @@ PERF_ERASE_EOS:
     	CALL	VDU_WREG		; WRITE IT
     	LD 	B, 19			; SET UPDATE CSR POS IN VDU
     	LD	A,L			;
-    	CALL	VDU_WREG		; WRITE IT   		
-	CALL	GOTO_XY			; MOVE CURSOR 
+    	CALL	VDU_WREG		; WRITE IT
+	CALL	GOTO_XY			; MOVE CURSOR
 	LD	DE,0820H		; SET SCREEN SIZE INTO HL
-PERF_ERASE_EOS_LOOP:		
+PERF_ERASE_EOS_LOOP:
     	LD 	A, ' '           	; MOVE SPACE CHARACTER INTO A
 	LD	B,31			;
        	CALL	VDU_WREG	 	; WRITE IT TO SCREEN, VDU WILL AUTO INC TO NEXT ADDRESS
@@ -311,7 +311,7 @@ PERF_ERASE_EOS_LOOP:
     	OR 	E			;
     	JP 	NZ,PERF_ERASE_EOS_LOOP	; NO, LOOP
 	LD	DE,0820H		; SET SCREEN SIZE INTO HL
-PERF_ERASE_EOS_CLOOP:		
+PERF_ERASE_EOS_CLOOP:
     	LD 	A, C	           	; MOVE COLOR INTO A
 	LD	B,31			;
        	CALL	VDU_WREG	 	; WRITE IT TO SCREEN, VDU WILL AUTO INC TO NEXT ADDRESS
@@ -319,19 +319,19 @@ PERF_ERASE_EOS_CLOOP:
     	LD 	A,D			; IS COUNTER 0 YET?
     	OR 	E			;
     	JP 	NZ,PERF_ERASE_EOS_CLOOP	; NO, LOOP
-    	
+
 	CALL	GOTO_XY			; YES, MOVE CURSOR BACK TO ORIGINAL POSITION
 	POP	BC
 	POP	AF
 	POP	HL
-	RET	
+	RET
 
 ;__PERF_ERASE_EOL__________________________________________________________________________________
 ;
 ; 	PERFORM ERASE FROM CURSOR POS TO END OF LINE
 ;       C=DEFAULT COLOR
 ;__________________________________________________________________________________________________	
-PERF_ERASE_EOL:	
+PERF_ERASE_EOL:
 	PUSH	HL
 	PUSH	AF
 	PUSH	BC
@@ -341,7 +341,7 @@ PERF_ERASE_EOL:
 	LD	A,80			; MOVE CURRENT LINE WIDTH INTO A
 	SUB	D			; GET REMAINING POSITIONS ON CURRENT LINE
 	LD	B,A			; MOVE IT INTO B
-PERF_ERASE_EOL_LOOP:		
+PERF_ERASE_EOL_LOOP:
     	LD 	A, ' '           	; MOVE SPACE CHARACTER INTO A
 	CALL	VDU_PutCharRAW		;
 	DJNZ    PERF_ERASE_EOL_LOOP	; LOOP UNTIL DONE
@@ -350,7 +350,7 @@ PERF_ERASE_EOL_LOOP:
 	POP	AF
 	POP	HL
 	RET
-		
+
 ;__DSPMATRIX_______________________________________________________________________________________
 ;
 ; 	DISPLAY INTRO SCREEN
@@ -359,8 +359,9 @@ DSPMATRIX:
 	CALL	PERF_CURSOR_HOME	; RESET CURSOR TO HOME POSITION
     	LD	HL,TESTMATRIX		; SET HL TO SCREEN IMAGE
 	LD 	DE, 1919   		; SET IMAGE SIZE
-	LD	C,00000011B		; SET COLOR
-DSPMATRIX_LOOP:    	
+;	LD	C,00000011B		; SET COLOR
+	LD	C,00001111B		; SET COLOR
+DSPMATRIX_LOOP:
     	LD 	A,(HL)			; GET NEXT CHAR FROM IMAGE
     	call 	VDU_PutChar		; DUMP CHAR TO DISPLAY
     	INC	HL			; INC POINTER
@@ -396,7 +397,7 @@ TESTMATRIX:
  .TEXT "22                                                                              "
  .TEXT "23                                                                              "
  .TEXT "24                                                                              "
- 
+
 
 ;__VDU_WREG________________________________________________________________________________________
 ;
@@ -406,13 +407,13 @@ TESTMATRIX:
 ;__________________________________________________________________________________________________			
 VDU_WREG:
 	PUSH 	AF			; STORE AF
-VDU_WREG_1:	
+VDU_WREG_1:
 	IN 	A,(M8563Status)         ; read address/status register
     	BIT 	7,A             	; if bit 7 = 1 than an update strobe has been occured
     	JR 	Z,VDU_WREG_1	  	; wait for ready
 	LD	A,B			;
-       	OUT 	(M8563Register),A      	; select register 
-VDU_WREG_2:	
+       	OUT 	(M8563Register),A      	; select register
+VDU_WREG_2:
 	IN 	A,(M8563Status)         ; read address/status register
     	BIT 	7,A             	; if bit 7 = 1 than an update strobe has been occured
     	JR 	Z,VDU_WREG_2	  	; wait for ready
@@ -425,27 +426,27 @@ VDU_WREG_2:
 ;
 ; 	GET VALUE FROM REGISTER IN B PLACE IN A
 ;	B: REGISTER TO GET
-;	A: VALUE 
+;	A: VALUE
 ;__________________________________________________________________________________________________			
 VDU_GREG:
 	IN 	A,(M8563Status)         ; read address/status register
     	BIT 	7,A             	; if bit 7 = 1 than an update strobe has been occured
     	JR 	Z,VDU_GREG	  	; wait for ready
 	LD	A,B			;
-       	OUT 	(M8563Register) , A    	; select register 
-VDU_GREG_1:	
+       	OUT 	(M8563Register) , A    	; select register
+VDU_GREG_1:
 	IN 	A,(M8563Status)         ; read address/status register
     	BIT 	7,A             	; if bit 7 = 1 than an update strobe has been occured
     	JR 	Z,VDU_GREG_1	  	; wait for ready
-       	IN 	A,(M8563Data)       	; GET DATA 
+       	IN 	A,(M8563Data)       	; GET DATA
     	RET
 
 
 
 VDU_Init8563:
     .DB		126,80,102,73,32,224,25,29,252,231,160,231,0,0,7,128
-    .DB		18,23,15,208,8,32,120,232,32,71,240,0,47,231,79,7,15,208,125,100,245	
- 
+    .DB		18,23,15,208,8,32,120,232,32,71,240,0,47,231,79,7,15,208,125,100,245
+
 ;__VDU_CRTInit_____________________________________________________________________________________
 ;
 ; 	INIT VDU CHIP
@@ -454,15 +455,15 @@ VDU_CRTInit:
     	PUSH 	AF			; STORE AF
     	PUSH 	BC			; STORE BC
     	PUSH 	HL			; STORE HL
-    	
-    	LD 	B,$00	        	; B = 0 
+
+    	LD 	B,$00	        	; B = 0
     	LD 	HL,VDU_Init8563  	; HL = pointer to the default values
     	XOR 	A               	; A = 0
 VDU_CRTInitLoop:
 	LD	A,(HL)			; GET VALUE
 	CALL	VDU_WREG		; WRITE IT
 	INC	HL
-	INC	B			; 
+	INC	B			;
 	LD	A,B			;
 	CP	37			;
 	JR	NZ,VDU_CRTInitLoop	; LOOP UNTIL DONE
@@ -512,7 +513,7 @@ GOTO_XY:
 	LD	A,(TERM_X)		;
 	LD	H,A			;
     	LD	A,(TERM_Y)		;
-    	LD	L,A			;    	
+    	LD	L,A			;
     	PUSH 	HL			; STORE HL
     	LD 	B, A             	; B = Y COORD
     	LD 	DE, 80			; MOVE LINE LENGTH INTO DE
@@ -522,7 +523,7 @@ GOTO_XY:
     	JP 	Z, VDU_YLoopEnd  	; THEN DO NOT MULTIPLY BY 80
 VDU_YLoop:              		; HL = 80 * Y
     	ADD 	HL, DE			; HL=HL+DE
-    	DJNZ 	VDU_YLoop		; LOOP 
+    	DJNZ 	VDU_YLoop		; LOOP
 VDU_YLoopEnd:				;
     	POP 	DE              	; DE = org HL
     	LD 	E, D             	; E = X
@@ -532,14 +533,14 @@ VDU_YLoopEnd:				;
 	PUSH	HL			;
 	POP	DE			;
 	LD	HL,(VDU_DISPLAY_START)	;
-	ADD	HL,DE			;    		
+	ADD	HL,DE			;
     	LD 	B, 18			; SET UPDATE ADDRESS IN VDU
     	LD	A,H			;
     	CALL	VDU_WREG		; WRITE IT
     	LD 	B, 19			; SET UPDATE ADDRESS IN VDU
     	LD	A,L			;
     	CALL	VDU_WREG		; WRITE IT
-    	
+
     	LD 	B, 14			; SET UPDATE CSR POS IN VDU
     	LD	A,H			;
     	CALL	VDU_WREG		; WRITE IT
@@ -582,7 +583,7 @@ VDU_PutChar1:				;
     	CALL	VDU_WREG		; WRITE IT
     	LD 	B, 19			; SET UPDATE CSR POS IN VDU
     	LD	A,L			;
-    	CALL	VDU_WREG		; WRITE IT   	
+    	CALL	VDU_WREG		; WRITE IT
        	LD	A,D			; RESTORE CHAR
     	LD	B,31			;
     	CALL	VDU_WREG		; WRITE IT
@@ -594,7 +595,7 @@ VDU_PutChar1:				;
     	CALL	VDU_WREG		; WRITE IT
     	LD 	B, 19			; SET UPDATE CSR POS IN VDU
     	LD	A,L			;
-    	CALL	VDU_WREG		; WRITE IT   	
+    	CALL	VDU_WREG		; WRITE IT
        	LD	A,C			; GET COLOR
     	LD	B,31			;
     	CALL	VDU_WREG		; WRITE IT
@@ -604,20 +605,20 @@ VDU_PutChar1:				;
     	PUSH	HL			; MOVE HL TO DE
     	POP	DE			;
     	LD	HL,(VDU_DISPLAY_START)	;
-    	ADD	HL,DE			;    	
+    	ADD	HL,DE			;
     	LD 	B, 14			; SET UPDATE CSR POS IN VDU
     	LD	A,H			;
     	CALL	VDU_WREG		; WRITE IT
     	LD 	B, 15			; SET UPDATE CSR POS IN VDU
     	LD	A,L			;
     	CALL	VDU_WREG		; WRITE IT
-    	
+
     	POP 	HL			; RESTORE HL
     	POP 	AF			; RESTORE AF
     	POP	DE			; RESTORE DE
     	RET
 
-VDU_PutCharRAW:	
+VDU_PutCharRAW:
 	PUSH	BC			;
 	LD	D,A			;
     	LD 	HL, (VDU_DisplayPos)	; GET CURRENT DISPLAY ADDRESS
@@ -626,7 +627,7 @@ VDU_PutCharRAW:
     	CALL	VDU_WREG		; WRITE IT
     	LD 	B, 19			; SET UPDATE CSR POS IN VDU
     	LD	A,L			;
-    	CALL	VDU_WREG		; WRITE IT   	
+    	CALL	VDU_WREG		; WRITE IT
        	LD	A,D			; RESTORE CHAR
     	LD	B,31			;
     	CALL	VDU_WREG		; WRITE IT
@@ -638,7 +639,7 @@ VDU_PutCharRAW:
     	CALL	VDU_WREG		; WRITE IT
     	LD 	B, 19			; SET UPDATE CSR POS IN VDU
     	LD	A,L			;
-    	CALL	VDU_WREG		; WRITE IT   	
+    	CALL	VDU_WREG		; WRITE IT
        	LD	A,C			; GET COLOR
     	LD	B,31			;
     	CALL	VDU_WREG		; WRITE IT
@@ -647,7 +648,7 @@ VDU_PutCharRAW:
     	LD 	(VDU_DisplayPos), HL	; STORE CURRENT DISPLAY ADDRESS
     	POP	BC
 	RET
-	   	
+
 ;__VDU_LOADFONT____________________________________________________________________________________
 ;
 ; 	LOAD SCREEN FONT
@@ -655,7 +656,7 @@ VDU_PutCharRAW:
 VDU_LOADFONT:
 	PUSH 	AF
 	PUSH	BC
-	
+
 	LD	HL,$2000		; SET FONT LOCATION
 					;
    	LD 	B, 18			; SET UPDATE ADDRESS IN VDU
@@ -673,8 +674,8 @@ VDU_LOADFONT_LOOP:
     	BIT 	7,A             	; if bit 7 = 1 than an update strobe has been occured
     	JR 	Z,VDU_LOADFONT_LOOP  	; wait for ready
 	LD	A,31			;
-       	OUT 	(M8563Register) , A    	; select register 
-VDU_LOADFONT_LOOP_1:	
+       	OUT 	(M8563Register) , A    	; select register
+VDU_LOADFONT_LOOP_1:
 	IN 	A,(M8563Status)         ; read address/status register
     	BIT 	7,A             	; if bit 7 = 1 than an update strobe has been occured
     	JR 	Z,VDU_LOADFONT_LOOP_1  	; wait for ready
@@ -683,16 +684,16 @@ VDU_LOADFONT_LOOP_1:
        	INC	HL
        	DJNZ	VDU_LOADFONT_LOOP	;
 	DEC	C			;
-	JP	NZ,VDU_LOADFONT_LOOP	;	
+	JP	NZ,VDU_LOADFONT_LOOP	;
        	POP	BC
        	POP	AF
-       	RET    		
+       	RET
 
 ;__KB_INITIALIZE___________________________________________________________________________________
 ;
 ; 	INIT KEYBOARD CONTROLLER
 ;__________________________________________________________________________________________________
-KB_INITIALIZE:	
+KB_INITIALIZE:
 	LD	C,0a7H			;
 	CALL	I8242CommandPut		;
 	LD	C,0aeH			;
@@ -700,7 +701,7 @@ KB_INITIALIZE:
 	LD	C,0aaH			;
 	CALL	I8242CommandPut		;
 	LD	A,0			; EMPTY KB QUEUE
-	LD	(KB_QUEUE_PTR),A	; 
+	LD	(KB_QUEUE_PTR),A	;
 	RET
 
 ;__I8242CommandPut_________________________________________________________________________________
@@ -710,10 +711,10 @@ KB_INITIALIZE:
 ;__________________________________________________________________________________________________	
 I8242CommandPut:
 	IN 	A,(I8242Status)         ; read status register
-    	BIT 	1,A             	; if bit 1 = 1 
+    	BIT 	1,A             	; if bit 1 = 1
     	JR 	NZ,I8242CommandPut  	; wait for ready
 	LD	A,C			;
-       	OUT 	(I8242Command),A      	; select register 
+       	OUT 	(I8242Command),A      	; select register
 	RET
 
 ;__WAIT_KBHIT______________________________________________________________________________________
@@ -726,7 +727,7 @@ WAIT_KBHIT:
 	OR 	A			; set flags
 	JP 	Z,WAIT_KBHIT		; if no keys waiting, try again
 	RET
-	
+
 ;__IS_KBHIT________________________________________________________________________________________
 ;
 ; 	WAS A KEY PRESSED?
@@ -735,8 +736,7 @@ IS_KBHIT:
 	CALL 	KB_PROCESS		; call keyboard routine
 	LD 	A,(KB_QUEUE_PTR)	; ask if keyboard has key waiting
 	RET
-	
-				
+
 ;__GET_KEY_________________________________________________________________________________________
 ;
 ; 	GET KEY PRESS VALUE
@@ -759,22 +759,22 @@ GET_KEY_LOOP:				;
 	LD	(HL),A			; MOVE IT UP ONE
 	INC	HL			;
 	DJNZ	GET_KEY_LOOP		; LOOP UNTIL DONE
-	LD	A,(KB_QUEUE_PTR)	; DECREASE QUEUE POINTER BY ONE	
+	LD	A,(KB_QUEUE_PTR)	; DECREASE QUEUE POINTER BY ONE
 	DEC	A			;
 	LD	(KB_QUEUE_PTR),A	;
 	POP	AF			; RESTORE VALUE
 	POP	HL			; RESTORE HL
 	POP	BC			; RESTORE BC
-	RET		
-	
+	RET
+
 
 ;__KB_PROCESS______________________________________________________________________________________
 ;
 ;  a=0 if want to know if a byte is available, and a=1 to ask for the byte
 ;__________________________________________________________________________________________________			   	   	
-KB_PROCESS:	
+KB_PROCESS:
 	IN 	A,(I8242Status)         ; read status register
-    	BIT 	0,A             	; if bit 0 = 0 
+    	BIT 	0,A             	; if bit 0 = 0
     	RET 	Z		 	; EXIT
 	IN	A,(I8242Data)		; GET BYTE
 	call 	KB_decodechar		; returns char or 0 for things like keyup, some return directly to cp/m
@@ -784,15 +784,13 @@ KB_PROCESS:
 ;
 ;  WAIT FOR byte TO BE available
 ;__________________________________________________________________________________________________			   	   	
-KB_waitbyte:	
+KB_waitbyte:
 	IN 	A,(I8242Status)         ; read status register
-    	BIT 	0,A             	; if bit 0 = 0 
+    	BIT 	0,A             	; if bit 0 = 0
     	jp 	Z,KB_waitbyte		; LOOP
     	IN	A,(I8242Data)		; GET BYTE
 	RET
 
-
-	
 ;__KB_decodechar____________________________________________________________________________________
 ;
 ; decode character pass a and prints out the char
@@ -809,7 +807,7 @@ KB_decodechar:
 	jp 	z,shiftup	;
 	cp	9Dh		; control key
 	jp 	z,controlup	;
-	AND 	80H             ; if bit 7 = 1 
+	AND 	80H             ; if bit 7 = 1
 	RET 	nz		; ignore char up
 	ld 	a,C		;
 	cp 	0E0h		; TWO BYTE
@@ -825,11 +823,11 @@ KB_decodechar:
 	ld 	c,a		;
 	ld 	b,0		; add bc to hl
 	ld 	hl,normalkeys	; offset to add
-	add 	hl,bc		;	
+	add 	hl,bc		;
 	ld 	a,(ctrl)	;
 	cp 	0		; is control being held down?
 	jR	z,dc1		; no so go back to test caps lock on
-	ld	a,(hl)		; get the letter, should be smalls 
+	ld	a,(hl)		; get the letter, should be smalls
 	sub	96		; a=97 so subtract 96 a=1=^A
 	JP	KB_ENQUEUE	; STORE ON KB QUEUE
 dc1:	ld 	a,(capslock)	;
@@ -904,7 +902,7 @@ uparrow:			;
 	CALL	KB_ENQUEUE	; STORE ON KB QUEUE
 	ld 	a,'A'		; A
 	CALL	KB_ENQUEUE	; STORE ON KB QUEUE
-	ret			;	
+	ret			;
 insert:				;
 	ld	a,1BH		; ESC
 	CALL	KB_ENQUEUE	; STORE ON KB QUEUE
@@ -968,19 +966,19 @@ shiftup:			; shiftup turns off caps lock definitely
 
 ;__KB_ENQUEUE______________________________________________________________________________________
 ;
-;  STORE A BYTE IN THE KEYBOARD QUEUE 
+;  STORE A BYTE IN THE KEYBOARD QUEUE
 ;  A: BYTE TO ENQUEUE
 ;__________________________________________________________________________________________________			   	   		
 KB_ENQUEUE:
 	PUSH	DE		; STORE DE
-	PUSH	HL		; STORE HL	
+	PUSH	HL		; STORE HL
 	PUSH	AF		; STORE VALUE
 	LD	A,(KB_QUEUE_PTR); PUT QUEUE POINTER IN A
 	CP	15		; IS QUEUE FULL
-	JP	P,KB_ENQUEUE_AB	; YES, ABORT	
+	JP	P,KB_ENQUEUE_AB	; YES, ABORT
 	LD	HL,KB_QUEUE	; GET QUEUE POINTER
 	PUSH	HL		; MOVE HL TO BC
-	POP	BC		; 
+	POP	BC		;
 	LD	H,0		; ZERO OUT H
 	LD	L,A		; PLACE QUEUE POINTER IN L
 	ADD	HL,BC		; POINT HL AT THE NEXT LOACTION TO ADD VALUE
@@ -993,10 +991,7 @@ KB_ENQUEUE_AB:
 	POP	HL		; RESTORE HL
 	POP	DE		; RESTORE DE
 	RET
-	
-	
 
-	
 normalkeys: ; The TI character codes, offset from label by keyboard scan code
 		.db 000,027,"1","2","3","4","5","6","7","8","9","0","-","=",008,009			;00-0F
 		.DB "q","w","e","r","t","y","u","i","o","p","[","]",013,000,"a","s"			;10-1F
@@ -1014,15 +1009,15 @@ normalkeys: ; The TI character codes, offset from label by keyboard scan code
 		.DB 000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000
 		.db 000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000
 		.db 000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000
-	
- .include "font.asm"	
+
+ .include "font.asm"
 
 ;__________________________________________________________________________________________________
 ;
 ; 	RAM STORAGE AREAS
 ;__________________________________________________________________________________________________			
 
-ALT_KEYPAD	.DB	0		; ALT KEYPAD ENABLED?	
+ALT_KEYPAD	.DB	0		; ALT KEYPAD ENABLED?
 GR_MODE		.DB	0		; GRAPHICS MODE ENABLED?
 TERM_X:		.DB	0		; CURSOR X
 TERM_Y:		.DB	0		; CURSOR Y
@@ -1039,8 +1034,8 @@ skipcount	.DB	0		; only check some calls, speeds up a lot of cp/m
 
 KB_QUEUE	.DB	0,0,0,0,0,0,0,0 ; 16 BYTE KB QUEUE
 		.DB	0,0,0,0,0,0,0,0
-KB_QUEUE_PTR	.DB	0		; POINTER TO QUEUE			
-PARKSTACK	.DW	0000		; SAVE STACK POINTER 
+KB_QUEUE_PTR	.DB	0		; POINTER TO QUEUE
+PARKSTACK	.DW	0000		; SAVE STACK POINTER
 
 		.DB	0,0,0,0,0,0,0,0 ;
 		.DB	0,0,0,0,0,0,0,0	;
