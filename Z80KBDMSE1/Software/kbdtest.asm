@@ -20,11 +20,19 @@
 KEY_DATA	.EQU	0E2H		;Port used to access keyboard & Mouse (also sometimes Controller itself)
 KEY_CTRL	.EQU	0E3H		;Port for VT82C42 PS/2 Keyboard & Mouse Controller
 
-ESC		.EQU	1BH
-CR		.EQU	0DH
-LF		.EQU	0AH
-TAB		.EQU	09H
-BELL	.EQU	07H
+; PC/XT scan codes
+;ESC		.EQU	1BH
+;CR		.EQU	0DH
+;LF		.EQU	0AH
+;TAB		.EQU	09H
+;BELL		.EQU	07H
+
+; PC/AT scan codes 
+ESC		.EQU	01H
+CR		.EQU	1CH
+LF		.EQU	0AH ; don't know
+TAB		.EQU	0FH
+BELL		.EQU	07H ; don't know
 
 		.ORG	0100H
 START:
@@ -70,7 +78,8 @@ LOOP:
 	JR	LOOP
 
 DOWNKY:
-	CP	58H			;Is it CAPS Lock key
+;	CP	58H			;Is it CAPS Lock key
+	CP	3AH			;Is it CAPS Lock key
 	JR	NZ,NOT_CAPSKEY
 	LD	HL,CAPS_MSG		;Say Caps lock key
 	CALL	PRINT_STRING
@@ -78,9 +87,11 @@ DOWNKY:
 	JR	LOOP
 
 NOT_CAPSKEY:
-	CP	12H			;Is it a SHIFT key
+;	CP	12H			;Is it a SHIFT key
+	CP	2AH			;Is it a SHIFT key
 	JR	Z,SHIFTKEY
-	CP	59H			;Is it the other SHIFT key
+;	CP	59H			;Is it the other SHIFT key
+	CP	36H			;Is it the other SHIFT key
 	JR	NZ,NOT_SHIFTKEY
 
 SHIFTKEY:
@@ -90,7 +101,8 @@ SHIFTKEY:
 	JR	LOOP
 
 NOT_SHIFTKEY:
-	CP	14H			;Is it the CTRL key
+;	CP	14H			;Is it the CTRL key
+	CP	1DH			;Is it the CTRL key
 	JR	NZ,NOT_CTRLKEY
 	LD	HL,CTRL_MSG		;Say CTRL key
 	CALL	PRINT_STRING
@@ -98,7 +110,8 @@ NOT_SHIFTKEY:
 	JR	LOOP
 
 NOT_CTRLKEY:
-	CP	77H			;Is it the NUM LOCK key
+;	CP	77H			;Is it the NUM LOCK key
+	CP	45H			;Is it the NUM LOCK key
 	JR	NZ,NOT_NUMKEY
 	LD	HL,NUM_MSG		;Say Number key
 	CALL	PRINT_STRING
@@ -267,60 +280,78 @@ IBM2_MSG:
 
 IBM1TBL:			;The "Normal" table
 			;00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 0a, 0b, 0c, 0d, 0e, 0f
-		.DB	  0,"*",  0,"*","*","*","*","*",  0,"*","*","*","*",09H,"`",00H
+; PC/XT		.DB	  0,"*",  0,"*","*","*","*","*",  0,"*","*","*","*",09H,"`",00H
+		.DB	  0,"*","1","2","3","4","5","6","7","8","9","0","-","=",00H,00H
 
 			;10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1a, 1b, 1c, 1d, 1e, 1f
-		.DB   	  0,  0,  0,  0,  0,"q","1",  0,  0,  0,"z","s","a","w","2",0
+; PC/XT		.DB   	  0,  0,  0,  0,  0,"q","1",  0,  0,  0,"z","s","a","w","2",0
+		.DB   	 "q","w","e","r","t","y","u","i","o","p","[","]",00H,00H,"a","s"
 
 			;20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 2a, 2b, 2c, 2d, 2e, 2f
-		.DB   	  0,"c","x","d","e","4","3",  0,  0," ","v","f","t","r","5",0
+; PC/XT		.DB   	  0,"c","x","d","e","4","3",  0,  0," ","v","f","t","r","5",0
+		.DB   	"d","f","g","h","j","k","l",";",28H,"`",00H,5CH,"z","x","c","v"
 
  			;30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 3a, 3b, 3c, 3d, 3e, 3f
-		.DB   	  0,"n","b","h","g","y","6",  0,  0,  0,"m","j","u","7","8",0
+; PC/XT		.DB   	  0,"n","b","h","g","y","6",  0,  0,  0,"m","j","u","7","8",0
+		.DB   	"b","n","m",",",".","/",00H,"*",  0," ",00H,00H,00H,00H,00H,0
 
 			;40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 4a, 4b, 4c, 4d, 4e, 4f
-		.DB   	  0,",","k","i","o","0","9",  0,  0,".","/","l",";","p", "-",0
+; PC/XT		.DB   	  0,",","k","i","o","0","9",  0,  0,".","/","l",";","p","-",0
+		.DB   	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,"-",  0,  0,  0,"+",0
 
 			;50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 5a, 5b, 5c, 5d, 5e, 5f
-		.DB   	  0,  0,27H,  0,"[","=",  0,  0,  0,  0,0DH,"]",  0,5CH,  0,0
+; PC/XT		.DB   	  0,  0,27H,  0,"[","=",  0,  0,  0,  0,0DH,"]",  0,5CH,  0,0
+		.DB   	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 			;60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f
-		.DB   	  0,  0,  0,  0,  0,  0,08H,  0,  0,11H,  0,13H,10H,  0,  0,  0
+; PC/XT		.DB   	  0,  0,  0,  0,  0,  0,08H,  0,  0,11H,  0,13H,10H,  0,  0,  0
+		.DB   	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 			;70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 7a, 7b, 7c, 7d, 7e, 7f
-		.DB 	0BH,7FH,03H,15H,04H,05H,1BH,00H,"*",02H,18H,16H,0CH,17H,"*",0
+; PC/XT		.DB 	0BH,7FH,03H,15H,04H,05H,1BH,00H,"*",02H,18H,16H,0CH,17H,"*",0
+		.DB   	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 			;80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 8a, 8b, 8c, 8d, 8e, 8f
-		.DB   	  0,  0,  0,"*",  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+; PC/XT		.DB   	  0,  0,  0,"*",  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+		.DB   	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 
 IBM2TBL:			;If the SHIFT key or CAPS lock key is on
 			;00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 0a, 0b, 0c, 0d, 0e, 0f
-		.DB	  0, "*", 0,"*","*","*","*","*",  0,"*","*","*","*",09H,"~",00H
+; PC/XT		.DB	  0, "*", 0,"*","*","*","*","*",  0,"*","*","*","*",09H,"~",00H
+		.DB	  0,"*","!","@","#","$","%","^","&","*","(",")","_","+",00H,00H
 
 			;10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1a, 1b, 1c, 1d, 1e, 1f
-		.DB	  0,  0,  0,  0,  0,"Q","!",  0,  0,  0,"Z","S","A","W","@",0
+; PC/XT		.DB	  0,  0,  0,  0,  0,"Q","!",  0,  0,  0,"Z","S","A","W","@",0
+		.DB   	 "Q","W","E","R","T","Y","U","I","O","P","{","}",00H,00H,"A","S"
 
 			;20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 2a, 2b, 2c, 2d, 2e, 2f
-		.DB	  0,"C","X","D","E","$","#",  0,  0," ","V","F","T","R","%",0
+; PC/XT		.DB	  0,"C","X","D","E","$","#",  0,  0," ","V","F","T","R","%",0
+		.DB   	"D","F","G","H","J","K","L",":",28H,00H,"~",5CH,"Z","X","C","V"
 
 			;30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 3a, 3b, 3c, 3d, 3e, 3f
-		.DB	  0,"N","B","H","G","Y","^",  0,  0,  0,"M","J","U","&","*",0
+; PC/XT		.DB	  0,"N","B","H","G","Y","^",  0,  0,  0,"M","J","U","&","*",0
+		.DB   	"B","N","M","<",">","?",00H,"*",  0," ",00H,00H,00H,00H,00H,0
 
 			;40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 4a, 4b, 4c, 4d, 4e, 4f
-		.DB	  0,"<","K","I","O",29H,"(",  0,  0,">","?","L",":","P", "_",0
+; PC/XT		.DB	  0,"<","K","I","O",29H,"(",  0,  0,">","?","L",":","P", "_",0
+		.DB   	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,"-",  0,  0,  0,"+",0
 
 			;50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 5a, 5b, 5c, 5d, 5e, 5f
-		.DB	  0,  0,22H,  0,"{","+",  0,  0,  0,  0,0DH,"}",  0,"|",  0,0
+; PC/XT		.DB	  0,  0,22H,  0,"{","+",  0,  0,  0,  0,0DH,"}",  0,"|",  0,0
+		.DB   	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 			;60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f
-		.DB	  0,  0,  0,  0,  0,  0,08H,  0,  0,11H,  0,13H,10H,  0,  0,  0
+; PC/XT		.DB	  0,  0,  0,  0,  0,  0,08H,  0,  0,11H,  0,13H,10H,  0,  0,  0
+		.DB   	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 			;70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 7a, 7b, 7c, 7d, 7e, 7f
-		.DB 	0BH,7FH,03H,15H,04H,05H,1BH,00H,"*",02H,18H,16H,0CH,17H,"*",0
+; PC/XT		.DB 	0BH,7FH,03H,15H,04H,05H,1BH,00H,"*",02H,18H,16H,0CH,17H,"*",0
+		.DB   	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 			;80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 8a, 8b, 8c, 8d, 8e, 8f
-		.DB	  0,  0,  0,"*",  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+; PC/XT		.DB	  0,  0,  0,"*",  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+		.DB   	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 
 		.FILL	040H,000H
