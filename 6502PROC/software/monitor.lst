@@ -83,7 +83,6 @@ Current file: monitor.asm
 000011r 1  A9 00        		LDA #$00			;
 000013r 1  8D 00 02     		STA INBUFFER			; MAKE SURE INPUT BUFFER IS EMPTY
 000016r 1               						;
-000016r 1               		;JMP COMMAND_PROCESSOR
 000016r 1  00                    	BRK				; PERFORM BRK (START MONITOR)
 000017r 1               
 000017r 1               ;__BRKROUTINE___________________________________________________
@@ -938,70 +937,695 @@ Current file: monitor.asm
 000491r 1  00           		BRK
 000492r 1  00 00 00     	.BYTE 00,00,00
 000495r 1               
-000495r 1               ; COMMAND PROCESSOR JUMP TABLE
-000495r 1               COMMAND_LOOKUP_TABLE:
-000495r 1  52 45 47 49   		.BYTE "REGISTER",0,<DO_PRINT_REG,>DO_PRINT_REG
-000499r 1  53 54 45 52  
-00049Dr 1  00 rr rr     
-0004A0r 1  44 55 4D 50   		.BYTE "DUMP",0,<DUMP,>DUMP
-0004A4r 1  00 rr rr     
-0004A7r 1  45 4E 54 45   		.BYTE "ENTER",0,<ENTERMEM,>ENTERMEM
-0004ABr 1  52 00 rr rr  
-0004AFr 1  47 4F 00 rr   		.BYTE "GO",0,<GO,>GO
-0004B3r 1  rr           
-0004B4r 1  4C 4F 41 44   		.BYTE "LOAD",0,<LOAD,>LOAD
-0004B8r 1  00 rr rr     
-0004BBr 1  5A 38 30 00   		.BYTE "Z80",0,<Z80,>Z80
-0004BFr 1  rr rr        
-0004C1r 1  01 00        		.BYTE 01,0
-0004C3r 1               ; COMMAND PROMPT STRING
-0004C3r 1  0D 0A 2E 00  PROMPT:  	.BYTE   $0D,$0A,".",0
-0004C7r 1               ; ERROR STRING
-0004C7r 1  0D 0A 3F 20  ERROR:	 	.BYTE   $0D,$0A,"? COMMAND NOT FOUND",$0D,0
-0004CBr 1  43 4F 4D 4D  
-0004CFr 1  41 4E 44 20  
-0004DEr 1  0D 0A 3F 20  INERROR:	.BYTE   $0D,$0A,"? INVALID HEX NUMBER",$0D,0
-0004E2r 1  49 4E 56 41  
-0004E6r 1  4C 49 44 20  
-0004F6r 1               ; STRINGS FOR REGISTER DISPLY
-0004F6r 1  0D 0A        REGDATA: 	.BYTE   $0D,$0A
-0004F8r 1  20 20 20 50  		.BYTE   "   PC  AC  XR  YR  SP  SR(NVRBDIZC)"
-0004FCr 1  43 20 20 41  
-000500r 1  43 20 20 58  
-00051Br 1  0D 0A 21 20  		.BYTE   $0D,$0A,"! ",0
-00051Fr 1  00           
-000520r 1               ; START BANNER
-000520r 1  0D 0A        STARTUP: 	.BYTE   $0D,$0A
-000522r 1               
-000522r 1  20 20 5F 5F  		.BYTE   "  __ |_  _ ",$0D,$0A
-000526r 1  20 7C 5F 20  
-00052Ar 1  20 5F 20 0D  
-00052Fr 1  20 20 7C 7C  		.BYTE   "  ||||_)(_ ",$0D,$0A
-000533r 1  7C 7C 5F 29  
-000537r 1  28 5F 20 0D  
-00053Cr 1  20 20 20 5F  		.BYTE   "   __ _____  _____ ___ ___ ",$0D,$0A
-000540r 1  5F 20 5F 5F  
-000544r 1  5F 5F 5F 20  
-000559r 1  20 20 2F 20     		.BYTE   "  / /| ____|/ ____/ _ \__ \ ",$0D,$0A
-00055Dr 1  2F 7C 20 5F  
-000561r 1  5F 5F 5F 7C  
-000577r 1  20 2F 20 2F    		.BYTE   " / /_| |__ | |   | | | | ) | ",$0D,$0A
-00057Br 1  5F 7C 20 7C  
-00057Fr 1  5F 5F 20 7C  
-000596r 1  7C 20 27 5F   		.BYTE   "| '_ \___ \| |   | | | |/ / ",$0D,$0A
-00059Ar 1  20 5C 5F 5F  
-00059Er 1  5F 20 5C 7C  
-0005B4r 1  7C 20 28 5F   		.BYTE   "| (_) |__) | |___| |_| / /_ ",$0D,$0A
-0005B8r 1  29 20 7C 5F  
-0005BCr 1  5F 29 20 7C  
-0005D2r 1  20 5C 5F 5F    		.BYTE   " \___/____/ \_____\___/____| ",$0D,$0A
-0005D6r 1  5F 2F 5F 5F  
-0005DAr 1  5F 5F 2F 20  
-0005F1r 1  2A 20 36 35  		.BYTE   "* 6502 MONITOR ",$0D,$0A,$00
-0005F5r 1  30 32 20 4D  
-0005F9r 1  4F 4E 49 54  
-000603r 1               
-000603r 1                                .segment "VECTORS"
+000495r 1               	.include"assmb.asm"
+000495r 2               ;*
+000495r 2               ;* ASSEMBLER/DISSASSEMBLER
+000495r 2               ;*
+000495r 2               ;* Based on original source code by Jim Butterfield
+000495r 2               ;*
+000495r 2               ;* Mr. Butterfield inspired many of us with his work on the commodore series of computers.
+000495r 2               ;* May he rest in peace. (1936-2007)
+000495r 2               ;*
+000495r 2               
+000495r 2               
+000495r 2               savx	=	$1c
+000495r 2               tmpc	=	$1d
+000495r 2               length	=	$1f
+000495r 2               wrap	=	$26
+000495r 2               aflg	=	$28
+000495r 2               acmd	=	$2a
+000495r 2               nemo	=	$44
+000495r 2               tmp0	=	$c1
+000495r 2               tmp2	=	$c3
+000495r 2               stage	=	$0210
+000495r 2               
+000495r 2               
+000495r 2               ;__DISASSEMBLE_________________________________________________
+000495r 2               ;
+000495r 2               ; Disassemble assembly lines to screen
+000495r 2               ; USAGE:
+000495r 2               ;
+000495r 2               ; DISSASSEMBLE XXXX
+000495r 2               ;______________________________________________________________
+000495r 2               DISASSEMBLE:
+000495r 2               
+000495r 2  A9 00        	LDA #<INBUFFER             	; SETUP WORK BUFFER
+000497r 2  85 32        	STA WORKPTR			;
+000499r 2  A9 02        	LDA #>INBUFFER              	;
+00049Br 2  85 33        	STA WORKPTR +1 			;
+00049Dr 2               
+00049Dr 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "D"
+0004A0r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "I"
+0004A3r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "S"
+0004A6r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "S"
+0004A9r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "A"
+0004ACr 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "S"
+0004AFr 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "S"
+0004B2r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "E"
+0004B5r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "M"
+0004B8r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "B"
+0004BBr 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "L"
+0004BEr 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "E"
+0004C1r 2               
+0004C1r 2  20 rr rr     	JSR EATWHITESPACE		; SKIP OVER THE WHITESPACE
+0004C4r 2  20 rr rr     	JSR GETNUMBER			; GET THE STARTING ADDRESS
+0004C7r 2  B0 45        	BCS DISASSEMBLE_ERROR		; IF NOT A NUMBER, REPORT ERROR
+0004C9r 2  A5 36                LDA TEMPWORD
+0004CBr 2  85 C1                STA tmp0
+0004CDr 2  A5 37                LDA TEMPWORD+1
+0004CFr 2  85 C2                STA tmp0+1
+0004D1r 2  A9 0F        diss:	lda #$0f
+0004D3r 2  85 3B                sta TEMPBYTE
+0004D5r 2  20 rr rr     dislp:  jsr diss1
+0004D8r 2  20 rr rr             jsr pcadj
+0004DBr 2  85 C1                sta tmp0
+0004DDr 2  84 C2                sty tmp0+1
+0004DFr 2  C6 3B                dec TEMPBYTE
+0004E1r 2  D0 F2                bne dislp
+0004E3r 2               
+0004E3r 2               
+0004E3r 2  A9 rr        	LDA #<DISSASSEMBLE_TEXT         ; LOAD LOW BYTE OF PROMPT STRING
+0004E5r 2  85 48        	STA STRPTR			; STORE IN POINTER LOW BYTE
+0004E7r 2  A9 rr        	LDA #>DISSASSEMBLE_TEXT         ; LOAD HOGH BYTE OF PROMPR STRING
+0004E9r 2  85 49        	STA STRPTR +1 			; STORE IN POINTER HIGH BYTE
+0004EBr 2  20 rr rr     	JSR OUTSTR			; OUTPUT THE STRING
+0004EEr 2               
+0004EEr 2  20 rr rr           	JSR IOF_CONINW
+0004F1r 2  C9 59        	cmp #'Y'
+0004F3r 2  D0 03        	bne dissexit
+0004F5r 2  4C rr rr     	jmp diss
+0004F8r 2               dissexit:
+0004F8r 2  60                   rts
+0004F9r 2               DISSASSEMBLE_TEXT:
+0004F9r 2  0D 0A        	.BYTE $0d,$0a
+0004FBr 2  43 4F 4E 54  	.BYTE "CONTINUE? (Y/N) "
+0004FFr 2  49 4E 55 45  
+000503r 2  3F 20 28 59  
+00050Br 2  0D 0A 00     	.BYTE $0d,$0a,$00
+00050Er 2               
+00050Er 2               DISASSEMBLE_ERROR:
+00050Er 2  4C rr rr     	JMP INVALID_NUMBER_ERROR
+000511r 2               ENTER_BYTE:
+000511r 2  AA           	TAX				; SAVE A REGISTER
+000512r 2  4A           	LSR A				; SHIFT HIGH NIBBLE TO LOW NIBBLE
+000513r 2  4A           	LSR A				;
+000514r 2  4A           	LSR A				;
+000515r 2  4A           	LSR A				;
+000516r 2  18           	CLC               		; CLEAR CARRY
+000517r 2  20 rr rr     	JSR ENTER_DIGIT			; PRINT LOW NIBBLE
+00051Ar 2  8A           	TXA				; RESTORE ACCUMULATOR
+00051Br 2  4C rr rr     	JMP ENTER_DIGIT			; PRINT LOW NIBBLE
+00051Er 2               ENTER_DIGIT:
+00051Er 2  29 0F        	AND #$0F			; STRIP OFF HIGH NIBBLE
+000520r 2  09 30        	ORA #$30			; ADD $30 TO PRODUCE ASCII
+000522r 2  C9 3A        	CMP #$3A               		; IS GREATER THAN 9
+000524r 2  30 03        	BMI ENTER_DIGIT_OUT		; NO, SKIP ADD
+000526r 2  18           	CLC				; CLEAR CARRY
+000527r 2  69 07        	ADC #$07			; ADD ON FOR LETTER VALUES
+000529r 2               ENTER_DIGIT_OUT:			;
+000529r 2  48           	PHA
+00052Ar 2  20 rr rr     	JSR OUTCH                   	; PRINT OUT CHAR
+00052Dr 2  68           	PLA
+00052Er 2  85 32        	STA WORKPTR
+000530r 2  4C rr rr     	JMP INCWORKPTR
+000533r 2               
+000533r 2               
+000533r 2               
+000533r 2               
+000533r 2               ;__diss1_______________________________________________________
+000533r 2               ;
+000533r 2               ; Disassemble 1 assembly line to screen
+000533r 2               ; Parms:
+000533r 2               ; tmp0 (WORD) Word Pointer to begin disassembly
+000533r 2               ;______________________________________________________________
+000533r 2               diss1:
+000533r 2  20 rr rr              JSR crlf
+000536r 2  A9 2E        	 lda #'.'
+000538r 2  20 rr rr              jsr OUTCH
+00053Br 2  20 rr rr              jsr space
+00053Er 2  20 rr rr     diss1a:  jsr PRINT_WORD
+000541r 2  20 rr rr              jsr space
+000544r 2  A2 00                 ldx #0
+000546r 2  A1 C1                 lda (tmp0,x)
+000548r 2  20 rr rr              jsr instxx
+00054Br 2  48                    pha
+00054Cr 2  20 rr rr              jsr disvv
+00054Fr 2  68                    pla
+000550r 2  20 rr rr              jsr propxx
+000553r 2  A2 06                 ldx #$06
+000555r 2  E0 03        pradr1:  cpx #$03
+000557r 2  D0 12                 bne pradr3
+000559r 2  A4 1F                 ldy length
+00055Br 2  F0 0E                 beq pradr3
+00055Dr 2  A5 2A        pradr2:  lda acmd
+00055Fr 2  C9 E8                 cmp #$e8
+000561r 2  B1 C1                 lda (tmp0),y
+000563r 2  B0 1C                 bcs reladr
+000565r 2  20 rr rr              jsr prbyte
+000568r 2  88                    dey
+000569r 2  D0 F2                 bne pradr2
+00056Br 2  06 2A        pradr3:  asl acmd
+00056Dr 2  90 0E                 bcc pradr4
+00056Fr 2  BD rr rr              lda char1-1,x
+000572r 2  20 rr rr              jsr chrout
+000575r 2  BD rr rr              lda char2-1,x
+000578r 2  F0 03                 beq pradr4
+00057Ar 2  20 rr rr              jsr chrout
+00057Dr 2  CA           pradr4:  dex
+00057Er 2  D0 D5                 bne pradr1
+000580r 2  60                    rts
+000581r 2               ; ** print rel address **
+000581r 2  20 rr rr     reladr:  jsr pcadj3
+000584r 2  AA                    tax
+000585r 2  E8                    inx
+000586r 2  D0 01                 bne prntyx
+000588r 2  C8                    iny
+000589r 2               ; ** print word address **
+000589r 2  98           prntyx:  tya
+00058Ar 2  20 rr rr              jsr prbyte
+00058Dr 2  8A                    txa
+00058Er 2               ; ** print Byte **
+00058Er 2  86 1C        prbyte:  stx savx
+000590r 2  20 rr rr              jsr PRINT_BYTE
+000593r 2  A6 1C                 ldx savx
+000595r 2  60                    rts
+000596r 2               ; ** advance the program counter **
+000596r 2  A5 1F        pcadj:   lda length
+000598r 2  38                    sec
+000599r 2  A4 C2        pcadj3:  ldy tmp0+1
+00059Br 2  AA                    tax
+00059Cr 2  10 01                 bpl pcadj4
+00059Er 2  88                    dey
+00059Fr 2  65 C1        pcadj4:  adc tmp0
+0005A1r 2  90 01                 bcc rts1
+0005A3r 2  C8                    iny
+0005A4r 2  60           rts1:    rts
+0005A5r 2               ; ** check inst valid, len **
+0005A5r 2  A8           instxx:  tay
+0005A6r 2  4A                    lsr a
+0005A7r 2  90 0B                 bcc ieven
+0005A9r 2  4A                    lsr a
+0005AAr 2  B0 17                 bcs err
+0005ACr 2  C9 22                 cmp #$22
+0005AEr 2  F0 13                 beq err
+0005B0r 2  29 07                 and #$07
+0005B2r 2  09 80                 ora #$80
+0005B4r 2  4A           ieven:   lsr a
+0005B5r 2  AA                    tax
+0005B6r 2  BD rr rr              lda mode,x
+0005B9r 2  B0 04                 bcs rtmode
+0005BBr 2  4A                    lsr a
+0005BCr 2  4A                    lsr a
+0005BDr 2  4A                    lsr a
+0005BEr 2  4A                    lsr a
+0005BFr 2  29 0F        rtmode:  and #$0f
+0005C1r 2  D0 04                 bne getfmt
+0005C3r 2  A0 80        err:     ldy #$80
+0005C5r 2  A9 00                 lda #0
+0005C7r 2               ; ** get addr mode, length **
+0005C7r 2  AA           getfmt:  tax
+0005C8r 2  BD rr rr              lda mode2,x
+0005CBr 2  85 2A                 sta acmd
+0005CDr 2  29 03                 and #$03
+0005CFr 2  85 1F                 sta length
+0005D1r 2               ; ** extract intructn **
+0005D1r 2  98                    tya
+0005D2r 2  29 8F                 and #$8f
+0005D4r 2  AA                    tax
+0005D5r 2  98                    tya
+0005D6r 2  A0 03                 ldy #$03
+0005D8r 2  E0 8A                 cpx #$8a
+0005DAr 2  F0 0B                 beq mnndx3
+0005DCr 2  4A           mnndx1:  lsr a
+0005DDr 2  90 08                 bcc mnndx3
+0005DFr 2  4A                    lsr a
+0005E0r 2  4A           mnndx2:  lsr a
+0005E1r 2  09 20                 ora #$20
+0005E3r 2  88                    dey
+0005E4r 2  D0 FA                 bne mnndx2
+0005E6r 2  C8                    iny
+0005E7r 2  88           mnndx3:  dey
+0005E8r 2  D0 F2                 bne mnndx1
+0005EAr 2  60                    rts
+0005EBr 2               ; print bytes
+0005EBr 2  B1 C1        disvv:   lda (tmp0),y
+0005EDr 2  20 rr rr              jsr prbyte
+0005F0r 2  A2 01                 ldx #1
+0005F2r 2  20 rr rr     disvl:   jsr spacd
+0005F5r 2  C4 1F                 cpy length
+0005F7r 2  C8                    iny
+0005F8r 2  90 F1                 bcc disvv
+0005FAr 2  A2 03                 ldx #$03
+0005FCr 2  C0 04                 cpy #4
+0005FEr 2  90 F2                 bcc disvl
+000600r 2  60                    rts
+000601r 2               ; ** print mnemonic **
+000601r 2  A8           propxx:  tay
+000602r 2  B9 rr rr              lda mneml,y
+000605r 2  85 28                 sta aflg
+000607r 2  B9 rr rr              lda mnemr,y
+00060Ar 2  85 29                 sta aflg+1
+00060Cr 2  A9 00        prmn1:   lda #0
+00060Er 2  A0 05                 ldy #$05
+000610r 2  06 29        prmn2:   asl aflg+1
+000612r 2  26 28                 rol aflg
+000614r 2  2A                    rol a
+000615r 2  88                    dey
+000616r 2  D0 F8                 bne prmn2
+000618r 2  69 3F                 adc #$3f
+00061Ar 2  20 rr rr              jsr OUTCH
+00061Dr 2  CA                    dex
+00061Er 2  D0 EC                 bne prmn1
+000620r 2               ; ** print space **
+000620r 2  A9 20        space:   lda #$20
+000622r 2  D0 07                 bne flip
+000624r 2               ; ** print cr, maybe lf **
+000624r 2  A9 0D        crlf:    lda #$0d
+000626r 2  20 rr rr              jsr OUTCH
+000629r 2  A9 0A                 lda #$0a
+00062Br 2  4C rr rr     flip:    jmp OUTCH
+00062Er 2               
+00062Er 2               
+00062Er 2               ;__ASSEMBLE____________________________________________________
+00062Er 2               ;
+00062Er 2               ; Assemble line from keyboard to memory
+00062Er 2               ;______________________________________________________________
+00062Er 2               ASSEMBLE:
+00062Er 2  A9 00                LDA #<INBUFFER                  ; SETUP WORK BUFFER
+000630r 2  85 32        	STA WORKPTR			;
+000632r 2  A9 02        	LDA #>INBUFFER                  ;
+000634r 2  85 33        	STA WORKPTR +1 			;
+000636r 2               
+000636r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "A"
+000639r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "S"
+00063Cr 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "S"
+00063Fr 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "E"
+000642r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "M"
+000645r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "B"
+000648r 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "L"
+00064Br 2  20 rr rr     	JSR INCWORKPTR			; JUMP OVER "E"
+00064Er 2               
+00064Er 2  20 rr rr     	JSR EATWHITESPACE		; SKIP OVER ANY WHITESPACE
+000651r 2  20 rr rr     	JSR GETNUMBER			; GET NUMBER
+000654r 2  B0 03        	BCS ASSEMBLE_ERROR		; IF NOT A NUMBER REPORT ERROR
+000656r 2  4C rr rr             jmp asvald
+000659r 2               ASSEMBLE_ERROR:
+000659r 2  4C rr rr     	jmp error
+00065Cr 2               asvald:
+00065Cr 2  A5 36        	LDA TEMPWORD
+00065Er 2  85 C1        	STA tmp0
+000660r 2  A5 37        	LDA TEMPWORD+1
+000662r 2  85 C2        	STA tmp0+1
+000664r 2               asv1:
+000664r 2  20 rr rr     	JSR crlf
+000667r 2  A9 2E        	lda #'.'
+000669r 2  20 rr rr             jsr OUTCH
+00066Cr 2  20 rr rr             jsr space
+00066Fr 2  20 rr rr             jsr PRINT_WORD
+000672r 2  20 rr rr             jsr space
+000675r 2  20 rr rr             JSR t2t2
+000678r 2  8E 11 02             STX stage+1
+00067Br 2  A9 00         	LDA #<INBUFFER                 	; SETUP INPUT COMMAND BUFFER
+00067Dr 2  85 48        	STA STRPTR			;
+00067Fr 2  85 32        	sta WORKPTR			;
+000681r 2  A9 02        	LDA #>INBUFFER              	;
+000683r 2  85 49        	STA STRPTR +1 			;
+000685r 2  85 33        	STA WORKPTR+1	             	;
+000687r 2  20 rr rr     	JSR INSTR			; GET A STRING FROM THE CONSOLE
+00068Ar 2  20 rr rr     	jsr EATWHITESPACE
+00068Dr 2  A2 03        	LDX #$03			; push opcode to stack
+00068Fr 2  A0 00        	LDY #$00
+000691r 2  B1 32        apush:  LDA (WORKPTR),Y			; GET NEXT CHAR FROM BUFFER
+000693r 2  48           	pha
+000694r 2  20 rr rr     	JSR INCWORKPTR
+000697r 2  CA           	dex
+000698r 2  D0 F7        	bne apush
+00069Ar 2               
+00069Ar 2  A2 03                ldx #$03
+00069Cr 2  68           apull:   pla
+00069Dr 2  38                    sec
+00069Er 2  E9 3F                 sbc #$3f
+0006A0r 2  A0 05                 ldy #$05
+0006A2r 2  4A           acrun:   lsr a
+0006A3r 2  6E 11 02              ror stage+1
+0006A6r 2  6E 10 02              ror stage
+0006A9r 2  88                    dey
+0006AAr 2  D0 F6                 bne acrun
+0006ACr 2  CA                    dex
+0006ADr 2  D0 ED                 bne apull
+0006AFr 2  A2 02                 ldx #$02
+0006B1r 2  A0 00        ainp:    LDY #$00
+0006B3r 2  B1 32        	 LDA (WORKPTR),Y		; GET NEXT CHAR FROM BUFFER
+0006B5r 2  20 rr rr       	 JSR INCWORKPTR
+0006B8r 2  C9 00                 cmp #$00
+0006BAr 2  F0 1E                 beq aret
+0006BCr 2  C9 20                 cmp #$20
+0006BEr 2  F0 F1                 beq ainp
+0006C0r 2  20 rr rr              jsr ahex
+0006C3r 2  B0 0F                 bcs stone
+0006C5r 2               
+0006C5r 2  20 rr rr              jsr rdob2
+0006C8r 2  A4 C1                 ldy tmp0
+0006CAr 2  84 C2                 sty tmp0+1
+0006CCr 2  85 C1                 sta tmp0
+0006CEr 2               
+0006CEr 2  A9 30                 lda #$30
+0006D0r 2  9D 10 02              sta stage,x
+0006D3r 2  E8                    inx
+0006D4r 2  9D 10 02     stone:   sta stage,x
+0006D7r 2  E8                    inx
+0006D8r 2  D0 D7                 bne ainp
+0006DAr 2  86 28        aret:    stx aflg
+0006DCr 2  A2 00                 ldx #0
+0006DEr 2  86 26                 stx wrap
+0006E0r 2  F0 04                 beq atry
+0006E2r 2  E6 26        abump:   inc wrap
+0006E4r 2  F0 75                 beq aerr
+0006E6r 2  A2 00        atry:    ldx #0
+0006E8r 2  86 1D                 stx tmpc
+0006EAr 2  A5 26                 lda wrap
+0006ECr 2  20 rr rr              jsr instxx
+0006EFr 2  A6 2A                 ldx acmd
+0006F1r 2  86 29                 stx aflg+1
+0006F3r 2  AA                    tax
+0006F4r 2  BC rr rr              ldy mneml,x
+0006F7r 2  BD rr rr              lda mnemr,x
+0006FAr 2  20 rr rr              jsr achek2
+0006FDr 2  D0 E3                 bne abump
+0006FFr 2  A2 06                 ldx #$06
+000701r 2  E0 03        aoprnd:  cpx #$03
+000703r 2  D0 19                 bne ashf
+000705r 2  A4 1F                 ldy length
+000707r 2  F0 15                 beq ashf
+000709r 2  A5 2A        arsc:    lda acmd
+00070Br 2  C9 E8                 cmp #$e8
+00070Dr 2  A9 30                 lda #$30
+00070Fr 2  B0 21                 bcs arel1
+000711r 2  20 rr rr              jsr acheck
+000714r 2  D0 CC                 bne abump
+000716r 2  20 rr rr              jsr achick
+000719r 2  D0 C7                 bne abump
+00071Br 2  88                    dey
+00071Cr 2  D0 EB                 bne arsc
+00071Er 2  06 2A        ashf:    asl acmd
+000720r 2  90 0B                 bcc adex
+000722r 2  BC rr rr              ldy char2-1,x
+000725r 2  BD rr rr              lda char1-1,x
+000728r 2  20 rr rr              jsr achek2
+00072Br 2  D0 B5                 bne abump
+00072Dr 2  CA           adex:    dex
+00072Er 2  D0 D1                 bne aoprnd
+000730r 2  F0 0A                 beq ald
+000732r 2  20 rr rr     arel1:   jsr acdb1
+000735r 2  D0 AB                 bne abump
+000737r 2  20 rr rr              jsr acdb1
+00073Ar 2  D0 A6                 bne abump
+00073Cr 2  A5 28        ald:     lda aflg
+00073Er 2  C5 1D                 cmp tmpc
+000740r 2  D0 A0                 bne abump
+000742r 2  20 rr rr              jsr t2t2
+000745r 2  A4 1F                 ldy length
+000747r 2  F0 28                 beq aopset
+000749r 2  A5 29                 lda aflg+1
+00074Br 2  C9 9D                 cmp #$9d
+00074Dr 2  D0 1A                 bne aopnd
+00074Fr 2  20 rr rr              jsr diffb
+000752r 2  90 0A                 bcc abdown
+000754r 2  98                    tya
+000755r 2  D0 04                 bne aerr
+000757r 2  A5 44                 lda nemo
+000759r 2  10 0A                 bpl abran
+00075Br 2  4C rr rr     aerr:    jmp error
+00075Er 2  C8           abdown:  iny
+00075Fr 2  D0 FA                 bne aerr
+000761r 2  A5 44                 lda nemo
+000763r 2  10 F6                 bpl aerr
+000765r 2  A4 1F        abran:   ldy length
+000767r 2  D0 03                 bne abrel
+000769r 2  B9 C2 00     aopnd:   lda tmp2-1,y
+00076Cr 2  91 C1        abrel:   sta (tmp0),y
+00076Er 2  88                    dey
+00076Fr 2  D0 F8                 bne aopnd
+000771r 2  A5 26        aopset:  lda wrap
+000773r 2  91 C1                 sta (tmp0),y
+000775r 2  20 rr rr              jsr pcadj
+000778r 2  85 C1                 sta tmp0
+00077Ar 2  84 C2                 sty tmp0+1
+00077Cr 2  4C rr rr              jmp asv1
+00077Fr 2  A8           acdb1:   tay
+000780r 2  20 rr rr     achek2:  jsr acheck
+000783r 2  D0 11                 bne acex
+000785r 2  98                    tya
+000786r 2  F0 0E        acheck:  beq acex
+000788r 2  86 1C        achick:  stx savx
+00078Ar 2  A6 1D                 ldx tmpc
+00078Cr 2  DD 10 02              cmp stage,x
+00078Fr 2  08                    php
+000790r 2  E8                    inx
+000791r 2  86 1D                 stx tmpc
+000793r 2  A6 1C                 ldx savx
+000795r 2  28                    plp
+000796r 2  60           acex:    rts
+000797r 2  C9 30        ahex:    cmp #$30
+000799r 2  90 03                 bcc asx
+00079Br 2  C9 47                 cmp #$47
+00079Dr 2  60                    rts
+00079Er 2  38           asx:     sec
+00079Fr 2  60                    rts
+0007A0r 2               
+0007A0r 2               
+0007A0r 2               
+0007A0r 2                                        ; ** swap tmp0, tmp2 **
+0007A0r 2  A2 02        t2t2:    ldx #$02
+0007A2r 2  B5 C0        t2t21:   lda tmp0-1,x
+0007A4r 2  48                    pha
+0007A5r 2  B5 C2                 lda tmp2-1,x
+0007A7r 2  95 C0                 sta tmp0-1,x
+0007A9r 2  68                    pla
+0007AAr 2  95 C2                 sta tmp2-1,x
+0007ACr 2  CA                    dex
+0007ADr 2  D0 F3                 bne t2t21
+0007AFr 2  60                    rts
+0007B0r 2               
+0007B0r 2               PRINT_WORD:
+0007B0r 2  48           	pha
+0007B1r 2  A5 C2        	lda tmp0+1
+0007B3r 2  20 rr rr     	jsr prbyte
+0007B6r 2  A5 C1        	lda tmp0
+0007B8r 2  20 rr rr     	jsr prbyte
+0007BBr 2  68           	pla
+0007BCr 2  60           	rts
+0007BDr 2                                         ; ** calc tmp2-tmp0-2 **
+0007BDr 2  A5 C3        diffb:   lda tmp2
+0007BFr 2  A4 C4                 ldy tmp2+1
+0007C1r 2  38                    sec
+0007C2r 2  E9 02                 sbc #2
+0007C4r 2  B0 0E                 bcs deck
+0007C6r 2  88                    dey
+0007C7r 2  90 0B                 bcc deck
+0007C9r 2                                         ; ** calc aflg-tmp0 **
+0007C9r 2  A5 28        diffa:   lda aflg
+0007CBr 2  A4 29                 ldy aflg+1
+0007CDr 2  4C rr rr              jmp deck
+0007D0r 2                                         ; ** calc tmp2-tmp0 **
+0007D0r 2  A5 C3        diffp:   lda tmp2
+0007D2r 2  A4 C4                 ldy tmp2+1
+0007D4r 2  38           deck:    sec
+0007D5r 2  E5 C1                 sbc tmp0
+0007D7r 2  85 44                 sta nemo
+0007D9r 2  98                    tya
+0007DAr 2  E5 C2                 sbc tmp0+1
+0007DCr 2  A8                    tay
+0007DDr 2  05 44                 ora nemo
+0007DFr 2  60                    rts
+0007E0r 2               
+0007E0r 2  A9 3F        error:   lda #$3f
+0007E2r 2  20 rr rr              jsr OUTCH
+0007E5r 2  60                    rts
+0007E6r 2                                      ; ** print spaces **
+0007E6r 2  20 rr rr     spacd:   jsr space
+0007E9r 2  CA                    dex
+0007EAr 2  D0 FA                 bne spacd
+0007ECr 2  60                    rts
+0007EDr 2  C5 28        chrout:  cmp aflg
+0007EFr 2  F0 03                 beq caltrit
+0007F1r 2  20 rr rr              jsr OUTCH
+0007F4r 2  60           caltrit: rts
+0007F5r 2               
+0007F5r 2  98           altrit:  tya
+0007F6r 2  48                    pha
+0007F7r 2  20 rr rr              jsr crlf
+0007FAr 2  68                    pla
+0007FBr 2  20 rr rr              jsr OUTCH
+0007FEr 2  A9 2E                 lda #$2e
+000800r 2  4C rr rr              jmp OUTCH
+000803r 2               
+000803r 2                                         ; ** print hex byte **
+000803r 2  A5 C2        wroa:    lda tmp0+1
+000805r 2  20 rr rr              jsr PRINT_BYTE
+000808r 2  A5 C1                 lda tmp0
+00080Ar 2  4C rr rr              jmp PRINT_BYTE
+00080Dr 2               
+00080Dr 2                                        ; ** read hex byte **
+00080Dr 2  20 rr rr     rdob2:   jsr hexit
+000810r 2  0A                    asl a
+000811r 2  0A                    asl a
+000812r 2  0A                    asl a
+000813r 2  0A                    asl a
+000814r 2  85 2A                 sta acmd
+000816r 2  B1 32                 LDA (WORKPTR),Y			; GET NEXT CHAR FROM BUFFER
+000818r 2  20 rr rr       	 JSR INCWORKPTR
+00081Br 2  20 rr rr     rdob3:   jsr hexit
+00081Er 2  05 2A                 ora acmd
+000820r 2  38                    sec
+000821r 2  60                    rts
+000822r 2                                         ; ** convert from hex **
+000822r 2  C9 3A        hexit:   cmp #$3a
+000824r 2  90 02                 bcc hex08
+000826r 2  69 08                 adc #$08
+000828r 2  29 0F        hex08:   and #$0f
+00082Ar 2  60                    rts
+00082Br 2               
+00082Br 2               
+00082Br 2                                         ; mode table... nybble organized
+00082Br 2                                         ; 0= err  4= implied  8= zer,x   c= zer,y
+00082Br 2                                         ; 1= imm  5= acc      9= abs,x   d= rel
+00082Br 2                                         ; 2= zer  6= (ind,x)  a= abs,y
+00082Br 2                                         ; 3= abs  7= (ind),y  b= (ind)
+00082Br 2  40 02 45 03  mode:    .byte $40,$02,$45,$03
+00082Fr 2  D0 08 40 09           .byte $d0,$08,$40,$09
+000833r 2  30 22 45 33           .byte $30,$22,$45,$33
+000837r 2  D0 08 40 09           .byte $d0,$08,$40,$09
+00083Br 2  40 02 45 33           .byte $40,$02,$45,$33
+00083Fr 2  D0 08 40 09           .byte $d0,$08,$40,$09
+000843r 2  40 02 45 B3           .byte $40,$02,$45,$b3
+000847r 2  D0 08 40 09           .byte $d0,$08,$40,$09
+00084Br 2  00 22 44 33           .byte $00,$22,$44,$33
+00084Fr 2  D0 8C 44 00           .byte $d0,$8c,$44,$00
+000853r 2  11 22 44 33           .byte $11,$22,$44,$33
+000857r 2  D0 8C 44 9A           .byte $d0,$8c,$44,$9a
+00085Br 2  10 22 44 33           .byte $10,$22,$44,$33
+00085Fr 2  D0 08 40 09           .byte $d0,$08,$40,$09
+000863r 2  10 22 44 33           .byte $10,$22,$44,$33
+000867r 2  D0 08 40 09           .byte $d0,$08,$40,$09
+00086Br 2  62 13 78 A9           .byte $62,$13,$78,$a9
+00086Fr 2                                         ;master modes
+00086Fr 2                                         ;six hi-order bits  mode options
+00086Fr 2                                         ;two lo-order bits  operand length ready.
+00086Fr 2  00 21 81 82  mode2:   .byte $00,$21,$81,$82
+000873r 2  00 00 59 4D           .byte $00,$00,$59,$4d
+000877r 2  91 92 86 4A           .byte $91,$92,$86,$4a,$85,$9d
+00087Br 2  85 9D        
+00087Dr 2  2C 29 2C 23  char1:   .byte $2c,$29,$2c,$23,$28,$24
+000881r 2  28 24        
+000883r 2  59 00 58 24  char2:   .byte $59,$00,$58,$24,$24,$00
+000887r 2  24 00        
+000889r 2                                         ; packed mnemonics
+000889r 2  1C 8A 1C 23  mneml:   .byte $1c,$8a,$1c,$23
+00088Dr 2  5D 8B 1B A1           .byte $5d,$8b,$1b,$a1
+000891r 2  9D 8A 1D 23           .byte $9d,$8a,$1d,$23
+000895r 2  9D 8B 1D A1           .byte $9d,$8b,$1d,$a1
+000899r 2  00 29 19 AE           .byte $00,$29,$19,$ae
+00089Dr 2  69 A8 19 23           .byte $69,$a8,$19,$23
+0008A1r 2  24 53 1B 23           .byte $24,$53,$1b,$23
+0008A5r 2  24 53 19 A1           .byte $24,$53,$19,$a1
+0008A9r 2  00 1A 5B 5B           .byte $00,$1a,$5b,$5b
+0008ADr 2  A5 69 24 24           .byte $a5,$69,$24,$24
+0008B1r 2  AE AE A8 AD           .byte $ae,$ae,$a8,$ad
+0008B5r 2  29 00 7C 00           .byte $29,$00,$7c,$00
+0008B9r 2  15 9C 6D 9C           .byte $15,$9c,$6d,$9c
+0008BDr 2  A5 69 29 53           .byte $a5,$69,$29,$53
+0008C1r 2  84 13 34 11           .byte $84,$13,$34,$11
+0008C5r 2  A5 69 23 A0           .byte $a5,$69,$23,$a0
+0008C9r 2               
+0008C9r 2  D8 62 5A 48  mnemr:   .byte $d8,$62,$5a,$48
+0008CDr 2  26 62 94 88           .byte $26,$62,$94,$88
+0008D1r 2  54 44 C8 54           .byte $54,$44,$c8,$54
+0008D5r 2  68 44 E8 94           .byte $68,$44,$e8,$94
+0008D9r 2  00 B4 08 84           .byte $00,$b4,$08,$84
+0008DDr 2  74 B4 28 6E           .byte $74,$b4,$28,$6e
+0008E1r 2  74 F4 CC 4A           .byte $74,$f4,$cc,$4a
+0008E5r 2  72 F2 A4 8A           .byte $72,$f2,$a4,$8a
+0008E9r 2  00 AA A2 A2           .byte $00,$aa,$a2,$a2
+0008EDr 2  74 74 74 72           .byte $74,$74,$74,$72
+0008F1r 2  44 68 B2 32           .byte $44,$68,$b2,$32
+0008F5r 2  B2 00 22 00           .byte $b2,$00,$22,$00
+0008F9r 2  1A 1A 26 26           .byte $1a,$1a,$26,$26
+0008FDr 2  72 72 88 C8           .byte $72,$72,$88,$c8
+000901r 2  C4 CA 26 48           .byte $c4,$ca,$26,$48
+000905r 2  44 44 A2 C8           .byte $44,$44,$a2,$c8
+000909r 2               
+000909r 1               
+000909r 1               ; COMMAND PROCESSOR JUMP TABLE
+000909r 1               COMMAND_LOOKUP_TABLE:
+000909r 1  52 45 47 49   		.BYTE "REGISTER",0,<DO_PRINT_REG,>DO_PRINT_REG
+00090Dr 1  53 54 45 52  
+000911r 1  00 rr rr     
+000914r 1  44 55 4D 50   		.BYTE "DUMP",0,<DUMP,>DUMP
+000918r 1  00 rr rr     
+00091Br 1  45 4E 54 45   		.BYTE "ENTER",0,<ENTERMEM,>ENTERMEM
+00091Fr 1  52 00 rr rr  
+000923r 1  47 4F 00 rr   		.BYTE "GO",0,<GO,>GO
+000927r 1  rr           
+000928r 1  4C 4F 41 44   		.BYTE "LOAD",0,<LOAD,>LOAD
+00092Cr 1  00 rr rr     
+00092Fr 1  5A 38 30 00   		.BYTE "Z80",0,<Z80,>Z80
+000933r 1  rr rr        
+000935r 1  44 49 53 41  		.BYTE "DISASSEMBLE",0,<DISASSEMBLE,>DISASSEMBLE
+000939r 1  53 53 45 4D  
+00093Dr 1  42 4C 45 00  
+000943r 1  41 53 53 45  		.BYTE "ASSEMBLE",0,<ASSEMBLE,>ASSEMBLE
+000947r 1  4D 42 4C 45  
+00094Br 1  00 rr rr     
+00094Er 1  01 00        		.BYTE 01,0
+000950r 1               ; COMMAND PROMPT STRING
+000950r 1  0D 0A 2E 00  PROMPT:  	.BYTE   $0D,$0A,".",0
+000954r 1               ; ERROR STRING
+000954r 1  0D 0A 3F 20  ERROR:	 	.BYTE   $0D,$0A,"? COMMAND NOT FOUND",$0D,0
+000958r 1  43 4F 4D 4D  
+00095Cr 1  41 4E 44 20  
+00096Br 1  0D 0A 3F 20  INERROR:	.BYTE   $0D,$0A,"? INVALID HEX NUMBER",$0D,0
+00096Fr 1  49 4E 56 41  
+000973r 1  4C 49 44 20  
+000983r 1               ; STRINGS FOR REGISTER DISPLY
+000983r 1  0D 0A        REGDATA: 	.BYTE   $0D,$0A
+000985r 1  20 20 20 50  		.BYTE   "   PC  AC  XR  YR  SP  SR(NVRBDIZC)"
+000989r 1  43 20 20 41  
+00098Dr 1  43 20 20 58  
+0009A8r 1  0D 0A 21 20  		.BYTE   $0D,$0A,"! ",0
+0009ACr 1  00           
+0009ADr 1               ; START BANNER
+0009ADr 1  0D 0A        STARTUP: 	.BYTE   $0D,$0A
+0009AFr 1               
+0009AFr 1  20 20 5F 5F  		.BYTE   "  __ |_  _ ",$0D,$0A
+0009B3r 1  20 7C 5F 20  
+0009B7r 1  20 5F 20 0D  
+0009BCr 1  20 20 7C 7C  		.BYTE   "  ||||_)(_ ",$0D,$0A
+0009C0r 1  7C 7C 5F 29  
+0009C4r 1  28 5F 20 0D  
+0009C9r 1  20 20 20 5F  		.BYTE   "   __ _____  _____ ___ ___ ",$0D,$0A
+0009CDr 1  5F 20 5F 5F  
+0009D1r 1  5F 5F 5F 20  
+0009E6r 1  20 20 2F 20     		.BYTE   "  / /| ____|/ ____/ _ \__ \ ",$0D,$0A
+0009EAr 1  2F 7C 20 5F  
+0009EEr 1  5F 5F 5F 7C  
+000A04r 1  20 2F 20 2F    		.BYTE   " / /_| |__ | |   | | | | ) | ",$0D,$0A
+000A08r 1  5F 7C 20 7C  
+000A0Cr 1  5F 5F 20 7C  
+000A23r 1  7C 20 27 5F   		.BYTE   "| '_ \___ \| |   | | | |/ / ",$0D,$0A
+000A27r 1  20 5C 5F 5F  
+000A2Br 1  5F 20 5C 7C  
+000A41r 1  7C 20 28 5F   		.BYTE   "| (_) |__) | |___| |_| / /_ ",$0D,$0A
+000A45r 1  29 20 7C 5F  
+000A49r 1  5F 29 20 7C  
+000A5Fr 1  20 5C 5F 5F    		.BYTE   " \___/____/ \_____\___/____| ",$0D,$0A
+000A63r 1  5F 2F 5F 5F  
+000A67r 1  5F 5F 2F 20  
+000A7Er 1  2A 20 36 35  		.BYTE   "* 6502 MONITOR ",$0D,$0A,$00
+000A82r 1  30 32 20 4D  
+000A86r 1  4F 4E 49 54  
+000A90r 1               
+000A90r 1                                .segment "VECTORS"
 000000r 1               	;	 .org   $FFFA
 000000r 1  rr rr        NMIVECTOR:      .WORD   INTERRUPT		;
 000002r 1  rr rr        RSTVECTOR:      .WORD   COLD_START		;
