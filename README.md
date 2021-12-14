@@ -49,7 +49,7 @@ What if I want to fork my own project based on your work?  It's OK with me and I
 
 Can these designs be used commercially?  Not really and I'd prefer they be kept for hobbyists because that's they're intended purpose.  If you take these designs partially or in whole commercial you are on your own and accept all associated risk.  These are intended for hobbyist and educational use only.
 
-Why are all the PCBS green?  I like green PCBs and am a bit of a traditionalist from back in the day when PCBs only came in green.  Also it is a good color choice to see the traces underneath and provides good contrast compared to other colors.  That being said, you can make your PCBs any color you like when you order them.
+Why are all the Printed Circuit Boards (PCBs) green?  I like green PCBs and am a bit of a traditionalist from back in the day when PCBs only came in green.  Also it is a good color choice to see the traces underneath and provides good contrast compared to other colors.  That being said, you can make your PCBs any color you like when you order them.
 
 Wow, this is cool!  How do I get involved?  Simple, download the Gerber files and get them built at JLCPCB or whatever PCB manufacturer you prefer.  Order parts and build your boards.  Post your questions on the forum with pictures.
 
