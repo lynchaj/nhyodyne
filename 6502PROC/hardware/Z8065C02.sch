@@ -330,9 +330,9 @@ Wire Wire Line
 Text GLabel 1200 750  2    50   Input ~ 0
 _RESET
 Text GLabel 1200 850  2    50   Input ~ 0
-_NMI
+_6502NMI
 Text GLabel 1200 950  2    50   Input ~ 0
-_INT
+_6502INT
 Text GLabel 1200 1050 2    50   Input ~ 0
 _WAIT
 Text GLabel 1200 1150 2    50   Input ~ 0
@@ -1420,7 +1420,6 @@ Text GLabel 1850 2600 0    50   Input ~ 0
 CLK
 NoConn ~ 3700 3600
 NoConn ~ 3700 3100
-NoConn ~ 3700 1600
 NoConn ~ 3700 1700
 Wire Wire Line
 	3700 2800 3600 2800
@@ -2402,7 +2401,7 @@ Connection ~ 3150 2400
 Wire Wire Line
 	3150 2400 3700 2400
 Text GLabel 2850 2950 2    50   Input ~ 0
-CLKO
+ICLK
 Wire Wire Line
 	2800 2950 2850 2950
 $Comp
@@ -2480,4 +2479,8 @@ F 3 "" H 11000 5650 50  0001 C CNN
 	1    11000 5650
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	3700 1600 3600 1600
+Text GLabel 3600 1600 0    50   Input ~ 0
+ICLK
 $EndSCHEMATC

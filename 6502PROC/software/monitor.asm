@@ -79,7 +79,6 @@ COLD_START:
 		LDA #$00			;
 		STA INBUFFER			; MAKE SURE INPUT BUFFER IS EMPTY
 						;
-		JMP COMMAND_PROCESSOR
          	BRK				; PERFORM BRK (START MONITOR)
 
 ;__BRKROUTINE___________________________________________________
@@ -186,9 +185,7 @@ BRKCMD:		JMP   BRKROUTINE        	; MONITOR BRK ROUTINE
 ;_______________________________________________________________
 COMMAND_PROCESSOR:
 
-		LDA 	$03FF
          	JSR DISPLAY_PROMPT		; PRINT PROMPT STRING
-		LDA 	$03FF
 	        LDA #<INBUFFER		   	; SETUP INPUT COMMAND BUFFER
          	STA STRPTR			;
          	LDA #>INBUFFER			;
@@ -868,13 +865,8 @@ ENDOUTSTR:
 ;______________________________________________________________
 INSTR:
 	        LDY   #$00			; LOAD $00 INTO Y
-		lda $03ff
 INSTRLP:
 		JSR IOF_CONINW
-
-		lda $03ff
-
-
         	CMP #$0D			; IS CR?
         	BEQ ENDINSTR			; YES, DONE WITH INPUT
         	CMP #$08			; IS BACKSPACE?

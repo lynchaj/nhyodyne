@@ -11,3 +11,4 @@ ca65 hi.asm -l hi.lst
 ld65 hi.o -m hi.map -C mbc.cfg -o hi.out
 srec_cat  hi.out -binary -offset 0x0000  -o  hi.s  -data-only
 srec_cat  hi.s -exclude 0x0000 0x6fff -exclude 0x7060 0x7ff0   -o  hi.hex  -intel -address-length=2
+
