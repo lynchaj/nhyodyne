@@ -1,4 +1,7 @@
 # nhyodyne: A Modular Backplane Computer (MBC)
+
+![Dans Z80 MBC with MBC65C02](https://user-images.githubusercontent.com/86925539/146011988-1531a093-19a7-411a-8000-1ef07cccef74.png)
+
 # Introduction
 The purpose of this project is to revisit the design concepts behind my original Z80 SBC (aka test prototype) which has evolved into the SBC V2-005 over several years. Attempt to introduce some new concepts to make the design more modular, flexible, and less expensive. Use low cost prototype PCBs (100x100mm) available for less than $20 including shipping from JLCPCB. Make simple single function boards to implement good program design concepts from Computer Science: high cohesion and low coupling. Maintain as much backward compatibility with latest SBC V2 as possible.
 
