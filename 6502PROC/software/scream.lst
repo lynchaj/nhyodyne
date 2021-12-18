@@ -10,11 +10,38 @@ Current file: scream.asm
 000000r 1               ; to the UART. It does not require the stack to be available and
 000000r 1               ; is pretty much the simplest code imaginable. :)
 000000r 1               ;
-000000r 1               ; It assumes that the 65C02 board is set for Stand alone mode and IOPage 03.
+000000r 1               ; It assumes that the 65C02 board is set for IOPage 03.
 000000r 1               ; remember that bit A15 is inverted on the board so the dip switch is set to $83.
 000000r 1               ;
+000000r 1               ;
+000000r 1               ; If the SBC is the only CPU in the system, ensure that jumpers
+000000r 1               ; J1 and J2 are set for 1&2.   Then burn scrmrom.hex into EPROM.
+000000r 1               ;
+000000r 1               ; If the SBC is secondary to a Z80, the scrm.com file can be run from CP/M or the
+000000r 1               ; scream.hex file can be loaded from the monitor. Ensure that jumpers J1 and J2
+000000r 1               ; are set for 2&3, the 6502 toggle IO address is set for $FF and
+000000r 1               ; the 65C02 board is set for IOPage 03.
+000000r 1               ; remember that bit A15 is inverted on the board so the dip switch is set to $83.
+000000r 1               ;
+000000r 1               ; ** Note that this program will change the baud rate to 9600.
+000000r 1               ;
+000000r 1               ;
+000000r 1               ; to run from the MBC Z80 monitor
+000000r 1               ;
+000000r 1               ; first set the MPCL to allow RAM in the low bank
+000000r 1               ; >O 7C 80
+000000r 1               ; >O 78 80
+000000r 1               ;
+000000r 1               ; then load the .HEX file.
+000000r 1               ; >L
+000000r 1               ;
+000000r 1               ;
+000000r 1               ; Finally transfer control to the 65C02 by reading the toggle register
+000000r 1               ; >I FF
+000000r 1               ;
+000000r 1               ; The '02 should reset and run this program
+000000r 1               ;
 000000r 1               ;_______________________________________________________________
-000000r 1               
 000000r 1               
 000000r 1               ; UART 16C550 SERIAL
 000000r 1               UART0       	=    	$0368           ; DATA IN/OUT
@@ -26,7 +53,25 @@ Current file: scream.asm
 000000r 1               UART6          	=    	$036E           ; MODEM STATUS
 000000r 1               UART7	       	=    	$036F           ; SCRATCH REG.
 000000r 1               
-000000r 1                               .segment "SROM"
+000000r 1               ; this is Z80 code that is used to be able to run this as a .COM file.  It is truncated
+000000r 1               ; when the various .HEX files are generated
+000000r 1               ;
+000000r 1                               .segment "LOADER"
+000000r 1  F3           		.BYTE 		$F3 			;DI - DISABLE INTERRUPTS
+000001r 1  01 00 10     		.BYTE 		$01,$00,$10    		;LD	BC,$1000 -BYTES TO MOVE
+000004r 1  11 00 70     		.BYTE 		$11,$00,$70    		;LD	DE,$7000 -DESTINATION ADDRESS (6502 IS !A15)
+000007r 1  21 20 01     		.BYTE 		$21,$20,$01	    	;LD	HL,$0120 -SOURCE ADDRESS
+00000Ar 1  ED B0        		.BYTE 		$ED,$B0       		;LDIR  		 -COPY RAM
+00000Cr 1  DB FF        		.BYTE		$DB,$FF       		;IN 	A,$FF    -ENABLE 6502
+00000Er 1  0E 00        		.BYTE		$0E,$00       		;LD	C,00H    -CP/M SYSTEM RESET CALL
+000010r 1  CD 05 00     		.BYTE		$CD,$05,$00		;CALL	0005H	 -RETURN TO PROMPT
+000013r 1               ;
+000013r 1               ;
+000013r 1               ;
+000013r 1               
+000013r 1               
+000013r 1               
+000013r 1                               .segment "TROM"
 000000r 1               
 000000r 1               ;__COLD_START___________________________________________________
 000000r 1               ;
