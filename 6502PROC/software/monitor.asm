@@ -3,6 +3,20 @@
 ; This is a simple monitor program that can be uploaded to the MBC
 ; from Z80 mode.
 ;
+; It assumes that the 65C02 board is set for IOPage 03.
+; remember that bit A15 is inverted on the board so the dip switch is set to $83.
+;
+; If the SBC is the only CPU in the system, ensure that jumpers
+; J1 and J2 are set for 1&2.   Then burn monrom.hex into EPROM.
+; (note that this monitor does not initialize the UART yet, so this is broken at the moment)
+;
+; If the SBC is secondary to a Z80, the monitor.com file can be run from CP/M or the
+; monitor.hex file can be loaded from the monitor. Ensure that jumpers J1 and J2
+; are set for 2&3, the 6502 toggle IO address is set for $FF and
+; the 65C02 board is set for IOPage 03.
+; remember that bit A15 is inverted on the board so the dip switch is set to $83.
+;
+;
 ; to run from the MBC Z80 monitor
 ;
 ; first set the MPCL to allow RAM in the low bank
@@ -54,6 +68,22 @@ UART4       	=    	$036C           ; MODEM CONTROL
 UART5          	=    	$036D           ; LINE STATUS
 UART6          	=    	$036E           ; MODEM STATUS
 UART7	       	=    	$036F           ; SCRATCH REG.
+
+; this is Z80 code that is used to be able to run this as a .COM file.  It is truncated
+; when the various .HEX files are generated
+;
+                .segment "LOADER"
+		.BYTE 		$F3 			;DI - DISABLE INTERRUPTS
+		.BYTE 		$01,$00,$10    		;LD	BC,$1000 -BYTES TO MOVE
+		.BYTE 		$11,$00,$70    		;LD	DE,$7000 -DESTINATION ADDRESS (6502 IS !A15)
+		.BYTE 		$21,$20,$01	    	;LD	HL,$0120 -SOURCE ADDRESS
+		.BYTE 		$ED,$B0       		;LDIR  		 -COPY RAM
+		.BYTE		$DB,$FF       		;IN 	A,$FF    -ENABLE 6502
+		.BYTE		$0E,$00       		;LD	C,00H    -CP/M SYSTEM RESET CALL
+		.BYTE		$CD,$05,$00		;CALL	0005H	 -RETURN TO PROMPT
+;
+;
+;
 
 
                 .segment "TROM"
