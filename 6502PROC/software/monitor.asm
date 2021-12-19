@@ -11,7 +11,7 @@
 ; (note that this monitor does not initialize the UART yet, so this is broken at the moment)
 ;
 ; If the SBC is secondary to a Z80, the monitor.com file can be run from CP/M or the
-; monitor.hex file can be loaded from the monitor. Ensure that jumpers J1 and J2
+; monitor.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4
 ; are set for 2&3, the 6502 toggle IO address is set for $FF and
 ; the 65C02 board is set for IOPage 03.
 ; remember that bit A15 is inverted on the board so the dip switch is set to $83.
