@@ -1,7 +1,8 @@
 Modules list:
 -------------
 scream.o:
-    SROM              Offs=000000  Size=000028  Align=00001  Fill=0000
+    LOADER            Offs=000000  Size=000013  Align=00001  Fill=0000
+    TROM              Offs=000000  Size=000028  Align=00001  Fill=0000
     VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
 
 
@@ -9,7 +10,8 @@ Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-SROM                  008300  008327  000028  00001
+LOADER                00EFE0  00EFF2  000013  00001
+TROM                  00F000  00F027  000028  00001
 VECTORS               00FFFA  00FFFF  000006  00001
 
 

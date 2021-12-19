@@ -59,8 +59,24 @@ Current file: monitor.asm
 000000r 1               UART6          	=    	$036E           ; MODEM STATUS
 000000r 1               UART7	       	=    	$036F           ; SCRATCH REG.
 000000r 1               
-000000r 1               
-000000r 1                               .segment "TROM"
+000000r 1               ; this is Z80 code that is used to be able to run this as a .COM file.  It is truncated
+000000r 1               ; when the various .HEX files are generated
+000000r 1               ;
+000000r 1                               .segment "LOADER"
+000000r 1  F3           		.BYTE 		$F3 			;DI - DISABLE INTERRUPTS
+000001r 1  01 00 10     		.BYTE 		$01,$00,$10    		;LD	BC,$1000 -BYTES TO MOVE
+000004r 1  11 00 70     		.BYTE 		$11,$00,$70    		;LD	DE,$7000 -DESTINATION ADDRESS (6502 IS !A15)
+000007r 1  21 20 01     		.BYTE 		$21,$20,$01	    	;LD	HL,$0120 -SOURCE ADDRESS
+00000Ar 1  ED B0        		.BYTE 		$ED,$B0       		;LDIR  		 -COPY RAM
+00000Cr 1  DB FF        		.BYTE		$DB,$FF       		;IN 	A,$FF    -ENABLE 6502
+00000Er 1  0E 00        		.BYTE		$0E,$00       		;LD	C,00H    -CP/M SYSTEM RESET CALL
+000010r 1  CD 05 00     		.BYTE		$CD,$05,$00		;CALL	0005H	 -RETURN TO PROMPT
+000013r 1               ;
+000013r 1               ;
+000013r 1               ;
+000013r 1               
+000013r 1               
+000013r 1                               .segment "TROM"
 000000r 1               
 000000r 1               ;__COLD_START___________________________________________________
 000000r 1               ;
