@@ -108,7 +108,7 @@ U12|	74LS32|	74LS32
 
 # SOFTWARE
 ### HI
-This is a quick program that will print a "Hi" message to the UART then return control to the Z80.  It does not require the stack to be available and is pretty much the simplest code imaginable. :)
+This is a quick program that will print a "Hi" message to the UART then return control to the Z80.  It does not require the stack to be available and is pretty much the simplest code imaginable. :)   "Hi" requires that the UART is properly initialized.
 
 This requires the SBC to be secondary to a Z80 SBC.
 
@@ -135,7 +135,7 @@ Finally transfer control to the 65C02 by reading the toggle register
 
 
 ### MONITOR
-This is a simple monitor program, see the "monitor" section of this document for usage instructions.
+This is a simple monitor program, see the "monitor" section of this document for usage instructions. "Monitor" requires that the UART is properly initialized.
 
 It assumes that the 65C02 board is set for IOPage 03.
         * remember that bit A15 is inverted on the board so the dip switch is set to $83.
@@ -166,6 +166,7 @@ Finally transfer control to the 65C02 by reading the toggle register
 
 ### SCREAM
 This is a quick program that can be put on a ROM to test the 65C02 board. It will output a continuous stream of "A" at 9600 baud from the UART. It does not require the stack to be available and is pretty much the simplest code imaginable. :)
+"SCREAM" initializes the UART for 9600,n,8,1.
 
 It assumes that the 65C02 board is set for IOPage 03.
         * remember that bit A15 is inverted on the board so the dip switch is set to $83.
