@@ -1,7 +1,7 @@
 # MBC65C02
 65C02 processor board (hardware and software) for the Nhyodyne computer system
 
-#JUMPER SETTINGS
+# JUMPER SETTINGS
 ## General
         J1 - Enable
                 1&2 Only CPU
