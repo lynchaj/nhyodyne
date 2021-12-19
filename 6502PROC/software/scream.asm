@@ -14,7 +14,7 @@
 ; J1 and J2 are set for 1&2.   Then burn scrmrom.hex into EPROM.
 ;
 ; If the SBC is secondary to a Z80, the scrm.com file can be run from CP/M or the
-; scream.hex file can be loaded from the monitor. Ensure that jumpers J1 and J2
+; scream.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4
 ; are set for 2&3, the 6502 toggle IO address is set for $FF and
 ; the 65C02 board is set for IOPage 03.
 ; remember that bit A15 is inverted on the board so the dip switch is set to $83.
