@@ -180,16 +180,19 @@ If the SBC is secondary to a Z80, the scrm.com file can be run from CP/M or the 
 To run from the MBC Z80 monitor
 
 first set the MPCL to allow RAM in the low bank
+```
 >O 7C 80
 >O 78 80
-
-Ten load the .HEX file.
+```
+Then load the .HEX file.
+```
 >L
-
+```
 
 Finally transfer control to the 65C02 by reading the toggle register
+```
 >I FF
-
+```
 
 The '02 should reset and run this program
 
@@ -200,6 +203,7 @@ Monitor is a simple machine language monitor that will allow you to view and man
 
 Monitor Supports the following Commands:
 
+```
         * REGISTER - Display the 6502 internal Registers
  	* DUMP XXXX YYYY - Dump memory from XXXX to YYYY
  	* ENTER XXXX YY  - update the ram at XXXX with value YY
@@ -208,3 +212,4 @@ Monitor Supports the following Commands:
         * Z80 - return to Z80 mode
         * DISASSEMBLE XXXX - Disassemble program at XXXX
 	* ASSEMBLE XXXX - Begin Assembling a program from XXXX
+```
