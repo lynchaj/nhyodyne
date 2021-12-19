@@ -586,6 +586,34 @@ X ~ 9 -400 -200 300 R 60 60 1 1 P I
 ENDDRAW
 ENDDEF
 #
+# Z80CTCDART-rescue_CONN_8X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+#
+DEF Z80CTCDART-rescue_CONN_8X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue P 0 40 Y Y 1 F N
+F0 "P" 0 450 60 H V C CNN
+F1 "Z80CTCDART-rescue_CONN_8X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 0 50 V V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+S -100 400 100 -400 0 1 0 N
+X ~ 1 -400 350 300 R 60 60 1 1 P I
+X ~ 10 400 -50 300 L 60 60 1 1 P I
+X ~ 11 -400 -150 300 R 60 60 1 1 P I
+X ~ 12 400 -150 300 L 60 60 1 1 P I
+X ~ 13 -400 -250 300 R 60 60 1 1 P I
+X ~ 14 400 -250 300 L 60 60 1 1 P I
+X ~ 15 -400 -350 300 R 60 60 1 1 P I
+X ~ 16 400 -350 300 L 60 60 1 1 P I
+X ~ 2 400 350 300 L 60 60 1 1 P I
+X ~ 3 -400 250 300 R 60 60 1 1 P I
+X ~ 4 400 250 300 L 60 60 1 1 P I
+X ~ 5 -400 150 300 R 60 60 1 1 P I
+X ~ 6 400 150 300 L 60 60 1 1 P I
+X ~ 7 -400 50 300 R 60 60 1 1 P I
+X ~ 8 400 50 300 L 60 60 1 1 P I
+X ~ 9 -400 -50 300 R 60 60 1 1 P I
+ENDDRAW
+ENDDEF
+#
 # Z80CTCDART-rescue_CP-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
 #
 DEF Z80CTCDART-rescue_CP-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue C 0 10 N N 1 F N
@@ -933,6 +961,37 @@ S -50 150 50 -150 0 1 0 N
 X P1 1 -200 100 150 R 50 50 1 1 P
 X P2 2 -200 0 150 R 50 50 1 1 P
 X P3 3 -200 -100 150 R 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# conn_CONN_02X03
+#
+DEF conn_CONN_02X03 J 0 1 Y N 1 F N
+F0 "J" 0 200 50 H V C CNN
+F1 "conn_CONN_02X03" 0 -200 50 H V C CNN
+F2 "" 0 -1200 50 H I C CNN
+F3 "" 0 -1200 50 H I C CNN
+$FPLIST
+ Pin_Header_Straight_2X*
+ Pin_Header_Angled_2X*
+ Socket_Strip_Straight_2X*
+ Socket_Strip_Angled_2X*
+ IDC_Header_Straight_*
+$ENDFPLIST
+DRAW
+S -100 -95 -50 -105 0 1 0 N
+S -100 5 -50 -5 0 1 0 N
+S -100 105 -50 95 0 1 0 N
+S -100 150 100 -150 0 1 0 N
+S 50 -95 100 -105 0 1 0 N
+S 50 5 100 -5 0 1 0 N
+S 50 105 100 95 0 1 0 N
+X P1 1 -250 100 150 R 50 50 1 1 P
+X P2 2 250 100 150 L 50 50 1 1 P
+X P3 3 -250 0 150 R 50 50 1 1 P
+X P4 4 250 0 150 L 50 50 1 1 P
+X P5 5 -250 -100 150 R 50 50 1 1 P
+X P6 6 250 -100 150 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #

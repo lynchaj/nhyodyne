@@ -379,7 +379,7 @@ F 3 "" H 6700 4850 60  0001 C CNN
 	1    6700 4850
 	1    0    0    -1  
 $EndComp
-Text Notes 7600 5250 0    60   ~ 0
+Text Notes 7400 4550 0    60   ~ 0
 Note: IO Address Port $B0-B7\nS1=off - A7 (high)\nS2=on - A6 (low)\nS3=off - A5 (high)\nS4=off - A4 (high)\nS5=on - A3 (low)\nS6=x - A2 (no effect)\nS7=x - A1 (no effect)\nS8=x - A0 (no effect)
 Text Notes 4100 6650 0    60   ~ 0
 Note: Inhibit Board Operation\nDuring Interrupts\nM1# = low, IORQ# = low, IA = low
@@ -1048,12 +1048,12 @@ $EndComp
 $Comp
 L 74xx:74LS32 U5
 U 3 1 60CEDDF6
-P 14550 6750
-F 0 "U5" H 14550 6800 50  0000 C CNN
-F 1 "74LS32" H 14550 6700 50  0000 C CNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 14550 6750 50  0001 C CNN
-F 3 "" H 14550 6750 50  0001 C CNN
-	3    14550 6750
+P 17150 6850
+F 0 "U5" H 17150 6900 50  0000 C CNN
+F 1 "74LS32" H 17150 6800 50  0000 C CNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 17150 6850 50  0001 C CNN
+F 3 "" H 17150 6850 50  0001 C CNN
+	3    17150 6850
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1175,11 +1175,11 @@ F 3 "" H 8650 3000 50  0001 C CNN
 	2    8650 3000
 	1    0    0    -1  
 $EndComp
-Connection ~ 17400 4800
-Connection ~ 16200 5700
-Connection ~ 16200 4700
-Connection ~ 11950 6450
-NoConn ~ 11300 10300
+Connection ~ 20000 4500
+Connection ~ 18800 5400
+Connection ~ 18800 4400
+Connection ~ 11750 6450
+NoConn ~ 11300 10550
 Wire Wire Line
 	18600 2250 19250 2250
 Text Label 18650 2250 0    60   ~ 0
@@ -1203,15 +1203,15 @@ GND PIN 5
 Wire Wire Line
 	15300 7950 15750 7950
 Wire Wire Line
-	16200 4900 16200 4700
+	18800 4600 18800 4400
 Wire Wire Line
-	11950 10000 11300 10000
+	11950 10250 11300 10250
 Wire Wire Line
-	10500 10000 9850 10000
+	10500 10250 9850 10250
 Wire Wire Line
-	11950 10100 11300 10100
+	11950 10350 11300 10350
 Wire Wire Line
-	10500 10100 9850 10100
+	10500 10350 9850 10350
 Wire Wire Line
 	15950 9350 15300 9350
 Wire Wire Line
@@ -1237,15 +1237,15 @@ Wire Wire Line
 	13200 9250 13700 9250
 Connection ~ 12150 7950
 Wire Wire Line
-	13500 5300 14150 5300
+	16350 5400 17000 5400
 Wire Wire Line
-	13500 5100 14150 5100
+	16350 5200 17000 5200
 Wire Wire Line
-	13500 4900 14150 4900
+	16350 5000 17000 5000
 Wire Wire Line
-	13500 4700 14150 4700
+	16350 4800 17000 4800
 Wire Wire Line
-	13500 4500 14150 4500
+	16350 4600 17000 4600
 Wire Wire Line
 	18600 2750 19250 2750
 Wire Wire Line
@@ -1315,71 +1315,23 @@ Wire Wire Line
 Wire Wire Line
 	16000 1500 16650 1500
 Wire Wire Line
-	10300 4550 10950 4550
-Wire Wire Line
-	11750 4550 12400 4550
-Wire Wire Line
-	11750 4650 12400 4650
-Wire Wire Line
-	10300 4450 10950 4450
-Wire Wire Line
 	16000 2900 16650 2900
 Wire Wire Line
 	16000 1800 16650 1800
 Wire Wire Line
-	10300 4650 10950 4650
+	18250 6850 17450 6850
 Wire Wire Line
-	11750 4450 12400 4450
+	9700 6150 10350 6150
 Wire Wire Line
-	10300 4350 10950 4350
+	11750 6700 11750 6450
 Wire Wire Line
-	11750 4350 12400 4350
+	11750 6700 10350 6700
 Wire Wire Line
-	10300 4250 10950 4250
+	10350 6700 10350 6950
 Wire Wire Line
-	11750 4250 12400 4250
+	20000 5500 20550 5500
 Wire Wire Line
-	12400 5350 11750 5350
-Wire Wire Line
-	10950 5450 10000 5450
-Wire Wire Line
-	15650 6750 14850 6750
-Wire Wire Line
-	10300 5250 10950 5250
-Wire Wire Line
-	11750 5050 12400 5050
-Wire Wire Line
-	10300 4850 10950 4850
-Wire Wire Line
-	10300 5350 10950 5350
-Wire Wire Line
-	11750 5250 12400 5250
-Wire Wire Line
-	10300 5150 10950 5150
-Wire Wire Line
-	11750 5150 12400 5150
-Wire Wire Line
-	10300 5050 10950 5050
-Wire Wire Line
-	11750 4950 12400 4950
-Wire Wire Line
-	10300 4950 10950 4950
-Wire Wire Line
-	11750 4850 12400 4850
-Wire Wire Line
-	11750 5450 12400 5450
-Wire Wire Line
-	9900 6150 10550 6150
-Wire Wire Line
-	11950 6700 11950 6450
-Wire Wire Line
-	11950 6700 10550 6700
-Wire Wire Line
-	10550 6700 10550 6950
-Wire Wire Line
-	17400 5800 17950 5800
-Wire Wire Line
-	15650 5700 16200 5700
+	18250 5400 18800 5400
 Wire Wire Line
 	9600 9350 10100 9350
 Wire Wire Line
@@ -1395,17 +1347,17 @@ Wire Wire Line
 Wire Wire Line
 	9600 9250 10100 9250
 Wire Wire Line
-	17400 4800 17950 4800
+	20000 4500 20550 4500
 Wire Wire Line
-	16200 4700 15650 4700
+	18800 4400 18250 4400
 Wire Wire Line
-	15650 5400 16200 5400
+	18250 5100 18800 5100
 Wire Wire Line
-	15650 5200 16200 5200
+	18250 4900 18800 4900
 Wire Wire Line
 	8050 3400 8350 3400
 Wire Wire Line
-	13400 6900 13400 6850
+	16000 7000 16000 6950
 Wire Wire Line
 	9500 3000 8950 3000
 Wire Wire Line
@@ -1455,8 +1407,6 @@ Wire Wire Line
 Wire Wire Line
 	12250 2400 12900 2400
 Wire Wire Line
-	12250 2700 12900 2700
-Wire Wire Line
 	13550 2400 14200 2400
 Wire Wire Line
 	13550 3000 14200 3000
@@ -1479,27 +1429,27 @@ Wire Wire Line
 Wire Wire Line
 	13550 2500 14200 2500
 Wire Wire Line
-	9900 6450 10550 6450
+	9700 6450 10350 6450
 Wire Wire Line
-	9900 7250 10550 7250
+	9700 7250 10350 7250
 Wire Wire Line
-	11950 6950 12600 6950
+	11750 6950 12400 6950
 Wire Wire Line
-	11950 7050 12600 7050
+	11750 7050 12400 7050
 Wire Wire Line
-	11950 7150 12600 7150
+	11750 7150 12400 7150
 Wire Wire Line
-	11950 7250 12600 7250
+	11750 7250 12400 7250
 Wire Wire Line
-	11950 6150 12600 6150
+	11750 6150 12400 6150
 Wire Wire Line
-	11950 6250 12600 6250
+	11750 6250 12400 6250
 Wire Wire Line
-	11950 6350 12600 6350
+	11750 6350 12400 6350
 Wire Wire Line
-	11950 6450 12600 6450
+	11750 6450 12400 6450
 Wire Wire Line
-	14250 6850 14250 6650
+	16850 6950 16850 6750
 Wire Wire Line
 	12350 9050 11700 9050
 Wire Wire Line
@@ -1509,80 +1459,79 @@ Wire Wire Line
 Wire Wire Line
 	15950 9250 15300 9250
 Wire Wire Line
-	9850 10300 10500 10300
+	9850 10550 10500 10550
 Wire Wire Line
-	16200 5700 16200 5900
+	18800 5400 18800 5600
 Wire Wire Line
-	13500 10300 14150 10300
+	13500 10550 14150 10550
 Wire Wire Line
 	11700 7950 12150 7950
-NoConn ~ 14950 10300
-NoConn ~ 14950 10200
-Text Label 13550 10300 0    60   ~ 0
+NoConn ~ 14950 10550
+NoConn ~ 14950 10450
+Text Label 13550 10550 0    60   ~ 0
 GND
-Text Label 15150 10100 0    60   ~ 0
+Text Label 15150 10350 0    60   ~ 0
 CTSA_IN
-Text Label 13550 10000 0    60   ~ 0
+Text Label 13550 10250 0    60   ~ 0
 RXDA_IN#
-Text Label 15150 10000 0    60   ~ 0
+Text Label 15150 10250 0    60   ~ 0
 RTSA_OUT
-Text Label 13550 10100 0    60   ~ 0
+Text Label 13550 10350 0    60   ~ 0
 TXDA_OUT#
 NoConn ~ 18600 2050
-NoConn ~ 17800 2150
 $Comp
 L Z80CTCDART-rescue:74LS09-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U13
 U 4 1 49583188
-P 16800 7100
-F 0 "U13" H 16700 7150 50  0000 L BNN
-F 1 "74LS09" H 16700 7050 50  0000 L BNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 16800 7250 50  0001 C CNN
-F 3 "" H 16800 7100 50  0001 C CNN
-	4    16800 7100
+P 19400 6800
+F 0 "U13" H 19300 6850 50  0000 L BNN
+F 1 "74LS09" H 19300 6750 50  0000 L BNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 19400 6950 50  0001 C CNN
+F 3 "" H 19400 6800 50  0001 C CNN
+	4    19400 6800
 	1    0    0    -1  
 $EndComp
 $Comp
 L Z80CTCDART-rescue:74LS09-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U13
 U 3 1 49583171
-P 16800 5800
-F 0 "U13" H 16700 5850 50  0000 L BNN
-F 1 "74LS09" H 16700 5750 50  0000 L BNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 16800 5950 50  0001 C CNN
-F 3 "" H 16800 5800 50  0001 C CNN
-	3    16800 5800
+P 19400 5500
+F 0 "U13" H 19300 5550 50  0000 L BNN
+F 1 "74LS09" H 19300 5450 50  0000 L BNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 19400 5650 50  0001 C CNN
+F 3 "" H 19400 5500 50  0001 C CNN
+	3    19400 5500
 	1    0    0    -1  
 $EndComp
 $Comp
 L Z80CTCDART-rescue:74LS09-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U13
 U 2 1 49583158
-P 16800 5300
-F 0 "U13" H 16700 5350 50  0000 L BNN
-F 1 "74LS09" H 16700 5250 50  0000 L BNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 16800 5450 50  0001 C CNN
-F 3 "" H 16800 5300 50  0001 C CNN
-	2    16800 5300
+P 19400 5000
+F 0 "U13" H 19300 5050 50  0000 L BNN
+F 1 "74LS09" H 19300 4950 50  0000 L BNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 19400 5150 50  0001 C CNN
+F 3 "" H 19400 5000 50  0001 C CNN
+	2    19400 5000
 	1    0    0    -1  
 $EndComp
 $Comp
 L Z80CTCDART-rescue:74LS09-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U13
 U 1 1 4958314B
-P 16800 4800
-F 0 "U13" H 16700 4850 50  0000 L BNN
-F 1 "74LS09" H 16700 4750 50  0000 L BNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 16800 4950 50  0001 C CNN
-F 3 "" H 16800 4800 50  0001 C CNN
-	1    16800 4800
+P 19400 4500
+F 0 "U13" H 19300 4550 50  0000 L BNN
+F 1 "74LS09" H 19300 4450 50  0000 L BNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 19400 4650 50  0001 C CNN
+F 3 "" H 19400 4500 50  0001 C CNN
+	1    19400 4500
 	1    0    0    -1  
 $EndComp
-Text Label 9900 10300 0    60   ~ 0
+Text Label 9900 10550 0    60   ~ 0
 GND
-Text Label 11450 10100 0    60   ~ 0
+Text Label 11450 10350 0    60   ~ 0
 CTSB_IN
-Text Label 9900 10000 0    60   ~ 0
+Text Label 9900 10250 0    60   ~ 0
 RXDB_IN#
-Text Label 11450 10000 0    60   ~ 0
+Text Label 11450 10250 0    60   ~ 0
 RTSB_OUT
-Text Label 9900 10100 0    60   ~ 0
+Text Label 9900 10350 0    60   ~ 0
 TXDB_OUT#
 Text Label 15350 9250 0    60   ~ 0
 RXDA_IN#
@@ -1775,69 +1724,69 @@ F 3 "" H 12800 9250 50  0001 C CNN
 	1    12800 9250
 	1    0    0    -1  
 $EndComp
-Text Label 13550 5300 0    60   ~ 0
+Text Label 16400 5400 0    60   ~ 0
 bINT#
 $Comp
 L Z80CTCDART-rescue:R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue R11
 U 1 1 49581B3A
-P 13250 5300
-F 0 "R11" V 13330 5300 50  0000 C CNN
-F 1 "4700" V 13250 5300 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 13250 5300 50  0001 C CNN
-F 3 "" H 13250 5300 50  0001 C CNN
-	1    13250 5300
+P 16100 5400
+F 0 "R11" V 16180 5400 50  0000 C CNN
+F 1 "4700" V 16100 5400 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 16100 5400 50  0001 C CNN
+F 3 "" H 16100 5400 50  0001 C CNN
+	1    16100 5400
 	0    1    1    0   
 $EndComp
-Text Label 13550 5100 0    60   ~ 0
+Text Label 16400 5200 0    60   ~ 0
 IEO#
 $Comp
 L Z80CTCDART-rescue:R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue R10
 U 1 1 49581B38
-P 13250 5100
-F 0 "R10" V 13330 5100 50  0000 C CNN
-F 1 "2200" V 13250 5100 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 13250 5100 50  0001 C CNN
-F 3 "" H 13250 5100 50  0001 C CNN
-	1    13250 5100
+P 16100 5200
+F 0 "R10" V 16180 5200 50  0000 C CNN
+F 1 "2200" V 16100 5200 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 16100 5200 50  0001 C CNN
+F 3 "" H 16100 5200 50  0001 C CNN
+	1    16100 5200
 	0    1    1    0   
 $EndComp
-Text Label 13550 4900 0    60   ~ 0
+Text Label 16400 5000 0    60   ~ 0
 IEO_DART
 $Comp
 L Z80CTCDART-rescue:R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue R7
 U 1 1 49581A9E
-P 13250 4900
-F 0 "R7" V 13330 4900 50  0000 C CNN
-F 1 "10K" V 13250 4900 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 13250 4900 50  0001 C CNN
-F 3 "" H 13250 4900 50  0001 C CNN
-	1    13250 4900
+P 16100 5000
+F 0 "R7" V 16180 5000 50  0000 C CNN
+F 1 "10K" V 16100 5000 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 16100 5000 50  0001 C CNN
+F 3 "" H 16100 5000 50  0001 C CNN
+	1    16100 5000
 	0    1    1    0   
 $EndComp
-Text Label 13550 4700 0    60   ~ 0
+Text Label 16400 4800 0    60   ~ 0
 IEO_CTC
 $Comp
 L Z80CTCDART-rescue:R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue R6
 U 1 1 495819F2
-P 13250 4700
-F 0 "R6" V 13330 4700 50  0000 C CNN
-F 1 "10K" V 13250 4700 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 13250 4700 50  0001 C CNN
-F 3 "" H 13250 4700 50  0001 C CNN
-	1    13250 4700
+P 16100 4800
+F 0 "R6" V 16180 4800 50  0000 C CNN
+F 1 "10K" V 16100 4800 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 16100 4800 50  0001 C CNN
+F 3 "" H 16100 4800 50  0001 C CNN
+	1    16100 4800
 	0    1    1    0   
 $EndComp
-Text Label 13550 4500 0    60   ~ 0
+Text Label 16400 4600 0    60   ~ 0
 IEI#
 $Comp
 L Z80CTCDART-rescue:R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue R5
 U 1 1 4958195D
-P 13250 4500
-F 0 "R5" V 13330 4500 50  0000 C CNN
-F 1 "4700" V 13250 4500 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 13250 4500 50  0001 C CNN
-F 3 "" H 13250 4500 50  0001 C CNN
-	1    13250 4500
+P 16100 4600
+F 0 "R5" V 16180 4600 50  0000 C CNN
+F 1 "4700" V 16100 4600 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 16100 4600 50  0001 C CNN
+F 3 "" H 16100 4600 50  0001 C CNN
+	1    16100 4600
 	0    1    1    0   
 $EndComp
 Text Label 18650 2750 0    60   ~ 0
@@ -1908,101 +1857,53 @@ Text Label 16050 1600 0    60   ~ 0
 RXCA#
 Text Label 16050 1500 0    60   ~ 0
 RXDA
-Text Label 10350 4550 0    60   ~ 0
-PHI_X
-Text Label 11800 4550 0    60   ~ 0
-PHI_X
-Text Label 11800 4650 0    60   ~ 0
-RXTXCB#
-Text Label 10350 4450 0    60   ~ 0
-TXCA#
 Text Label 16050 2900 0    60   ~ 0
 RXTXCB#
 Text Label 16050 1800 0    60   ~ 0
 TXCA#
-Text Label 10350 4650 0    60   ~ 0
-CTC_ZC1
-Text Label 11800 4450 0    60   ~ 0
-CTC_ZC0
-Text Label 11800 4350 0    60   ~ 0
-PHI_X
-Text Label 10350 4350 0    60   ~ 0
-PHI_X
-Text Label 10350 4250 0    60   ~ 0
-CTC_TG1
-Text Label 11800 4250 0    60   ~ 0
-CTC_TG0
-Text Label 11800 5350 0    60   ~ 0
-bCLK
-Text Label 10050 5450 0    60   ~ 0
-CLK_4.9152MHz
-Text Label 10350 5250 0    60   ~ 0
-PHI_X
-Text Label 11800 5050 0    60   ~ 0
-PHI_X
-Text Label 10350 4850 0    60   ~ 0
-PHI_X
-Text Label 10350 5350 0    60   ~ 0
-Q0A
-Text Label 11800 5250 0    60   ~ 0
-Q1A
-Text Label 10350 5150 0    60   ~ 0
-Q2A
-Text Label 11800 5150 0    60   ~ 0
-Q3A
-Text Label 10350 5050 0    60   ~ 0
-Q0B
-Text Label 11800 4950 0    60   ~ 0
-Q1B
-Text Label 10350 4950 0    60   ~ 0
-Q2B
-Text Label 11800 4850 0    60   ~ 0
-Q3B
-Text Label 11800 5450 0    60   ~ 0
-CPA
-Text Label 9950 6150 0    60   ~ 0
+Text Label 9750 6150 0    60   ~ 0
 CPA
 $Comp
 L Z80CTCDART-rescue:74LS393-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U12
 U 2 1 495804BA
-P 11250 7100
-F 0 "U12" H 10950 7325 50  0000 L BNN
-F 1 "74LS393" H 10950 6700 50  0000 L BNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 11250 7250 50  0001 C CNN
-F 3 "" H 11250 7100 50  0001 C CNN
-	2    11250 7100
+P 11050 7100
+F 0 "U12" H 10750 7325 50  0000 L BNN
+F 1 "74LS393" H 10750 6700 50  0000 L BNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 11050 7250 50  0001 C CNN
+F 3 "" H 11050 7100 50  0001 C CNN
+	2    11050 7100
 	1    0    0    -1  
 $EndComp
 $Comp
 L Z80CTCDART-rescue:74LS393-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U12
 U 1 1 49580495
-P 11250 6300
-F 0 "U12" H 10950 6525 50  0000 L BNN
-F 1 "74LS393" H 10950 5900 50  0000 L BNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 11250 6450 50  0001 C CNN
-F 3 "" H 11250 6300 50  0001 C CNN
-	1    11250 6300
+P 11050 6300
+F 0 "U12" H 10750 6525 50  0000 L BNN
+F 1 "74LS393" H 10750 5900 50  0000 L BNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 11050 6450 50  0001 C CNN
+F 3 "" H 11050 6300 50  0001 C CNN
+	1    11050 6300
 	1    0    0    -1  
 $EndComp
-Text Label 12000 6450 0    60   ~ 0
+Text Label 11800 6450 0    60   ~ 0
 Q3A
-Text Label 12000 6350 0    60   ~ 0
+Text Label 11800 6350 0    60   ~ 0
 Q2A
-Text Label 12000 6250 0    60   ~ 0
+Text Label 11800 6250 0    60   ~ 0
 Q1A
-Text Label 12000 6150 0    60   ~ 0
+Text Label 11800 6150 0    60   ~ 0
 Q0A
-Text Label 12000 7250 0    60   ~ 0
+Text Label 11800 7250 0    60   ~ 0
 Q3B
-Text Label 12000 7150 0    60   ~ 0
+Text Label 11800 7150 0    60   ~ 0
 Q2B
-Text Label 12000 7050 0    60   ~ 0
+Text Label 11800 7050 0    60   ~ 0
 Q1B
-Text Label 12000 6950 0    60   ~ 0
+Text Label 11800 6950 0    60   ~ 0
 Q0B
-Text Label 9950 7250 0    60   ~ 0
+Text Label 9750 7250 0    60   ~ 0
 GND
-Text Label 9950 6450 0    60   ~ 0
+Text Label 9750 6450 0    60   ~ 0
 GND
 $Comp
 L Z80CTCDART-rescue:CONN_13X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue X4
@@ -2018,12 +1919,12 @@ $EndComp
 $Comp
 L Z80CTCDART-rescue:CONN_5X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue X3
 U 1 1 4958005E
-P 10900 10100
-F 0 "X3" H 10900 10400 60  0000 C CNN
-F 1 "RS-232 B" V 10900 10100 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Horizontal" H 10900 10100 50  0001 C CNN
-F 3 "" H 10900 10100 50  0001 C CNN
-	1    10900 10100
+P 10900 10350
+F 0 "X3" H 10900 10650 60  0000 C CNN
+F 1 "RS-232 B" V 10900 10350 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Horizontal" H 10900 10350 50  0001 C CNN
+F 3 "" H 10900 10350 50  0001 C CNN
+	1    10900 10350
 	1    0    0    -1  
 $EndComp
 Text Label 13600 2500 0    60   ~ 0
@@ -2100,9 +2001,9 @@ Text Label 9850 1800 0    60   ~ 0
 bD1
 Text Label 9850 1700 0    60   ~ 0
 bD0
-Text Label 17650 5700 0    60   ~ 0
+Text Label 20250 5400 0    60   ~ 0
 INT#
-Text Label 15700 5700 0    60   ~ 0
+Text Label 18300 5400 0    60   ~ 0
 bINT#
 Text Label 9650 9350 0    60   ~ 0
 CTSB#
@@ -2207,15 +2108,15 @@ F 3 "" H 12800 9250 50  0001 C CNN
 	1    12800 9250
 	1    0    0    -1  
 $EndComp
-Text Label 14900 6750 0    60   ~ 0
+Text Label 17500 6850 0    60   ~ 0
 CLK_4.9152MHz
-Text Label 17450 4800 0    60   ~ 0
+Text Label 20050 4500 0    60   ~ 0
 IEO#
-Text Label 15700 4700 0    60   ~ 0
+Text Label 18300 4400 0    60   ~ 0
 IEI#
-Text Label 15700 5400 0    60   ~ 0
+Text Label 18300 5100 0    60   ~ 0
 IEO_DART
-Text Label 15700 5200 0    60   ~ 0
+Text Label 18300 4900 0    60   ~ 0
 IEO_CTC
 Text Label 9000 3000 0    60   ~ 0
 CS_DART#
@@ -2281,31 +2182,31 @@ $EndComp
 $Comp
 L Z80CTCDART-rescue:GND-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue #PWR030
 U 1 1 4957D50E
-P 13400 6900
-F 0 "#PWR030" H 13400 6900 30  0001 C CNN
-F 1 "GND" H 13400 6830 30  0001 C CNN
-F 2 "" H 13400 6900 50  0001 C CNN
-F 3 "" H 13400 6900 50  0001 C CNN
-	1    13400 6900
+P 16000 7000
+F 0 "#PWR030" H 16000 7000 30  0001 C CNN
+F 1 "GND" H 16000 6930 30  0001 C CNN
+F 2 "" H 16000 7000 50  0001 C CNN
+F 3 "" H 16000 7000 50  0001 C CNN
+	1    16000 7000
 	1    0    0    -1  
 $EndComp
-NoConn ~ 14100 6450
-NoConn ~ 14100 6350
-NoConn ~ 13400 6350
-NoConn ~ 13400 6450
-NoConn ~ 13400 6650
-NoConn ~ 13400 6750
-NoConn ~ 14100 6750
-NoConn ~ 14100 6650
+NoConn ~ 16700 6550
+NoConn ~ 16700 6450
+NoConn ~ 16000 6450
+NoConn ~ 16000 6550
+NoConn ~ 16000 6750
+NoConn ~ 16000 6850
+NoConn ~ 16700 6850
+NoConn ~ 16700 6750
 $Comp
 L Z80CTCDART-rescue:DIL14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U8
 U 1 1 4957D50C
-P 13750 6550
-F 0 "U8" H 13750 6950 60  0000 C CNN
-F 1 "4.9152 MHz" V 13750 6550 50  0000 C CNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 13750 6550 50  0001 C CNN
-F 3 "" H 13750 6550 50  0001 C CNN
-	1    13750 6550
+P 16350 6650
+F 0 "U8" H 16350 7050 60  0000 C CNN
+F 1 "4.9152 MHz" V 16350 6650 50  0000 C CNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 16350 6650 50  0001 C CNN
+F 3 "" H 16350 6650 50  0001 C CNN
+	1    16350 6650
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -2315,41 +2216,41 @@ Wire Wire Line
 $Comp
 L Z80CTCDART-rescue:CONN_5X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue X7
 U 1 1 5E653345
-P 14550 10100
-F 0 "X7" H 14550 10400 60  0000 C CNN
-F 1 "RS-232 A" V 14550 10100 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Horizontal" H 14550 10100 50  0001 C CNN
-F 3 "" H 14550 10100 50  0001 C CNN
-	1    14550 10100
+P 14550 10350
+F 0 "X7" H 14550 10650 60  0000 C CNN
+F 1 "RS-232 A" V 14550 10350 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Horizontal" H 14550 10350 50  0001 C CNN
+F 3 "" H 14550 10350 50  0001 C CNN
+	1    14550 10350
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	13500 10100 14150 10100
+	13500 10350 14150 10350
 Wire Wire Line
-	13500 10000 14150 10000
+	13500 10250 14150 10250
 Wire Wire Line
-	15600 10000 14950 10000
+	15600 10250 14950 10250
 Wire Wire Line
-	15600 10100 14950 10100
-NoConn ~ 11300 10200
-NoConn ~ 11300 9900
-NoConn ~ 14950 9900
-Text Notes 10650 10650 0    60   ~ 0
+	15600 10350 14950 10350
+NoConn ~ 11300 10450
+NoConn ~ 11300 10150
+NoConn ~ 14950 10150
+Text Notes 10650 10800 0    60   ~ 0
 IBM PC pin\nassignments
 Wire Wire Line
-	12250 2800 12900 2800
+	12250 2800 13050 2800
 $Comp
 L power:VCC #PWR0105
 U 1 1 620E6613
-P 14100 6250
-F 0 "#PWR0105" H 14100 6100 50  0001 C CNN
-F 1 "VCC" H 14115 6423 50  0000 C CNN
-F 2 "" H 14100 6250 50  0001 C CNN
-F 3 "" H 14100 6250 50  0001 C CNN
-	1    14100 6250
+P 16700 6350
+F 0 "#PWR0105" H 16700 6200 50  0001 C CNN
+F 1 "VCC" H 16715 6523 50  0000 C CNN
+F 2 "" H 16700 6350 50  0001 C CNN
+F 3 "" H 16700 6350 50  0001 C CNN
+	1    16700 6350
 	1    0    0    -1  
 $EndComp
-Connection ~ 14250 6850
+Connection ~ 16850 6950
 Wire Wire Line
 	6100 5850 6100 2850
 Wire Wire Line
@@ -2376,35 +2277,35 @@ bA2
 $Comp
 L conn:CONN_01X02 P10
 U 1 1 632EBE75
-P 13100 2850
-F 0 "P10" V 13100 2950 50  0000 L CNN
-F 1 "TIMER" V 13200 2750 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 13100 2850 50  0001 C CNN
-F 3 "" H 13100 2850 50  0001 C CNN
-	1    13100 2850
+P 13250 2850
+F 0 "P10" V 13250 2950 50  0000 L CNN
+F 1 "TIMER3" V 13350 2750 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 13250 2850 50  0001 C CNN
+F 3 "" H 13250 2850 50  0001 C CNN
+	1    13250 2850
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	13000 4400 13000 4500
-Connection ~ 13000 4500
+	15850 4500 15850 4600
+Connection ~ 15850 4600
 Wire Wire Line
-	13000 4500 13000 4700
-Connection ~ 13000 4700
+	15850 4600 15850 4800
+Connection ~ 15850 4800
 Wire Wire Line
-	13000 4700 13000 4900
-Connection ~ 13000 4900
-Connection ~ 13000 5100
+	15850 4800 15850 5000
+Connection ~ 15850 5000
+Connection ~ 15850 5200
 Wire Wire Line
-	13000 5100 13000 5300
+	15850 5200 15850 5400
 $Comp
 L power:VCC #PWR0106
 U 1 1 63443665
-P 13000 4400
-F 0 "#PWR0106" H 13000 4250 50  0001 C CNN
-F 1 "VCC" H 13015 4573 50  0000 C CNN
-F 2 "" H 13000 4400 50  0001 C CNN
-F 3 "" H 13000 4400 50  0001 C CNN
-	1    13000 4400
+P 15850 4500
+F 0 "#PWR0106" H 15850 4350 50  0001 C CNN
+F 1 "VCC" H 15865 4673 50  0000 C CNN
+F 2 "" H 15850 4500 50  0001 C CNN
+F 3 "" H 15850 4500 50  0001 C CNN
+	1    15850 4500
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -2485,38 +2386,36 @@ bD1
 Text Label 13600 1500 0    60   ~ 0
 bD0
 Wire Wire Line
-	17400 4800 17400 5300
+	20000 4500 20000 5000
 Wire Wire Line
-	13000 4900 13000 5100
+	15850 5000 15850 5200
 Text Label 15350 9150 0    60   ~ 0
 RTSA_OUT
 NoConn ~ 4350 11450
 NoConn ~ 5250 11450
 Wire Wire Line
-	14100 6850 14250 6850
+	16700 6950 16850 6950
 Wire Wire Line
-	14250 6550 14100 6550
+	16850 6650 16700 6650
 Wire Wire Line
-	13400 6550 13250 6550
+	16000 6650 15850 6650
 Wire Wire Line
-	13250 6550 13250 6850
+	15850 6650 15850 6950
 Wire Wire Line
-	13250 6850 13400 6850
-Connection ~ 13400 6850
+	15850 6950 16000 6950
+Connection ~ 16000 6950
 NoConn ~ 8600 2300
-NoConn ~ 14150 9900
-NoConn ~ 14150 10200
-NoConn ~ 10500 9900
-NoConn ~ 10500 10200
+NoConn ~ 14150 10150
+NoConn ~ 10500 10150
 $Comp
 L Z80CTCDART-rescue:74LS04-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U15
 U 2 1 4957D94F
-P 17850 5300
-F 0 "U15" H 18045 5415 60  0000 C CNN
-F 1 "74LS04" H 18040 5175 60  0000 C CNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 17850 5300 50  0001 C CNN
-F 3 "" H 17850 5300 50  0001 C CNN
-	2    17850 5300
+P 20450 5000
+F 0 "U15" H 20645 5115 60  0000 C CNN
+F 1 "74LS04" H 20640 4875 60  0000 C CNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 20450 5000 50  0001 C CNN
+F 3 "" H 20450 5000 50  0001 C CNN
+	2    20450 5000
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -2547,12 +2446,12 @@ NoConn ~ 4350 11050
 NoConn ~ 5250 10250
 NoConn ~ 5250 10650
 NoConn ~ 5250 11050
-Text Notes 15900 4450 0    60   ~ 0
+Text Notes 18500 4150 0    60   ~ 0
 IA: HIGH DURING INTERRUPT ACTIVE\nLOW DURING NORMAL OPERATION
-Connection ~ 17400 5300
+Connection ~ 20000 5000
 Wire Wire Line
-	18700 5300 18300 5300
-Text Label 18350 5300 0    60   ~ 0
+	21300 5000 20900 5000
+Text Label 20950 5000 0    60   ~ 0
 IA
 Text Label 16050 3500 0    60   ~ 0
 DTRB#
@@ -2570,7 +2469,7 @@ Text Label 17200 2350 0    60   ~ 0
 DCDB#
 Wire Wire Line
 	17150 2350 17800 2350
-Text Notes 14300 10650 0    60   ~ 0
+Text Notes 14300 10800 0    60   ~ 0
 IBM PC pin\nassignments
 Wire Wire Line
 	6200 4550 6200 6150
@@ -2585,30 +2484,30 @@ IA
 $Comp
 L conn:CONN_01X03 J1
 U 1 1 61A8A4E9
-P 18150 5800
-F 0 "J1" H 18228 5841 50  0000 L CNN
-F 1 "INT SEL" H 18228 5750 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Horizontal" H 18150 5800 50  0001 C CNN
-F 3 "" H 18150 5800 50  0001 C CNN
-	1    18150 5800
+P 20750 5500
+F 0 "J1" H 20828 5541 50  0000 L CNN
+F 1 "INT SEL" H 20828 5450 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Horizontal" H 20750 5500 50  0001 C CNN
+F 3 "" H 20750 5500 50  0001 C CNN
+	1    20750 5500
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	17950 5700 17600 5700
+	20550 5400 20200 5400
 Wire Wire Line
-	17600 5900 17950 5900
-Text Label 17650 5900 0    60   ~ 0
+	20200 5600 20550 5600
+Text Label 20250 5600 0    60   ~ 0
 NMI#
-Text Notes 10200 4050 0    60   ~ 0
-X6 - DART/SIO baud rate clock source selection
-Text Notes 9900 10900 0    60   ~ 0
-X3 - DART/SIO channel B (RS-232 levels)
-Text Notes 17200 3350 0    60   ~ 0
-X4 - CTC, DART/SIO channel A (TTL levels)
-Text Notes 10600 5650 0    60   ~ 0
+Text Notes 10150 4000 0    60   ~ 0
+X6 - DART baud rate clock source selection
+Text Notes 9900 9950 0    60   ~ 0
+X3 - DART channel B (RS-232 levels)
+Text Notes 17150 1450 0    60   ~ 0
+X4 - CTC, DART channel A (TTL levels)
+Text Notes 10500 5800 0    60   ~ 0
 X5 - oscillator divider selection
-Text Notes 13600 10900 0    60   ~ 0
-X7 - DART/SIO channel A (RS-232 levels)
+Text Notes 13600 9950 0    60   ~ 0
+X7 - DART channel A (RS-232 levels)
 Wire Wire Line
 	1600 9350 5350 9350
 $Comp
@@ -2646,10 +2545,8 @@ Connection ~ 4350 8100
 Wire Wire Line
 	4350 8100 4600 8100
 Wire Wire Line
-	12900 2900 12900 3100
-Wire Wire Line
 	12250 3100 12900 3100
-Text Notes 17150 6150 0    60   ~ 0
+Text Notes 19750 5850 0    60   ~ 0
 NOTE: INT# AND NMI# RELY ON 4700\nOHM PULL UP ON PROCESSOR
 NoConn ~ 4300 3650
 NoConn ~ 4300 3750
@@ -2731,8 +2628,8 @@ $Comp
 L Connector_Generic:Conn_02x02_Odd_Even J2
 U 1 1 6248EFFF
 P 17950 9800
-F 0 "J2" H 18000 9950 60  0000 C CNN
-F 1 "TTLSERPWR" H 18000 9550 60  0000 C CNN
+F 0 "J2" H 18000 9900 60  0000 C CNN
+F 1 "TTLSERPWR" H 18000 9600 60  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_2x02_P2.54mm_Vertical" H 17950 9800 60  0001 C CNN
 F 3 "" H 17950 9800 60  0001 C CNN
 	1    17950 9800
@@ -2751,71 +2648,308 @@ Wire Wire Line
 Text Label 18300 9800 0    60   ~ 0
 PWRA
 $Comp
-L Z80CTCDART-rescue:CONN_13X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue X56
-U 1 1 627668F1
-P 11350 4850
-F 0 "X56" H 11350 5550 60  0000 C CNN
-F 1 "OSC_DIV-BAUD_CLK" V 11350 4850 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_2x13_P2.54mm_Vertical" H 11350 4850 50  0001 C CNN
-F 3 "" H 11350 4850 50  0001 C CNN
-	1    11350 4850
-	1    0    0    -1  
-$EndComp
-NoConn ~ 10950 4750
-NoConn ~ 11750 4750
-$Comp
 L device:LED D3
 U 1 1 629F83C9
-P 17550 6950
-F 0 "D3" H 17550 7050 50  0000 C CNN
-F 1 "LED" H 17550 6850 50  0000 C CNN
-F 2 "LED_THT:LED_D3.0mm" H 17550 6950 60  0001 C CNN
-F 3 "" H 17550 6950 60  0001 C CNN
-	1    17550 6950
+P 20150 6650
+F 0 "D3" H 20150 6750 50  0000 C CNN
+F 1 "LED" H 20150 6550 50  0000 C CNN
+F 2 "LED_THT:LED_D3.0mm" H 20150 6650 60  0001 C CNN
+F 3 "" H 20150 6650 60  0001 C CNN
+	1    20150 6650
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Z80CTCDART-rescue:R-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue R3
 U 1 1 629F83D3
-P 17550 6550
-F 0 "R3" V 17630 6550 50  0000 C CNN
-F 1 "470" V 17550 6550 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 17550 6550 60  0001 C CNN
-F 3 "" H 17550 6550 60  0001 C CNN
-	1    17550 6550
+P 20150 6250
+F 0 "R3" V 20230 6250 50  0000 C CNN
+F 1 "470" V 20150 6250 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 20150 6250 60  0001 C CNN
+F 3 "" H 20150 6250 60  0001 C CNN
+	1    20150 6250
 	-1   0    0    1   
 $EndComp
 $Comp
 L Z80CTCDART-rescue:VCC-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue #PWR05
 U 1 1 629F83DD
-P 17550 6300
-F 0 "#PWR05" H 17550 6400 30  0001 C CNN
-F 1 "VCC" H 17550 6400 30  0000 C CNN
-F 2 "" H 17550 6300 60  0001 C CNN
-F 3 "" H 17550 6300 60  0001 C CNN
-	1    17550 6300
+P 20150 6000
+F 0 "#PWR05" H 20150 6100 30  0001 C CNN
+F 1 "VCC" H 20150 6100 30  0000 C CNN
+F 2 "" H 20150 6000 60  0001 C CNN
+F 3 "" H 20150 6000 60  0001 C CNN
+	1    20150 6000
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	17400 7100 17550 7100
+	20000 6800 20150 6800
 Wire Wire Line
-	16200 5900 16200 7000
-Connection ~ 16200 5900
-Connection ~ 16200 7000
+	18800 5600 18800 6700
+Connection ~ 18800 5600
+Connection ~ 18800 6700
 Wire Wire Line
-	16200 7000 16200 7200
+	18800 6700 18800 6900
 $Comp
 L power:VCC #PWR0110
 U 1 1 62F2E8DB
-P 13400 6250
-F 0 "#PWR0110" H 13400 6100 50  0001 C CNN
-F 1 "VCC" H 13415 6423 50  0000 C CNN
-F 2 "" H 13400 6250 50  0001 C CNN
-F 3 "" H 13400 6250 50  0001 C CNN
-	1    13400 6250
+P 16000 6350
+F 0 "#PWR0110" H 16000 6200 50  0001 C CNN
+F 1 "VCC" H 16015 6523 50  0000 C CNN
+F 2 "" H 16000 6350 50  0001 C CNN
+F 3 "" H 16000 6350 50  0001 C CNN
+	1    16000 6350
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	14250 6650 14250 6550
-Connection ~ 14250 6650
+	16850 6750 16850 6650
+Connection ~ 16850 6750
+Wire Wire Line
+	17150 2150 17800 2150
+Text Label 17200 2150 0    60   ~ 0
+TXCA#
+Text Notes 17250 3200 0    60   ~ 0
+NOTE: DEFAULT JUMPER ON PINS 11-12\nTO CONNECT TXCA# AND RXCA#
+Text Notes 13250 7050 0    60   ~ 0
+NOTE: JUMPER DEFAULTS for 38400 bps\nwith 50 Hz System Tick:\n- Assumes 4.9152 MHz oscillator\n- Jumper X5 pins 15-16 and pins 9-11 (/8)\n- Jumper P4 (or wire X5 pin 3 (PHI_X) \n     to X4 pin 7 (CTC_TG2))\n- Jumper P10 (or wire X4 pin 8 \n     (CTC_ZC2) to X4 pin 9 (CTC_TG3))\n- Configure the interrupt vector\n- Configure channel 3 to divide by 256\n- Configure channel 4 to divide by 48 and interrupt.\n- Refer to ROMWBW ctc.asm driver for example.
+Text Notes 12500 6450 0    60   ~ 0
+/2\n/4\n/8\n/16
+Text Notes 12500 7250 0    60   ~ 0
+/32\n/64\n/128\n/256
+Text Notes 13300 5550 0    60   ~ 0
+First jumper pins 15-16 of X5 to\nselect the oscillator module. A \nsecond jumper on X5 selects the\ndivider output for PHI_X.\nThe /16 or /64 option is \nprogrammed into the Z80-DART\nregisters.\n\nBAUD   PHI_X (Hz)  /16 or /64   X5 Jumper\n300       19200        /64       3-4\n600       38400        /64       3-5\n1200     19200         /16       3-4\n2400     38400         /16       3-5\n4800     76800         /16       6-8\n9600     153600        /16       7-8\n19200    307200       /16       8-10\n*38400   614400       /16       9-11 (default)
+Text Notes 13000 3400 0    60   ~ 0
+NOTE:\nDEFAULT\nJUMPER\nON P10
+$Comp
+L conn:CONN_01X02 P4
+U 1 1 620145A5
+P 13250 1450
+F 0 "P4" V 13250 1550 50  0000 L CNN
+F 1 "TIMER2" V 13350 1350 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 13250 1450 50  0001 C CNN
+F 3 "" H 13250 1450 50  0001 C CNN
+	1    13250 1450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	13050 2900 12900 2900
+Wire Wire Line
+	12900 2900 12900 3100
+Wire Wire Line
+	13050 1500 13050 2700
+Wire Wire Line
+	12250 2700 13050 2700
+Wire Wire Line
+	12650 1400 13050 1400
+Text Label 12700 1400 0    60   ~ 0
+PHI_X
+Text Notes 12900 1200 0    60   ~ 0
+NOTE:\nDEFAULT\nJUMPER\nON P4
+Wire Wire Line
+	9550 4500 10350 4500
+Wire Wire Line
+	11150 4500 11800 4500
+Wire Wire Line
+	11150 4600 11800 4600
+Wire Wire Line
+	9550 4400 10350 4400
+Wire Wire Line
+	9550 4600 10350 4600
+Wire Wire Line
+	11150 4400 11800 4400
+Wire Wire Line
+	9550 4300 10350 4300
+Wire Wire Line
+	11150 4300 11800 4300
+Wire Wire Line
+	9550 4200 10350 4200
+Wire Wire Line
+	11150 4200 11800 4200
+Wire Wire Line
+	11800 5500 11150 5500
+Wire Wire Line
+	10350 5600 9550 5600
+Wire Wire Line
+	9550 5400 10350 5400
+Wire Wire Line
+	11150 5200 11800 5200
+Wire Wire Line
+	9550 5000 10350 5000
+Wire Wire Line
+	9550 5500 10350 5500
+Wire Wire Line
+	11150 5400 11800 5400
+Wire Wire Line
+	9550 5300 10350 5300
+Wire Wire Line
+	11150 5300 11800 5300
+Wire Wire Line
+	9550 5200 10350 5200
+Wire Wire Line
+	11150 5100 11800 5100
+Wire Wire Line
+	9550 5100 10350 5100
+Wire Wire Line
+	11150 5000 11800 5000
+Wire Wire Line
+	11150 5600 11800 5600
+Text Label 9600 4500 0    60   ~ 0
+PHI_X
+Text Label 11200 4500 0    60   ~ 0
+PHI_X
+Text Label 11200 4600 0    60   ~ 0
+RXTXCB#
+Text Label 9600 4400 0    60   ~ 0
+TXCA#
+Text Label 9600 4600 0    60   ~ 0
+CTC_ZC1
+Text Label 11200 4400 0    60   ~ 0
+CTC_ZC0
+Text Label 11200 4300 0    60   ~ 0
+PHI_X
+Text Label 9600 4300 0    60   ~ 0
+PHI_X
+Text Label 9600 4200 0    60   ~ 0
+CTC_TG1
+Text Label 11200 4200 0    60   ~ 0
+CTC_TG0
+Text Label 11200 5500 0    60   ~ 0
+bCLK
+Text Label 9600 5600 0    60   ~ 0
+CLK_4.9152MHz
+Text Label 9600 5400 0    60   ~ 0
+PHI_X
+Text Label 11200 5200 0    60   ~ 0
+PHI_X
+Text Label 9600 5000 0    60   ~ 0
+PHI_X
+Text Label 9600 5500 0    60   ~ 0
+Q0A
+Text Label 11200 5400 0    60   ~ 0
+Q1A
+Text Label 9600 5300 0    60   ~ 0
+Q2A
+Text Label 11200 5300 0    60   ~ 0
+Q3A
+Text Label 9600 5200 0    60   ~ 0
+Q0B
+Text Label 11200 5100 0    60   ~ 0
+Q1B
+Text Label 9600 5100 0    60   ~ 0
+Q2B
+Text Label 11200 5000 0    60   ~ 0
+Q3B
+Text Label 11200 5600 0    60   ~ 0
+CPA
+$Comp
+L Z80CTCDART-rescue:CONN_5X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue X6
+U 1 1 622AB80C
+P 10750 4400
+F 0 "X6" H 10750 4700 60  0000 C CNN
+F 1 "BAUD_CLK" V 10750 4400 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical" H 10750 4400 50  0001 C CNN
+F 3 "" H 10750 4400 50  0001 C CNN
+	1    10750 4400
+	1    0    0    -1  
+$EndComp
+NoConn ~ 9550 4900
+NoConn ~ 11800 4900
+Wire Wire Line
+	11150 4900 11800 4900
+Wire Wire Line
+	9550 4900 10350 4900
+$Comp
+L Z80CTCDART-rescue:CONN_8X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue X5
+U 1 1 62362E6E
+P 10750 5250
+F 0 "X5" H 10750 5700 60  0000 C CNN
+F 1 "OSC_DIV" V 10750 5250 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical" H 10750 5250 50  0001 C CNN
+F 3 "" H 10750 5250 50  0001 C CNN
+	1    10750 5250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Z80CTCDART-rescue:R-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue R4
+U 1 1 61C1A3A0
+P 12350 10500
+F 0 "R4" V 12430 10500 50  0000 C CNN
+F 1 "470" V 12350 10500 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 12350 10500 60  0001 C CNN
+F 3 "" H 12350 10500 60  0001 C CNN
+	1    12350 10500
+	-1   0    0    1   
+$EndComp
+$Comp
+L Z80CTCDART-rescue:VCC-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue #PWR012
+U 1 1 61C1A3AA
+P 12350 10250
+F 0 "#PWR012" H 12350 10350 30  0001 C CNN
+F 1 "VCC" H 12350 10350 30  0000 C CNN
+F 2 "" H 12350 10250 60  0001 C CNN
+F 3 "" H 12350 10250 60  0001 C CNN
+	1    12350 10250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Z80CTCDART-rescue:R-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue R8
+U 1 1 61CD7C53
+P 12850 10500
+F 0 "R8" V 12930 10500 50  0000 C CNN
+F 1 "470" V 12850 10500 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" H 12850 10500 60  0001 C CNN
+F 3 "" H 12850 10500 60  0001 C CNN
+	1    12850 10500
+	-1   0    0    1   
+$EndComp
+$Comp
+L Z80CTCDART-rescue:VCC-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue #PWR015
+U 1 1 61CD7C5D
+P 12850 10250
+F 0 "#PWR015" H 12850 10350 30  0001 C CNN
+F 1 "VCC" H 12850 10350 30  0000 C CNN
+F 2 "" H 12850 10250 60  0001 C CNN
+F 3 "" H 12850 10250 60  0001 C CNN
+	1    12850 10250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	12850 10950 13250 10950
+Text Label 12900 10950 0    60   ~ 0
+DTRA#
+Text Label 12000 10950 0    60   ~ 0
+DTRB#
+$Comp
+L conn:CONN_02X03 J3
+U 1 1 62297B86
+P 12600 10850
+F 0 "J3" H 12550 11050 50  0000 L CNN
+F 1 "DTR SEL" H 12450 10650 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical" H 12600 10850 50  0001 C CNN
+F 3 "" H 12600 10850 50  0001 C CNN
+	1    12600 10850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9750 10450 10500 10450
+Wire Wire Line
+	13350 10450 13350 10850
+Wire Wire Line
+	13350 10850 12850 10850
+Wire Wire Line
+	13350 10450 14150 10450
+Wire Wire Line
+	11950 10950 12350 10950
+Wire Wire Line
+	12350 10850 9750 10850
+Wire Wire Line
+	9750 10850 9750 10450
+Text Notes 11900 11650 0    60   ~ 0
+NOTE: J3 CONFIGURES DTR FOR \nRS-232 A AND B CHANNELS.\nDEFAULT IS 1-3 AND 2-4.  TTL\nDTR AVAILABLE FOR CUSTOM\nAPPLICATIONS.
+Text Notes 7450 5700 0    60   ~ 0
+The Z80-DART's clock pins need to be\nconnected to PHI_X using header X6.\nFor the FIXED baud rate jumper pins\n3-5 or 5-7 for channel A and 8-10 for\nchannel B of header X6. For CTC baud\nrate to DART clock for channel A set\nwith pins 2-4 and channel B with pins\n1-3. This assumes pins 11-12 are closed\non X4 per default.
+Text Notes 11900 4450 0    60   ~ 0
+X6 DEFAULT:\npins 3-5 FIXED channel A\npins 8-10 FIXED channel B
+Text Notes 11950 5150 0    60   ~ 0
+X5 DEFAULT:\npins 15-16 4.9152 MHz\npins 9-11 /8 divider
+Text Notes 19350 1800 0    60   ~ 0
+X4 DEFAULT:\npins 11-12 share RX & TX clock
 $EndSCHEMATC
