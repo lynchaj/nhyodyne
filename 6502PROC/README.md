@@ -116,22 +116,22 @@ the HI.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 ar
         * remember that bit A15 is inverted on the board so the dip switch is set to $83.
 
 
-To run from the MBC Z80 monitor:
+To run from the MBC Z80 monitor
 
- first set the MPCL to allow RAM in the low bank
- >O 7C 80
- >O 78 80
+first set the MPCL to allow RAM in the low bank
+```
+>O 7C 80
+>O 78 80
+```
+Then load the .HEX file.
+```
+>L
+```
 
- then load the .HEX file.
- >L
-
-
- Finally transfer control to the 65C02 by reading the toggle register
- >I FF
-
- The '02 should reset run this program and return to the Z80 monitor
-
-From CP/M, you can simply execute the hi.com program.
+Finally transfer control to the 65C02 by reading the toggle register
+```
+>I FF
+```
 
 
 ### MONITOR
@@ -150,18 +150,19 @@ If the SBC is secondary to a Z80, the monitor.com file can be run from CP/M or t
 To run from the MBC Z80 monitor
 
 first set the MPCL to allow RAM in the low bank
- >O 7C 80
- >O 78 80
+```
+>O 7C 80
+>O 78 80
+```
+Then load the .HEX file.
+```
+>L
+```
 
- then load the .HEX file.
- >L
-
- Finally transfer control to the 65C02 by reading the toggle register
- >I FF
-
- The '02 should reset and run this program
-
-From CP/M, you can simply execute the monitor.com program.
+Finally transfer control to the 65C02 by reading the toggle register
+```
+>I FF
+```
 
 ### SCREAM
 This is a quick program that can be put on a ROM to test the 65C02 board. It will output a continuous stream of "A" at 9600 baud from the UART. It does not require the stack to be available and is pretty much the simplest code imaginable. :)
@@ -197,7 +198,7 @@ Finally transfer control to the 65C02 by reading the toggle register
 The '02 should reset and run this program
 
 
-##MONITOR Program
+## MONITOR Program
 
 Monitor is a simple machine language monitor that will allow you to view and manipulate the 6502 operating environment.
 
