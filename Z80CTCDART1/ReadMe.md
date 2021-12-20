@@ -1,7 +1,5 @@
 # Counter / Timer Channels (CTC) and Dual Asynchronous Receiver Transmitter (DART) board for Z80 Modular Backplane Computer
 
-# NOTE: THIS BOARD IS STILL IN DEVELOPMENT, NO GERBER FILES AVAILABLE YET
-
 Adds CTC system timer and DART dual serial ports
 
 External interrupts with Zilog compatible interrupt priority modes
@@ -20,7 +18,7 @@ Chip Select LED
 
 Interrupt LED
 
-Default IO ports $80-$87
+Default IO ports $B0-$B7
 
 # Jumpers
 
@@ -29,4 +27,4 @@ Note: can connect J1 pin 2 via flying lead to Z80 processor IM2 connector
 
 J2 TTL Level Serial Ports Power, connect 1-2 for Port A Power, connect 3-4 for Port B Power, default is none
 
-P10 connect 1-2 for system timer, none for no system timer, default is 1-2  
+P10 connect 1-2 for system timer, none for no system timer, default is 1-2
