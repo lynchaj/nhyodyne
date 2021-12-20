@@ -1,7 +1,5 @@
 # Dual Parallel IO board for Z80 Modular Backplane Computer
 
-# NOTE: THIS BOARD IS STILL IN DEVELOPMENT, NO GERBER FILES AVAILABLE YET
-
 Add a pair of PIOs with external connectors, 32 GPIO pins plus 4 strobe pins, 4 ready pins, and power pins 
 
 External interrupts with Zilog compatible interrupt priority modes
@@ -14,7 +12,7 @@ Chip Select LED
 
 Interrupt LED
 
-Default IO ports $88-$8F
+Default IO ports $B8-$BF
 
 # Jumpers
 
