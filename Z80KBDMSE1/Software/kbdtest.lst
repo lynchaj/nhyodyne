@@ -24,452 +24,491 @@
 0024   0000             CR		.EQU	0DH
 0025   0000             LF		.EQU	0AH
 0026   0000             TAB		.EQU	09H
-0027   0000             BELL	.EQU	07H
+0027   0000             BELL		.EQU	07H
 0028   0000             
 0029   0100             		.ORG	0100H
 0030   0100             START:
-0031   0100 31 EB 04    	LD	SP,STACK
+0031   0100 31 01 05    	LD	SP,STACK
 0032   0103             
-0033   0103 21 37 02    	LD	HL,SIGNON		; Signon
-0034   0106 CD 1F 02    	CALL	PRINT_STRING
+0033   0103 21 4D 02    	LD	HL,SIGNON		; Signon
+0034   0106 CD 35 02    	CALL	PRINT_STRING
 0035   0109             
 0036   0109 0E AA       	LD	C,0AAH			;Test PS/2 Controller
-0037   010B CD C5 01    	CALL	KEY_OUT
+0037   010B CD D1 01    	CALL	CMD_OUT
 0038   010E             CHK1:
-0039   010E CD C0 01    	CALL	KEY_IN_STATUS		;wait for feedback
+0039   010E CD CC 01    	CALL	KEY_IN_STATUS		;wait for feedback
 0040   0111 28 FB       	JR	Z,CHK1
 0041   0113 DB E2       	IN	A,(KEY_DATA)
 0042   0115 FE 55       	CP	055H			;If not 55H then error
-0043   0117 28 07       	JR	Z,DONE_INIT
-0044   0119 21 82 02    	LD	HL,INIT_ERR		;Say error
-0045   011C CD 1F 02    	CALL	PRINT_STRING
-0046   011F 76          	HALT				;Just Halt!
-0047   0120             
-0048   0120             DONE_INIT:
-0049   0120 21 D0 02    	LD	HL,INIT_OK		;Say all OK
-0050   0123 CD 1F 02    	CALL	PRINT_STRING
-0051   0126             
-0052   0126 0E AE       	LD	C,0AEH			;Enable 1st PS/2 port
-0053   0128 CD C5 01    	CALL	KEY_OUT			;Send it
-0054   012B             
-0055   012B             LOOP:
-0056   012B CD C0 01    	CALL	KEY_IN_STATUS		;See if keyboard key available
-0057   012E 28 FB       	JR	Z,LOOP
-0058   0130 DB E2       	IN	A,(KEY_DATA)
-0059   0132 4F          	LD	C,A			;Store in [C]
-0060   0133 21 19 03    	LD	HL,SCAN_MSG
-0061   0136 CD 1F 02    	CALL	PRINT_STRING		;No registers changed
-0062   0139             
-0063   0139 CD CF 01    	CALL	A_HEXOUT		;Display Hex value of typed character + two spaces
-0064   013C             
-0065   013C FE F0       	CP	0F0H			;Is it an UP key
-0066   013E 20 0B       	JR	NZ,DOWNKY		;Must be a down key stroke
-0067   0140 21 25 03    	LD	HL,UPKEY_MSG		;Say Up Key
-0068   0143 CD 1F 02    	CALL	PRINT_STRING
-0069   0146 CD 10 02    	CALL	ZCRLF
-0070   0149 18 E0       	JR	LOOP
-0071   014B             
-0072   014B             DOWNKY:
-0073   014B FE 58       	CP	58H			;Is it CAPS Lock key
-0074   014D 20 0B       	JR	NZ,NOT_CAPSKEY
-0075   014F 21 34 03    	LD	HL,CAPS_MSG		;Say Caps lock key
-0076   0152 CD 1F 02    	CALL	PRINT_STRING
-0077   0155 CD 10 02    	CALL	ZCRLF
-0078   0158 18 D1       	JR	LOOP
-0079   015A             
-0080   015A             NOT_CAPSKEY:
-0081   015A FE 12       	CP	12H			;Is it a SHIFT key
-0082   015C 28 04       	JR	Z,SHIFTKEY
-0083   015E FE 59       	CP	59H			;Is it the other SHIFT key
-0084   0160 20 0B       	JR	NZ,NOT_SHIFTKEY
-0085   0162             
-0086   0162             SHIFTKEY:
-0087   0162 21 40 03    	LD	HL,SHIFT_MSG		;Say Shift key
-0088   0165 CD 1F 02    	CALL	PRINT_STRING
-0089   0168 CD 10 02    	CALL	ZCRLF
-0090   016B 18 BE       	JR	LOOP
-0091   016D             
-0092   016D             NOT_SHIFTKEY:
-0093   016D FE 14       	CP	14H			;Is it the CTRL key
-0094   016F 20 0B       	JR	NZ,NOT_CTRLKEY
-0095   0171 21 4C 03    	LD	HL,CTRL_MSG		;Say CTRL key
-0096   0174 CD 1F 02    	CALL	PRINT_STRING
-0097   0177 CD 10 02    	CALL	ZCRLF
-0098   017A 18 AF       	JR	LOOP
-0099   017C             
-0100   017C             NOT_CTRLKEY:
-0101   017C FE 77       	CP	77H			;Is it the NUM LOCK key
-0102   017E 20 0B       	JR	NZ,NOT_NUMKEY
-0103   0180 21 57 03    	LD	HL,NUM_MSG		;Say Number key
-0104   0183 CD 1F 02    	CALL	PRINT_STRING
-0105   0186 CD 10 02    	CALL	ZCRLF
-0106   0189 18 A0       	JR	LOOP
-0107   018B             
-0108   018B             NOT_NUMKEY:
-0109   018B C5          	PUSH	BC			;Save Character
-0110   018C 21 61 03    	LD	HL,IBM1_MSG		;Say Table 1 lookup
-0111   018F CD 1F 02    	CALL	PRINT_STRING
-0112   0192 21 8B 03    	LD	HL,IBM1TBL		;Point to lookup table for upper case
-0113   0195 CD AA 01    	CALL	SHOW_CHAR
-0114   0198             
-0115   0198 C1          	POP	BC			;Get back character
-0116   0199 21 74 03    	LD	HL,IBM2_MSG		;Say Table 2 lookup
-0117   019C CD 1F 02    	CALL	PRINT_STRING
-0118   019F 21 1B 04    	LD	HL,IBM2TBL		;Point to lookup table for upper case
-0119   01A2 CD AA 01    	CALL	SHOW_CHAR
-0120   01A5             
-0121   01A5 CD 10 02    	CALL	ZCRLF
-0122   01A8 18 81       	JR	LOOP
-0123   01AA             
-0124   01AA             SHOW_CHAR:
-0125   01AA 16 00       	LD	D,0
-0126   01AC 59          	LD	E,C
-0127   01AD 19          	ADD	HL,DE			;Add in offset
-0128   01AE 4E          	LD	C,(HL)
-0129   01AF 79          	LD	A,C
-0130   01B0 FE 1B       	CP	ESC
-0131   01B2 C8          	RET	Z			;ESC messes up the screen display
-0132   01B3 FE 0D       	CP	CR
-0133   01B5 C8          	RET	Z			;CR messes up the screen display
-0134   01B6 FE 0A       	CP	LF
-0135   01B8 C8          	RET	Z			;LF messes up the screen display
-0136   01B9 FE 09       	CP	TAB
-0137   01BB C8          	RET	Z			;TAB messes up the screen display
-0138   01BC CD F9 01    	CALL	ZCO			;Display on Screen
-0139   01BF C9          	RET
-0140   01C0             
-0141   01C0             KEY_IN_STATUS:				;Ret NZ if character is available
-0142   01C0 DB E3       	IN	A,(KEY_CTRL)
-0143   01C2 E6 01       	AND	1
-0144   01C4 C9          	RET				;Ret NZ if character available
-0145   01C5             
-0146   01C5             KEY_OUT:				;Send a byte (in [C]) to Control port
-0147   01C5 DB E3       	IN	A,(KEY_CTRL)
-0148   01C7 E6 02       	AND	2
-0149   01C9 20 FA       	JR	NZ,KEY_OUT		;Chip is not ready yet to receive character
-0150   01CB 79          	LD	A,C
-0151   01CC D3 E3       	OUT	(KEY_CTRL),A
-0152   01CE C9          	RET
-0153   01CF             
-0154   01CF             
-0155   01CF             ;	A_HEXOUT			;output the 2 hex digits in [A]
-0156   01CF             A_HEXOUT:				;No registers altered
-0157   01CF F5          	push	AF
-0158   01D0 C5          	push	BC
-0159   01D1 F5          	push	AF
-0160   01D2 CB 3F       	srl	a
-0161   01D4 CB 3F       	srl	a
-0162   01D6 CB 3F       	srl	a
-0163   01D8 CB 3F       	srl	a
-0164   01DA CD EC 01    	call	hexdigout
-0165   01DD F1          	pop	AF
-0166   01DE CD EC 01    	call	hexdigout		;get upper nibble
-0167   01E1 0E 20       	LD	C,' '
-0168   01E3 CD F9 01    	call	ZCO			;Space for easy reading
-0169   01E6 CD F9 01    	call	ZCO
-0170   01E9 C1          	pop	BC
-0171   01EA F1          	pop	AF
-0172   01EB C9          	ret
-0173   01EC             
-0174   01EC             hexdigout:
-0175   01EC E6 0F       	and	0fh			;convert nibble to ascii
-0176   01EE C6 90       	add	a,90h
-0177   01F0 27          	daa
-0178   01F1 CE 40       	adc	a,40h
-0179   01F3 27          	daa
-0180   01F4 4F          	LD	c,a
-0181   01F5 CD F9 01    	call	ZCO
-0182   01F8 C9          	ret
-0183   01F9             
-0184   01F9             ; Main console I/O routines
-0185   01F9             ;
-0186   01F9             
-0187   01F9             ZCO:
-0188   01F9 E5          	PUSH HL
-0189   01FA 59          	LD E,C
-0190   01FB 0E 02       	LD C,02H			;BDOS Function 2 Write Console Byte
-0191   01FD CD 05 00    	CALL 0005H			;Call BDOS
-0192   0200 E1          	POP HL
-0193   0201 C9          	RET
-0194   0202             
-0195   0202             ZCI:
-0196   0202 0E 0B       	LD C,0BH			;BDOS Function 11 Read Console Status
-0197   0204 CD 05 00    	CALL 0005H			;Call BDOS
-0198   0207 CA 02 02    	JP Z,ZCI
-0199   020A 0E 01       	LD C,01H			;BDOS Function 1 Read Console Byte
-0200   020C CD 05 00    	CALL 0005H			;Call BDOS
-0201   020F C9          	RET
-0202   0210             ;
-0203   0210             ; Send CR/LF to Console
-0204   0210             ;
-0205   0210             ZCRLF:
-0206   0210 F5          	PUSH	AF
-0207   0211 C5          	PUSH	BC
-0208   0212 0E 0D       	LD	C,CR
-0209   0214 CD F9 01    	CALL	ZCO
-0210   0217 0E 0A       	LD	C,LF
-0211   0219 CD F9 01    	CALL	ZCO
-0212   021C C1          	POP	BC
-0213   021D F1          	POP	AF
-0214   021E C9          	RET
-0215   021F             
-0216   021F             
-0217   021F             PRINT_STRING:
-0218   021F F5          	PUSH	AF
-0219   0220 C5          	push	BC
-0220   0221             print1:
-0221   0221 7E          	LD	a,(HL)			;Point to start of string
-0222   0222 23          	inc	HL			;By using the CS over-ride we will always have
-0223   0223 FE 24       	CP	'$'			;a valid pointer to messages at the end of this monitor
-0224   0225 CA 34 02    	JP	z,print2
-0225   0228 FE 00       	CP	0			;Also terminate with 0's
-0226   022A CA 34 02    	JP	Z,print2
-0227   022D 4F          	LD	C,A
-0228   022E CD F9 01    	call	ZCO
-0229   0231 C3 21 02    	jp	print1
-0230   0234             print2:
-0231   0234 C1          	pop	BC
-0232   0235 F1          	POP	AF
-0233   0236 C9          	ret
-0234   0237             
-0235   0237             ;---------------------------------------------------------------------------------------------------
-0236   0237             
-0237   0237             SIGNON:
-0238   0237 0D 0A 0A    		.DB	CR,LF,LF
-0239   023A 54 65 73 74 		.DB	"Test VT82C42 PC Keyboard & Mouse controller chip on Z80 KBDMSE Board."
-0239   023E 20 56 54 38 
-0239   0242 32 43 34 32 
-0239   0246 20 50 43 20 
-0239   024A 4B 65 79 62 
-0239   024E 6F 61 72 64 
-0239   0252 20 26 20 4D 
-0239   0256 6F 75 73 65 
-0239   025A 20 63 6F 6E 
-0239   025E 74 72 6F 6C 
-0239   0262 6C 65 72 20 
-0239   0266 63 68 69 70 
-0239   026A 20 6F 6E 20 
-0239   026E 5A 38 30 20 
-0239   0272 4B 42 44 4D 
-0239   0276 53 45 20 42 
-0239   027A 6F 61 72 64 
-0239   027E 2E 
-0240   027F 0D 0A 24    		.DB	CR,LF,"$"
-0241   0282             INIT_ERR:
-0242   0282 0D 0A 07    		.DB	CR,LF,BELL
-0243   0285 45 72 72 6F 		.DB	"Error:  The 0xAA Test of Controller did nor return 0x55. Program Halted."
-0243   0289 72 3A 20 20 
-0243   028D 54 68 65 20 
-0243   0291 30 78 41 41 
-0243   0295 20 54 65 73 
-0243   0299 74 20 6F 66 
-0243   029D 20 43 6F 6E 
-0243   02A1 74 72 6F 6C 
-0243   02A5 6C 65 72 20 
-0243   02A9 64 69 64 20 
-0243   02AD 6E 6F 72 20 
-0243   02B1 72 65 74 75 
-0243   02B5 72 6E 20 30 
-0243   02B9 78 35 35 2E 
-0243   02BD 20 50 72 6F 
-0243   02C1 67 72 61 6D 
-0243   02C5 20 48 61 6C 
-0243   02C9 74 65 64 2E 
-0244   02CD 0D 0A 24    		.DB	CR,LF,"$"
-0245   02D0             INIT_OK:
-0246   02D0 0D 0A       		.DB	CR,LF
-0247   02D2 54 68 65 20 		.DB	"The 0xAA Test of Controller returned 0x55. Now enter keyboard keys."
-0247   02D6 30 78 41 41 
-0247   02DA 20 54 65 73 
-0247   02DE 74 20 6F 66 
-0247   02E2 20 43 6F 6E 
-0247   02E6 74 72 6F 6C 
-0247   02EA 6C 65 72 20 
-0247   02EE 72 65 74 75 
-0247   02F2 72 6E 65 64 
-0247   02F6 20 30 78 35 
-0247   02FA 35 2E 20 4E 
-0247   02FE 6F 77 20 65 
-0247   0302 6E 74 65 72 
-0247   0306 20 6B 65 79 
-0247   030A 62 6F 61 72 
-0247   030E 64 20 6B 65 
-0247   0312 79 73 2E 
-0248   0315 0D 0A 0A 24 		.DB	CR,LF,LF,"$"
-0249   0319             
-0250   0319             SCAN_MSG:
-0251   0319 53 63 61 6E 		.DB	"Scancode = $"
-0251   031D 63 6F 64 65 
-0251   0321 20 3D 20 24 
-0252   0325             UPKEY_MSG:
-0253   0325 28 55 70 20 		.DB	"(Up Keystroke)$"
-0253   0329 4B 65 79 73 
-0253   032D 74 72 6F 6B 
-0253   0331 65 29 24 
-0254   0334             CAPS_MSG:
-0255   0334 28 43 61 70 		.DB	"(Caps Lock)$"
-0255   0338 73 20 4C 6F 
-0255   033C 63 6B 29 24 
-0256   0340             SHIFT_MSG:
-0257   0340 28 53 68 69 		.DB	"(Shift Key)$"
-0257   0344 66 74 20 4B 
-0257   0348 65 79 29 24 
-0258   034C             CTRL_MSG:
-0259   034C 28 43 54 52 		.DB	"(CTRL Key)$"
-0259   0350 4C 20 4B 65 
-0259   0354 79 29 24 
-0260   0357             NUM_MSG:
-0261   0357 28 4E 55 4D 		.DB	"(NUM Key)$"
-0261   035B 20 4B 65 79 
-0261   035F 29 24 
-0262   0361             IBM1_MSG:
-0263   0361 54 61 62 6C 		.DB	"Table 1 lookup -> $"
-0263   0365 65 20 31 20 
-0263   0369 6C 6F 6F 6B 
-0263   036D 75 70 20 2D 
-0263   0371 3E 20 24 
-0264   0374             IBM2_MSG:
-0265   0374 20 20 20 20 		.DB	"    Table 2 lookup -> $"
-0265   0378 54 61 62 6C 
-0265   037C 65 20 32 20 
-0265   0380 6C 6F 6F 6B 
-0265   0384 75 70 20 2D 
-0265   0388 3E 20 24 
-0266   038B             
-0267   038B             
-0268   038B             IBM1TBL:			;The "Normal" table
-0269   038B             			;00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 0a, 0b, 0c, 0d, 0e, 0f
-0270   038B 00 2A 00 2A 		.DB	  0,"*",  0,"*","*","*","*","*",  0,"*","*","*","*",09H,"`",00H
-0270   038F 2A 2A 2A 2A 
-0270   0393 00 2A 2A 2A 
-0270   0397 2A 09 60 00 
-0271   039B             
-0272   039B             			;10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1a, 1b, 1c, 1d, 1e, 1f
-0273   039B 00 00 00 00 		.DB   	  0,  0,  0,  0,  0,"q","1",  0,  0,  0,"z","s","a","w","2",0
-0273   039F 00 71 31 00 
-0273   03A3 00 00 7A 73 
-0273   03A7 61 77 32 00 
-0274   03AB             
-0275   03AB             			;20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 2a, 2b, 2c, 2d, 2e, 2f
-0276   03AB 00 63 78 64 		.DB   	  0,"c","x","d","e","4","3",  0,  0," ","v","f","t","r","5",0
-0276   03AF 65 34 33 00 
-0276   03B3 00 20 76 66 
-0276   03B7 74 72 35 00 
-0277   03BB             
-0278   03BB              			;30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 3a, 3b, 3c, 3d, 3e, 3f
-0279   03BB 00 6E 62 68 		.DB   	  0,"n","b","h","g","y","6",  0,  0,  0,"m","j","u","7","8",0
-0279   03BF 67 79 36 00 
-0279   03C3 00 00 6D 6A 
-0279   03C7 75 37 38 00 
-0280   03CB             
-0281   03CB             			;40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 4a, 4b, 4c, 4d, 4e, 4f
-0282   03CB 00 2C 6B 69 		.DB   	  0,",","k","i","o","0","9",  0,  0,".","/","l",";","p", "-",0
-0282   03CF 6F 30 39 00 
-0282   03D3 00 2E 2F 6C 
-0282   03D7 3B 70 2D 00 
-0283   03DB             
-0284   03DB             			;50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 5a, 5b, 5c, 5d, 5e, 5f
-0285   03DB 00 00 27 00 		.DB   	  0,  0,27H,  0,"[","=",  0,  0,  0,  0,0DH,"]",  0,5CH,  0,0
-0285   03DF 5B 3D 00 00 
-0285   03E3 00 00 0D 5D 
-0285   03E7 00 5C 00 00 
-0286   03EB             
-0287   03EB             			;60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f
-0288   03EB 00 00 00 00 		.DB   	  0,  0,  0,  0,  0,  0,08H,  0,  0,11H,  0,13H,10H,  0,  0,  0
-0288   03EF 00 00 08 00 
-0288   03F3 00 11 00 13 
-0288   03F7 10 00 00 00 
-0289   03FB             
-0290   03FB             			;70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 7a, 7b, 7c, 7d, 7e, 7f
-0291   03FB 0B 7F 03 15 		.DB 	0BH,7FH,03H,15H,04H,05H,1BH,00H,"*",02H,18H,16H,0CH,17H,"*",0
-0291   03FF 04 05 1B 00 
-0291   0403 2A 02 18 16 
-0291   0407 0C 17 2A 00 
-0292   040B             
-0293   040B             			;80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 8a, 8b, 8c, 8d, 8e, 8f
-0294   040B 00 00 00 2A 		.DB   	  0,  0,  0,"*",  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
-0294   040F 00 00 00 00 
-0294   0413 00 00 00 00 
-0294   0417 00 00 00 00 
-0295   041B             
-0296   041B             
-0297   041B             IBM2TBL:			;If the SHIFT key or CAPS lock key is on
-0298   041B             			;00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 0a, 0b, 0c, 0d, 0e, 0f
-0299   041B 00 2A 00 2A 		.DB	  0, "*", 0,"*","*","*","*","*",  0,"*","*","*","*",09H,"~",00H
-0299   041F 2A 2A 2A 2A 
-0299   0423 00 2A 2A 2A 
-0299   0427 2A 09 7E 00 
-0300   042B             
-0301   042B             			;10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1a, 1b, 1c, 1d, 1e, 1f
-0302   042B 00 00 00 00 		.DB	  0,  0,  0,  0,  0,"Q","!",  0,  0,  0,"Z","S","A","W","@",0
-0302   042F 00 51 21 00 
-0302   0433 00 00 5A 53 
-0302   0437 41 57 40 00 
-0303   043B             
-0304   043B             			;20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 2a, 2b, 2c, 2d, 2e, 2f
-0305   043B 00 43 58 44 		.DB	  0,"C","X","D","E","$","#",  0,  0," ","V","F","T","R","%",0
-0305   043F 45 24 23 00 
-0305   0443 00 20 56 46 
-0305   0447 54 52 25 00 
-0306   044B             
-0307   044B             			;30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 3a, 3b, 3c, 3d, 3e, 3f
-0308   044B 00 4E 42 48 		.DB	  0,"N","B","H","G","Y","^",  0,  0,  0,"M","J","U","&","*",0
-0308   044F 47 59 5E 00 
-0308   0453 00 00 4D 4A 
-0308   0457 55 26 2A 00 
-0309   045B             
-0310   045B             			;40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 4a, 4b, 4c, 4d, 4e, 4f
-0311   045B 00 3C 4B 49 		.DB	  0,"<","K","I","O",29H,"(",  0,  0,">","?","L",":","P", "_",0
-0311   045F 4F 29 28 00 
-0311   0463 00 3E 3F 4C 
-0311   0467 3A 50 5F 00 
-0312   046B             
-0313   046B             			;50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 5a, 5b, 5c, 5d, 5e, 5f
-0314   046B 00 00 22 00 		.DB	  0,  0,22H,  0,"{","+",  0,  0,  0,  0,0DH,"}",  0,"|",  0,0
-0314   046F 7B 2B 00 00 
-0314   0473 00 00 0D 7D 
-0314   0477 00 7C 00 00 
-0315   047B             
-0316   047B             			;60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f
-0317   047B 00 00 00 00 		.DB	  0,  0,  0,  0,  0,  0,08H,  0,  0,11H,  0,13H,10H,  0,  0,  0
-0317   047F 00 00 08 00 
-0317   0483 00 11 00 13 
-0317   0487 10 00 00 00 
-0318   048B             
-0319   048B             			;70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 7a, 7b, 7c, 7d, 7e, 7f
-0320   048B 0B 7F 03 15 		.DB 	0BH,7FH,03H,15H,04H,05H,1BH,00H,"*",02H,18H,16H,0CH,17H,"*",0
-0320   048F 04 05 1B 00 
-0320   0493 2A 02 18 16 
-0320   0497 0C 17 2A 00 
-0321   049B             
-0322   049B             			;80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 8a, 8b, 8c, 8d, 8e, 8f
-0323   049B 00 00 00 2A 		.DB	  0,  0,  0,"*",  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
-0323   049F 00 00 00 00 
-0323   04A3 00 00 00 00 
-0323   04A7 00 00 00 00 
-0324   04AB             
-0325   04AB             
-0326   04AB 00 00 00 00 		.FILL	040H,000H
-0326   04AF 00 00 00 00 
-0326   04B3 00 00 00 00 
-0326   04B7 00 00 00 00 
-0326   04BB 00 00 00 00 
-0326   04BF 00 00 00 00 
-0326   04C3 00 00 00 00 
-0326   04C7 00 00 00 00 
-0326   04CB 00 00 00 00 
-0326   04CF 00 00 00 00 
-0326   04D3 00 00 00 00 
-0326   04D7 00 00 00 00 
-0326   04DB 00 00 00 00 
-0326   04DF 00 00 00 00 
-0326   04E3 00 00 00 00 
-0326   04E7 00 00 00 00 
-0327   04EB 00          STACK:		.DB	0H
-0328   04EC 00 00 00 00 		.FILL	19,000H
-0328   04F0 00 00 00 00 
-0328   04F4 00 00 00 00 
-0328   04F8 00 00 00 00 
-0328   04FC 00 00 00 
-0329   04FF             
-0330   04FF             .END
+0043   0117 20 11       	JR	NZ,INIT_ERR
+0044   0119 0E 60       	LD	C,060H			; Set keyboard controller cmd byte
+0045   011B CD D1 01    	CALL	CMD_OUT
+0046   011E 0E 60       	LD	C,$60			; XLAT ENABLED, MOUSE DISABLED, NO INTS
+0047   0120 CD DB 01    	CALL	KEY_OUT
+0048   0123 0E AE       	LD	C,0AEH			;Enable 1st PS/2 port
+0049   0125 CD D1 01    	CALL	CMD_OUT			;Send it
+0050   0128 18 07       	JR	DONE_INIT
+0051   012A             	
+0052   012A             INIT_ERR:	
+0053   012A 21 98 02    	LD	HL,INIT_ERR_STR		;Say error
+0054   012D CD 35 02    	CALL	PRINT_STRING
+0055   0130 76          	HALT				;Just Halt!
+0056   0131             
+0057   0131             DONE_INIT:
+0058   0131 21 E6 02    	LD	HL,INIT_OK		;Say all OK
+0059   0134 CD 35 02    	CALL	PRINT_STRING
+0060   0137             
+0061   0137             LOOP:
+0062   0137 CD CC 01    	CALL	KEY_IN_STATUS		;See if keyboard key available
+0063   013A 28 FB       	JR	Z,LOOP
+0064   013C DB E2       	IN	A,(KEY_DATA)
+0065   013E 4F          	LD	C,A			;Store in [C]
+0066   013F 21 2F 03    	LD	HL,SCAN_MSG
+0067   0142 CD 35 02    	CALL	PRINT_STRING		;No registers changed
+0068   0145             
+0069   0145 CD E5 01    	CALL	A_HEXOUT		;Display Hex value of typed character + two spaces
+0070   0148             
+0071   0148             	;CP	0F0H			;Is it an UP key
+0072   0148 E6 80       	AND	080H			;Is it an UP key
+0073   014A 28 0B       	JR	Z,DOWNKY		;Must be a down key stroke
+0074   014C 21 3B 03    	LD	HL,UPKEY_MSG		;Say Up Key
+0075   014F CD 35 02    	CALL	PRINT_STRING
+0076   0152 CD 26 02    	CALL	ZCRLF
+0077   0155 18 E0       	JR	LOOP
+0078   0157             
+0079   0157             DOWNKY:
+0080   0157 FE 58       	CP	58H			;Is it CAPS Lock key
+0081   0159             ;	CP	3AH			;Is it CAPS Lock key
+0082   0159 20 0B       	JR	NZ,NOT_CAPSKEY
+0083   015B 21 4A 03    	LD	HL,CAPS_MSG		;Say Caps lock key
+0084   015E CD 35 02    	CALL	PRINT_STRING
+0085   0161 CD 26 02    	CALL	ZCRLF
+0086   0164 18 D1       	JR	LOOP
+0087   0166             
+0088   0166             NOT_CAPSKEY:
+0089   0166 FE 12       	CP	12H			;Is it a SHIFT key
+0090   0168             ;	CP	2AH			;Is it a SHIFT key
+0091   0168 28 04       	JR	Z,SHIFTKEY
+0092   016A FE 59       	CP	59H			;Is it the other SHIFT key
+0093   016C             ;	CP	36H			;Is it the other SHIFT key
+0094   016C 20 0B       	JR	NZ,NOT_SHIFTKEY
+0095   016E             
+0096   016E             SHIFTKEY:
+0097   016E 21 56 03    	LD	HL,SHIFT_MSG		;Say Shift key
+0098   0171 CD 35 02    	CALL	PRINT_STRING
+0099   0174 CD 26 02    	CALL	ZCRLF
+0100   0177 18 BE       	JR	LOOP
+0101   0179             
+0102   0179             NOT_SHIFTKEY:
+0103   0179 FE 14       	CP	14H			;Is it the CTRL key
+0104   017B             ;	CP	1DH			;Is it the CTRL key
+0105   017B 20 0B       	JR	NZ,NOT_CTRLKEY
+0106   017D 21 62 03    	LD	HL,CTRL_MSG		;Say CTRL key
+0107   0180 CD 35 02    	CALL	PRINT_STRING
+0108   0183 CD 26 02    	CALL	ZCRLF
+0109   0186 18 AF       	JR	LOOP
+0110   0188             
+0111   0188             NOT_CTRLKEY:
+0112   0188 FE 77       	CP	77H			;Is it the NUM LOCK key
+0113   018A             ;	CP	45H			;Is it the NUM LOCK key
+0114   018A 20 0B       	JR	NZ,NOT_NUMKEY
+0115   018C 21 6D 03    	LD	HL,NUM_MSG		;Say Number key
+0116   018F CD 35 02    	CALL	PRINT_STRING
+0117   0192 CD 26 02    	CALL	ZCRLF
+0118   0195 18 A0       	JR	LOOP
+0119   0197             
+0120   0197             NOT_NUMKEY:
+0121   0197 C5          	PUSH	BC			;Save Character
+0122   0198 21 77 03    	LD	HL,IBM1_MSG		;Say Table 1 lookup
+0123   019B CD 35 02    	CALL	PRINT_STRING
+0124   019E 21 A1 03    	LD	HL,IBM1TBL		;Point to lookup table for upper case
+0125   01A1 CD B6 01    	CALL	SHOW_CHAR
+0126   01A4             
+0127   01A4 C1          	POP	BC			;Get back character
+0128   01A5 21 8A 03    	LD	HL,IBM2_MSG		;Say Table 2 lookup
+0129   01A8 CD 35 02    	CALL	PRINT_STRING
+0130   01AB 21 31 04    	LD	HL,IBM2TBL		;Point to lookup table for upper case
+0131   01AE CD B6 01    	CALL	SHOW_CHAR
+0132   01B1             
+0133   01B1 CD 26 02    	CALL	ZCRLF
+0134   01B4 18 81       	JR	LOOP
+0135   01B6             
+0136   01B6             SHOW_CHAR:
+0137   01B6 16 00       	LD	D,0
+0138   01B8 59          	LD	E,C
+0139   01B9 19          	ADD	HL,DE			;Add in offset
+0140   01BA 4E          	LD	C,(HL)
+0141   01BB 79          	LD	A,C
+0142   01BC FE 1B       	CP	ESC
+0143   01BE C8          	RET	Z			;ESC messes up the screen display
+0144   01BF FE 0D       	CP	CR
+0145   01C1 C8          	RET	Z			;CR messes up the screen display
+0146   01C2 FE 0A       	CP	LF
+0147   01C4 C8          	RET	Z			;LF messes up the screen display
+0148   01C5 FE 09       	CP	TAB
+0149   01C7 C8          	RET	Z			;TAB messes up the screen display
+0150   01C8 CD 0F 02    	CALL	ZCO			;Display on Screen
+0151   01CB C9          	RET
+0152   01CC             
+0153   01CC             KEY_IN_STATUS:				;Ret NZ if character is available
+0154   01CC DB E3       	IN	A,(KEY_CTRL)
+0155   01CE E6 01       	AND	1
+0156   01D0 C9          	RET				;Ret NZ if character available
+0157   01D1             
+0158   01D1             CMD_OUT:				;Send a byte (in [C]) to Control port
+0159   01D1 DB E3       	IN	A,(KEY_CTRL)
+0160   01D3 E6 02       	AND	2
+0161   01D5 20 FA       	JR	NZ,CMD_OUT		;Chip is not ready yet to receive character
+0162   01D7 79          	LD	A,C
+0163   01D8 D3 E3       	OUT	(KEY_CTRL),A
+0164   01DA C9          	RET
+0165   01DB             
+0166   01DB             KEY_OUT:				;Send a byte (in [C]) to Data port
+0167   01DB DB E3       	IN	A,(KEY_CTRL)
+0168   01DD E6 02       	AND	2
+0169   01DF 20 FA       	JR	NZ,KEY_OUT		;Chip is not ready yet to receive character
+0170   01E1 79          	LD	A,C
+0171   01E2 D3 E2       	OUT	(KEY_DATA),A
+0172   01E4 C9          	RET
+0173   01E5             
+0174   01E5             
+0175   01E5             ;	A_HEXOUT			;output the 2 hex digits in [A]
+0176   01E5             A_HEXOUT:				;No registers altered
+0177   01E5 F5          	push	AF
+0178   01E6 C5          	push	BC
+0179   01E7 F5          	push	AF
+0180   01E8 CB 3F       	srl	a
+0181   01EA CB 3F       	srl	a
+0182   01EC CB 3F       	srl	a
+0183   01EE CB 3F       	srl	a
+0184   01F0 CD 02 02    	call	hexdigout
+0185   01F3 F1          	pop	AF
+0186   01F4 CD 02 02    	call	hexdigout		;get upper nibble
+0187   01F7 0E 20       	LD	C,' '
+0188   01F9 CD 0F 02    	call	ZCO			;Space for easy reading
+0189   01FC CD 0F 02    	call	ZCO
+0190   01FF C1          	pop	BC
+0191   0200 F1          	pop	AF
+0192   0201 C9          	ret
+0193   0202             
+0194   0202             hexdigout:
+0195   0202 E6 0F       	and	0fh			;convert nibble to ascii
+0196   0204 C6 90       	add	a,90h
+0197   0206 27          	daa
+0198   0207 CE 40       	adc	a,40h
+0199   0209 27          	daa
+0200   020A 4F          	LD	c,a
+0201   020B CD 0F 02    	call	ZCO
+0202   020E C9          	ret
+0203   020F             
+0204   020F             ; Main console I/O routines
+0205   020F             ;
+0206   020F             
+0207   020F             ZCO:
+0208   020F E5          	PUSH HL
+0209   0210 59          	LD E,C
+0210   0211 0E 02       	LD C,02H			;BDOS Function 2 Write Console Byte
+0211   0213 CD 05 00    	CALL 0005H			;Call BDOS
+0212   0216 E1          	POP HL
+0213   0217 C9          	RET
+0214   0218             
+0215   0218             ZCI:
+0216   0218 0E 0B       	LD C,0BH			;BDOS Function 11 Read Console Status
+0217   021A CD 05 00    	CALL 0005H			;Call BDOS
+0218   021D CA 18 02    	JP Z,ZCI
+0219   0220 0E 01       	LD C,01H			;BDOS Function 1 Read Console Byte
+0220   0222 CD 05 00    	CALL 0005H			;Call BDOS
+0221   0225 C9          	RET
+0222   0226             ;
+0223   0226             ; Send CR/LF to Console
+0224   0226             ;
+0225   0226             ZCRLF:
+0226   0226 F5          	PUSH	AF
+0227   0227 C5          	PUSH	BC
+0228   0228 0E 0D       	LD	C,CR
+0229   022A CD 0F 02    	CALL	ZCO
+0230   022D 0E 0A       	LD	C,LF
+0231   022F CD 0F 02    	CALL	ZCO
+0232   0232 C1          	POP	BC
+0233   0233 F1          	POP	AF
+0234   0234 C9          	RET
+0235   0235             
+0236   0235             
+0237   0235             PRINT_STRING:
+0238   0235 F5          	PUSH	AF
+0239   0236 C5          	push	BC
+0240   0237             print1:
+0241   0237 7E          	LD	a,(HL)			;Point to start of string
+0242   0238 23          	inc	HL			;By using the CS over-ride we will always have
+0243   0239 FE 24       	CP	'$'			;a valid pointer to messages at the end of this monitor
+0244   023B CA 4A 02    	JP	z,print2
+0245   023E FE 00       	CP	0			;Also terminate with 0's
+0246   0240 CA 4A 02    	JP	Z,print2
+0247   0243 4F          	LD	C,A
+0248   0244 CD 0F 02    	call	ZCO
+0249   0247 C3 37 02    	jp	print1
+0250   024A             print2:
+0251   024A C1          	pop	BC
+0252   024B F1          	POP	AF
+0253   024C C9          	ret
+0254   024D             
+0255   024D             ;---------------------------------------------------------------------------------------------------
+0256   024D             
+0257   024D             SIGNON:
+0258   024D 0D 0A 0A    		.DB	CR,LF,LF
+0259   0250 54 65 73 74 		.DB	"Test VT82C42 PC Keyboard & Mouse controller chip on Z80 KBDMSE Board."
+0259   0254 20 56 54 38 
+0259   0258 32 43 34 32 
+0259   025C 20 50 43 20 
+0259   0260 4B 65 79 62 
+0259   0264 6F 61 72 64 
+0259   0268 20 26 20 4D 
+0259   026C 6F 75 73 65 
+0259   0270 20 63 6F 6E 
+0259   0274 74 72 6F 6C 
+0259   0278 6C 65 72 20 
+0259   027C 63 68 69 70 
+0259   0280 20 6F 6E 20 
+0259   0284 5A 38 30 20 
+0259   0288 4B 42 44 4D 
+0259   028C 53 45 20 42 
+0259   0290 6F 61 72 64 
+0259   0294 2E 
+0260   0295 0D 0A 24    		.DB	CR,LF,"$"
+0261   0298             INIT_ERR_STR:
+0262   0298 0D 0A 07    		.DB	CR,LF,BELL
+0263   029B 45 72 72 6F 		.DB	"Error:  The 0xAA Test of Controller did nor return 0x55. Program Halted."
+0263   029F 72 3A 20 20 
+0263   02A3 54 68 65 20 
+0263   02A7 30 78 41 41 
+0263   02AB 20 54 65 73 
+0263   02AF 74 20 6F 66 
+0263   02B3 20 43 6F 6E 
+0263   02B7 74 72 6F 6C 
+0263   02BB 6C 65 72 20 
+0263   02BF 64 69 64 20 
+0263   02C3 6E 6F 72 20 
+0263   02C7 72 65 74 75 
+0263   02CB 72 6E 20 30 
+0263   02CF 78 35 35 2E 
+0263   02D3 20 50 72 6F 
+0263   02D7 67 72 61 6D 
+0263   02DB 20 48 61 6C 
+0263   02DF 74 65 64 2E 
+0264   02E3 0D 0A 24    		.DB	CR,LF,"$"
+0265   02E6             INIT_OK:
+0266   02E6 0D 0A       		.DB	CR,LF
+0267   02E8 54 68 65 20 		.DB	"The 0xAA Test of Controller returned 0x55. Now enter keyboard keys."
+0267   02EC 30 78 41 41 
+0267   02F0 20 54 65 73 
+0267   02F4 74 20 6F 66 
+0267   02F8 20 43 6F 6E 
+0267   02FC 74 72 6F 6C 
+0267   0300 6C 65 72 20 
+0267   0304 72 65 74 75 
+0267   0308 72 6E 65 64 
+0267   030C 20 30 78 35 
+0267   0310 35 2E 20 4E 
+0267   0314 6F 77 20 65 
+0267   0318 6E 74 65 72 
+0267   031C 20 6B 65 79 
+0267   0320 62 6F 61 72 
+0267   0324 64 20 6B 65 
+0267   0328 79 73 2E 
+0268   032B 0D 0A 0A 24 		.DB	CR,LF,LF,"$"
+0269   032F             
+0270   032F             SCAN_MSG:
+0271   032F 53 63 61 6E 		.DB	"Scancode = $"
+0271   0333 63 6F 64 65 
+0271   0337 20 3D 20 24 
+0272   033B             UPKEY_MSG:
+0273   033B 28 55 70 20 		.DB	"(Up Keystroke)$"
+0273   033F 4B 65 79 73 
+0273   0343 74 72 6F 6B 
+0273   0347 65 29 24 
+0274   034A             CAPS_MSG:
+0275   034A 28 43 61 70 		.DB	"(Caps Lock)$"
+0275   034E 73 20 4C 6F 
+0275   0352 63 6B 29 24 
+0276   0356             SHIFT_MSG:
+0277   0356 28 53 68 69 		.DB	"(Shift Key)$"
+0277   035A 66 74 20 4B 
+0277   035E 65 79 29 24 
+0278   0362             CTRL_MSG:
+0279   0362 28 43 54 52 		.DB	"(CTRL Key)$"
+0279   0366 4C 20 4B 65 
+0279   036A 79 29 24 
+0280   036D             NUM_MSG:
+0281   036D 28 4E 55 4D 		.DB	"(NUM Key)$"
+0281   0371 20 4B 65 79 
+0281   0375 29 24 
+0282   0377             IBM1_MSG:
+0283   0377 54 61 62 6C 		.DB	"Table 1 lookup -> $"
+0283   037B 65 20 31 20 
+0283   037F 6C 6F 6F 6B 
+0283   0383 75 70 20 2D 
+0283   0387 3E 20 24 
+0284   038A             IBM2_MSG:
+0285   038A 20 20 20 20 		.DB	"    Table 2 lookup -> $"
+0285   038E 54 61 62 6C 
+0285   0392 65 20 32 20 
+0285   0396 6C 6F 6F 6B 
+0285   039A 75 70 20 2D 
+0285   039E 3E 20 24 
+0286   03A1             
+0287   03A1             
+0288   03A1             IBM1TBL:			;The "Normal" table
+0289   03A1             			;00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 0a, 0b, 0c, 0d, 0e, 0f
+0290   03A1             ;		.DB	  0,"*",  0,"*","*","*","*","*",  0,"*","*","*","*",09H,"`",00H
+0291   03A1 00 1B 31 32 		.DB 	000,027,"1","2","3","4","5","6","7","8","9","0","-","=",008,009			;00-0F
+0291   03A5 33 34 35 36 
+0291   03A9 37 38 39 30 
+0291   03AD 2D 3D 08 09 
+0292   03B1             
+0293   03B1             			;10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1a, 1b, 1c, 1d, 1e, 1f
+0294   03B1             ;		.DB   	  0,  0,  0,  0,  0,"q","1",  0,  0,  0,"z","s","a","w","2",0
+0295   03B1 71 77 65 72 		.DB 	"q","w","e","r","t","y","u","i","o","p","[","]",013,000,"a","s"			;10-1F
+0295   03B5 74 79 75 69 
+0295   03B9 6F 70 5B 5D 
+0295   03BD 0D 00 61 73 
+0296   03C1             
+0297   03C1             			;20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 2a, 2b, 2c, 2d, 2e, 2f
+0298   03C1             ;		.DB   	  0,"c","x","d","e","4","3",  0,  0," ","v","f","t","r","5",0
+0299   03C1 64 66 67 68 		.DB 	"d","f","g","h","j","k","l",";",27H,60H,000,092,"z","x","c","v"			;20-2F
+0299   03C5 6A 6B 6C 3B 
+0299   03C9 27 60 00 5C 
+0299   03CD 7A 78 63 76 
+0300   03D1             
+0301   03D1              			;30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 3a, 3b, 3c, 3d, 3e, 3f
+0302   03D1             ;		.DB   	  0,"n","b","h","g","y","6",  0,  0,  0,"m","j","u","7","8",0
+0303   03D1 62 6E 6D 2C 		.DB 	"b","n","m",",",".","/",000,000,000," ",000,000,000,000,000,000			;30-3F
+0303   03D5 2E 2F 00 00 
+0303   03D9 00 20 00 00 
+0303   03DD 00 00 00 00 
+0304   03E1             
+0305   03E1             			;40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 4a, 4b, 4c, 4d, 4e, 4f
+0306   03E1             ;		.DB   	  0,",","k","i","o","0","9",  0,  0,".","/","l",";","p","-",0
+0307   03E1 00 00 00 00 		.DB 	000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000			;40-4F
+0307   03E5 00 00 00 00 
+0307   03E9 00 00 00 00 
+0307   03ED 00 00 00 00 
+0308   03F1             
+0309   03F1             			;50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 5a, 5b, 5c, 5d, 5e, 5f
+0310   03F1             ;		.DB   	  0,  0,27H,  0,"[","=",  0,  0,  0,  0,0DH,"]",  0,5CH,  0,0
+0311   03F1 00 00 00 00 		.DB 	000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000			;50-5F
+0311   03F5 00 00 00 00 
+0311   03F9 00 00 00 00 
+0311   03FD 00 00 00 00 
+0312   0401             
+0313   0401             			;60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f
+0314   0401             ;		.DB   	  0,  0,  0,  0,  0,  0,08H,  0,  0,11H,  0,13H,10H,  0,  0,  0
+0315   0401 00 00 00 00 		.DB	000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000			;60-6F
+0315   0405 00 00 00 00 
+0315   0409 00 00 00 00 
+0315   040D 00 00 00 00 
+0316   0411             
+0317   0411             			;70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 7a, 7b, 7c, 7d, 7e, 7f
+0318   0411             ;		.DB 	0BH,7FH,03H,15H,04H,05H,1BH,00H,"*",02H,18H,16H,0CH,17H,"*",0
+0319   0411 00 00 00 00 		.DB	000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000			;70-7F
+0319   0415 00 00 00 00 
+0319   0419 00 00 00 00 
+0319   041D 00 00 00 00 
+0320   0421             
+0321   0421             			;80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 8a, 8b, 8c, 8d, 8e, 8f
+0322   0421             ;		.DB   	  0,  0,  0,"*",  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+0323   0421 00 00 00 00 		.DB	000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000			;80-8F
+0323   0425 00 00 00 00 
+0323   0429 00 00 00 00 
+0323   042D 00 00 00 00 
+0324   0431             
+0325   0431             
+0326   0431             IBM2TBL:			;If the SHIFT key or CAPS lock key is on
+0327   0431             			;00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 0a, 0b, 0c, 0d, 0e, 0f
+0328   0431             ;		.DB	  0, "*", 0,"*","*","*","*","*",  0,"*","*","*","*",09H,"~",00H
+0329   0431 00 1B 21 40 		.DB	000,027,"!","@","#","$","%","^","&","*","(",")","_","+",008,009			;00-0F
+0329   0435 23 24 25 5E 
+0329   0439 26 2A 28 29 
+0329   043D 5F 2B 08 09 
+0330   0441             
+0331   0441             			;10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1a, 1b, 1c, 1d, 1e, 1f
+0332   0441             ;		.DB	  0,  0,  0,  0,  0,"Q","!",  0,  0,  0,"Z","S","A","W","@",0
+0333   0441 51 57 45 52 		.DB 	"Q","W","E","R","T","Y","U","I","O","P","{","}",013,000,"A","S"			;10-1F
+0333   0445 54 59 55 49 
+0333   0449 4F 50 7B 7D 
+0333   044D 0D 00 41 53 
+0334   0451             
+0335   0451             			;20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 2a, 2b, 2c, 2d, 2e, 2f
+0336   0451             ;		.DB	  0,"C","X","D","E","$","#",  0,  0," ","V","F","T","R","%",0
+0337   0451 44 46 47 48 		.DB	"D","F","G","H","J","K","L",":",034,"~",000,"|","Z","X","C","V"			;20-2F
+0337   0455 4A 4B 4C 3A 
+0337   0459 22 7E 00 7C 
+0337   045D 5A 58 43 56 
+0338   0461             
+0339   0461             			;30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 3a, 3b, 3c, 3d, 3e, 3f
+0340   0461             ;		.DB	  0,"N","B","H","G","Y","^",  0,  0,  0,"M","J","U","&","*",0
+0341   0461 42 4E 4D 3C 		.DB	"B","N","M","<",">","?",000,000,000," ",000,000,000,000,000,000			;30-3F
+0341   0465 3E 3F 00 00 
+0341   0469 00 20 00 00 
+0341   046D 00 00 00 00 
+0342   0471             
+0343   0471             			;40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 4a, 4b, 4c, 4d, 4e, 4f
+0344   0471             ;		.DB	  0,"<","K","I","O",29H,"(",  0,  0,">","?","L",":","P", "_",0
+0345   0471 00 00 00 00 		.DB	000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000			;40-4F
+0345   0475 00 00 00 00 
+0345   0479 00 00 00 00 
+0345   047D 00 00 00 00 
+0346   0481             
+0347   0481             			;50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 5a, 5b, 5c, 5d, 5e, 5f
+0348   0481             ;		.DB	  0,  0,22H,  0,"{","+",  0,  0,  0,  0,0DH,"}",  0,"|",  0,0
+0349   0481 00 00 00 00 		.DB	000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000			;50-5F
+0349   0485 00 00 00 00 
+0349   0489 00 00 00 00 
+0349   048D 00 00 00 00 
+0350   0491             
+0351   0491             			;60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 6a, 6b, 6c, 6d, 6e, 6f
+0352   0491             ;		.DB	  0,  0,  0,  0,  0,  0,08H,  0,  0,11H,  0,13H,10H,  0,  0,  0
+0353   0491 00 00 00 00 		.DB	000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000			;60-6F
+0353   0495 00 00 00 00 
+0353   0499 00 00 00 00 
+0353   049D 00 00 00 00 
+0354   04A1             
+0355   04A1             			;70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 7a, 7b, 7c, 7d, 7e, 7f
+0356   04A1             ;		.DB 	0BH,7FH,03H,15H,04H,05H,1BH,00H,"*",02H,18H,16H,0CH,17H,"*",0
+0357   04A1 00 00 00 00 		.DB	000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000			;70-7F
+0357   04A5 00 00 00 00 
+0357   04A9 00 00 00 00 
+0357   04AD 00 00 00 00 
+0358   04B1             
+0359   04B1             			;80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 8a, 8b, 8c, 8d, 8e, 8f
+0360   04B1             ;		.DB	  0,  0,  0,"*",  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+0361   04B1 00 00 00 00 		.DB	000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000			;80-8F
+0361   04B5 00 00 00 00 
+0361   04B9 00 00 00 00 
+0361   04BD 00 00 00 00 
+0362   04C1             
+0363   04C1             
+0364   04C1 00 00 00 00 		.FILL	040H,000H
+0364   04C5 00 00 00 00 
+0364   04C9 00 00 00 00 
+0364   04CD 00 00 00 00 
+0364   04D1 00 00 00 00 
+0364   04D5 00 00 00 00 
+0364   04D9 00 00 00 00 
+0364   04DD 00 00 00 00 
+0364   04E1 00 00 00 00 
+0364   04E5 00 00 00 00 
+0364   04E9 00 00 00 00 
+0364   04ED 00 00 00 00 
+0364   04F1 00 00 00 00 
+0364   04F5 00 00 00 00 
+0364   04F9 00 00 00 00 
+0364   04FD 00 00 00 00 
+0365   0501 00          STACK:		.DB	0H
+0366   0502 00 00 00 00 		.FILL	19,000H
+0366   0506 00 00 00 00 
+0366   050A 00 00 00 00 
+0366   050E 00 00 00 00 
+0366   0512 00 00 00 
+0367   0515             
+0368   0515             .END
+tasm: Number of errors = 0

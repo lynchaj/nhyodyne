@@ -1,0 +1,927 @@
+0001   0000             ;
+0002   0000             ;=======================================================================
+0003   0000             ; Keyboard Information Utility (KBDINFO)
+0004   0000             ;=======================================================================
+0005   0000             ;
+0006   0000             ; Simple utility that attempts to determine the type of keyboard you
+0007   0000             ; have attached to an 8242 keyboard controller.
+0008   0000             ;
+0009   0000             ;=======================================================================
+0010   0000             ;
+0011   0000             ; Keyboard controller port addresses (adjust as needed)
+0012   0000             ;
+0013   0000             iocmd	.equ	$E3	; keyboard controller command port address
+0014   0000             iodat	.equ	$E2	; keyboard controller data port address
+0015   0000             ;
+0016   0000             ; General operational equates (should not requre adjustment)
+0017   0000             ;
+0018   0000             stksiz	.equ	$40			; Working stack size
+0019   0000             ;
+0020   0000             timeout	.equ	$00			; Controller timeout constant
+0021   0000             ;
+0022   0000             restart	.equ	$0000			; CP/M restart vector
+0023   0000             bdos	.equ	$0005			; BDOS invocation vector
+0024   0000             ;
+0025   0000             ;=======================================================================
+0026   0000             ;
+0027   0100             	.org	$100	; standard CP/M executable
+0028   0100             ;
+0029   0100             ;
+0030   0100             	; setup stack (save old value)
+0031   0100 ED 73 CB 07 	ld	(stksav),sp		; save stack
+0032   0104 31 0D 08    	ld	sp,stack		; set new stack
+0033   0107             ;
+0034   0107 CD 16 04    	call	crlf
+0035   010A 11 32 04    	ld	de,str_banner		; banner
+0036   010D CD 82 03    	call	prtstr
+0037   0110             ;
+0038   0110 CD 26 01    	call	main			; do the real work
+0039   0113             ;
+0040   0113             exit:
+0041   0113 CD 13 04    	call	crlf2
+0042   0116 11 4D 04    	ld	de,str_exit
+0043   0119 CD 82 03    	call	prtstr
+0044   011C             	;call	crlf
+0045   011C             
+0046   011C             	; clean up and return to command processor
+0047   011C CD 16 04    	call	crlf			; formatting
+0048   011F ED 7B CB 07 	ld	sp,(stksav)		; restore stack
+0049   0123 C3 00 00    	jp	restart			; return to CP/M via restart
+0050   0126             ;
+0051   0126             ;
+0052   0126             ;=======================================================================
+0053   0126             ; Main Program
+0054   0126             ;=======================================================================
+0055   0126             ;
+0056   0126             main:
+0057   0126             ;
+0058   0126             ; Display active keyboard controller port addresses
+0059   0126             ;
+0060   0126 CD 13 04    	call	crlf2
+0061   0129 11 70 04    	ld	de,str_cmdport
+0062   012C CD 82 03    	call	prtstr
+0063   012F 3E E3       	ld	a,iocmd
+0064   0131 CD 91 03    	call	prthex
+0065   0134 CD 16 04    	call	crlf
+0066   0137 11 95 04    	ld	de,str_dataport
+0067   013A CD 82 03    	call	prtstr
+0068   013D 3E E2       	ld	a,iodat
+0069   013F CD 91 03    	call	prthex
+0070   0142             ;
+0071   0142             ; Attempt self-test command on keyboard controller
+0072   0142             ;
+0073   0142             ;   Keyboard controller should respond with an 0x55 on data port
+0074   0142             ;   after being sent a 0xAA on the command port.
+0075   0142             ;
+0076   0142 CD 13 04    	call	crlf2
+0077   0145 11 80 05    	ld	de,str_ctrl_test
+0078   0148 CD 82 03    	call	prtstr
+0079   014B 3E AA       	ld	a,$aa			; self-test command
+0080   014D CD F5 02    	call	put_cmd_dbg
+0081   0150 DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0082   0153 CD 33 03    	call	get_data_dbg
+0083   0156 DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0084   0159 FE 55       	cp	$55			; expected value?
+0085   015B C2 4B 03    	jp	nz,err_ctlr_test	; handle self-test error
+0086   015E CD 16 04    	call	crlf
+0087   0161 11 A0 05    	ld	de,str_ctrl_test_ok
+0088   0164 CD 82 03    	call	prtstr
+0089   0167             ;
+0090   0167             ; Disable translation on keyboard controller to get raw scan codes!
+0091   0167             ;
+0092   0167 CD 13 04    	call	crlf2
+0093   016A 11 B8 05    	ld	de,str_trans_off
+0094   016D CD 82 03    	call	prtstr
+0095   0170 3E 60       	ld	a,$60			; write to command register 0
+0096   0172 CD F5 02    	call	put_cmd_dbg
+0097   0175 DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0098   0178 3E 20       	ld	a,$20			; xlat disabled, mouse disabled, no ints
+0099   017A CD 15 03    	call	put_data_dbg
+0100   017D DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0101   0180             ;
+0102   0180             ;
+0103   0180             ;
+0104   0180 CD 9C 01    	call	test2
+0105   0183             ;
+0106   0183             ; Enable translation on keyboard controller
+0107   0183             ;
+0108   0183 CD 13 04    	call	crlf2
+0109   0186 11 D9 05    	ld	de,str_trans_on
+0110   0189 CD 82 03    	call	prtstr
+0111   018C 3E 60       	ld	a,$60			; write to command register 0
+0112   018E CD F5 02    	call	put_cmd_dbg
+0113   0191 DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0114   0194 3E 60       	ld	a,$60			; xlat disabled, mouse disabled, no ints
+0115   0196 CD 15 03    	call	put_data_dbg
+0116   0199 DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0117   019C             ;
+0118   019C             	; fall thru
+0119   019C             ;
+0120   019C             test2:
+0121   019C             ;
+0122   019C             ; Perform a keyboard reset
+0123   019C             ;
+0124   019C CD 13 04    	call	crlf2
+0125   019F 11 F9 05    	ld	de,str_kbd_reset
+0126   01A2 CD 82 03    	call	prtstr
+0127   01A5 3E FF       	ld	a,$ff			; Keyboard reset
+0128   01A7 CD 15 03    	call	put_data_dbg
+0129   01AA DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0130   01AD CD 33 03    	call	get_data_dbg
+0131   01B0 DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0132   01B3 FE FA       	cp	$FA			; Is it an ack as expected?
+0133   01B5 C2 50 03    	jp	nz,err_kbd_reset
+0134   01B8 CD 33 03    	call	get_data_dbg
+0135   01BB DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0136   01BE FE AA       	cp	$AA			; Success?
+0137   01C0 C2 50 03    	jp	nz,err_kbd_reset
+0138   01C3 CD 16 04    	call	crlf
+0139   01C6 11 13 06    	ld	de,str_kbd_reset_ok
+0140   01C9 CD 82 03    	call	prtstr
+0141   01CC             ;
+0142   01CC             ; Identify keyboard
+0143   01CC             ;
+0144   01CC CD 13 04    	call	crlf2
+0145   01CF 11 02 07    	ld	de,str_kbd_ident
+0146   01D2 CD 82 03    	call	prtstr
+0147   01D5 3E F2       	ld	a,$f2			; Identify keyboard command
+0148   01D7 CD 15 03    	call	put_data_dbg
+0149   01DA DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0150   01DD CD 33 03    	call	get_data_dbg
+0151   01E0 DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0152   01E3 FE FA       	cp	$FA			; Is it an ack as expected?
+0153   01E5 C2 5F 03    	jp	nz,err_kbd_ident
+0154   01E8             	; Now we need to receive 0-2 bytes.  There is no way to know
+0155   01E8             	; how many are coming, so we receive bytes until there is a
+0156   01E8             	; timeout error.
+0157   01E8 DD 21 0D 08 	ld	ix,workbuf
+0158   01EC FD 21 15 08 	ld	iy,workbuf_len
+0159   01F0 AF          	xor	a
+0160   01F1 FD 77 00    	ld	(iy),a
+0161   01F4             ident_loop:	
+0162   01F4 CD 33 03    	call	get_data_dbg
+0163   01F7 38 0A       	jr	c,ident_done
+0164   01F9 DD 77 00    	ld	(ix),a
+0165   01FC DD 23       	inc	ix
+0166   01FE FD 34 00    	inc	(iy)
+0167   0201 18 F1       	jr	ident_loop
+0168   0203             ident_done:
+0169   0203 CD 16 04    	call	crlf
+0170   0206 11 1A 07    	ld	de,str_kbd_ident_disp
+0171   0209 CD 82 03    	call	prtstr
+0172   020C 3E 5B       	ld	a,'['
+0173   020E CD 6D 03    	call	prtchr
+0174   0211 DD 21 0D 08 	ld	ix,workbuf
+0175   0215 FD 46 00    	ld	b,(iy)
+0176   0218 AF          	xor	a
+0177   0219 B8          	cp	b
+0178   021A 28 0A       	jr	z,ident_done2
+0179   021C             ident_done1:
+0180   021C DD 7E 00    	ld	a,(ix)
+0181   021F CD 91 03    	call	prthex
+0182   0222 DD 23       	inc	ix
+0183   0224 10 F6       	djnz	ident_done1
+0184   0226             ident_done2:
+0185   0226 3E 5D       	ld	a,']'
+0186   0228 CD 6D 03    	call	prtchr
+0187   022B             ;
+0188   022B             ; Get active scan code set being used
+0189   022B             ;
+0190   022B CD 13 04    	call	crlf2
+0191   022E 11 3B 06    	ld	de,str_kbd_getsc
+0192   0231 CD 82 03    	call	prtstr
+0193   0234 3E F0       	ld	a,$f0			; Keyboard get/set scan code
+0194   0236 CD 15 03    	call	put_data_dbg
+0195   0239 DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0196   023C CD 33 03    	call	get_data_dbg
+0197   023F DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0198   0242 FE FA       	cp	$FA			; Is it an ack as expected?
+0199   0244 C2 55 03    	jp	nz,err_kbd_getsc
+0200   0247 3E 00       	ld	a,$00			; Get active scan code set
+0201   0249 CD 15 03    	call	put_data_dbg
+0202   024C DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0203   024F CD 33 03    	call	get_data_dbg
+0204   0252 DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0205   0255 FE FA       	cp	$FA			; Is it an ack as expected?
+0206   0257 C2 55 03    	jp	nz,err_kbd_getsc
+0207   025A CD 33 03    	call	get_data_dbg
+0208   025D DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0209   0260 F5          	push	af
+0210   0261 CD 16 04    	call	crlf
+0211   0264 11 69 06    	ld	de,str_kbd_dispsc
+0212   0267 CD 82 03    	call	prtstr
+0213   026A F1          	pop	af
+0214   026B CD D1 03    	call	prtdecb
+0215   026E             ;;;;
+0216   026E             ;;;; Set active scan code set to 2
+0217   026E             ;;;;
+0218   026E             ;;;	call	crlf2
+0219   026E             ;;;	ld	de,str_kbd_setsc
+0220   026E             ;;;	call	prtstr
+0221   026E             ;;;	ld	a,$f0			; Keyboard get/set scan code
+0222   026E             ;;;	call	put_data_dbg
+0223   026E             ;;;	jp	c,err_ctlr_io		; handle controller error
+0224   026E             ;;;	call	get_data_dbg
+0225   026E             ;;;	jp	c,err_ctlr_io		; handle controller error
+0226   026E             ;;;	cp	$FA			; Is it an ack as expected?
+0227   026E             ;;;	jp	nz,err_kbd_getsc
+0228   026E             ;;;	ld	a,$02			; Set scan code set to 2
+0229   026E             ;;;	call	put_data_dbg
+0230   026E             ;;;	jp	c,err_ctlr_io		; handle controller error
+0231   026E             ;;;	call	get_data_dbg
+0232   026E             ;;;	jp	c,err_ctlr_io		; handle controller error
+0233   026E             ;;;	cp	$FA			; Is it an ack as expected?
+0234   026E             ;;;	jp	nz,err_kbd_getsc
+0235   026E             ;;;;
+0236   026E             ;;;; Get active scan code set being used
+0237   026E             ;;;;
+0238   026E             ;;;	call	crlf2
+0239   026E             ;;;	ld	de,str_kbd_getsc
+0240   026E             ;;;	call	prtstr
+0241   026E             ;;;	ld	a,$f0			; Keyboard get/set scan code
+0242   026E             ;;;	call	put_data_dbg
+0243   026E             ;;;	jp	c,err_ctlr_io		; handle controller error
+0244   026E             ;;;	call	get_data_dbg
+0245   026E             ;;;	jp	c,err_ctlr_io		; handle controller error
+0246   026E             ;;;	cp	$FA			; Is it an ack as expected?
+0247   026E             ;;;	jp	nz,err_kbd_getsc
+0248   026E             ;;;	ld	a,$00			; Get active scan code set
+0249   026E             ;;;	call	put_data_dbg
+0250   026E             ;;;	jp	c,err_ctlr_io		; handle controller error
+0251   026E             ;;;	call	get_data_dbg
+0252   026E             ;;;	jp	c,err_ctlr_io		; handle controller error
+0253   026E             ;;;	cp	$FA			; Is it an ack as expected?
+0254   026E             ;;;	jp	nz,err_kbd_getsc
+0255   026E             ;;;	call	get_data_dbg
+0256   026E             ;;;	jp	c,err_ctlr_io		; handle controller error
+0257   026E             ;;;	push	af
+0258   026E             ;;;	call	crlf
+0259   026E             ;;;	ld	de,str_kbd_dispsc
+0260   026E             ;;;	call	prtstr
+0261   026E             ;;;	pop	af
+0262   026E             ;;;	and	$0f
+0263   026E             ;;;	call	prtdecb
+0264   026E             ;
+0265   026E             ; Read and display raw scan codes
+0266   026E             ;
+0267   026E CD 13 04    	call	crlf2
+0268   0271 11 57 07    	ld	de,str_disp_scan_codes
+0269   0274 CD 82 03    	call	prtstr
+0270   0277             read_loop:
+0271   0277 0E 06       	ld	c,$06			; BDOS direct console I/O
+0272   0279 1E FF       	ld	e,$FF			; Subfunction = read
+0273   027B CD 05 00    	call	bdos
+0274   027E FE 1B       	cp	$1B			; Escape key?
+0275   0280 CA A4 02    	jp	z,done
+0276   0283 CD E1 02    	call	check_read
+0277   0286 20 EF       	jr	nz,read_loop
+0278   0288 CD 28 03    	call	get_data
+0279   028B DA 46 03    	jp	c,err_ctlr_io		; handle controller error
+0280   028E F5          	push	af
+0281   028F 3E 20       	ld	a,' '
+0282   0291 CD 6D 03    	call	prtchr
+0283   0294 3E 5B       	ld	a,'['
+0284   0296 CD 6D 03    	call	prtchr
+0285   0299 F1          	pop	af
+0286   029A CD 91 03    	call	prthex
+0287   029D 3E 5D       	ld	a,']'
+0288   029F CD 6D 03    	call	prtchr
+0289   02A2 18 D3       	jr	read_loop
+0290   02A4             
+0291   02A4             done:
+0292   02A4 C9          	ret
+0293   02A5             ;
+0294   02A5             ;=======================================================================
+0295   02A5             ; Keyboard Controller I/O Routines
+0296   02A5             ;=======================================================================
+0297   02A5             ;
+0298   02A5             wait_write:
+0299   02A5             ;
+0300   02A5             ; Wait for keyboard controller to be ready for a write
+0301   02A5             ;   A=0 indicates success (ZF set)
+0302   02A5             ;
+0303   02A5 06 00       	ld	b,timeout		; setup timeout constant
+0304   02A7             wait_write1:
+0305   02A7 DB E3       	in	a,(iocmd)		; get status
+0306   02A9 4F          	ld	c,a			; save status
+0307   02AA E6 02       	and	$02			; isolate input buf status bit
+0308   02AC C8          	ret	z			; 0 means ready, all done
+0309   02AD CD 23 04    	call	delay			; wait a bit
+0310   02B0 10 F5       	djnz	wait_write1		; loop until counter exhausted
+0311   02B2 11 B7 04    	ld	de,str_timeout_write	; write timeout message
+0312   02B5 CD 16 04    	call	crlf
+0313   02B8 CD 82 03    	call	prtstr
+0314   02BB 79          	ld	a,c			; recover last status value
+0315   02BC CD 91 03    	call	prthex
+0316   02BF F6 FF       	or	$ff			; signal error
+0317   02C1 C9          	ret
+0318   02C2             ;
+0319   02C2             wait_read:
+0320   02C2             ;
+0321   02C2             ; Wait for keyboard controller to be ready to read a byte
+0322   02C2             ;   A=0 indicates success (ZF set)
+0323   02C2             ;
+0324   02C2 06 00       	ld	b,timeout		; setup timeout constant
+0325   02C4             wait_read1:
+0326   02C4 DB E3       	in	a,(iocmd)		; get status
+0327   02C6 4F          	ld	c,a			; save status
+0328   02C7 E6 01       	and	$01			; isolate input buf status bit
+0329   02C9 EE 01       	xor	$01			; invert so 0 means ready
+0330   02CB C8          	ret	z			; if 0, all done
+0331   02CC CD 23 04    	call	delay			; wait a bit
+0332   02CF 10 F3       	djnz	wait_read1		; loop until counter exhausted
+0333   02D1 11 E5 04    	ld	de,str_timeout_read	; write timeout message
+0334   02D4 CD 16 04    	call	crlf
+0335   02D7 CD 82 03    	call	prtstr
+0336   02DA 79          	ld	a,c			; recover last status value
+0337   02DB CD 91 03    	call	prthex
+0338   02DE F6 FF       	or	$ff			; signal error
+0339   02E0 C9          	ret
+0340   02E1             ;
+0341   02E1             check_read:
+0342   02E1             ;
+0343   02E1             ; Check for data ready to read
+0344   02E1             ;   A=0 indicates data available (ZF set)
+0345   02E1             ;
+0346   02E1 DB E3       	in	a,(iocmd)		; get status
+0347   02E3 E6 01       	and	$01			; isolate input buf status bit
+0348   02E5 EE 01       	xor	$01			; invert so 0 means ready
+0349   02E7 C9          	ret
+0350   02E8             ;
+0351   02E8             put_cmd:
+0352   02E8             ;
+0353   02E8             ; Put a cmd byte from A to the keyboard interface with timeout
+0354   02E8             ; CF set indicates timeout error
+0355   02E8             ;
+0356   02E8 5F          	ld	e,a			; save incoming value
+0357   02E9 CD A5 02    	call	wait_write		; wait for controller ready
+0358   02EC 28 02       	jr	z,put_cmd1		; if ready, move on
+0359   02EE 37          	scf				; else, signal timeout error
+0360   02EF C9          	ret				; and bail out
+0361   02F0             put_cmd1:
+0362   02F0 7B          	ld	a,e			; recover value to write
+0363   02F1 D3 E3       	out	(iocmd),a		; write it
+0364   02F3 B7          	or	a			; clear CF for success
+0365   02F4 C9          	ret
+0366   02F5             ;
+0367   02F5             put_cmd_dbg:
+0368   02F5 CD E8 02    	call	put_cmd
+0369   02F8 D8          	ret	c
+0370   02F9 F5          	push	af
+0371   02FA CD 16 04    	call	crlf
+0372   02FD 11 57 05    	ld	de,str_put_cmd
+0373   0300 CD 82 03    	call	prtstr
+0374   0303 CD 91 03    	call	prthex
+0375   0306 F1          	pop	af
+0376   0307 C9          	ret
+0377   0308             ;	
+0378   0308             put_data:
+0379   0308             ;
+0380   0308             ; Put a data byte from A to the keyboard interface with timeout
+0381   0308             ; CF set indicates timeout error
+0382   0308             ;
+0383   0308 5F          	ld	e,a			; save incoming value
+0384   0309 CD A5 02    	call	wait_write		; wait for controller ready
+0385   030C 28 02       	jr	z,put_data1		; if ready, move on
+0386   030E 37          	scf				; else, signal timeout error
+0387   030F C9          	ret				; and bail out
+0388   0310             put_data1:
+0389   0310 7B          	ld	a,e			; recover value to write
+0390   0311 D3 E2       	out	(iodat),a		; write it
+0391   0313 B7          	or	a			; clear CF for success
+0392   0314 C9          	ret
+0393   0315             ;
+0394   0315             put_data_dbg:
+0395   0315 CD 08 03    	call	put_data
+0396   0318 D8          	ret	c
+0397   0319 F5          	push	af
+0398   031A CD 16 04    	call	crlf
+0399   031D 11 67 05    	ld	de,str_put_data
+0400   0320 CD 82 03    	call	prtstr
+0401   0323 CD 91 03    	call	prthex
+0402   0326 F1          	pop	af
+0403   0327 C9          	ret
+0404   0328             
+0405   0328             ;
+0406   0328             ; Get a data byte from the keyboard interface to A with timeout
+0407   0328             ; CF set indicates timeout error
+0408   0328             ;
+0409   0328             get_data:
+0410   0328 CD C2 02    	call	wait_read		; wait for byte to be ready
+0411   032B 28 02       	jr	z,get_data1		; if readym, move on
+0412   032D 37          	scf				; else signal timeout error
+0413   032E C9          	ret				; and bail out
+0414   032F             get_data1:
+0415   032F DB E2       	in	a,(iodat)		; get data byte
+0416   0331 B7          	or	a			; clear CF for success
+0417   0332 C9          	ret
+0418   0333             ;
+0419   0333             get_data_dbg:
+0420   0333 CD 28 03    	call	get_data
+0421   0336 D8          	ret	c
+0422   0337 F5          	push	af
+0423   0338 CD 16 04    	call	crlf
+0424   033B 11 74 05    	ld	de,str_get_data
+0425   033E CD 82 03    	call	prtstr
+0426   0341 CD 91 03    	call	prthex
+0427   0344 F1          	pop	af
+0428   0345 C9          	ret
+0429   0346             ;
+0430   0346             ; Error Handlers
+0431   0346             ;
+0432   0346             err_ctlr_io:
+0433   0346 11 12 05    	ld	de,str_err_ctrl_io
+0434   0349 18 19       	jr	err_ret
+0435   034B             ;
+0436   034B             err_ctlr_test:
+0437   034B 11 32 05    	ld	de,str_err_ctrl_test
+0438   034E 18 14       	jr	err_ret
+0439   0350             ;
+0440   0350             err_kbd_reset:
+0441   0350 11 25 06    	ld	de,str_err_kbd_reset
+0442   0353 18 0F       	jr	err_ret
+0443   0355             ;
+0444   0355             err_kbd_getsc:
+0445   0355 11 8B 06    	ld	de,str_err_kbd_getsc
+0446   0358 18 0A       	jr	err_ret
+0447   035A             ;
+0448   035A             err_kbd_setsc:
+0449   035A 11 DD 06    	ld	de,str_err_kbd_setsc
+0450   035D 18 05       	jr	err_ret
+0451   035F             ;
+0452   035F             err_kbd_ident:
+0453   035F 11 2E 07    	ld	de,str_err_kbd_ident
+0454   0362 18 00       	jr	err_ret
+0455   0364             ;
+0456   0364             err_ret:
+0457   0364 CD 13 04    	call	crlf2
+0458   0367 CD 82 03    	call	prtstr
+0459   036A F6 FF       	or	$ff			; signal error
+0460   036C C9          	ret
+0461   036D             ;
+0462   036D             ;=======================================================================
+0463   036D             ; Utility Routines
+0464   036D             ;=======================================================================
+0465   036D             ;
+0466   036D             ;
+0467   036D             ; Print character in A without destroying any registers
+0468   036D             ;
+0469   036D             prtchr:
+0470   036D C5          	push	bc		; save registers
+0471   036E D5          	push	de
+0472   036F E5          	push	hl
+0473   0370 5F          	ld	e,a		; character to print in E
+0474   0371 0E 02       	ld	c,$02		; BDOS function to output a character
+0475   0373 CD 05 00    	call	bdos		; do it
+0476   0376 E1          	pop	hl		; restore registers
+0477   0377 D1          	pop	de
+0478   0378 C1          	pop	bc
+0479   0379 C9          	ret
+0480   037A             ;
+0481   037A             prtdot:
+0482   037A             ;
+0483   037A             	; shortcut to print a dot preserving all regs
+0484   037A F5          	push	af		; save af
+0485   037B 3E 2E       	ld	a,'.'		; load dot char
+0486   037D CD 6D 03    	call	prtchr		; print it
+0487   0380 F1          	pop	af		; restore af
+0488   0381 C9          	ret			; done
+0489   0382             ;
+0490   0382             ; Print a zero terminated string at (de) without destroying any registers
+0491   0382             ;
+0492   0382             prtstr:
+0493   0382 F5          	push	af
+0494   0383 D5          	push	de
+0495   0384             ;
+0496   0384             prtstr1:
+0497   0384 1A          	ld	a,(de)		; get next char
+0498   0385 B7          	or	a
+0499   0386 28 06       	jr	z,prtstr2
+0500   0388 CD 6D 03    	call	prtchr
+0501   038B 13          	inc	de
+0502   038C 18 F6       	jr	prtstr1
+0503   038E             ;
+0504   038E             prtstr2:
+0505   038E D1          	pop	de		; restore registers
+0506   038F F1          	pop	af
+0507   0390 C9          	ret	
+0508   0391             ;
+0509   0391             ; Print the value in A in hex without destroying any registers
+0510   0391             ;
+0511   0391             prthex:
+0512   0391 F5          	push	af		; save AF
+0513   0392 D5          	push	de		; save DE
+0514   0393 CD B9 03    	call	hexascii	; convert value in A to hex chars in DE
+0515   0396 7A          	ld	a,d		; get the high order hex char
+0516   0397 CD 6D 03    	call	prtchr		; print it
+0517   039A 7B          	ld	a,e		; get the low order hex char
+0518   039B CD 6D 03    	call	prtchr		; print it
+0519   039E D1          	pop	de		; restore DE
+0520   039F F1          	pop	af		; restore AF
+0521   03A0 C9          	ret			; done
+0522   03A1             ;
+0523   03A1             ; print the hex word value in hl
+0524   03A1             ;
+0525   03A1             prthexword:
+0526   03A1 F5          	push	af
+0527   03A2 7C          	ld	a,h
+0528   03A3 CD 91 03    	call	prthex
+0529   03A6 7D          	ld	a,l
+0530   03A7 CD 91 03    	call	prthex 
+0531   03AA F1          	pop	af
+0532   03AB C9          	ret
+0533   03AC             ;
+0534   03AC             ; print the hex dword value in de:hl
+0535   03AC             ;
+0536   03AC             prthex32:
+0537   03AC C5          	push	bc
+0538   03AD D5          	push	de
+0539   03AE C1          	pop	bc
+0540   03AF CD A1 03    	call	prthexword
+0541   03B2 E5          	push	hl
+0542   03B3 C1          	pop	bc
+0543   03B4 CD A1 03    	call	prthexword
+0544   03B7 C1          	pop	bc
+0545   03B8 C9          	ret
+0546   03B9             ;
+0547   03B9             ; Convert binary value in A to ascii hex characters in DE
+0548   03B9             ;
+0549   03B9             hexascii:
+0550   03B9 57          	ld	d,a		; save A in D
+0551   03BA CD C8 03    	call	hexconv		; convert low nibble of A to hex
+0552   03BD 5F          	ld	e,a		; save it in E
+0553   03BE 7A          	ld	a,d		; get original value back
+0554   03BF 07          	rlca			; rotate high order nibble to low bits
+0555   03C0 07          	rlca
+0556   03C1 07          	rlca
+0557   03C2 07          	rlca
+0558   03C3 CD C8 03    	call	hexconv		; convert nibble
+0559   03C6 57          	ld	d,a		; save it in D
+0560   03C7 C9          	ret			; done
+0561   03C8             ;
+0562   03C8             ; Convert low nibble of A to ascii hex
+0563   03C8             ;
+0564   03C8             hexconv:
+0565   03C8 E6 0F       	and	$0F	     	; low nibble only
+0566   03CA C6 90       	add	a,$90
+0567   03CC 27          	daa	
+0568   03CD CE 40       	adc	a,$40
+0569   03CF 27          	daa	
+0570   03D0 C9          	ret
+0571   03D1             ;
+0572   03D1             ; Print value of A or HL in decimal with leading zero suppression
+0573   03D1             ; Use prtdecb for A or prtdecw for HL
+0574   03D1             ;
+0575   03D1             prtdecb:
+0576   03D1 E5          	push	hl
+0577   03D2 26 00       	ld	h,0
+0578   03D4 6F          	ld	l,a
+0579   03D5 CD DA 03    	call	prtdecw		; print it
+0580   03D8 E1          	pop	hl
+0581   03D9 C9          	ret
+0582   03DA             ;
+0583   03DA             prtdecw:
+0584   03DA F5          	push	af
+0585   03DB C5          	push	bc
+0586   03DC D5          	push	de
+0587   03DD E5          	push	hl
+0588   03DE CD E6 03    	call	prtdec0
+0589   03E1 E1          	pop	hl
+0590   03E2 D1          	pop	de
+0591   03E3 C1          	pop	bc
+0592   03E4 F1          	pop	af
+0593   03E5 C9          	ret
+0594   03E6             ;
+0595   03E6             prtdec0:
+0596   03E6 1E 30       	ld	e,'0'
+0597   03E8 01 F0 D8    	ld	bc,-10000
+0598   03EB CD 03 04    	call	prtdec1
+0599   03EE 01 18 FC    	ld	bc,-1000
+0600   03F1 CD 03 04    	call	prtdec1
+0601   03F4 01 9C FF    	ld	bc,-100
+0602   03F7 CD 03 04    	call	prtdec1
+0603   03FA 0E F6       	ld	c,-10
+0604   03FC CD 03 04    	call	prtdec1
+0605   03FF 1E 00       	ld	e,0
+0606   0401 0E FF       	ld	c,-1
+0607   0403             prtdec1:
+0608   0403 3E 2F       	ld	a,'0' - 1
+0609   0405             prtdec2:
+0610   0405 3C          	inc	a
+0611   0406 09          	add	hl,bc
+0612   0407 38 FC       	jr	c,prtdec2
+0613   0409 ED 42       	sbc	hl,bc
+0614   040B BB          	cp	e
+0615   040C C8          	ret	z
+0616   040D 1E 00       	ld	e,0
+0617   040F CD 6D 03    	call	prtchr
+0618   0412 C9          	ret
+0619   0413             ;
+0620   0413             ; Start a new line
+0621   0413             ;
+0622   0413             crlf2:
+0623   0413 CD 16 04    	call	crlf		; two of them
+0624   0416             crlf:
+0625   0416 F5          	push	af		; preserve AF
+0626   0417 3E 0D       	ld	a,13		; <CR>
+0627   0419 CD 6D 03    	call	prtchr		; print it
+0628   041C 3E 0A       	ld	a,10		; <LF>
+0629   041E CD 6D 03    	call	prtchr		; print it
+0630   0421 F1          	pop	af		; restore AF
+0631   0422 C9          	ret
+0632   0423             ;
+0633   0423             ; Brief delay
+0634   0423             ;
+0635   0423             delay:
+0636   0423 C5          	push	bc
+0637   0424 06 00       	ld	b,0
+0638   0426             delay1:
+0639   0426 E3          	ex	(sp),hl
+0640   0427 E3          	ex	(sp),hl
+0641   0428 E3          	ex	(sp),hl
+0642   0429 E3          	ex	(sp),hl
+0643   042A E3          	ex	(sp),hl
+0644   042B E3          	ex	(sp),hl
+0645   042C E3          	ex	(sp),hl
+0646   042D E3          	ex	(sp),hl
+0647   042E 10 F6       	djnz	delay1
+0648   0430 C1          	pop	bc
+0649   0431 C9          	ret
+0650   0432             ;
+0651   0432             ;=======================================================================
+0652   0432             ; Constants
+0653   0432             ;=======================================================================
+0654   0432             ;
+0655   0432 4B 65 79 62 str_banner		.db	"Keyboard Information, v0.1",0
+0655   0436 6F 61 72 64 
+0655   043A 20 49 6E 66 
+0655   043E 6F 72 6D 61 
+0655   0442 74 69 6F 6E 
+0655   0446 2C 20 76 30 
+0655   044A 2E 31 00 
+0656   044D 44 6F 6E 65 str_exit		.db	"Done, Thank you for using KBDINFO!",0
+0656   0451 2C 20 54 68 
+0656   0455 61 6E 6B 20 
+0656   0459 79 6F 75 20 
+0656   045D 66 6F 72 20 
+0656   0461 75 73 69 6E 
+0656   0465 67 20 4B 42 
+0656   0469 44 49 4E 46 
+0656   046D 4F 21 00 
+0657   0470 4B 65 79 62 str_cmdport		.db	"Keyboard Controller Command Port: 0x",0
+0657   0474 6F 61 72 64 
+0657   0478 20 43 6F 6E 
+0657   047C 74 72 6F 6C 
+0657   0480 6C 65 72 20 
+0657   0484 43 6F 6D 6D 
+0657   0488 61 6E 64 20 
+0657   048C 50 6F 72 74 
+0657   0490 3A 20 30 78 
+0657   0494 00 
+0658   0495 4B 65 79 62 str_dataport		.db	"Keyboard Controller Data Port: 0x",0
+0658   0499 6F 61 72 64 
+0658   049D 20 43 6F 6E 
+0658   04A1 74 72 6F 6C 
+0658   04A5 6C 65 72 20 
+0658   04A9 44 61 74 61 
+0658   04AD 20 50 6F 72 
+0658   04B1 74 3A 20 30 
+0658   04B5 78 00 
+0659   04B7 4B 65 79 62 str_timeout_write	.db	"Keyboard Controller Write Timeout, Status: 0x",0
+0659   04BB 6F 61 72 64 
+0659   04BF 20 43 6F 6E 
+0659   04C3 74 72 6F 6C 
+0659   04C7 6C 65 72 20 
+0659   04CB 57 72 69 74 
+0659   04CF 65 20 54 69 
+0659   04D3 6D 65 6F 75 
+0659   04D7 74 2C 20 53 
+0659   04DB 74 61 74 75 
+0659   04DF 73 3A 20 30 
+0659   04E3 78 00 
+0660   04E5 4B 65 79 62 str_timeout_read	.db	"Keyboard Controller Read Timeout, Status: 0x",0
+0660   04E9 6F 61 72 64 
+0660   04ED 20 43 6F 6E 
+0660   04F1 74 72 6F 6C 
+0660   04F5 6C 65 72 20 
+0660   04F9 52 65 61 64 
+0660   04FD 20 54 69 6D 
+0660   0501 65 6F 75 74 
+0660   0505 2C 20 53 74 
+0660   0509 61 74 75 73 
+0660   050D 3A 20 30 78 
+0660   0511 00 
+0661   0512 4B 65 79 62 str_err_ctrl_io		.db	"Keyboard Controller I/O Failure",0
+0661   0516 6F 61 72 64 
+0661   051A 20 43 6F 6E 
+0661   051E 74 72 6F 6C 
+0661   0522 6C 65 72 20 
+0661   0526 49 2F 4F 20 
+0661   052A 46 61 69 6C 
+0661   052E 75 72 65 00 
+0662   0532 4B 65 79 62 str_err_ctrl_test	.db	"Keyboard Controller Self-Test Failed",0
+0662   0536 6F 61 72 64 
+0662   053A 20 43 6F 6E 
+0662   053E 74 72 6F 6C 
+0662   0542 6C 65 72 20 
+0662   0546 53 65 6C 66 
+0662   054A 2D 54 65 73 
+0662   054E 74 20 46 61 
+0662   0552 69 6C 65 64 
+0662   0556 00 
+0663   0557 53 65 6E 74 str_put_cmd		.db	"Sent Command 0x",0
+0663   055B 20 43 6F 6D 
+0663   055F 6D 61 6E 64 
+0663   0563 20 30 78 00 
+0664   0567 53 65 6E 74 str_put_data		.db	"Sent Data 0x",0
+0664   056B 20 44 61 74 
+0664   056F 61 20 30 78 
+0664   0573 00 
+0665   0574 47 6F 74 20 str_get_data		.db	"Got Data 0x",0
+0665   0578 44 61 74 61 
+0665   057C 20 30 78 00 
+0666   0580 41 74 74 65 str_ctrl_test		.db	"Attempting Controller Self-Test",0
+0666   0584 6D 70 74 69 
+0666   0588 6E 67 20 43 
+0666   058C 6F 6E 74 72 
+0666   0590 6F 6C 6C 65 
+0666   0594 72 20 53 65 
+0666   0598 6C 66 2D 54 
+0666   059C 65 73 74 00 
+0667   05A0 43 6F 6E 74 str_ctrl_test_ok	.db	"Controller Self-Test OK",0
+0667   05A4 72 6F 6C 6C 
+0667   05A8 65 72 20 53 
+0667   05AC 65 6C 66 2D 
+0667   05B0 54 65 73 74 
+0667   05B4 20 4F 4B 00 
+0668   05B8 44 69 73 61 str_trans_off		.db	"Disabling Controller Translation",0
+0668   05BC 62 6C 69 6E 
+0668   05C0 67 20 43 6F 
+0668   05C4 6E 74 72 6F 
+0668   05C8 6C 6C 65 72 
+0668   05CC 20 54 72 61 
+0668   05D0 6E 73 6C 61 
+0668   05D4 74 69 6F 6E 
+0668   05D8 00 
+0669   05D9 45 6E 61 62 str_trans_on		.db	"Enabling Controller Translation",0
+0669   05DD 6C 69 6E 67 
+0669   05E1 20 43 6F 6E 
+0669   05E5 74 72 6F 6C 
+0669   05E9 6C 65 72 20 
+0669   05ED 54 72 61 6E 
+0669   05F1 73 6C 61 74 
+0669   05F5 69 6F 6E 00 
+0670   05F9 41 74 74 65 str_kbd_reset		.db	"Attempting Keyboard Reset",0
+0670   05FD 6D 70 74 69 
+0670   0601 6E 67 20 4B 
+0670   0605 65 79 62 6F 
+0670   0609 61 72 64 20 
+0670   060D 52 65 73 65 
+0670   0611 74 00 
+0671   0613 4B 65 79 62 str_kbd_reset_ok	.db	"Keyboard Reset OK",0
+0671   0617 6F 61 72 64 
+0671   061B 20 52 65 73 
+0671   061F 65 74 20 4F 
+0671   0623 4B 00 
+0672   0625 4B 65 79 62 str_err_kbd_reset	.db	"Keyboard Reset Failed",0
+0672   0629 6F 61 72 64 
+0672   062D 20 52 65 73 
+0672   0631 65 74 20 46 
+0672   0635 61 69 6C 65 
+0672   0639 64 00 
+0673   063B             
+0674   063B 52 65 71 75 str_kbd_getsc		.db	"Requesting Active Scan Code Set from Keyboard",0
+0674   063F 65 73 74 69 
+0674   0643 6E 67 20 41 
+0674   0647 63 74 69 76 
+0674   064B 65 20 53 63 
+0674   064F 61 6E 20 43 
+0674   0653 6F 64 65 20 
+0674   0657 53 65 74 20 
+0674   065B 66 72 6F 6D 
+0674   065F 20 4B 65 79 
+0674   0663 62 6F 61 72 
+0674   0667 64 00 
+0675   0669 41 63 74 69 str_kbd_dispsc		.db	"Active Keyboard Scan Code Set is ",0
+0675   066D 76 65 20 4B 
+0675   0671 65 79 62 6F 
+0675   0675 61 72 64 20 
+0675   0679 53 63 61 6E 
+0675   067D 20 43 6F 64 
+0675   0681 65 20 53 65 
+0675   0685 74 20 69 73 
+0675   0689 20 00 
+0676   068B 45 72 72 6F str_err_kbd_getsc	.db	"Error getting active keyboard scan code set",0
+0676   068F 72 20 67 65 
+0676   0693 74 74 69 6E 
+0676   0697 67 20 61 63 
+0676   069B 74 69 76 65 
+0676   069F 20 6B 65 79 
+0676   06A3 62 6F 61 72 
+0676   06A7 64 20 73 63 
+0676   06AB 61 6E 20 63 
+0676   06AF 6F 64 65 20 
+0676   06B3 73 65 74 00 
+0677   06B7 53 65 74 74 str_kbd_setsc		.db	"Setting Active Keyboard Scan Code Set",0
+0677   06BB 69 6E 67 20 
+0677   06BF 41 63 74 69 
+0677   06C3 76 65 20 4B 
+0677   06C7 65 79 62 6F 
+0677   06CB 61 72 64 20 
+0677   06CF 53 63 61 6E 
+0677   06D3 20 43 6F 64 
+0677   06D7 65 20 53 65 
+0677   06DB 74 00 
+0678   06DD 45 72 72 6F str_err_kbd_setsc	.db	"Error setting keyboard scan code set",0
+0678   06E1 72 20 73 65 
+0678   06E5 74 74 69 6E 
+0678   06E9 67 20 6B 65 
+0678   06ED 79 62 6F 61 
+0678   06F1 72 64 20 73 
+0678   06F5 63 61 6E 20 
+0678   06F9 63 6F 64 65 
+0678   06FD 20 73 65 74 
+0678   0701 00 
+0679   0702 4B 65 79 62 str_kbd_ident		.db	"Keyboard Identification",0
+0679   0706 6F 61 72 64 
+0679   070A 20 49 64 65 
+0679   070E 6E 74 69 66 
+0679   0712 69 63 61 74 
+0679   0716 69 6F 6E 00 
+0680   071A 4B 65 79 62 str_kbd_ident_disp	.db	"Keyboard Identify: ",0
+0680   071E 6F 61 72 64 
+0680   0722 20 49 64 65 
+0680   0726 6E 74 69 66 
+0680   072A 79 3A 20 00 
+0681   072E 45 72 72 6F str_err_kbd_ident	.db	"Error performing Keyboard Identification",0
+0681   0732 72 20 70 65 
+0681   0736 72 66 6F 72 
+0681   073A 6D 69 6E 67 
+0681   073E 20 4B 65 79 
+0681   0742 62 6F 61 72 
+0681   0746 64 20 49 64 
+0681   074A 65 6E 74 69 
+0681   074E 66 69 63 61 
+0681   0752 74 69 6F 6E 
+0681   0756 00 
+0682   0757 44 69 73 70 str_disp_scan_codes	.db	"Displaying Raw Scan Codes",13,10
+0682   075B 6C 61 79 69 
+0682   075F 6E 67 20 52 
+0682   0763 61 77 20 53 
+0682   0767 63 61 6E 20 
+0682   076B 43 6F 64 65 
+0682   076F 73 0D 0A 
+0683   0772 20 20 50 72 			.db	"  Press keys on keyboard to display scan codes",13,10
+0683   0776 65 73 73 20 
+0683   077A 6B 65 79 73 
+0683   077E 20 6F 6E 20 
+0683   0782 6B 65 79 62 
+0683   0786 6F 61 72 64 
+0683   078A 20 74 6F 20 
+0683   078E 64 69 73 70 
+0683   0792 6C 61 79 20 
+0683   0796 73 63 61 6E 
+0683   079A 20 63 6F 64 
+0683   079E 65 73 0D 0A 
+0684   07A2 20 20 50 72 			.db	"  Press <esc> on CP/M console to end",13,10,13,10,0
+0684   07A6 65 73 73 20 
+0684   07AA 3C 65 73 63 
+0684   07AE 3E 20 6F 6E 
+0684   07B2 20 43 50 2F 
+0684   07B6 4D 20 63 6F 
+0684   07BA 6E 73 6F 6C 
+0684   07BE 65 20 74 6F 
+0684   07C2 20 65 6E 64 
+0684   07C6 0D 0A 0D 0A 
+0684   07CA 00 
+0685   07CB             ;
+0686   07CB             ;=======================================================================
+0687   07CB             ; Working data
+0688   07CB             ;=======================================================================
+0689   07CB             ;
+0690   07CB 00 00       stksav		.dw	0		; stack pointer saved at start
+0691   07CD 00 00 00 00 		.fill	stksiz,0	; stack
+0691   07D1 00 00 00 00 
+0691   07D5 00 00 00 00 
+0691   07D9 00 00 00 00 
+0691   07DD 00 00 00 00 
+0691   07E1 00 00 00 00 
+0691   07E5 00 00 00 00 
+0691   07E9 00 00 00 00 
+0691   07ED 00 00 00 00 
+0691   07F1 00 00 00 00 
+0691   07F5 00 00 00 00 
+0691   07F9 00 00 00 00 
+0691   07FD 00 00 00 00 
+0691   0801 00 00 00 00 
+0691   0805 00 00 00 00 
+0691   0809 00 00 00 00 
+0692   080D             stack		.equ	$		; stack top
+0693   080D             ;
+0694   080D FF FF FF FF workbuf		.fill	8
+0694   0811 FF FF FF FF 
+0695   0815 00          workbuf_len	.db	0
+0696   0816             ;
+0697   0816             ;=======================================================================
+0698   0816             ;
+0699   0816             	.endtasm: Number of errors = 0
