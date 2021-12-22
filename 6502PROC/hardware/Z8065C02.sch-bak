@@ -330,9 +330,9 @@ Wire Wire Line
 Text GLabel 1200 750  2    50   Input ~ 0
 _RESET
 Text GLabel 1200 850  2    50   Input ~ 0
-_NMI
+_6502NMI
 Text GLabel 1200 950  2    50   Input ~ 0
-_INT
+_6502INT
 Text GLabel 1200 1050 2    50   Input ~ 0
 _WAIT
 Text GLabel 1200 1150 2    50   Input ~ 0

@@ -2324,8 +2324,6 @@ Wire Wire Line
 	6900 5450 7000 5450
 Text GLabel 7650 5650 2    50   Input ~ 0
 _65TOGGLE
-Text GLabel 2900 1850 2    50   Input ~ 0
-_65TOGGLE
 Text GLabel 2900 1650 2    50   Input ~ 0
 _RESET
 Wire Wire Line
@@ -2483,4 +2481,6 @@ Wire Wire Line
 	3700 1600 3600 1600
 Text GLabel 3600 1600 0    50   Input ~ 0
 ICLK
+Text GLabel 2900 1850 2    50   Input ~ 0
+6502EN
 $EndSCHEMATC
