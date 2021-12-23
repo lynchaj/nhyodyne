@@ -253,10 +253,19 @@ print2:
 	ret
 
 ;---------------------------------------------------------------------------------------------------
+; Black: ESC,[30m
+; Red: ESC,[31m
+; Green: ESC,[32m
+; Yellow: ESC,[33m
+; Blue: ESC,[34m
+; Magenta: ESC,[35m
+; Cyan: ESC,[36m
+; White: ESC,[37m
+; Reset: ESC,[0m
 
 SIGNON:
 		.DB	CR,LF,LF
-		.DB	"Test VT82C42 PC Keyboard & Mouse controller chip on Z80 KBDMSE Board."
+		.DB	ESC,"[31m","Test VT82C42 PC Keyboard & Mouse controller chip on Z80 KBDMSE Board."
 		.DB	CR,LF,"$"
 INIT_ERR_STR:
 		.DB	CR,LF,BELL
