@@ -3,7 +3,7 @@
 ; Mouse Information Utility (MSEINFO)
 ;=======================================================================
 ;
-; Simple utility that attempts to determine the status of the PS/2 mouse you
+; Simple utility that attempts to determine the status of the mouse you
 ; have attached to an 8242 keyboard controller.
 ;
 ; Based on Wayne Warthen's KBDINFO program, Thanks to his great work
@@ -70,25 +70,334 @@ main:
 	call	prtstr
 	ld	a,iodat
 	call	prthex
+
 ;
-; Attempt self-test command on keyboard controller
+; Attempt self-test command on mouse controller
 ;
-;   Keyboard controller should respond with an 0x55 on data port
-;   after being sent a 0xAA on the command port.
+;   Mouse should send an 0xAA "Self-test passed" on data port 
+;   and 0x00 "Mouse ID" after Power-on Reset.
 ;
 	call	crlf2
 	ld	de,str_ctrl_test
 	call	prtstr
-	ld	a,$aa			; self-test command
+	
+; Pass #1	
+	call	get_data_dbg		; Read Mouse for self-test status
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$AA			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$00			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	ld	a,$ff			; Send Mouse Reset command
 	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
-	call	get_data_dbg
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
 	jp	c,err_ctlr_io		; handle controller error
-	cp	$55			; expected value?
+	cp	$fa			; expected value?
 	jp	nz,err_ctlr_test	; handle self-test error
 	call	crlf
 	ld	de,str_ctrl_test_ok
 	call	prtstr
+	
+; Pass #2
+	call	get_data_dbg		; Read Mouse for self-test status
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$AA			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$00			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	ld	a,$ff			; Send Mouse Reset command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+; Pass #3
+	call	get_data_dbg		; Read Mouse for self-test status
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$AA			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$00			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	ld	a,$ff			; Send Mouse Reset command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+	
+; Done with Resets, start commanding Mouse
+	call	get_data_dbg		; Read Mouse for self-test status
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$AA			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$00			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+; Begin setting mouse parameters, Request Microsoft Scrolling Mouse Mode
+
+	ld	a,$f3			; Send Set Sample Rate command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$c8			; Send Decimal 200 command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$f3			; Send Set Sample Rate command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$64			; Send Decimal 100 command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$f3			; Send Set Sample Rate command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$50			; Send Decimal 80 command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$f2			; Send Read Device Type command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$00			; expected value? ($03 if Microsoft Scrolling Mouse)
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	ld	a,$f3			; Send Set Sample Rate command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$0a			; Send Decimal 10 command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$f2			; Send Read Device Type command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$00			; expected value? ($03 if Microsoft Scrolling Mouse)
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	ld	a,$e8			; Send Set Resolution command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$03			; Send 8 Counts/mm command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$e6			; Send Set Scaling 1:1 command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$f3			; Send Set Sample Rate command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$28			; Send Decimal 40 command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+	ld	a,$f4			; Send Enable command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+
+; Initialization Complete
+
+;
+done:
+	ret
+
+
+
+
+
+	call	get_data_dbg		; Read Mouse for self-test status
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$AA			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$00			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	
 ;
 ; Disable translation on keyboard controller to get raw scan codes!
 ;
