@@ -122,7 +122,7 @@ main:
 ; Attempt three reset commands on mouse controller
 ;
 	call	crlf2
-	ld	de,str_mse_reset
+	ld	de,str_mse_init
 	call	prtstr
 	
 ; Reset Pass #1	
@@ -1025,7 +1025,7 @@ str_put_cmd		.db	"Sent Command 0x",0
 str_put_data		.db	"Sent Data 0x",0
 str_get_data		.db	"Got Data 0x",0
 str_ctrl_test		.db	"Attempting Controller Self-Test",0
-str_mse_reset		.db	"Attempting Mouse Initialization",0
+str_mse_init		.db	"Attempting Mouse Initialization",0
 str_enable_mouse	.db	"Enabling Mouse in 8242 Controller",0
 str_ctrl_test_ok	.db	"Controller Self-Test OK",0
 str_trans_off		.db	"Disabling Controller Translation",0
