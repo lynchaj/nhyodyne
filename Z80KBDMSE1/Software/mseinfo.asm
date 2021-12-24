@@ -436,7 +436,7 @@ test2:
 ; Perform a keyboard reset
 ;
 	call	crlf2
-	ld	de,str_kbd_reset
+;	ld	de,str_mse_reset
 	call	prtstr
 	ld	a,$ff			; Keyboard reset
 	call	put_data_dbg
@@ -450,7 +450,7 @@ test2:
 	cp	$AA			; Success?
 	jp	nz,err_kbd_reset
 	call	crlf
-	ld	de,str_kbd_reset_ok
+	ld	de,str_mse_reset_ok
 	call	prtstr
 ;
 ; Identify keyboard
@@ -602,8 +602,9 @@ read_loop:
 	call	prtchr
 	jr	read_loop
 
-done:
-	ret
+;done:
+;	ret
+
 ;
 ;=======================================================================
 ; Keyboard Controller I/O Routines
@@ -752,7 +753,7 @@ err_ctlr_test:
 	jr	err_ret
 ;
 err_kbd_reset:
-	ld	de,str_err_kbd_reset
+	ld	de,str_err_mse_reset
 	jr	err_ret
 ;
 err_kbd_getsc:
