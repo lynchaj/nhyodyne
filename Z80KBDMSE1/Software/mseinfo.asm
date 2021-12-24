@@ -620,12 +620,12 @@ read_loop:
 
 ;
 ;=======================================================================
-; Keyboard Controller I/O Routines
+; Mouse Controller I/O Routines
 ;=======================================================================
 ;
 wait_write:
 ;
-; Wait for keyboard controller to be ready for a write
+; Wait for mouse controller to be ready for a write
 ;   A=0 indicates success (ZF set)
 ;
 	ld	b,timeout		; setup timeout constant
@@ -646,7 +646,7 @@ wait_write1:
 ;
 wait_read:
 ;
-; Wait for keyboard controller to be ready to read a byte
+; Wait for mouse controller to be ready to read a byte
 ;   A=0 indicates success (ZF set)
 ;
 	ld	b,timeout		; setup timeout constant
@@ -678,7 +678,7 @@ check_read:
 ;
 put_cmd:
 ;
-; Put a cmd byte from A to the keyboard interface with timeout
+; Put a cmd byte from A to the mouse interface with timeout
 ; CF set indicates timeout error
 ;
 	ld	e,a			; save incoming value
@@ -705,7 +705,7 @@ put_cmd_dbg:
 ;	
 put_data:
 ;
-; Put a data byte from A to the keyboard interface with timeout
+; Put a data byte from A to the mouse interface with timeout
 ; CF set indicates timeout error
 ;
 	ld	e,a			; save incoming value
@@ -731,12 +731,12 @@ put_data_dbg:
 	ret
 
 ;
-; Get a data byte from the keyboard interface to A with timeout
+; Get a data byte from the mouse interface to A with timeout
 ; CF set indicates timeout error
 ;
 get_data:
 	call	wait_read		; wait for byte to be ready
-	jr	z,get_data1		; if readym, move on
+	jr	z,get_data1		; if ready, move on
 	scf				; else signal timeout error
 	ret				; and bail out
 get_data1:
@@ -765,20 +765,20 @@ err_ctlr_test:
 	ld	de,str_err_ctrl_test
 	jr	err_ret
 ;
-err_kbd_reset:
+err_mse_reset:
 	ld	de,str_err_mse_reset
 	jr	err_ret
 ;
-err_kbd_getsc:
-	ld	de,str_err_kbd_getsc
+err_mse_getsc:
+	ld	de,str_err_mse_getsc
 	jr	err_ret
 ;
-err_kbd_setsc:
-	ld	de,str_err_kbd_setsc
+err_mse_setsc:
+	ld	de,str_err_mse_setsc
 	jr	err_ret
 ;
-err_kbd_ident:
-	ld	de,str_err_kbd_ident
+err_mse_ident:
+	ld	de,str_err_mse_ident
 	jr	err_ret
 ;
 err_ret:
@@ -1000,14 +1000,14 @@ str_mse_reset		.db	"Attempting Mouse Reset",0
 str_mse_reset_ok	.db	"Mouse Reset OK",0
 str_err_mse_reset	.db	"Mouse Reset Failed",0
 
-str_kbd_getsc		.db	"Requesting Active Scan Code Set from Keyboard",0
-str_kbd_dispsc		.db	"Active Keyboard Scan Code Set is ",0
-str_err_kbd_getsc	.db	"Error getting active keyboard scan code set",0
-str_kbd_setsc		.db	"Setting Active Keyboard Scan Code Set",0
-str_err_kbd_setsc	.db	"Error setting keyboard scan code set",0
-str_kbd_ident		.db	"Keyboard Identification",0
-str_kbd_ident_disp	.db	"Keyboard Identify: ",0
-str_err_kbd_ident	.db	"Error performing Keyboard Identification",0
+str_mse_getsc		.db	"Requesting Active Scan Code Set from Keyboard",0
+str_mse_dispsc		.db	"Active Keyboard Scan Code Set is ",0
+str_err_mse_getsc	.db	"Error getting active keyboard scan code set",0
+str_mse_setsc		.db	"Setting Active Keyboard Scan Code Set",0
+str_err_mse_setsc	.db	"Error setting keyboard scan code set",0
+str_mse_ident		.db	"Keyboard Identification",0
+str_mse_ident_disp	.db	"Keyboard Identify: ",0
+str_err_mse_ident	.db	"Error performing Keyboard Identification",0
 str_disp_scan_codes	.db	"Displaying Raw Scan Codes",13,10
 			.db	"  Press keys on keyboard to display scan codes",13,10
 			.db	"  Press <esc> on CP/M console to end",13,10,13,10,0
