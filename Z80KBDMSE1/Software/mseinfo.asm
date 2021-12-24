@@ -95,6 +95,17 @@ main:
 	ld	de,str_ctrl_test_ok
 	call	prtstr
 ;
+;   Send 0xA8 Mouse Enable command to 8242 controller
+;
+	call	crlf2
+	ld	de,str_enable_mouse
+	call	prtstr
+	
+	ld	a,$a8			; Send Mouse Enable command to 8242
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+;
 ; Disable translation on keyboard controller to get raw scan codes!
 ;
 	call	crlf2
@@ -107,17 +118,6 @@ main:
 	ld	a,$00			; xlat disabled, mouse enabled, no ints
 	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
-;
-;   Send 0xA8 Mouse Enable command to 8242 controller
-;
-	call	crlf2
-	ld	de,str_enable_mouse
-	call	prtstr
-	
-	ld	a,$a8			; Send Mouse Enable command to 8242
-	call	put_cmd_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	
 ;
 ; Attempt three reset commands on mouse controller
 ;
