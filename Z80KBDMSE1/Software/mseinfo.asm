@@ -20,12 +20,12 @@ iodat	.equ	$E2	; keyboard controller data port address
 ;
 ; General operational equates (should not requre adjustment)
 ;
-stksiz	.equ	$40			; Working stack size
+stksiz	.equ	$40	; Working stack size
 ;
-timeout	.equ	$00			; Controller timeout constant
+timeout	.equ	$00	; Controller timeout constant
 ;
-restart	.equ	$0000		; CP/M restart vector
-bdos	  .equ	$0005		; BDOS invocation vector
+restart	.equ	$0000	; CP/M restart vector
+bdos	  .equ	$0005	; BDOS invocation vector
 ;
 ;=======================================================================
 ;
@@ -73,6 +73,19 @@ main:
 	ld	a,iodat
 	call	prthex
 
+;
+; Attempt enable mouse with controller
+;
+;   Send 0xA8 Mouse Enable command to 8242 controller
+;
+	call	crlf2
+	ld	de,str_enable_mouse
+	call	prtstr
+	
+	ld	a,$a8			; Send Mouse Enable command to 8242
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
 ;
 ; Attempt self-test command on mouse controller
 ;
@@ -979,6 +992,7 @@ str_put_cmd		.db	"Sent Command 0x",0
 str_put_data		.db	"Sent Data 0x",0
 str_get_data		.db	"Got Data 0x",0
 str_ctrl_test		.db	"Attempting Controller Self-Test",0
+str_enable_mouse	.db	"Enabling Mouse in 8242 Controller",0
 str_ctrl_test_ok	.db	"Controller Self-Test OK",0
 str_trans_off		.db	"Disabling Controller Translation",0
 str_trans_on		.db	"Enabling Controller Translation",0
