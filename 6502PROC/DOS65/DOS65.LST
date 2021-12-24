@@ -2901,8 +2901,8 @@ Current file: DOS65.ASM
 00CD68  2               				;set up jumps into dos/65 in page one
 00CD68  2  A2 00        setup:	ldx	#0		;clear index
 00CD6A  2               				;first clear key dba variables
-00CD6A  2  8E 8B DA     	stx	hstact		;host buffer inactive
-00CD6D  2  8E 8C DA     	stx	unacnt		;clear unalloc count
+00CD6A  2  8E 41 D6     	stx	hstact		;host buffer inactive
+00CD6D  2  8E 42 D6     	stx	unacnt		;clear unalloc count
 00CD70  2  BD 2A CE     setupl:	lda	inttbl,x	;get byte
 00CD73  2  9D 00 01     	sta	$100,x		;insert at start
 00CD76  2  E8           	inx
@@ -2911,7 +2911,7 @@ Current file: DOS65.ASM
 00CD7B  2  A9 28        	lda	#<dflbuf	;get low buffer
 00CD7D  2  A0 01        	ldy	#>dflbuf	;and high
 00CD7F  2  20 CD CE     	jsr	setdma		;and set
-00CD82  2  AD 85 DA     	lda	sekdsk		;get disk
+00CD82  2  AD 3B D6     	lda	sekdsk		;get disk
 00CD85  2               
 00CD85  2               
 00CD85  2                 .IF USEFLOPPYA=1
@@ -2946,7 +2946,7 @@ Current file: DOS65.ASM
 00CDB8  2  00 BD D7 CD  
 00CDBC  2  E8 C9 24 F0  
 00CDE3  2  20 86 D2       	JSR	DSKY_INIT
-00CDE6  2  20 78 D8       	JSR	DSKY_PUTLED
+00CDE6  2  20 1D D5       	JSR	DSKY_PUTLED
 00CDE9  2  54 6E 5C 5E  	.BYTE 	$54,$6E,$5C,$5E,$6E,$54,$79,$40
 00CDED  2  6E 54 79 40  
 00CDF1  2               ;	JSR 	DSKY_BEEP
@@ -2986,11 +2986,11 @@ Current file: DOS65.ASM
 00CE37  2               ;select disk
 00CE37  2               seldsk:
 00CE37  2  29 03        	and	#3		;three lsbs only
-00CE39  2  8D 85 DA     	sta	sekdsk		;save for later
+00CE39  2  8D 3B D6     	sta	sekdsk		;save for later
 00CE3C  2                .IF (USEFLOPPYA=1 | USEFLOPPYB=1)
 00CE3C  2               	jsr	MOTOROFF	; TURN OFF ALL FLOPPY MOTORS
 00CE3C  2                .ENDIF
-00CE3C  2  AD 85 DA     	LDA	sekdsk		;save for later
+00CE3C  2  AD 3B D6     	LDA	sekdsk		;save for later
 00CE3F  2  0A           	asl	a		;multiply by two
 00CE40  2  AA           	tax			;make an Index
 00CE41  2  BD 48 CE     	lda	dcbtbl,x	;get address
@@ -2998,9 +2998,9 @@ Current file: DOS65.ASM
 00CE47  2  60           	rts
 00CE48  2               
 00CE48  2               ;table of dcb addresses
-00CE48  2  5B DA        dcbtbl:	.word	dcba
-00CE4A  2  69 DA        	.word	dcbb
-00CE4C  2  77 DA        	.word	dcbc
+00CE48  2  11 D6        dcbtbl:	.word	dcba
+00CE4A  2  1F D6        	.word	dcbb
+00CE4C  2  2D D6        	.word	dcbc
 00CE4E  2               
 00CE4E  2               
 00CE4E  2               
@@ -3020,8 +3020,8 @@ Current file: DOS65.ASM
 00CE52  2               ;	Y=TRACK HIGH BYTE
 00CE52  2               ;________________________________________________________________________________________________________
 00CE52  2               seltrk:
-00CE52  2  8D 8D DA     	sta	sektrk		;save number
-00CE55  2  8C 8E DA     	sty	sektrk+1
+00CE52  2  8D 43 D6     	sta	sektrk		;save number
+00CE55  2  8C 44 D6     	sty	sektrk+1
 00CE58  2  60           	rts
 00CE59  2               
 00CE59  2               ;__SELSEC________________________________________________________________________________________________
@@ -3032,8 +3032,8 @@ Current file: DOS65.ASM
 00CE59  2               ;	Y=SECTOR HIGH BYTE
 00CE59  2               ;________________________________________________________________________________________________________
 00CE59  2               selsec:
-00CE59  2  8D 8F DA     	sta	seksec		;save low and high
-00CE5C  2  8C 90 DA     	sty	seksec+1
+00CE59  2  8D 45 D6     	sta	seksec		;save low and high
+00CE5C  2  8C 46 D6     	sty	seksec+1
 00CE5F  2  60           	rts
 00CE60  2               
 00CE60  2               ;__READ__________________________________________________________________________________________________
@@ -3058,7 +3058,7 @@ Current file: DOS65.ASM
 00CE73  2               ; 	PERFORM LOW LEVEL SECTOR READ
 00CE73  2               ;________________________________________________________________________________________________________
 00CE73  2               READlow:
-00CE73  2  AD 85 DA     	LDA	sekdsk			; GET DRIVE
+00CE73  2  AD 3B D6     	LDA	sekdsk			; GET DRIVE
 00CE76  2  C9 00        	CMP	#$00			;
 00CE78  2  D0 03        	BNE	RDNOTA			;
 00CE7A  2                    					;
@@ -3113,7 +3113,7 @@ Current file: DOS65.ASM
 00CE9D  2  D0 2B        	BNE	WRABEND			;
 00CE9F  2  20 81 CF     	JSR	BLKSECR			;
 00CEA2  2               					;
-00CEA2  2  AD 85 DA     	LDA	sekdsk			; GET DRIVE
+00CEA2  2  AD 3B D6     	LDA	sekdsk			; GET DRIVE
 00CEA5  2  C9 00        	CMP	#$00			;
 00CEA7  2  D0 03        	BNE	WRNOTA			;
 00CEA9  2               					;
@@ -3233,19 +3233,19 @@ Current file: DOS65.ASM
 00CEF4  2               ; 	TRANSLATE SECTORS INTO ECB SERVER FORMAT
 00CEF4  2               ;________________________________________________________________________________________________________
 00CEF4  2               CONVERT_SECTOR_DOS:
-00CEF4  2  AD 85 DA     	LDA	sekdsk			; GET DISK #
+00CEF4  2  AD 3B D6     	LDA	sekdsk			; GET DISK #
 00CEF7  2  C9 02        	CMP	#$02
 00CEF9  2  F0 18        	BEQ	CONVERT_SECTOR_DOS1	; NOT ZERO, DO FULL TRANSLATE
-00CEFB  2  AD 8D DA     	LDA	sektrk			; LOAD TRACK # (LOW BYTE)
+00CEFB  2  AD 43 D6     	LDA	sektrk			; LOAD TRACK # (LOW BYTE)
 00CEFE  2  29 01        	AND	#$01			; FILTER OUT HEAD
-00CF00  2  8D 91 DA     	STA	debhead			; STORE HEAD
-00CF03  2  AD 8D DA     	LDA	sektrk			; SAVE TRACK IN A
+00CF00  2  8D 47 D6     	STA	debhead			; STORE HEAD
+00CF03  2  AD 43 D6     	LDA	sektrk			; SAVE TRACK IN A
 00CF06  2  4A           	LSR	A			; REMOVE HEAD BIT
-00CF07  2  8D 92 DA     	STA	debcyl			; STORE IN TRACK
-00CF0A  2  AD 8F DA     	LDA	seksec			; LOAD SECTOR # (LOW BYTE)
+00CF07  2  8D 48 D6     	STA	debcyl			; STORE IN TRACK
+00CF0A  2  AD 45 D6     	LDA	seksec			; LOAD SECTOR # (LOW BYTE)
 00CF0D  2  4A           	LSR	A			;
 00CF0E  2  4A           	LSR	A			; DIVIDE BY 4 (FOR BLOCKING)
-00CF0F  2  8D 93 DA     	STA	debsec			; STORE IN SECTOR
+00CF0F  2  8D 49 D6     	STA	debsec			; STORE IN SECTOR
 00CF12  2               
 00CF12  2                 .IF USEDSKY=1
 00CF12  2                 	lda	sekdsk
@@ -3262,13 +3262,13 @@ Current file: DOS65.ASM
 00CF12  2  60           	RTS
 00CF13  2               
 00CF13  2               CONVERT_SECTOR_DOS1:
-00CF13  2  AD 8D DA     	LDA	sektrk			; LOAD TRACK # (LOW BYTE)
-00CF16  2  8D 95 DA     	STA	debtmp+1		;
-00CF19  2  AD 8F DA     	LDA	seksec			; LOAD SECTOR# (LOW BYTE)
-00CF1C  2  8D 94 DA     	STA	debtmp			;
+00CF13  2  AD 43 D6     	LDA	sektrk			; LOAD TRACK # (LOW BYTE)
+00CF16  2  8D 4B D6     	STA	debtmp+1		;
+00CF19  2  AD 45 D6     	LDA	seksec			; LOAD SECTOR# (LOW BYTE)
+00CF1C  2  8D 4A D6     	STA	debtmp			;
 00CF1F  2  20 4A CF     	JSR	RRA16			; ROTATE DEBTMP RIGHT (DIVIDE BY 2)
 00CF22  2  20 4A CF     	JSR	RRA16			; ROTATE DEBTMP RIGHT (DIVIDE BY 2)
-00CF25  2  AD 8E DA     	LDA	sektrk+1		; GET HIGH BYTE OF TRACK INTO A
+00CF25  2  AD 44 D6     	LDA	sektrk+1		; GET HIGH BYTE OF TRACK INTO A
 00CF28  2  0A           	ASL	A			;
 00CF29  2  0A           	ASL	A
 00CF2A  2  0A           	ASL	A
@@ -3276,16 +3276,16 @@ Current file: DOS65.ASM
 00CF2C  2  0A           	ASL	A			;
 00CF2D  2  0A           	ASL	A			;
 00CF2E  2  18           	CLC
-00CF2F  2  0D 95 DA     	ORA	debtmp+1		;
-00CF32  2  8D 95 DA     	STA	debtmp+1		;
-00CF35  2  AD 8E DA     	LDA	sektrk+1		; GET HIGH BYTE OF TRACK INTO A
+00CF2F  2  0D 4B D6     	ORA	debtmp+1		;
+00CF32  2  8D 4B D6     	STA	debtmp+1		;
+00CF35  2  AD 44 D6     	LDA	sektrk+1		; GET HIGH BYTE OF TRACK INTO A
 00CF38  2  4A           	LSR	A
 00CF39  2  4A           	LSR	A
-00CF3A  2  8D 91 DA     	STA	debhead			;
-00CF3D  2  AD 94 DA     	LDA	debtmp			;
-00CF40  2  8D 93 DA     	STA	debsec			; LBA REGISTER IS 00TTTTSS / 4
-00CF43  2  AD 95 DA     	LDA	debtmp+1		;
-00CF46  2  8D 92 DA     	STA	debcyl		 	;
+00CF3A  2  8D 47 D6     	STA	debhead			;
+00CF3D  2  AD 4A D6     	LDA	debtmp			;
+00CF40  2  8D 49 D6     	STA	debsec			; LBA REGISTER IS 00TTTTSS / 4
+00CF43  2  AD 4B D6     	LDA	debtmp+1		;
+00CF46  2  8D 48 D6     	STA	debcyl		 	;
 00CF49  2                 .IF USEDSKY=1
 00CF49  2                 	lda	sekdsk
 00CF49  2                 	sta	DSKYDISPLAY
@@ -3300,12 +3300,12 @@ Current file: DOS65.ASM
 00CF49  2  60           	RTS
 00CF4A  2               RRA16:
 00CF4A  2  18           	CLC				; CLEAR CARRY FLAG
-00CF4B  2  AD 95 DA     	LDA	debtmp+1		; 16 BIT ROTATE HL WITH CARRY
+00CF4B  2  AD 4B D6     	LDA	debtmp+1		; 16 BIT ROTATE HL WITH CARRY
 00CF4E  2  6A           	ROR	A			;
-00CF4F  2  8D 95 DA     	STA	debtmp+1		; ROTATE HL RIGHT 1 BIT (DIVIDE BY 2)
-00CF52  2  AD 94 DA     	LDA	debtmp			;
+00CF4F  2  8D 4B D6     	STA	debtmp+1		; ROTATE HL RIGHT 1 BIT (DIVIDE BY 2)
+00CF52  2  AD 4A D6     	LDA	debtmp			;
 00CF55  2  6A           	ROR	A			;
-00CF56  2  8D 94 DA     	STA	debtmp			;
+00CF56  2  8D 4A D6     	STA	debtmp			;
 00CF59  2  60           	RTS
 00CF5A  2               
 00CF5A  2               ;___DEBSECR______________________________________________________________________________________________
@@ -3314,7 +3314,7 @@ Current file: DOS65.ASM
 00CF5A  2               ;
 00CF5A  2               ;________________________________________________________________________________________________________
 00CF5A  2               DEBSECR:
-00CF5A  2  AD 8F DA     	LDA	seksec			;
+00CF5A  2  AD 45 D6     	LDA	seksec			;
 00CF5D  2  29 03        	AND	#$03			; GET SECTOR INDEX
 00CF5F  2  18           	CLC				;
 00CF60  2  2A           	ROL	A			;
@@ -3332,10 +3332,10 @@ Current file: DOS65.ASM
 00CF78  2  60           	RTS
 00CF79  2               
 00CF79  2               DEBTAB:
-00CF79  2  E3 DD        	.word	hstbuf			;
-00CF7B  2  63 DE        	.word	hstbuf+128		;
-00CF7D  2  E3 DE        	.word	hstbuf+256		;
-00CF7F  2  63 DF        	.word	hstbuf+384		;
+00CF79  2  99 D9        	.word	hstbuf			;
+00CF7B  2  19 DA        	.word	hstbuf+128		;
+00CF7D  2  99 DA        	.word	hstbuf+256		;
+00CF7F  2  19 DB        	.word	hstbuf+384		;
 00CF81  2               
 00CF81  2               
 00CF81  2               ;___BLKSECR______________________________________________________________________________________________
@@ -3344,7 +3344,7 @@ Current file: DOS65.ASM
 00CF81  2               ;
 00CF81  2               ;________________________________________________________________________________________________________
 00CF81  2               BLKSECR:
-00CF81  2  AD 8F DA     	LDA	seksec			;
+00CF81  2  AD 45 D6     	LDA	seksec			;
 00CF84  2  29 03        	AND	#$03			; GET SECTOR INDEX
 00CF86  2  18           	CLC				;
 00CF87  2  2A           	ROL	A			;
@@ -3562,14 +3562,14 @@ Current file: DOS65.ASM
 00CFEC  3  48 DA 5A A2  		PRTDBG "IDE Read Sector$"
 00CFF0  3  00 BD 0F D0  
 00CFF4  3  E8 C9 24 F0  
-00D01F  3  AD 91 DA     		LDA	debhead			; STORE CURRENT PARMS
-00D022  3  CD 96 DA     		CMP	Cdebhead		;
+00D01F  3  AD 47 D6     		LDA	debhead			; STORE CURRENT PARMS
+00D022  3  CD 4C D6     		CMP	Cdebhead		;
 00D025  3  D0 13        		BNE	IDE_READ_SECTOR_DIRTY
-00D027  3  AD 92 DA     		LDA	debcyl			;
-00D02A  3  CD 97 DA     		CMP	Cdebcyl			;
+00D027  3  AD 48 D6     		LDA	debcyl			;
+00D02A  3  CD 4D D6     		CMP	Cdebcyl			;
 00D02D  3  D0 0B        		BNE	IDE_READ_SECTOR_DIRTY
-00D02F  3  AD 93 DA     		LDA	debsec			;
-00D032  3  CD 98 DA     		CMP	Cdebsec			;
+00D02F  3  AD 49 D6     		LDA	debsec			;
+00D032  3  CD 4E D6     		CMP	Cdebsec			;
 00D035  3  D0 03        		BNE	IDE_READ_SECTOR_DIRTY
 00D037  3  A9 00        		LDA	#$00			; ZERO = 1 ON RETURN = OPERATION OK
 00D039  3  60           		RTS
@@ -3586,12 +3586,12 @@ Current file: DOS65.ASM
 00D087  3  20 9A D1     		JSR	IDE_WAIT_DRQ		;WAIT UNTIL IT'S GOT THE DATA
 00D08A  3  20 A7 D1     		JSR	IDE_READ_BUFFER		; GRAB THE 256 WORDS FROM THE BUFFER
 00D08D  3               
-00D08D  3  AD 91 DA     		LDA	debhead			; STORE CURRENT PARMS
-00D090  3  8D 96 DA     		STA	Cdebhead		;
-00D093  3  AD 92 DA     		LDA	debcyl			;
-00D096  3  8D 97 DA     		STA	Cdebcyl			;
-00D099  3  AD 93 DA     		LDA	debsec			;
-00D09C  3  8D 98 DA     		STA	Cdebsec			;
+00D08D  3  AD 47 D6     		LDA	debhead			; STORE CURRENT PARMS
+00D090  3  8D 4C D6     		STA	Cdebhead		;
+00D093  3  AD 48 D6     		LDA	debcyl			;
+00D096  3  8D 4D D6     		STA	Cdebcyl			;
+00D099  3  AD 49 D6     		LDA	debsec			;
+00D09C  3  8D 4E D6     		STA	Cdebsec			;
 00D09F  3               
 00D09F  3  A9 00        		LDA	#$00			; ZERO = 1 ON RETURN = OPERATION OK
 00D0A1  3  60           		RTS
@@ -3616,9 +3616,9 @@ Current file: DOS65.ASM
 00D0E9  3  20 82 D1     		JSR	IDE_WAIT_NOT_BUSY	;WAIT UNTIL THE WRITE IS COMPLETE
 00D0EC  3               
 00D0EC  3  A9 FF        		LDA	#$FF			; STORE CURRENT PARMS
-00D0EE  3  8D 96 DA     		STA	Cdebhead		;
-00D0F1  3  8D 97 DA     		STA	Cdebcyl			;
-00D0F4  3  8D 98 DA     		STA	Cdebsec			;
+00D0EE  3  8D 4C D6     		STA	Cdebhead		;
+00D0F1  3  8D 4D D6     		STA	Cdebcyl			;
+00D0F4  3  8D 4E D6     		STA	Cdebsec			;
 00D0F7  3               
 00D0F7  3  A9 00        		LDA	#$00			; ZERO = 1 ON RETURN = OPERATION OK
 00D0F9  3  60           		RTS
@@ -3633,13 +3633,13 @@ Current file: DOS65.ASM
 00D0FE  3  00 BD 1D D1  
 00D102  3  E8 C9 24 F0  
 00D127  3  A9 00        		LDA	#$00
-00D129  3  8D 91 DA     		STA	debhead
-00D12C  3  8D 92 DA     		STA	debcyl
-00D12F  3  8D 93 DA     		STA	debsec
+00D129  3  8D 47 D6     		STA	debhead
+00D12C  3  8D 48 D6     		STA	debcyl
+00D12F  3  8D 49 D6     		STA	debsec
 00D132  3  A9 FF        		LDA	#$FF			;
-00D134  3  8D 96 DA     		STA	Cdebhead		;
-00D137  3  8D 97 DA     		STA	Cdebcyl			;
-00D13A  3  8D 98 DA     		STA	Cdebsec			;
+00D134  3  8D 4C D6     		STA	Cdebhead		;
+00D137  3  8D 4D D6     		STA	Cdebcyl			;
+00D13A  3  8D 4E D6     		STA	Cdebsec			;
 00D13D  3  A9 80        		LDA	#IDE_RESET
 00D13F  3  8D 62 03     		STA	IDECNTRL			; ASSERT RST LINE ON IDE INTERFACE
 00D142  3  A2 00        		LDX	#$00
@@ -3705,10 +3705,10 @@ Current file: DOS65.ASM
 00D1AE  3  20 3C D2     		JSR	IDE_READ
 00D1B1  3  8A           		TXA
 00D1B2  3  AE EB CF     		LDX	IDEINDEX
-00D1B5  3  9D E3 DD     		STA	hstbuf,X		;
+00D1B5  3  9D 99 D9     		STA	hstbuf,X		;
 00D1B8  3  E8           		INX				;
 00D1B9  3  98           		TYA				; THEN HIGH BYTE OF WORD
-00D1BA  3  9D E3 DD     		STA	hstbuf,X		;
+00D1BA  3  9D 99 D9     		STA	hstbuf,X		;
 00D1BD  3  E8           		INX
 00D1BE  3  E0 00        		CPX    	#$00			;
 00D1C0  3  D0 E7        		BNE	IDEBUFRD		;
@@ -3718,10 +3718,10 @@ Current file: DOS65.ASM
 00D1C7  3  20 3C D2     		JSR	IDE_READ
 00D1CA  3  8A           		TXA
 00D1CB  3  AE EB CF     		LDX	IDEINDEX
-00D1CE  3  9D E3 DE     		STA	hstbuf+256,X		;
+00D1CE  3  9D 99 DA     		STA	hstbuf+256,X		;
 00D1D1  3  E8           		INX				;
 00D1D2  3  98           		TYA				; THEN HIGH BYTE OF WORD
-00D1D3  3  9D E3 DE     		STA	hstbuf+256,X		;
+00D1D3  3  9D 99 DA     		STA	hstbuf+256,X		;
 00D1D6  3  E8           		INX				;
 00D1D7  3  E0 00        		CPX    	#$00			;
 00D1D9  3  D0 E7        		BNE	IDEBUFRD1		;
@@ -3736,9 +3736,9 @@ Current file: DOS65.ASM
 00D1DC  3  A2 00        		LDX    	#$00			; INDEX
 00D1DE  3               IDEBUFWT:
 00D1DE  3  8E EB CF     		STX	IDEINDEX
-00D1E1  3  BD E4 DD     		LDA     hstbuf+1,X		; SECTORS ARE BIG ENDIAN
+00D1E1  3  BD 9A D9     		LDA     hstbuf+1,X		; SECTORS ARE BIG ENDIAN
 00D1E4  3  A8           		TAY				;
-00D1E5  3  BD E3 DD     		LDA     hstbuf,X		; SECTORS ARE BIG ENDIAN
+00D1E5  3  BD 99 D9     		LDA     hstbuf,X		; SECTORS ARE BIG ENDIAN
 00D1E8  3  AA           		TAX
 00D1E9  3  A9 08        		LDA	#IDE_DATA
 00D1EB  3  20 5A D2     		JSR	IDE_WRITE
@@ -3750,9 +3750,9 @@ Current file: DOS65.ASM
 00D1F7  3  A2 00        		LDX    	#$00			; INDEX
 00D1F9  3               IDEBUFWT1:
 00D1F9  3  8E EB CF     		STX	IDEINDEX
-00D1FC  3  BD E4 DE     		LDA     hstbuf+257,X		; SECTORS ARE BIG ENDIAN
+00D1FC  3  BD 9A DA     		LDA     hstbuf+257,X		; SECTORS ARE BIG ENDIAN
 00D1FF  3  A8           		TAY
-00D200  3  BD E3 DE     		LDA     hstbuf+256,X		; SECTORS ARE BIG ENDIAN
+00D200  3  BD 99 DA     		LDA     hstbuf+256,X		; SECTORS ARE BIG ENDIAN
 00D203  3  AA           		TAX
 00D204  3  A9 08        		LDA	#IDE_DATA
 00D206  3  20 5A D2     		JSR	IDE_WRITE
@@ -3775,15 +3775,15 @@ Current file: DOS65.ASM
 00D217  3  A9 0E        		LDA	#IDE_HEAD
 00D219  3  20 5A D2     		JSR	IDE_WRITE
 00D21C  3               
-00D21C  3  AE 91 DA     		LDX    	debhead
+00D21C  3  AE 47 D6     		LDX    	debhead
 00D21F  3  A9 0D        		LDA	#IDE_CYL_MSB
 00D221  3  20 5A D2     		JSR	IDE_WRITE
 00D224  3               
-00D224  3  AE 92 DA     		LDX    	debcyl			;
+00D224  3  AE 48 D6     		LDX    	debcyl			;
 00D227  3  A9 0C        		LDA	#IDE_CYL_LSB
 00D229  3  20 5A D2     		JSR	IDE_WRITE
 00D22C  3               
-00D22C  3  AE 93 DA     		LDX    	debsec			;
+00D22C  3  AE 49 D6     		LDX    	debsec			;
 00D22F  3  A9 0B        		LDA	#IDE_SECTOR
 00D231  3  20 5A D2     		JSR	IDE_WRITE
 00D234  3               
@@ -3997,7 +3997,7 @@ Current file: DOS65.ASM
 00D327  3  00 BD 3C D3  
 00D32B  3  E8 C9 24 F0  
 00D33F  3               ;
-00D33F  3  AD 4E DA     	LDA	DSKY_PRESENT	        ; PRESENT?
+00D33F  3  AD 04 D6     	LDA	DSKY_PRESENT	        ; PRESENT?
 00D342  3  C9 FF        	CMP     #$FF		        ; SET FLAGS
 00D344  3  F0 26                BEQ     DSKY_INITA
 00D346  3  48 DA 5A A2  	PRTS    " NOT PRESENT$"		; NOT PRESENT
@@ -4013,867 +4013,801 @@ Current file: DOS65.ASM
 00D370  3               ;____________________________________________________________________________________________________
 00D370  3               ; HARDWARE RESET 8279 BY PULSING RESET LINE
 00D370  3               DSKY_PREINIT:
-00D370  3  48 DA 5A A2          PRTDBG "DSKY PREINIT:$"
-00D374  3  00 BD 93 D3  
-00D378  3  E8 C9 24 F0  
-00D3A1  3               	; CHECK FOR PPI
-00D3A1  3  20 E9 D4     	JSR	DSKY_PPIDETECT		; TEST FOR PPI HARDWARE
-00D3A4  3  D0 62                BNE     DSKY_ABORT      	; BAIL OUT IF NOT THERE
-00D3A6  3               NOTDSKY_ABORT:
-00D3A6  3               	; SETUP PPI TO DEFAULT MODE
-00D3A6  3  20 97 D9     	JSR	DSKY_PPIRD
-00D3A9  3               	; INIT 8279 VALUES TO IDLE STATE
-00D3A9  3  A9 06        	LDA	#DSKY_PPI_IDLE
-00D3AB  3  8D 62 03     	STA	DSKY_PPIC
-00D3AE  3               	; PULSE RESET SIGNAL ON 8279
-00D3AE  3  09 80        	ORA 	#%10000000
-00D3B0  3  8D 62 03     	STA	DSKY_PPIC
-00D3B3  3  29 7F        	AND 	#%01111111
-00D3B5  3  8D 62 03     	STA	DSKY_PPIC
-00D3B8  3               	; INITIALIZE 8279
-00D3B8  3  20 09 D4     	JSR	DSKY_REINIT
-00D3BB  3               	; NOW SEE IF A DSKYNG IS REALLY THERE...
-00D3BB  3  A9 A5        	LDA     #$A5
-00D3BD  3  A0 00                LDY     #$00
-00D3BF  3  20 DA CB             JSR     PRTHEXBYTE
-00D3C2  3  20 2C D7     	JSR	DSKY_PUTBYTE
-00D3C5  3  A0 00                LDY     #$00
-00D3C7  3  20 A3 D7     	JSR	DSKY_GETBYTE
-00D3CA  3  20 DA CB             JSR     PRTHEXBYTE
-00D3CD  3  C9 A5        	CMP	#$A5
-00D3CF  3  D0 37        	BNE     DSKY_ABORT			; BAIL OUT IF MISCOMPARE
-00D3D1  3  A9 FF        	LDA	#$FF
-00D3D3  3  8D 4E DA     	STA	DSKY_PRESENT
-00D3D6  3  48 DA 5A A2          PRTDBG "DSKY DETECTED:$"
-00D3DA  3  00 BD F9 D3  
-00D3DE  3  E8 C9 24 F0  
-00D408  3               DSKY_ABORT:
-00D408  3  60           	RTS
-00D409  3               ;
-00D409  3               DSKY_REINIT:
-00D409  3  48 DA 5A A2          PRTDBG "DSKY REINIT:$"
-00D40D  3  00 BD 2C D4  
-00D411  3  E8 C9 24 F0  
-00D439  3  20 09 DA     	JSR	DSKY_PPIIDLE
-00D43C  3               	; SET CLOCK SCALER TO 20
-00D43C  3  A9 21        	LDA	#DSKY_CMD_CLK | DSKY_PRESCL
-00D43E  3  20 DA D5     	JSR	DSKY_CMD
-00D441  3               	; FALL THRU
-00D441  3               ;
-00D441  3               DSKY_RESET:
-00D441  3  48 DA 5A A2          PRTDBG "DSKY RESET:$"
-00D445  3  00 BD 64 D4  
-00D449  3  E8 C9 24 F0  
-00D470  3               	; RESET DSKY -- CLEAR RAM AND FIFO
-00D470  3  A9 DF        	LDA	#DSKY_CMD_CLR
-00D472  3  20 DA D5     	JSR	DSKY_CMD
-00D475  3               ;
-00D475  3               	; 8259 TAKES ~160US TO CLEAR RAM DURING WHICH TIME WRITES TO
-00D475  3               	; DISPLAY RAM ARE INHIBITED.  HIGH BIT OF STATUS BYTE IS SET
-00D475  3               	; DURING THIS WINDOW.  TO PREVENT A DEADLOCK, A LOOP COUNTER
-00D475  3               	; IS USED TO IMPLEMENT A TIMEOUT.
-00D475  3  48 DA 5A A2          PRTDBG "DSKY RESET DELAY:$"
-00D479  3  00 BD 98 D4  
-00D47D  3  E8 C9 24 F0  
-00D4AA  3  A2 00        	LDX	#0			; TIMEOUT LOOP COUNTER
-00D4AC  3               DSKY_RESET1:
-00D4AC  3  DA           	PHX     			; SAVE COUNTER
-00D4AD  3               	;JSR	DSKY_ST			; GET STATUS BYTE
-00D4AD  3  FA           	PLX				; RECOVER COUNTER
-00D4AE  3                     ;  AND     #%10000000
-00D4AE  3                     ;  BEQ     DSKY_RESET2		; MOVE ON IF DONE
-00D4AE  3  CA                   DEX
-00D4AF  3  D0 FB                BNE     DSKY_RESET1		; LOOP TILL TIMEOUT
-00D4B1  3               ;
-00D4B1  3               DSKY_RESET2:
-00D4B1  3  48 DA 5A A2          PRTDBG "DSKY RESET COMPLETE$"
-00D4B5  3  00 BD D4 D4  
-00D4B9  3  E8 C9 24 F0  
-00D4E8  3  60           	RTS
-00D4E9  3               ;
-00D4E9  3               ;
-00D4E9  3               ;
-00D4E9  3               ;__DSKY_PPIDETECT____________________________________________________________________________________
-00D4E9  3               ;
-00D4E9  3               ;  PROBE FOR PPI HARDWARE
-00D4E9  3               ;____________________________________________________________________________________________________
-00D4E9  3               ;
-00D4E9  3               DSKY_PPIDETECT:
-00D4E9  3               ;
-00D4E9  3               	; TEST FOR PPI EXISTENCE
-00D4E9  3               	; WE SETUP THE PPI TO WRITE, THEN WRITE A VALUE OF ZERO
-00D4E9  3               	; TO PORT A (DATALO), THEN READ IT BACK.  IF THE PPI IS THERE
-00D4E9  3               	; THEN THE BUS HOLD CIRCUITRY WILL READ BACK THE ZERO. SINCE
-00D4E9  3               	; WE ARE IN WRITE MODE, AN IDE CONTROLLER WILL NOT BE ABLE TO
-00D4E9  3               	; INTERFERE WITH THE VALUE BEING READ.
-00D4E9  3  48 DA 5A A2          PRTDBG "DSKY PPIDETECT:$"
-00D4ED  3  00 BD 0C D5  
-00D4F1  3  E8 C9 24 F0  
-00D51C  3  20 21 D9     	JSR	DSKY_PPIWR
-00D51F  3               ;
-00D51F  3  A9 00        	LDA     #$00			; VALUE ZERO
-00D521  3  8D 60 03     	STA	DSKY_PPIA		; PUSH VALUE TO PORT
-00D524  3  AD 60 03     	LDA	DSKY_PPIA		; GET PORT VALUE
-00D527  3  C9 00                CMP     #$00
-00D529  3  60           	RTS				; AND RETURN
-00D52A  3               ;
-00D52A  3                .IF DSKY_KBD=1
-00D52A  3               ;
-00D52A  3               KY_0	=	$00
-00D52A  3               KY_1	=	$01
-00D52A  3               KY_2	=	$02
-00D52A  3               KY_3	=	$03
-00D52A  3               KY_4	=	$04
-00D52A  3               KY_5	=	$05
-00D52A  3               KY_6	=	$06
-00D52A  3               KY_7	=	$07
-00D52A  3               KY_8	=	$08
-00D52A  3               KY_9	=	$09
-00D52A  3               KY_A	=	$0A
-00D52A  3               KY_B	=	$0B
-00D52A  3               KY_C	=	$0C
-00D52A  3               KY_D	=	$0D
-00D52A  3               KY_E	=	$0E
-00D52A  3               KY_F	=	$0F
-00D52A  3               KY_FW	=	$10	; FORWARD
-00D52A  3               KY_BK	=	$11	; BACKWARD
-00D52A  3               KY_CL	=	$12	; CLEAR
-00D52A  3               KY_EN	=	$13	; ENTER
-00D52A  3               KY_DE	=	$14	; DEPOSIT
-00D52A  3               KY_EX	=	$15	; EXAMINE
-00D52A  3               KY_GO	=	$16	; GO
-00D52A  3               KY_BO	=	$17	; BOOT
-00D52A  3               KY_F4	=	$18	; F4
-00D52A  3               KY_F3	=	$19	; F3
-00D52A  3               KY_F2	=	$20	; F2
-00D52A  3               KY_F1	=	$21	; F1
-00D52A  3               ;
-00D52A  3               ;__DSKY_STAT_________________________________________________________________________________________
-00D52A  3               ;
-00D52A  3               ;  CHECK FOR KEY PRESS, SAVE RAW VALUE, RETURN STATUS
-00D52A  3               ;____________________________________________________________________________________________________
-00D52A  3               ;
-00D52A  3               DSKY_STAT:
-00D52A  3  AD 4E DA     	LDA	DSKY_PRESENT            ; DOES IT EXIST?
-00D52D  3  C9 FF        	CMP     #$FF			; SET FLAGS
-00D52F  3  D0 05                BNE     DSKY_STATA		; ABORT WITH A=0 IF NOT THERE
-00D531  3  20 13 D6     	JSR	DSKY_ST
-00D534  3  29 0F        	AND	#$0F			; ISOLATE THE CUR FIFO LEN
-00D536  3               DSKY_STATA:
-00D536  3  60           	RTS
-00D537  3               ;
-00D537  3               ;__DSKY_GETKEY_____________________________________________________________________________________
-00D537  3               ;
-00D537  3               ;  WAIT FOR A DSKY KEYPRESS AND RETURN
-00D537  3               ;____________________________________________________________________________________________________
-00D537  3               ;
-00D537  3               DSKY_GETKEY:
-00D537  3  AD 4E DA     	LDA	DSKY_PRESENT    	; DOES IT EXIST?
-00D53A  3  C9 FF               	CMP     #$FF			; SET FLAGS
-00D53C  3  D0 24                BNE     DSKY_GETKEY1A		; ABORT WITH A=0 IF NOT THERE
-00D53E  3  20 2A D5     	JSR	DSKY_STAT
-00D541  3  F0 F4                BEQ     DSKY_GETKEY		; LOOP IF NOTHING THERE
-00D543  3  A9 40        	LDA	#DSKY_CMD_FIFO
-00D545  3  20 DA D5     	JSR	DSKY_CMD
-00D548  3  20 18 D6     	JSR	DSKY_DIN
-00D54B  3  49 C0        	EOR	#%11000000		; FLIP POLARITY OF SHIFT/CTL BITS
-00D54D  3  29 3F        	AND	#$3F			; STRIP SHIFT/CTL BITS FOR LOOKUP
-00D54F  3  48                   PHA
-00D550  3  8D 4C DA     	STA     DSKY_TEMP_VAL
-00D553  3  A2 00        	LDX	#0			; INDEX
-00D555  3               DSKY_GETKEY1:
-00D555  3  BD 71 D5             LDA     DSKY_KEYMAP,X
-00D558  3  CD 4C DA     	CMP	DSKY_TEMP_VAL		; MATCH?
-00D55B  3  F0 09                BEQ     DSKY_GETKEY2		; FOUND, DONE
-00D55D  3  E8           	INX
-00D55E  3  E0 1C                CPX     #28
-00D560  3  D0 F3                BNE	DSKY_GETKEY1		; LOOP UNTIL EOT
-00D562  3               DSKY_GETKEY1A:
-00D562  3  68                   PLA
-00D563  3  A9 FF        	LDA	#$FF			; NOT FOUND ERR, RETURN $FF
-00D565  3  60           	RTS
-00D566  3               DSKY_GETKEY2:
-00D566  3               	; RETURN THE INDEX POSITION WHERE THE SCAN CODE WAS FOUND
-00D566  3               	; THE ORIGINAL SHIFT/CTRL BITS ARE RESTORED
-00D566  3  68           	PLA				; RESTORE RAW VALUE
-00D567  3  25 C0        	AND	%11000000		; ISOLATE SHIFT/CTRL BITS
-00D569  3  8D 4C DA             STA     DSKY_TEMP_VAL
-00D56C  3  8A                   TXA
-00D56D  3  0D 4C DA     	ORA	DSKY_TEMP_VAL		; COMBINE WITH INDEX VALUE
-00D570  3  60           	RTS
-00D571  3               ;
-00D571  3               ;_KEYMAP_TABLE_____________________________________________________________________________________________________________
-00D571  3               ;
-00D571  3               DSKY_KEYMAP:
-00D571  3               	; POS	$00  $01  $02  $03  $04  $05  $06  $07
-00D571  3               	; KEY   [0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]
-00D571  3  0D 04 0C 14  	.BYTE	$0D, $04, $0C, $14, $03, $0B, $13, $02
-00D575  3  03 0B 13 02  
-00D579  3               ;
-00D579  3               	; POS	$08  $09  $0A  $0B  $0C  $0D  $0E  $0F
-00D579  3               	; KEY   [8]  [9]  [A]  [B]  [C]  [D]  [E]  [F]
-00D579  3  0A 12 01 09  	.BYTE	$0A, $12, $01, $09, $11, $00, $08, $10
-00D57D  3  11 00 08 10  
-00D581  3               ;
-00D581  3               	; POS	$10  $11  $12  $13  $14  $15  $16  $17
-00D581  3               	; KEY   [FW] [BK] [CL] [EN] [DE] [EX] [GO] [BO]
-00D581  3  05 15 1D 1C  	.BYTE	$05, $15, $1D, $1C, $1B, $1A, $19, $18
-00D585  3  1B 1A 19 18  
-00D589  3               
-00D589  3               	; POS	$18  $19  $20  $21
-00D589  3               	; KEY   [F4] [F3] [F2] [F1]
-00D589  3  23 22 21 20  	.BYTE	$23, $22, $21, $20
-00D58D  3               
-00D58D  3               ;
-00D58D  3                       .ENDIF	; DSKY_KBD
-00D58D  3               ;
-00D58D  3               ;__DSKY_BIN2SEG________________________________________________________________________________________
-00D58D  3               ;
-00D58D  3               ; CONVERT 32 BIT BINARY TO 8 BYTE HEX SEGMENT DISPLAY
-00D58D  3               ;
-00D58D  3               ; DSKY_BUF: 32 BIT BINARY
-00D58D  3               ; DSKY_HEXBUF: DEST LED SEGMENT DISPLAY BUFFER (8 BYTES)
-00D58D  3               ;____________________________________________________________________________________________________
-00D58D  3               ;
-00D58D  3               DSKY_BIN2SEG:
-00D58D  3  A2 00        	LDX	#$00
-00D58F  3               DSKY_BIN2SEG1:
-00D58F  3  BD 4F DA     	LDA	DSKY_BUF,X			; FIRST NIBBLE
-00D592  3  4A           	LSR	A
-00D593  3  4A                   LSR	A
-00D594  3  4A                   LSR	A
-00D595  3  4A                   LSR	A
-00D596  3  DA           	PHX                                     ; STORE READ INDEX
-00D597  3  AA                   TAX
-00D598  3  BD 3C DA     	LDA	DSKY_HEXMAP,X                   ; GET DECODED DIGIT INTO A
-00D59B  3  FA           	PLX                                     ; GET READ INDEX
-00D59C  3  DA                   PHX                                     ; STORE READ INDEX
-00D59D  3  48                   PHA                                     ; STORE DECODED DIGIT
-00D59E  3  8A                   TXA                                     ; DOUBLE READ INDEX (FOR WRITE INDEX)
-00D59F  3  0A                   ASL
-00D5A0  3  AA                   TAX
-00D5A1  3  68                   PLA                                     ;
-00D5A2  3  9D 57 DA             STA     DSKY_HEXBUF,X                   ;STORE HIGH BYTE IN OUT BUFFER
-00D5A5  3  FA                   PLX
-00D5A6  3  BD 4F DA     	LDA	DSKY_BUF,X			; SECOND NIBBLE
-00D5A9  3  29 0F        	AND	#$0F
-00D5AB  3  DA                   PHX
-00D5AC  3  AA                   TAX
-00D5AD  3  BD 3C DA     	LDA	DSKY_HEXMAP,X                   ; GET DECODED DIGIT INTO A
-00D5B0  3  FA           	PLX                                     ; GET READ INDEX
-00D5B1  3  DA                   PHX                                     ; STORE READ INDEX
-00D5B2  3  48                   PHA                                     ; STORE DECODED DIGIT
-00D5B3  3  8A                   TXA                                     ; DOUBLE READ INDEX (FOR WRITE INDEX)
-00D5B4  3  0A                   ASL
-00D5B5  3  AA                   TAX
-00D5B6  3  E8                   INX
-00D5B7  3  68                   PLA                                     ;
-00D5B8  3  9D 57 DA             STA     DSKY_HEXBUF,X                   ;STORE HIGH BYTE IN OUT BUFFER
-00D5BB  3  FA                   PLX
-00D5BC  3  E8                   INX
-00D5BD  3  E0 04                CPX     #4
-00D5BF  3  D0 CE                BNE     DSKY_BIN2SEG1
-00D5C1  3  60           	RTS
-00D5C2  3               ;
-00D5C2  3               ;__DSKY_SHOW___________________________________________________________________________________________
-00D5C2  3               ; DSKY SHOW BUFFER
-00D5C2  3               ;______________________________________________________________________________________________________
-00D5C2  3               ;
-00D5C2  3               DSKY_SHOW:
-00D5C2  3  48                   PHA
-00D5C3  3  DA                   PHX
-00D5C4  3  5A                   PHY
-00D5C5  3  A2 08                LDX     #8
-00D5C7  3               DSKY_SHOW1:
-00D5C7  3  BD 57 DA     	LDA     DSKY_HEXBUF,X
-00D5CA  3  49 FF        	EOR	#$FF
-00D5CC  3  DA                   PHX
-00D5CD  3  7A                   PLY
-00D5CE  3  20 2C D7     	JSR	DSKY_PUTBYTE
-00D5D1  3  E8           	INX
-00D5D2  3  E0 08                CPX     #8
-00D5D4  3  D0 F1                BNE     DSKY_SHOW1
-00D5D6  3  7A                   PLY
-00D5D7  3  FA                   PLX
-00D5D8  3  68                   PLA
-00D5D9  3  60           	RTS
-00D5DA  3               
-00D5DA  3               ;______________________________________________________________________________________________________
-00D5DA  3               ; DSKYNG OUTPUT ROUTINES
-00D5DA  3               ;______________________________________________________________________________________________________
-00D5DA  3               
-00D5DA  3               ; SEND DSKY COMMAND BYTE IN REGISTER A
-00D5DA  3               DSKY_CMD:
-00D5DA  3  48                   PHA
-00D5DB  3  A9 01        	LDA	#$01
-00D5DD  3  4C E3 D5     	JMP	DSKY_DOUT2
-00D5E0  3               ;
-00D5E0  3               ; SEND DSKY DATA BYTE IN REGISTER A
-00D5E0  3               ; TRASHES BC
-00D5E0  3               ;
-00D5E0  3               DSKY_DOUT:
-00D5E0  3  48                   PHA
-00D5E1  3  A9 00        	LDA	#$00
-00D5E3  3               ;
-00D5E3  3               DSKY_DOUT2:
-00D5E3  3               	; SET PPI LINE CONFIG TO WRITE MODE
-00D5E3  3  20 21 D9     	JSR	DSKY_PPIWR
-00D5E6  3               ;
-00D5E6  3               	; SET ADDRESS FIRST
-00D5E6  3  09 06                ORA     #DSKY_PPI_IDLE
-00D5E8  3  8D 62 03     	STA	DSKY_PPIC
-00D5EB  3               ;
-00D5EB  3               	; ASSERT 8279 /CS
-00D5EB  3  09 18        	ORA     #%00011000
-00D5ED  3  8D 62 03     	STA	DSKY_PPIC
-00D5F0  3               ;
-00D5F0  3               	; PPIC WORKING VALUE TO DSKY_TEMP_VAL
-00D5F0  3  8D 4C DA     	STA     DSKY_TEMP_VAL
-00D5F3  3               ;
-00D5F3  3               	; ASSERT DATA BYTE VALUE
-00D5F3  3  68                   PLA
-00D5F4  3  8D 60 03     	STA	DSKY_PPIA
-00D5F7  3               ;
-00D5F7  3               	; PULSE /WR
-00D5F7  3  AD 4C DA             LDA     DSKY_TEMP_VAL
-00D5FA  3  29 FD                AND     #%11111101
-00D5FC  3  8D 62 03     	STA	DSKY_PPIC
-00D5FF  3  EA           	NOP			; MAY NOT BE NEEDED
-00D600  3  09 02                ORA     #%00000010
-00D602  3  8D 62 03     	STA	DSKY_PPIC
+00D370  3               	; CHECK FOR PPI
+00D370  3  20 BB D3     	JSR	DSKY_PPIDETECT		; TEST FOR PPI HARDWARE
+00D373  3  D0 30                BNE     DSKY_ABORT      	; BAIL OUT IF NOT THERE
+00D375  3               NOTDSKY_ABORT:
+00D375  3               	; SETUP PPI TO DEFAULT MODE
+00D375  3  20 DD D5     	JSR	DSKY_PPIRD
+00D378  3               	; INIT 8279 VALUES TO IDLE STATE
+00D378  3  A9 06        	LDA	#DSKY_PPI_IDLE
+00D37A  3  8D 62 03     	STA	DSKY_PPIC
+00D37D  3               	; PULSE RESET SIGNAL ON 8279
+00D37D  3  09 80        	ORA 	#%10000000
+00D37F  3  8D 62 03     	STA	DSKY_PPIC
+00D382  3  29 7F        	AND 	#%01111111
+00D384  3  8D 62 03     	STA	DSKY_PPIC
+00D387  3               	; INITIALIZE 8279
+00D387  3  20 A6 D3     	JSR	DSKY_REINIT
+00D38A  3               	; NOW SEE IF A DSKYNG IS REALLY THERE...
+00D38A  3  A9 A5        	LDA     #$A5
+00D38C  3  A0 00                LDY     #$00
+00D38E  3  20 DA CB             JSR     PRTHEXBYTE
+00D391  3  20 FB D4     	JSR	DSKY_PUTBYTE
+00D394  3  A0 00                LDY     #$00
+00D396  3  20 0F D5     	JSR	DSKY_GETBYTE
+00D399  3  20 DA CB             JSR     PRTHEXBYTE
+00D39C  3  C9 A5        	CMP	#$A5
+00D39E  3  D0 05        	BNE     DSKY_ABORT			; BAIL OUT IF MISCOMPARE
+00D3A0  3  A9 FF        	LDA	#$FF
+00D3A2  3  8D 04 D6     	STA	DSKY_PRESENT
+00D3A5  3               DSKY_ABORT:
+00D3A5  3  60           	RTS
+00D3A6  3               ;
+00D3A6  3               DSKY_REINIT:
+00D3A6  3  20 EF D5     	JSR	DSKY_PPIIDLE
+00D3A9  3               	; SET CLOCK SCALER TO 20
+00D3A9  3  A9 21        	LDA	#DSKY_CMD_CLK | DSKY_PRESCL
+00D3AB  3  20 79 D4     	JSR	DSKY_CMD
+00D3AE  3               	; FALL THRU
+00D3AE  3               ;
+00D3AE  3               DSKY_RESET:
+00D3AE  3               	; RESET DSKY -- CLEAR RAM AND FIFO
+00D3AE  3  A9 DF        	LDA	#DSKY_CMD_CLR
+00D3B0  3  20 79 D4     	JSR	DSKY_CMD
+00D3B3  3               ;
+00D3B3  3               	; 8259 TAKES ~160US TO CLEAR RAM DURING WHICH TIME WRITES TO
+00D3B3  3               	; DISPLAY RAM ARE INHIBITED.  HIGH BIT OF STATUS BYTE IS SET
+00D3B3  3               	; DURING THIS WINDOW.  TO PREVENT A DEADLOCK, A LOOP COUNTER
+00D3B3  3               	; IS USED TO IMPLEMENT A TIMEOUT.
+00D3B3  3  A2 00        	LDX	#0			; TIMEOUT LOOP COUNTER
+00D3B5  3               DSKY_RESET1:
+00D3B5  3  DA           	PHX     			; SAVE COUNTER
+00D3B6  3               	;JSR	DSKY_ST			; GET STATUS BYTE
+00D3B6  3  FA           	PLX				; RECOVER COUNTER
+00D3B7  3                     ;  AND     #%10000000
+00D3B7  3                     ;  BEQ     DSKY_RESET2		; MOVE ON IF DONE
+00D3B7  3  CA                   DEX
+00D3B8  3  D0 FB                BNE     DSKY_RESET1		; LOOP TILL TIMEOUT
+00D3BA  3               ;
+00D3BA  3               DSKY_RESET2:
+00D3BA  3  60           	RTS
+00D3BB  3               ;
+00D3BB  3               ;
+00D3BB  3               ;
+00D3BB  3               ;__DSKY_PPIDETECT____________________________________________________________________________________
+00D3BB  3               ;
+00D3BB  3               ;  PROBE FOR PPI HARDWARE
+00D3BB  3               ;____________________________________________________________________________________________________
+00D3BB  3               ;
+00D3BB  3               DSKY_PPIDETECT:
+00D3BB  3               ;
+00D3BB  3               	; TEST FOR PPI EXISTENCE
+00D3BB  3               	; WE SETUP THE PPI TO WRITE, THEN WRITE A VALUE OF ZERO
+00D3BB  3               	; TO PORT A (DATALO), THEN READ IT BACK.  IF THE PPI IS THERE
+00D3BB  3               	; THEN THE BUS HOLD CIRCUITRY WILL READ BACK THE ZERO. SINCE
+00D3BB  3               	; WE ARE IN WRITE MODE, AN IDE CONTROLLER WILL NOT BE ABLE TO
+00D3BB  3               	; INTERFERE WITH THE VALUE BEING READ.
+00D3BB  3  20 C6 D5     	JSR	DSKY_PPIWR
+00D3BE  3               ;
+00D3BE  3  A9 00        	LDA     #$00			; VALUE ZERO
+00D3C0  3  8D 60 03     	STA	DSKY_PPIA		; PUSH VALUE TO PORT
+00D3C3  3  AD 60 03     	LDA	DSKY_PPIA		; GET PORT VALUE
+00D3C6  3  C9 00                CMP     #$00
+00D3C8  3  60           	RTS				; AND RETURN
+00D3C9  3               ;
+00D3C9  3                .IF DSKY_KBD=1
+00D3C9  3               ;
+00D3C9  3               KY_0	=	$00
+00D3C9  3               KY_1	=	$01
+00D3C9  3               KY_2	=	$02
+00D3C9  3               KY_3	=	$03
+00D3C9  3               KY_4	=	$04
+00D3C9  3               KY_5	=	$05
+00D3C9  3               KY_6	=	$06
+00D3C9  3               KY_7	=	$07
+00D3C9  3               KY_8	=	$08
+00D3C9  3               KY_9	=	$09
+00D3C9  3               KY_A	=	$0A
+00D3C9  3               KY_B	=	$0B
+00D3C9  3               KY_C	=	$0C
+00D3C9  3               KY_D	=	$0D
+00D3C9  3               KY_E	=	$0E
+00D3C9  3               KY_F	=	$0F
+00D3C9  3               KY_FW	=	$10	; FORWARD
+00D3C9  3               KY_BK	=	$11	; BACKWARD
+00D3C9  3               KY_CL	=	$12	; CLEAR
+00D3C9  3               KY_EN	=	$13	; ENTER
+00D3C9  3               KY_DE	=	$14	; DEPOSIT
+00D3C9  3               KY_EX	=	$15	; EXAMINE
+00D3C9  3               KY_GO	=	$16	; GO
+00D3C9  3               KY_BO	=	$17	; BOOT
+00D3C9  3               KY_F4	=	$18	; F4
+00D3C9  3               KY_F3	=	$19	; F3
+00D3C9  3               KY_F2	=	$20	; F2
+00D3C9  3               KY_F1	=	$21	; F1
+00D3C9  3               ;
+00D3C9  3               ;__DSKY_STAT_________________________________________________________________________________________
+00D3C9  3               ;
+00D3C9  3               ;  CHECK FOR KEY PRESS, SAVE RAW VALUE, RETURN STATUS
+00D3C9  3               ;____________________________________________________________________________________________________
+00D3C9  3               ;
+00D3C9  3               DSKY_STAT:
+00D3C9  3  AD 04 D6     	LDA	DSKY_PRESENT            ; DOES IT EXIST?
+00D3CC  3  C9 FF        	CMP     #$FF			; SET FLAGS
+00D3CE  3  D0 05                BNE     DSKY_STATA		; ABORT WITH A=0 IF NOT THERE
+00D3D0  3  20 B2 D4     	JSR	DSKY_ST
+00D3D3  3  29 0F        	AND	#$0F			; ISOLATE THE CUR FIFO LEN
+00D3D5  3               DSKY_STATA:
+00D3D5  3  60           	RTS
+00D3D6  3               ;
+00D3D6  3               ;__DSKY_GETKEY_____________________________________________________________________________________
+00D3D6  3               ;
+00D3D6  3               ;  WAIT FOR A DSKY KEYPRESS AND RETURN
+00D3D6  3               ;____________________________________________________________________________________________________
+00D3D6  3               ;
+00D3D6  3               DSKY_GETKEY:
+00D3D6  3  AD 04 D6     	LDA	DSKY_PRESENT    	; DOES IT EXIST?
+00D3D9  3  C9 FF               	CMP     #$FF			; SET FLAGS
+00D3DB  3  D0 24                BNE     DSKY_GETKEY1A		; ABORT WITH A=0 IF NOT THERE
+00D3DD  3  20 C9 D3     	JSR	DSKY_STAT
+00D3E0  3  F0 F4                BEQ     DSKY_GETKEY		; LOOP IF NOTHING THERE
+00D3E2  3  A9 40        	LDA	#DSKY_CMD_FIFO
+00D3E4  3  20 79 D4     	JSR	DSKY_CMD
+00D3E7  3  20 B7 D4     	JSR	DSKY_DIN
+00D3EA  3  49 C0        	EOR	#%11000000		; FLIP POLARITY OF SHIFT/CTL BITS
+00D3EC  3  29 3F        	AND	#$3F			; STRIP SHIFT/CTL BITS FOR LOOKUP
+00D3EE  3  48                   PHA
+00D3EF  3  8D 02 D6     	STA     DSKY_TEMP_VAL
+00D3F2  3  A2 00        	LDX	#0			; INDEX
+00D3F4  3               DSKY_GETKEY1:
+00D3F4  3  BD 10 D4             LDA     DSKY_KEYMAP,X
+00D3F7  3  CD 02 D6     	CMP	DSKY_TEMP_VAL		; MATCH?
+00D3FA  3  F0 09                BEQ     DSKY_GETKEY2		; FOUND, DONE
+00D3FC  3  E8           	INX
+00D3FD  3  E0 1C                CPX     #28
+00D3FF  3  D0 F3                BNE	DSKY_GETKEY1		; LOOP UNTIL EOT
+00D401  3               DSKY_GETKEY1A:
+00D401  3  68                   PLA
+00D402  3  A9 FF        	LDA	#$FF			; NOT FOUND ERR, RETURN $FF
+00D404  3  60           	RTS
+00D405  3               DSKY_GETKEY2:
+00D405  3               	; RETURN THE INDEX POSITION WHERE THE SCAN CODE WAS FOUND
+00D405  3               	; THE ORIGINAL SHIFT/CTRL BITS ARE RESTORED
+00D405  3  68           	PLA				; RESTORE RAW VALUE
+00D406  3  25 C0        	AND	%11000000		; ISOLATE SHIFT/CTRL BITS
+00D408  3  8D 02 D6             STA     DSKY_TEMP_VAL
+00D40B  3  8A                   TXA
+00D40C  3  0D 02 D6     	ORA	DSKY_TEMP_VAL		; COMBINE WITH INDEX VALUE
+00D40F  3  60           	RTS
+00D410  3               ;
+00D410  3               ;_KEYMAP_TABLE_____________________________________________________________________________________________________________
+00D410  3               ;
+00D410  3               DSKY_KEYMAP:
+00D410  3               	; POS	$00  $01  $02  $03  $04  $05  $06  $07
+00D410  3               	; KEY   [0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]
+00D410  3  0D 04 0C 14  	.BYTE	$0D, $04, $0C, $14, $03, $0B, $13, $02
+00D414  3  03 0B 13 02  
+00D418  3               ;
+00D418  3               	; POS	$08  $09  $0A  $0B  $0C  $0D  $0E  $0F
+00D418  3               	; KEY   [8]  [9]  [A]  [B]  [C]  [D]  [E]  [F]
+00D418  3  0A 12 01 09  	.BYTE	$0A, $12, $01, $09, $11, $00, $08, $10
+00D41C  3  11 00 08 10  
+00D420  3               ;
+00D420  3               	; POS	$10  $11  $12  $13  $14  $15  $16  $17
+00D420  3               	; KEY   [FW] [BK] [CL] [EN] [DE] [EX] [GO] [BO]
+00D420  3  05 15 1D 1C  	.BYTE	$05, $15, $1D, $1C, $1B, $1A, $19, $18
+00D424  3  1B 1A 19 18  
+00D428  3               
+00D428  3               	; POS	$18  $19  $20  $21
+00D428  3               	; KEY   [F4] [F3] [F2] [F1]
+00D428  3  23 22 21 20  	.BYTE	$23, $22, $21, $20
+00D42C  3               
+00D42C  3               ;
+00D42C  3                       .ENDIF	; DSKY_KBD
+00D42C  3               ;
+00D42C  3               ;__DSKY_BIN2SEG________________________________________________________________________________________
+00D42C  3               ;
+00D42C  3               ; CONVERT 32 BIT BINARY TO 8 BYTE HEX SEGMENT DISPLAY
+00D42C  3               ;
+00D42C  3               ; DSKY_BUF: 32 BIT BINARY
+00D42C  3               ; DSKY_HEXBUF: DEST LED SEGMENT DISPLAY BUFFER (8 BYTES)
+00D42C  3               ;____________________________________________________________________________________________________
+00D42C  3               ;
+00D42C  3               DSKY_BIN2SEG:
+00D42C  3  A2 00        	LDX	#$00
+00D42E  3               DSKY_BIN2SEG1:
+00D42E  3  BD 05 D6     	LDA	DSKY_BUF,X			; FIRST NIBBLE
+00D431  3  4A           	LSR	A
+00D432  3  4A                   LSR	A
+00D433  3  4A                   LSR	A
+00D434  3  4A                   LSR	A
+00D435  3  DA           	PHX                                     ; STORE READ INDEX
+00D436  3  AA                   TAX
+00D437  3  BD F2 D5     	LDA	DSKY_HEXMAP,X                   ; GET DECODED DIGIT INTO A
+00D43A  3  FA           	PLX                                     ; GET READ INDEX
+00D43B  3  DA                   PHX                                     ; STORE READ INDEX
+00D43C  3  48                   PHA                                     ; STORE DECODED DIGIT
+00D43D  3  8A                   TXA                                     ; DOUBLE READ INDEX (FOR WRITE INDEX)
+00D43E  3  0A                   ASL
+00D43F  3  AA                   TAX
+00D440  3  68                   PLA                                     ;
+00D441  3  9D 0D D6             STA     DSKY_HEXBUF,X                   ;STORE HIGH BYTE IN OUT BUFFER
+00D444  3  FA                   PLX
+00D445  3  BD 05 D6     	LDA	DSKY_BUF,X			; SECOND NIBBLE
+00D448  3  29 0F        	AND	#$0F
+00D44A  3  DA                   PHX
+00D44B  3  AA                   TAX
+00D44C  3  BD F2 D5     	LDA	DSKY_HEXMAP,X                   ; GET DECODED DIGIT INTO A
+00D44F  3  FA           	PLX                                     ; GET READ INDEX
+00D450  3  DA                   PHX                                     ; STORE READ INDEX
+00D451  3  48                   PHA                                     ; STORE DECODED DIGIT
+00D452  3  8A                   TXA                                     ; DOUBLE READ INDEX (FOR WRITE INDEX)
+00D453  3  0A                   ASL
+00D454  3  AA                   TAX
+00D455  3  E8                   INX
+00D456  3  68                   PLA                                     ;
+00D457  3  9D 0D D6             STA     DSKY_HEXBUF,X                   ;STORE HIGH BYTE IN OUT BUFFER
+00D45A  3  FA                   PLX
+00D45B  3  E8                   INX
+00D45C  3  E0 04                CPX     #4
+00D45E  3  D0 CE                BNE     DSKY_BIN2SEG1
+00D460  3  60           	RTS
+00D461  3               ;
+00D461  3               ;__DSKY_SHOW___________________________________________________________________________________________
+00D461  3               ; DSKY SHOW BUFFER
+00D461  3               ;______________________________________________________________________________________________________
+00D461  3               ;
+00D461  3               DSKY_SHOW:
+00D461  3  48                   PHA
+00D462  3  DA                   PHX
+00D463  3  5A                   PHY
+00D464  3  A2 08                LDX     #8
+00D466  3               DSKY_SHOW1:
+00D466  3  BD 0D D6     	LDA     DSKY_HEXBUF,X
+00D469  3  49 FF        	EOR	#$FF
+00D46B  3  DA                   PHX
+00D46C  3  7A                   PLY
+00D46D  3  20 FB D4     	JSR	DSKY_PUTBYTE
+00D470  3  E8           	INX
+00D471  3  E0 08                CPX     #8
+00D473  3  D0 F1                BNE     DSKY_SHOW1
+00D475  3  7A                   PLY
+00D476  3  FA                   PLX
+00D477  3  68                   PLA
+00D478  3  60           	RTS
+00D479  3               
+00D479  3               ;______________________________________________________________________________________________________
+00D479  3               ; DSKYNG OUTPUT ROUTINES
+00D479  3               ;______________________________________________________________________________________________________
+00D479  3               
+00D479  3               ; SEND DSKY COMMAND BYTE IN REGISTER A
+00D479  3               DSKY_CMD:
+00D479  3  48                   PHA
+00D47A  3  A9 01        	LDA	#$01
+00D47C  3  4C 82 D4     	JMP	DSKY_DOUT2
+00D47F  3               ;
+00D47F  3               ; SEND DSKY DATA BYTE IN REGISTER A
+00D47F  3               ; TRASHES BC
+00D47F  3               ;
+00D47F  3               DSKY_DOUT:
+00D47F  3  48                   PHA
+00D480  3  A9 00        	LDA	#$00
+00D482  3               ;
+00D482  3               DSKY_DOUT2:
+00D482  3               	; SET PPI LINE CONFIG TO WRITE MODE
+00D482  3  20 C6 D5     	JSR	DSKY_PPIWR
+00D485  3               ;
+00D485  3               	; SET ADDRESS FIRST
+00D485  3  09 06                ORA     #DSKY_PPI_IDLE
+00D487  3  8D 62 03     	STA	DSKY_PPIC
+00D48A  3               ;
+00D48A  3               	; ASSERT 8279 /CS
+00D48A  3  09 18        	ORA     #%00011000
+00D48C  3  8D 62 03     	STA	DSKY_PPIC
+00D48F  3               ;
+00D48F  3               	; PPIC WORKING VALUE TO DSKY_TEMP_VAL
+00D48F  3  8D 02 D6     	STA     DSKY_TEMP_VAL
+00D492  3               ;
+00D492  3               	; ASSERT DATA BYTE VALUE
+00D492  3  68                   PLA
+00D493  3  8D 60 03     	STA	DSKY_PPIA
+00D496  3               ;
+00D496  3               	; PULSE /WR
+00D496  3  AD 02 D6             LDA     DSKY_TEMP_VAL
+00D499  3  29 FD                AND     #%11111101
+00D49B  3  8D 62 03     	STA	DSKY_PPIC
+00D49E  3  EA           	NOP			; MAY NOT BE NEEDED
+00D49F  3  09 02                ORA     #%00000010
+00D4A1  3  8D 62 03     	STA	DSKY_PPIC
+00D4A4  3               ;
+00D4A4  3               	; DEASSERT /CS
+00D4A4  3  29 E7                AND     #%11100111
+00D4A6  3  8D 62 03     	STA	DSKY_PPIC
+00D4A9  3               ;
+00D4A9  3               	; CLEAR ADDRESS BIT
+00D4A9  3  29 E6                AND     #%11100110
+00D4AB  3  8D 62 03     	STA	DSKY_PPIC
+00D4AE  3               ;
+00D4AE  3               	; DONE
+00D4AE  3  20 EF D5     	JSR	DSKY_PPIIDLE
+00D4B1  3  60           	RTS
+00D4B2  3               ;
+00D4B2  3               ;==================================================================================================
+00D4B2  3               ; DSKYNG OUTPUT ROUTINES
+00D4B2  3               ;==================================================================================================
+00D4B2  3               ;
+00D4B2  3               ; RETURN DSKY STATUS VALUE IN A
+00D4B2  3               ;
+00D4B2  3               DSKY_ST:
+00D4B2  3  A9 01        	LDA	#$01
+00D4B4  3  4C B9 D4     	JMP	DSKY_DIN2
+00D4B7  3               ;
+00D4B7  3               ; RETURN NEXT DATA VALUE IN A
+00D4B7  3               ;
+00D4B7  3               DSKY_DIN:
+00D4B7  3  A9 00        	LDA	#$00
+00D4B9  3               ;
+00D4B9  3               DSKY_DIN2:
+00D4B9  3               	; SET PPI LINE CONFIG TO READ MODE
+00D4B9  3  20 DD D5     	JSR	DSKY_PPIRD
+00D4BC  3               ;
+00D4BC  3               	; SET ADDRESS FIRST
+00D4BC  3  09 06        	ORA	#DSKY_PPI_IDLE
+00D4BE  3  8D 62 03     	STA	DSKY_PPIC
+00D4C1  3               ;
+00D4C1  3               	; ASSERT 8279 /CS
+00D4C1  3  09 18        	ORA     #%00011000
+00D4C3  3  8D 62 03     	STA	DSKY_PPIC
+00D4C6  3               ;
+00D4C6  3               	; PPIC WORKING VALUE TO DSKY_TEMP_VAL
+00D4C6  3  8D 02 D6     	STA     DSKY_TEMP_VAL
+00D4C9  3               ;
+00D4C9  3               	; ASSERT /RD
+00D4C9  3  29 FB        	AND     #%11111011
+00D4CB  3  8D 62 03     	STA	DSKY_PPIC
+00D4CE  3               ;
+00D4CE  3               
+00D4CE  3               	; GET VALUE
+00D4CE  3  AD 60 03     	LDA	DSKY_PPIA
+00D4D1  3  48                   PHA
+00D4D2  3               
+00D4D2  3               	; DEASSERT /RD
+00D4D2  3  09 04        	ORA     #%00000100
+00D4D4  3  8D 62 03     	STA	DSKY_PPIC
+00D4D7  3               ;
+00D4D7  3               	; DEASSERT /CS
+00D4D7  3  09 04        	ORA     #%00000100
+00D4D9  3  8D 62 03     	STA	DSKY_PPIC
+00D4DC  3               
+00D4DC  3  29 E7                AND     #%11100111
+00D4DE  3  8D 62 03     	STA	DSKY_PPIC
+00D4E1  3               ;
+00D4E1  3               	; CLEAR ADDRESS BIT
+00D4E1  3  29 FE                AND     #%11111110
+00D4E3  3  8D 62 03     	STA	DSKY_PPIC
+00D4E6  3               ;
+00D4E6  3               	; DONE
+00D4E6  3  20 EF D5     	JSR	DSKY_PPIIDLE
+00D4E9  3  68                   PLA
+00D4EA  3  60           	RTS
+00D4EB  3               
+00D4EB  3               ;__DSKY_BLANK_____________________________________________________________________________________
+00D4EB  3               ;
+00D4EB  3               ; BLANK DSKYNG DISPLAY  (WITHOUT USING CLEAR)
+00D4EB  3               ;
+00D4EB  3               ;_________________________________________________________________________________________________
+00D4EB  3               ;
+00D4EB  3               DSKY_BLANK:
+00D4EB  3  A9 90        	LDA	#DSKY_CMD_WDSP
+00D4ED  3  20 79 D4     	JSR	DSKY_CMD
+00D4F0  3  A2 10        	LDX	#16
+00D4F2  3               DSKY_BLANK1:
+00D4F2  3  A9 FF        	LDA	#$FF
+00D4F4  3  20 7F D4     	JSR	DSKY_DOUT
+00D4F7  3  CA                   DEX
+00D4F8  3  D0 F8        	BNE	DSKY_BLANK1
+00D4FA  3  60           	RTS
+00D4FB  3               ;
+00D4FB  3               ;__DSKY_PUTBYTE____________________________________________________________________________________
+00D4FB  3               ;
+00D4FB  3               ; WRITE A RAW BYTE VALUE TO DSKY DISPLAY RAM
+00D4FB  3               ; AT LOCATION IN REGISTER Y, VALUE IN A.
+00D4FB  3               ;
+00D4FB  3               ;__________________________________________________________________________________________________
+00D4FB  3               ;
+00D4FB  3               DSKY_PUTBYTE:
+00D4FB  3  5A                   PHY
+00D4FC  3  48                   PHA
+00D4FD  3  48                   PHA
+00D4FE  3  18           	CLC
+00D4FF  3  98                   TYA
+00D500  3  69 90        	ADC	#DSKY_CMD_WDSP
+00D502  3  A8                   TAY
+00D503  3  20 79 D4     	JSR	DSKY_CMD
+00D506  3  68                   PLA
+00D507  3  49 FF        	EOR	#$FF
+00D509  3  20 7F D4     	JSR	DSKY_DOUT
+00D50C  3  68                   PLA
+00D50D  3  7A                   PLY
+00D50E  3  60           	RTS
+00D50F  3               ;
+00D50F  3               ;__DSKY_GETBYTE___________________________________________________________________________________
+00D50F  3               ; READ A RAW BYTE VALUE FROM DSKY DISPLAY RAM
+00D50F  3               ; AT LOCATION IN REGISTER Y, VALUE RETURNED IN A
+00D50F  3               ;
+00D50F  3               ;_________________________________________________________________________________________________
+00D50F  3               ;
+00D50F  3               DSKY_GETBYTE:
+00D50F  3  18           	CLC
+00D510  3  98                   TYA
+00D511  3  69 70        	ADC	#DSKY_CMD_RDSP
+00D513  3  A8                   TAY
+00D514  3  20 79 D4     	JSR	DSKY_CMD
+00D517  3  20 B7 D4     	JSR	DSKY_DIN
+00D51A  3  49 FF        	EOR	#$FF
+00D51C  3  60           	RTS
+00D51D  3               
+00D51D  3               ;
+00D51D  3               ;__DSKY_PUTLED____________________________________________________________________________________
+00D51D  3               ;
+00D51D  3               ;	This function is intended to update the LEDs.  It expects 8 bytes
+00D51D  3               ;	following the call, and	updates the entire matrix.
+00D51D  3               ;
+00D51D  3               ;  EXAMPLE:
+00D51D  3               ;	JSR 	DSKY_PUTLED
+00D51D  3               ;	.BYTE 	$00,$00,$00,$00,$00,$00,$00,$00
+00D51D  3               ;_________________________________________________________________________________________________
+00D51D  3               ;
+00D51D  3               DSKY_PUTLED:
+00D51D  3  8E 02 D6             STX     DSKY_TEMP_VAL           ; STORE X
+00D520  3  BA                   TSX                             ; STORE STACK POINTER
+00D521  3  68                   PLA                             ; GET ADDRESS OF BYTES
+00D522  3  85 14                STA     pointr                  ; STORE ADDRESS IN POINTR
+00D524  3  68                   PLA
+00D525  3  85 15                STA     pointr+1
+00D527  3  9A                   TXS                             ; RESTORE STACK
+00D528  3  AE 02 D6             LDX     DSKY_TEMP_VAL           ; RESTORE X
+00D52B  3  DA                   PHX                             ; STASH REGISTERS
+00D52C  3  5A                   PHY
+00D52D  3  48                   PHA
+00D52E  3  18                   CLC                             ; REMEMBER ADDRESS IN STACK IS BEFORE STRING
+00D52F  3  E6 14                INC     pointr                  ; SO, INC 16BIT POINTER BY 1
+00D531  3  90 02                BCC     @1
+00D533  3  E6 15                INC     pointr+1
+00D535  3  A0 00        @1:	LDY 	#$00
+00D537  3               DSKY_PUTLED_1:
+00D537  3  B1 14                LDA     (pointr),Y              ; GET BYTE
+00D539  3  20 FB D4     	JSR	DSKY_PUTBYTE            ; SEND IT TO DSKY
+00D53C  3  C8                   INY                             ; LOOP TIL DONE
+00D53D  3  C0 08                CPY     #8
+00D53F  3  D0 F6                BNE     DSKY_PUTLED_1
+00D541  3  68                   PLA                             ; RESTORE REGISTERS
+00D542  3  7A                   PLY
+00D543  3  FA                   PLX
+00D544  3  8D 02 D6             STA     DSKY_TEMP_VAL           ; STASH A
+00D547  3  18                   CLC                             ; INC RETURN ADDRESS BY 8
+00D548  3  68                   PLA
+00D549  3  69 08                ADC     #8
+00D54B  3  85 14                STA     pointr
+00D54D  3  90 03                BCC     DSKY_PUTLED_2
+00D54F  3  68                   PLA
+00D550  3  1A                   INC     A
+00D551  3  48                   PHA
+00D552  3               DSKY_PUTLED_2:
+00D552  3  A5 14                LDA     pointr
+00D554  3  48                   PHA
+00D555  3  AD 02 D6             LDA     DSKY_TEMP_VAL           ; RESTORE A
+00D558  3  60           	RTS
+00D559  3               ;
+00D559  3               ;__DSKY_BEEP______________________________________________________________________________________
+00D559  3               ;	This function is intended to beep the speaker on the DSKY
+00D559  3               ;_________________________________________________________________________________________________
+00D559  3               ;
+00D559  3               DSKY_BEEP:
+00D559  3  5A           	PHY
+00D55A  3  DA                   PHX
+00D55B  3  48           	PHA
+00D55C  3  A0 0F        	LDY 	#$0F
+00D55E  3  20 0F D5     	JSR	DSKY_GETBYTE
+00D561  3  09 20        	ORA 	#$20
+00D563  3  A0 0F        	LDY	#$0F
+00D565  3  20 FB D4     	JSR	DSKY_PUTBYTE
+00D568  3               
+00D568  3               ;;; 	timer . . .
+00D568  3  A2 8F        	LDX 	#$8F
+00D56A  3  A0 FF                LDY     #$FF
+00D56C  3               DSKY_BEEP1:
+00D56C  3  88                   DEY
+00D56D  3  D0 FD                BNE     DSKY_BEEP1
+00D56F  3  CA                   DEX
+00D570  3  D0 FA                BNE     DSKY_BEEP1
+00D572  3               
+00D572  3  A0 0F        	LDY 	#$0F
+00D574  3  20 0F D5     	JSR	DSKY_GETBYTE
+00D577  3  29 DF        	AND 	#$DF
+00D579  3  A0 0F        	LDY	#$0F
+00D57B  3  20 FB D4     	JSR	DSKY_PUTBYTE
+00D57E  3               
+00D57E  3  68                   PLA
+00D57F  3  FA                   PLX
+00D580  3  7A                   PLY
+00D581  3  60           	RTS
+00D582  3               ;
+00D582  3               ;__DSKY_L1ON______________________________________________________________________________________
+00D582  3               ;	This function is intended to turn on DSKY L1
+00D582  3               ;_________________________________________________________________________________________________
+00D582  3               ;
+00D582  3               DSKY_L1ON:
+00D582  3  5A           	PHY
+00D583  3  48           	PHA
+00D584  3  A0 0D        	LDY 	#$0D
+00D586  3  20 0F D5     	JSR	DSKY_GETBYTE
+00D589  3  09 20        	ORA 	#$20
+00D58B  3  A0 0D        	LDY	#$0D
+00D58D  3  20 FB D4     	JSR	DSKY_PUTBYTE
+00D590  3  68           	PLA
+00D591  3  7A                   PLY
+00D592  3  60           	RTS
+00D593  3               ;
+00D593  3               ;__DSKY_L2ON______________________________________________________________________________________
+00D593  3               ;	This function is intended to turn on DSKY L2
+00D593  3               ;_________________________________________________________________________________________________
+00D593  3               ;
+00D593  3               DSKY_L2ON:
+00D593  3  5A           	PHY
+00D594  3  48           	PHA
+00D595  3  A0 0E        	LDY 	#$0E
+00D597  3  20 0F D5     	JSR	DSKY_GETBYTE
+00D59A  3  09 20        	ORA 	#$20
+00D59C  3  A0 0E        	LDY	#$0E
+00D59E  3  20 FB D4     	JSR	DSKY_PUTBYTE
+00D5A1  3  68           	PLA
+00D5A2  3  7A                   PLY
+00D5A3  3  60           	RTS
+00D5A4  3               ;
+00D5A4  3               ;__DSKY_L1OFF_____________________________________________________________________________________
+00D5A4  3               ;	This function is intended to turn off DSKY L1
+00D5A4  3               ;_________________________________________________________________________________________________
+00D5A4  3               ;
+00D5A4  3               DSKY_L1OFF:
+00D5A4  3  5A           	PHY
+00D5A5  3  48           	PHA
+00D5A6  3  A0 0D        	LDY 	#$0D
+00D5A8  3  20 0F D5     	JSR	DSKY_GETBYTE
+00D5AB  3  29 DF        	AND 	#$DF
+00D5AD  3  A0 0D        	LDY	#$0D
+00D5AF  3  20 FB D4     	JSR	DSKY_PUTBYTE
+00D5B2  3  68           	PLA
+00D5B3  3  7A                   PLY
+00D5B4  3  60           	RTS
+00D5B5  3               ;
+00D5B5  3               ;__DSKY_L2OFF_____________________________________________________________________________________
+00D5B5  3               ;	This function is intended to turn off DSKY L2
+00D5B5  3               ;_________________________________________________________________________________________________
+00D5B5  3               ;
+00D5B5  3               DSKY_L2OFF:
+00D5B5  3  5A           	PHY
+00D5B6  3  48           	PHA
+00D5B7  3  A0 0E        	LDY 	#$0E
+00D5B9  3  20 0F D5     	JSR	DSKY_GETBYTE
+00D5BC  3  29 DF        	AND 	#$DF
+00D5BE  3  A0 0E        	LDY	#$0E
+00D5C0  3  20 FB D4     	JSR	DSKY_PUTBYTE
+00D5C3  3  68           	PLA
+00D5C4  3  7A                   PLY
+00D5C5  3  60           	RTS
+00D5C6  3               ;
+00D5C6  3               ;_________________________________________________________________________________________________
+00D5C6  3               ; DSKYNG LINE CONTROL ROUTINES
+00D5C6  3               ;
+00D5C6  3               ; SETUP PPI FOR WRITING: PUT PPI PORT A IN OUTPUT MODE
+00D5C6  3               ; AVOID REWRTING PPIX IF ALREADY IN OUTPUT MODE
+00D5C6  3               ;
+00D5C6  3               ;_________________________________________________________________________________________________
+00D5C6  3               ;
+00D5C6  3               DSKY_PPIWR:
+00D5C6  3  48           	PHA
+00D5C7  3               ;
+00D5C7  3               	; CHECK FOR WRITE MODE
+00D5C7  3  AD 03 D6     	LDA     DSKY_PPIX_VAL
+00D5CA  3  C9 82        	CMP	#DSKY_PPIX_WR
+00D5CC  3  F0 0D        	BEQ	DSKY_PPIWR1
+00D5CE  3               ;
+00D5CE  3               	; SET PPI TO WRITE MODE
+00D5CE  3  A9 82        	LDA	#DSKY_PPIX_WR
+00D5D0  3  8D 63 03     	STA	DSKY_PPIX
+00D5D3  3  AD 03 D6     	LDA	DSKY_PPIX_VAL
+00D5D6  3               ;
+00D5D6  3               	; RESTORE PORT C (MAY NOT BE NEEDED)
+00D5D6  3  A9 06        	LDA     #DSKY_PPI_IDLE
+00D5D8  3  8D 62 03     	STA	DSKY_PPIC
+00D5DB  3               ;
+00D5DB  3               DSKY_PPIWR1:
+00D5DB  3               ;
+00D5DB  3  68           	PLA
+00D5DC  3  60           	RTS
+00D5DD  3               ;
+00D5DD  3               ; SETUP PPI FOR READING: PUT PPI PORT A IN INPUT MODE
+00D5DD  3               ; AVOID REWRTING PPIX IF ALREADY IN INPUT MODE
+00D5DD  3               ;
+00D5DD  3               DSKY_PPIRD:
+00D5DD  3  48           	PHA
+00D5DE  3               ;
+00D5DE  3               	; CHECK FOR READ MODE
+00D5DE  3  AD 03 D6     	LDA	DSKY_PPIX_VAL
+00D5E1  3  C9 92        	CMP	#DSKY_PPIX_RD
+00D5E3  3  F0 08        	BEQ	DSKY_PPIRD1
+00D5E5  3               ;
+00D5E5  3               	; SET PPI TO READ MODE
+00D5E5  3  A9 92        	LDA	#DSKY_PPIX_RD
+00D5E7  3  8D 63 03     	STA	DSKY_PPIX
+00D5EA  3  AD 03 D6     	LDA	DSKY_PPIX_VAL
+00D5ED  3               ;
+00D5ED  3               DSKY_PPIRD1:
+00D5ED  3  68           	PLA
+00D5EE  3  60           	RTS
+00D5EF  3               ;
+00D5EF  3               ; RELEASE USE OF PPI
+00D5EF  3               ;
+00D5EF  3               DSKY_PPIIDLE:
+00D5EF  3  4C DD D5     	JMP	DSKY_PPIRD		; SAME AS READ MODE
+00D5F2  3               ;
+00D5F2  3               ;__STORAGE_________________________________________________________________________________________
+00D5F2  3               ; CODES FOR NUMERICS
+00D5F2  3               ; HIGH BIT ALWAYS CLEAR TO SUPPRESS DECIMAL POINT
+00D5F2  3               ; SET HIGH BIT TO SHOW DECIMAL POINT
+00D5F2  3               ;_________________________________________________________________________________________________
+00D5F2  3               ;
+00D5F2  3               DSKY_HEXMAP:
+00D5F2  3  3F           	.BYTE	$3F	; 0
+00D5F3  3  06           	.BYTE	$06	; 1
+00D5F4  3  5B           	.BYTE	$5B	; 2
+00D5F5  3  4F           	.BYTE	$4F	; 3
+00D5F6  3  66           	.BYTE	$66	; 4
+00D5F7  3  6D           	.BYTE	$6D	; 5
+00D5F8  3  7D           	.BYTE	$7D	; 6
+00D5F9  3  07           	.BYTE	$07	; 7
+00D5FA  3  7F           	.BYTE	$7F	; 8
+00D5FB  3  67           	.BYTE	$67	; 9
+00D5FC  3  77           	.BYTE	$77	; A
+00D5FD  3  7C           	.BYTE	$7C	; B
+00D5FE  3  39           	.BYTE	$39	; C
+00D5FF  3  5E           	.BYTE	$5E	; D
+00D600  3  79           	.BYTE	$79	; E
+00D601  3  71           	.BYTE	$71	; F
+00D602  3               ;
+00D602  3  00           DSKY_TEMP_VAL:	.BYTE	0
+00D603  3  00           DSKY_PPIX_VAL:	.BYTE	0
+00D604  3  00           DSKY_PRESENT:	.BYTE	0
 00D605  3               ;
-00D605  3               	; DEASSERT /CS
-00D605  3  29 E7                AND     #%11100111
-00D607  3  8D 62 03     	STA	DSKY_PPIC
-00D60A  3               ;
-00D60A  3               	; CLEAR ADDRESS BIT
-00D60A  3  29 E6                AND     #%11100110
-00D60C  3  8D 62 03     	STA	DSKY_PPIC
-00D60F  3               ;
-00D60F  3               	; DONE
-00D60F  3  20 09 DA     	JSR	DSKY_PPIIDLE
-00D612  3  60           	RTS
-00D613  3               ;
-00D613  3               ;==================================================================================================
-00D613  3               ; DSKYNG OUTPUT ROUTINES
-00D613  3               ;==================================================================================================
-00D613  3               ;
-00D613  3               ; RETURN DSKY STATUS VALUE IN A
-00D613  3               ;
-00D613  3               DSKY_ST:
-00D613  3  A9 01        	LDA	#$01
-00D615  3  4C 1A D6     	JMP	DSKY_DIN2
-00D618  3               ;
-00D618  3               ; RETURN NEXT DATA VALUE IN A
-00D618  3               ;
-00D618  3               DSKY_DIN:
-00D618  3  A9 00        	LDA	#$00
-00D61A  3               ;
-00D61A  3               DSKY_DIN2:
-00D61A  3               	; SET PPI LINE CONFIG TO READ MODE
-00D61A  3  20 97 D9     	JSR	DSKY_PPIRD
-00D61D  3  48 DA 5A A2          PRTDBG "DIN_CHECKPOINTA:$"
-00D621  3  00 BD 40 D6  
-00D625  3  E8 C9 24 F0  
-00D651  3               ;
-00D651  3               	; SET ADDRESS FIRST
-00D651  3  09 06        	ORA	#DSKY_PPI_IDLE
-00D653  3  8D 62 03     	STA	DSKY_PPIC
-00D656  3               ;
-00D656  3               	; ASSERT 8279 /CS
-00D656  3  09 18        	ORA     #%00011000
-00D658  3  8D 62 03     	STA	DSKY_PPIC
-00D65B  3               ;
-00D65B  3               	; PPIC WORKING VALUE TO DSKY_TEMP_VAL
-00D65B  3  8D 4C DA     	STA     DSKY_TEMP_VAL
-00D65E  3               ;
-00D65E  3               	; ASSERT /RD
-00D65E  3  29 FB        	AND     #%11111011
-00D660  3  8D 62 03     	STA	DSKY_PPIC
-00D663  3               ;
-00D663  3  48 DA 5A A2          PRTDBG "DIN_CHECKPOINTB:$"
-00D667  3  00 BD 86 D6  
-00D66B  3  E8 C9 24 F0  
-00D697  3               
-00D697  3               	; GET VALUE
-00D697  3  AD 60 03     	LDA	DSKY_PPIA
-00D69A  3  48                   PHA
-00D69B  3               
-00D69B  3               	; DEASSERT /RD
-00D69B  3  09 04        	ORA     #%00000100
-00D69D  3  8D 62 03     	STA	DSKY_PPIC
-00D6A0  3               ;
-00D6A0  3               	; DEASSERT /CS
-00D6A0  3  09 04        	ORA     #%00000100
-00D6A2  3  8D 62 03     	STA	DSKY_PPIC
-00D6A5  3               
-00D6A5  3  29 E7                AND     #%11100111
-00D6A7  3  8D 62 03     	STA	DSKY_PPIC
-00D6AA  3               ;
-00D6AA  3               	; CLEAR ADDRESS BIT
-00D6AA  3  29 FE                AND     #%11111110
-00D6AC  3  8D 62 03     	STA	DSKY_PPIC
-00D6AF  3               ;
-00D6AF  3               	; DONE
-00D6AF  3  48 DA 5A A2          PRTDBG "DIN_CHECKPOINTC:$"
-00D6B3  3  00 BD D2 D6  
-00D6B7  3  E8 C9 24 F0  
-00D6E3  3  20 09 DA     	JSR	DSKY_PPIIDLE
-00D6E6  3  48 DA 5A A2          PRTDBG "DIN_CHECKPOINTD:$"
-00D6EA  3  00 BD 09 D7  
-00D6EE  3  E8 C9 24 F0  
-00D71A  3  68                   PLA
-00D71B  3  60           	RTS
-00D71C  3               
-00D71C  3               ;__DSKY_BLANK_____________________________________________________________________________________
-00D71C  3               ;
-00D71C  3               ; BLANK DSKYNG DISPLAY  (WITHOUT USING CLEAR)
-00D71C  3               ;
-00D71C  3               ;_________________________________________________________________________________________________
-00D71C  3               ;
-00D71C  3               DSKY_BLANK:
-00D71C  3  A9 90        	LDA	#DSKY_CMD_WDSP
-00D71E  3  20 DA D5     	JSR	DSKY_CMD
-00D721  3  A2 10        	LDX	#16
-00D723  3               DSKY_BLANK1:
-00D723  3  A9 FF        	LDA	#$FF
-00D725  3  20 E0 D5     	JSR	DSKY_DOUT
-00D728  3  CA                   DEX
-00D729  3  D0 F8        	BNE	DSKY_BLANK1
-00D72B  3  60           	RTS
-00D72C  3               ;
-00D72C  3               ;__DSKY_PUTBYTE____________________________________________________________________________________
-00D72C  3               ;
-00D72C  3               ; WRITE A RAW BYTE VALUE TO DSKY DISPLAY RAM
-00D72C  3               ; AT LOCATION IN REGISTER Y, VALUE IN A.
-00D72C  3               ;
-00D72C  3               ;__________________________________________________________________________________________________
-00D72C  3               ;
-00D72C  3               DSKY_PUTBYTE:
-00D72C  3  48 DA 5A A2          PRTDBG "DSKY PUTBYTE:$"
-00D730  3  00 BD 4F D7  
-00D734  3  E8 C9 24 F0  
-00D75D  3  5A                   PHY
-00D75E  3  48                   PHA
-00D75F  3  48                   PHA
-00D760  3  18           	CLC
-00D761  3  98                   TYA
-00D762  3  69 90        	ADC	#DSKY_CMD_WDSP
-00D764  3  A8                   TAY
-00D765  3  20 DA D5     	JSR	DSKY_CMD
-00D768  3  68                   PLA
-00D769  3  49 FF        	EOR	#$FF
-00D76B  3  20 E0 D5     	JSR	DSKY_DOUT
-00D76E  3  48 DA 5A A2          PRTDBG "DSKY PUTBYTED:$"
-00D772  3  00 BD 91 D7  
-00D776  3  E8 C9 24 F0  
-00D7A0  3  68                   PLA
-00D7A1  3  7A                   PLY
-00D7A2  3  60           	RTS
-00D7A3  3               ;
-00D7A3  3               ;__DSKY_GETBYTE___________________________________________________________________________________
-00D7A3  3               ; READ A RAW BYTE VALUE FROM DSKY DISPLAY RAM
-00D7A3  3               ; AT LOCATION IN REGISTER Y, VALUE RETURNED IN A
-00D7A3  3               ;
-00D7A3  3               ;_________________________________________________________________________________________________
-00D7A3  3               ;
-00D7A3  3               DSKY_GETBYTE:
-00D7A3  3  48 DA 5A A2          PRTDBG "DSKY GETBYTE:$"
-00D7A7  3  00 BD C6 D7  
-00D7AB  3  E8 C9 24 F0  
-00D7D4  3  18           	CLC
-00D7D5  3  98                   TYA
-00D7D6  3  69 70        	ADC	#DSKY_CMD_RDSP
-00D7D8  3  A8                   TAY
-00D7D9  3  48 DA 5A A2          PRTDBG "DSKY GETBYTEA:$"
-00D7DD  3  00 BD FC D7  
-00D7E1  3  E8 C9 24 F0  
-00D80B  3  20 DA D5     	JSR	DSKY_CMD
-00D80E  3  48 DA 5A A2          PRTDBG "DSKY GETBYTEB:$"
-00D812  3  00 BD 31 D8  
-00D816  3  E8 C9 24 F0  
-00D840  3  20 18 D6     	JSR	DSKY_DIN
-00D843  3  49 FF        	EOR	#$FF
-00D845  3  48 DA 5A A2          PRTDBG "DSKY GETBYTEC:$"
-00D849  3  00 BD 68 D8  
-00D84D  3  E8 C9 24 F0  
-00D877  3  60           	RTS
-00D878  3               
-00D878  3               ;
-00D878  3               ;__DSKY_PUTLED____________________________________________________________________________________
-00D878  3               ;
-00D878  3               ;	This function is intended to update the LEDs.  It expects 8 bytes
-00D878  3               ;	following the call, and	updates the entire matrix.
-00D878  3               ;
-00D878  3               ;  EXAMPLE:
-00D878  3               ;	JSR 	DSKY_PUTLED
-00D878  3               ;	.BYTE 	$00,$00,$00,$00,$00,$00,$00,$00
-00D878  3               ;_________________________________________________________________________________________________
-00D878  3               ;
-00D878  3               DSKY_PUTLED:
-00D878  3  8E 4C DA             STX     DSKY_TEMP_VAL           ; STORE X
-00D87B  3  BA                   TSX                             ; STORE STACK POINTER
-00D87C  3  68                   PLA                             ; GET ADDRESS OF BYTES
-00D87D  3  85 14                STA     pointr                  ; STORE ADDRESS IN POINTR
-00D87F  3  68                   PLA
-00D880  3  85 15                STA     pointr+1
-00D882  3  9A                   TXS                             ; RESTORE STACK
-00D883  3  AE 4C DA             LDX     DSKY_TEMP_VAL           ; RESTORE X
-00D886  3  DA                   PHX                             ; STASH REGISTERS
-00D887  3  5A                   PHY
-00D888  3  48                   PHA
-00D889  3  18                   CLC                             ; REMEMBER ADDRESS IN STACK IS BEFORE STRING
-00D88A  3  E6 14                INC     pointr                  ; SO, INC 16BIT POINTER BY 1
-00D88C  3  90 02                BCC     @1
-00D88E  3  E6 15                INC     pointr+1
-00D890  3  A0 00        @1:	LDY 	#$00
-00D892  3               DSKY_PUTLED_1:
-00D892  3  B1 14                LDA     (pointr),Y              ; GET BYTE
-00D894  3  20 2C D7     	JSR	DSKY_PUTBYTE            ; SEND IT TO DSKY
-00D897  3  C8                   INY                             ; LOOP TIL DONE
-00D898  3  C0 08                CPY     #8
-00D89A  3  D0 F6                BNE     DSKY_PUTLED_1
-00D89C  3  68                   PLA                             ; RESTORE REGISTERS
-00D89D  3  7A                   PLY
-00D89E  3  FA                   PLX
-00D89F  3  8D 4C DA             STA     DSKY_TEMP_VAL           ; STASH A
-00D8A2  3  18                   CLC                             ; INC RETURN ADDRESS BY 8
-00D8A3  3  68                   PLA
-00D8A4  3  69 08                ADC     #8
-00D8A6  3  85 14                STA     pointr
-00D8A8  3  90 03                BCC     DSKY_PUTLED_2
-00D8AA  3  68                   PLA
-00D8AB  3  1A                   INC     A
-00D8AC  3  48                   PHA
-00D8AD  3               DSKY_PUTLED_2:
-00D8AD  3  A5 14                LDA     pointr
-00D8AF  3  48                   PHA
-00D8B0  3  AD 4C DA             LDA     DSKY_TEMP_VAL           ; RESTORE A
-00D8B3  3  60           	RTS
-00D8B4  3               ;
-00D8B4  3               ;__DSKY_BEEP______________________________________________________________________________________
-00D8B4  3               ;	This function is intended to beep the speaker on the DSKY
-00D8B4  3               ;_________________________________________________________________________________________________
-00D8B4  3               ;
-00D8B4  3               DSKY_BEEP:
-00D8B4  3  5A           	PHY
-00D8B5  3  DA                   PHX
-00D8B6  3  48           	PHA
-00D8B7  3  A0 0F        	LDY 	#$0F
-00D8B9  3  20 A3 D7     	JSR	DSKY_GETBYTE
-00D8BC  3  09 20        	ORA 	#$20
-00D8BE  3  A0 0F        	LDY	#$0F
-00D8C0  3  20 2C D7     	JSR	DSKY_PUTBYTE
-00D8C3  3               
-00D8C3  3               ;;; 	timer . . .
-00D8C3  3  A2 8F        	LDX 	#$8F
-00D8C5  3  A0 FF                LDY     #$FF
-00D8C7  3               DSKY_BEEP1:
-00D8C7  3  88                   DEY
-00D8C8  3  D0 FD                BNE     DSKY_BEEP1
-00D8CA  3  CA                   DEX
-00D8CB  3  D0 FA                BNE     DSKY_BEEP1
-00D8CD  3               
-00D8CD  3  A0 0F        	LDY 	#$0F
-00D8CF  3  20 A3 D7     	JSR	DSKY_GETBYTE
-00D8D2  3  29 DF        	AND 	#$DF
-00D8D4  3  A0 0F        	LDY	#$0F
-00D8D6  3  20 2C D7     	JSR	DSKY_PUTBYTE
-00D8D9  3               
-00D8D9  3  68                   PLA
-00D8DA  3  FA                   PLX
-00D8DB  3  7A                   PLY
-00D8DC  3  60           	RTS
-00D8DD  3               ;
-00D8DD  3               ;__DSKY_L1ON______________________________________________________________________________________
-00D8DD  3               ;	This function is intended to turn on DSKY L1
-00D8DD  3               ;_________________________________________________________________________________________________
-00D8DD  3               ;
-00D8DD  3               DSKY_L1ON:
-00D8DD  3  5A           	PHY
-00D8DE  3  48           	PHA
-00D8DF  3  A0 0D        	LDY 	#$0D
-00D8E1  3  20 A3 D7     	JSR	DSKY_GETBYTE
-00D8E4  3  09 20        	ORA 	#$20
-00D8E6  3  A0 0D        	LDY	#$0D
-00D8E8  3  20 2C D7     	JSR	DSKY_PUTBYTE
-00D8EB  3  68           	PLA
-00D8EC  3  7A                   PLY
-00D8ED  3  60           	RTS
-00D8EE  3               ;
-00D8EE  3               ;__DSKY_L2ON______________________________________________________________________________________
-00D8EE  3               ;	This function is intended to turn on DSKY L2
-00D8EE  3               ;_________________________________________________________________________________________________
-00D8EE  3               ;
-00D8EE  3               DSKY_L2ON:
-00D8EE  3  5A           	PHY
-00D8EF  3  48           	PHA
-00D8F0  3  A0 0E        	LDY 	#$0E
-00D8F2  3  20 A3 D7     	JSR	DSKY_GETBYTE
-00D8F5  3  09 20        	ORA 	#$20
-00D8F7  3  A0 0E        	LDY	#$0E
-00D8F9  3  20 2C D7     	JSR	DSKY_PUTBYTE
-00D8FC  3  68           	PLA
-00D8FD  3  7A                   PLY
-00D8FE  3  60           	RTS
-00D8FF  3               ;
-00D8FF  3               ;__DSKY_L1OFF_____________________________________________________________________________________
-00D8FF  3               ;	This function is intended to turn off DSKY L1
-00D8FF  3               ;_________________________________________________________________________________________________
-00D8FF  3               ;
-00D8FF  3               DSKY_L1OFF:
-00D8FF  3  5A           	PHY
-00D900  3  48           	PHA
-00D901  3  A0 0D        	LDY 	#$0D
-00D903  3  20 A3 D7     	JSR	DSKY_GETBYTE
-00D906  3  29 DF        	AND 	#$DF
-00D908  3  A0 0D        	LDY	#$0D
-00D90A  3  20 2C D7     	JSR	DSKY_PUTBYTE
-00D90D  3  68           	PLA
-00D90E  3  7A                   PLY
-00D90F  3  60           	RTS
-00D910  3               ;
-00D910  3               ;__DSKY_L2OFF_____________________________________________________________________________________
-00D910  3               ;	This function is intended to turn off DSKY L2
-00D910  3               ;_________________________________________________________________________________________________
-00D910  3               ;
-00D910  3               DSKY_L2OFF:
-00D910  3  5A           	PHY
-00D911  3  48           	PHA
-00D912  3  A0 0E        	LDY 	#$0E
-00D914  3  20 A3 D7     	JSR	DSKY_GETBYTE
-00D917  3  29 DF        	AND 	#$DF
-00D919  3  A0 0E        	LDY	#$0E
-00D91B  3  20 2C D7     	JSR	DSKY_PUTBYTE
-00D91E  3  68           	PLA
-00D91F  3  7A                   PLY
-00D920  3  60           	RTS
-00D921  3               ;
-00D921  3               ;_________________________________________________________________________________________________
-00D921  3               ; DSKYNG LINE CONTROL ROUTINES
-00D921  3               ;
-00D921  3               ; SETUP PPI FOR WRITING: PUT PPI PORT A IN OUTPUT MODE
-00D921  3               ; AVOID REWRTING PPIX IF ALREADY IN OUTPUT MODE
-00D921  3               ;
-00D921  3               ;_________________________________________________________________________________________________
-00D921  3               ;
-00D921  3               DSKY_PPIWR:
-00D921  3  48 DA 5A A2          PRTDBG "DSKY PPIWR:$"
-00D925  3  00 BD 44 D9  
-00D929  3  E8 C9 24 F0  
-00D950  3  48           	PHA
-00D951  3               ;
-00D951  3               	; CHECK FOR WRITE MODE
-00D951  3  AD 4D DA     	LDA     DSKY_PPIX_VAL
-00D954  3  C9 82        	CMP	#DSKY_PPIX_WR
-00D956  3  F0 0D        	BEQ	DSKY_PPIWR1
-00D958  3               ;
-00D958  3               	; SET PPI TO WRITE MODE
-00D958  3  A9 82        	LDA	#DSKY_PPIX_WR
-00D95A  3  8D 63 03     	STA	DSKY_PPIX
-00D95D  3  AD 4D DA     	LDA	DSKY_PPIX_VAL
-00D960  3               ;
-00D960  3               	; RESTORE PORT C (MAY NOT BE NEEDED)
-00D960  3  A9 06        	LDA     #DSKY_PPI_IDLE
-00D962  3  8D 62 03     	STA	DSKY_PPIC
-00D965  3               ;
-00D965  3               DSKY_PPIWR1:
-00D965  3               ;
-00D965  3  48 DA 5A A2          PRTDBG "DSKY PPIWRD:$"
-00D969  3  00 BD 88 D9  
-00D96D  3  E8 C9 24 F0  
-00D995  3  68           	PLA
-00D996  3  60           	RTS
-00D997  3               ;
-00D997  3               ; SETUP PPI FOR READING: PUT PPI PORT A IN INPUT MODE
-00D997  3               ; AVOID REWRTING PPIX IF ALREADY IN INPUT MODE
-00D997  3               ;
-00D997  3               DSKY_PPIRD:
-00D997  3  48 DA 5A A2          PRTDBG "DSKY PPIRD:$"
-00D99B  3  00 BD BA D9  
-00D99F  3  E8 C9 24 F0  
-00D9C6  3  48           	PHA
-00D9C7  3               ;
-00D9C7  3               	; CHECK FOR READ MODE
-00D9C7  3  AD 4D DA     	LDA	DSKY_PPIX_VAL
-00D9CA  3  C9 92        	CMP	#DSKY_PPIX_RD
-00D9CC  3  F0 08        	BEQ	DSKY_PPIRD1
-00D9CE  3               ;
-00D9CE  3               	; SET PPI TO READ MODE
-00D9CE  3  A9 92        	LDA	#DSKY_PPIX_RD
-00D9D0  3  8D 63 03     	STA	DSKY_PPIX
-00D9D3  3  AD 4D DA     	LDA	DSKY_PPIX_VAL
-00D9D6  3               ;
-00D9D6  3               DSKY_PPIRD1:
-00D9D6  3  68           	PLA
-00D9D7  3  48 DA 5A A2          PRTDBG "DSKY PPIRD_D:$"
-00D9DB  3  00 BD FA D9  
-00D9DF  3  E8 C9 24 F0  
-00DA08  3  60           	RTS
-00DA09  3               ;
-00DA09  3               ; RELEASE USE OF PPI
-00DA09  3               ;
-00DA09  3               DSKY_PPIIDLE:
-00DA09  3  48 DA 5A A2          PRTDBG "DSKY PPIDLE:$"
-00DA0D  3  00 BD 2C DA  
-00DA11  3  E8 C9 24 F0  
-00DA39  3  4C 97 D9     	JMP	DSKY_PPIRD		; SAME AS READ MODE
-00DA3C  3               ;
-00DA3C  3               ;__STORAGE_________________________________________________________________________________________
-00DA3C  3               ; CODES FOR NUMERICS
-00DA3C  3               ; HIGH BIT ALWAYS CLEAR TO SUPPRESS DECIMAL POINT
-00DA3C  3               ; SET HIGH BIT TO SHOW DECIMAL POINT
-00DA3C  3               ;_________________________________________________________________________________________________
-00DA3C  3               ;
-00DA3C  3               DSKY_HEXMAP:
-00DA3C  3  3F           	.BYTE	$3F	; 0
-00DA3D  3  06           	.BYTE	$06	; 1
-00DA3E  3  5B           	.BYTE	$5B	; 2
-00DA3F  3  4F           	.BYTE	$4F	; 3
-00DA40  3  66           	.BYTE	$66	; 4
-00DA41  3  6D           	.BYTE	$6D	; 5
-00DA42  3  7D           	.BYTE	$7D	; 6
-00DA43  3  07           	.BYTE	$07	; 7
-00DA44  3  7F           	.BYTE	$7F	; 8
-00DA45  3  67           	.BYTE	$67	; 9
-00DA46  3  77           	.BYTE	$77	; A
-00DA47  3  7C           	.BYTE	$7C	; B
-00DA48  3  39           	.BYTE	$39	; C
-00DA49  3  5E           	.BYTE	$5E	; D
-00DA4A  3  79           	.BYTE	$79	; E
-00DA4B  3  71           	.BYTE	$71	; F
-00DA4C  3               ;
-00DA4C  3  00           DSKY_TEMP_VAL:	.BYTE	0
-00DA4D  3  00           DSKY_PPIX_VAL:	.BYTE	0
-00DA4E  3  00           DSKY_PRESENT:	.BYTE	0
-00DA4F  3               ;
-00DA4F  3               ; SEG DISPLAY WORKING STORAGE
-00DA4F  3               ;
-00DA4F  3  00 00 00 00  DSKY_BUF:	.BYTE	0,0,0,0,0,0,0,0
-00DA53  3  00 00 00 00  
-00DA57  3               DSKY_BUFLEN	=	* - DSKY_BUF
-00DA57  3  00 00 00 00  DSKY_HEXBUF:	.BYTE	0,0,0,0
-00DA5B  3               DSKY_HEXBUFLEN	=	* - DSKY_HEXBUF
-00DA5B  3               
-00DA5B  2                   .ENDIF
-00DA5B  2               
-00DA5B  2               
-00DA5B  2               ;------------------------------------------------------------------------------------
-00DA5B  2               
-00DA5B  2               
-00DA5B  2               ;disk control blocks
-00DA5B  2               ;drive a (3.5" FDD)
-00DA5B  2               	.IF FLPA35=1
-00DA5B  2               dcba:	.word	350		;max block number
-00DA5B  2               	.word	36		;sectors per track
-00DA5B  2               	.word	4		;number system tracks
-00DA5B  2               	.byte	1		;block size = 2048
-00DA5B  2               	.word	127		;max directory number
-00DA5B  2               	.word	almpa		;address of map for a
-00DA5B  2               	.byte	80		;do checksums
-00DA5B  2               	.word	ckmpa		;checksum map
-00DA5B  2               	.ELSE
-00DA5B  2  AF 00        dcba:	.word	175		;max block number
-00DA5D  2  24 00        	.word	36		;sectors per track
-00DA5F  2  04 00        	.word	4		;number system tracks
-00DA61  2  01           	.byte	1		;block size = 2048
-00DA62  2  7F 00        	.word	127		;max directory number
-00DA64  2  9A DA        	.word	almpa		;address of map for a
-00DA66  2  50           	.byte	80		;do checksums
-00DA67  2  C3 DC        	.word	ckmpa		;checksum map
-00DA69  2               	.endif
-00DA69  2               
-00DA69  2               	.IF FLPB35=1
-00DA69  2               dcbb:	.word	350		;max block number
-00DA69  2               	.word	36		;sectors per track
-00DA69  2               	.word	4		;number system tracks
-00DA69  2               	.byte	1		;block size = 2048
-00DA69  2               	.word	127		;max directory number
-00DA69  2               	.word	almpa		;address of map for a
-00DA69  2               	.byte	80		;do checksums
-00DA69  2               	.word	ckmpa		;checksum map
-00DA69  2               	.ELSE
-00DA69  2  AF 00        dcbb:	.word	175		;max block number
-00DA6B  2  24 00        	.word	36		;sectors per track
-00DA6D  2  04 00        	.word	4		;number system tracks
-00DA6F  2  01           	.byte	1		;block size = 2048
-00DA70  2  7F 00        	.word	127		;max directory number
-00DA72  2  9A DA        	.word	almpa		;address of map for a
-00DA74  2  50           	.byte	80		;do checksums
-00DA75  2  C3 DC        	.word	ckmpa		;checksum map
-00DA77  2               	.endif
-00DA77  2               
-00DA77  2               ;drive c (IDE)
-00DA77  2  E1 07        dcbc:	.word	2017		;max block number
-00DA79  2  00 01        	.word	256		;sectors per track
-00DA7B  2  01 00        	.word	$0001		;number system tracks
-00DA7D  2  02           	.byte	2		;block size = 4096
-00DA7E  2  FF 01        	.word	511		;max directory number
-00DA80  2  C5 DB        	.word	almpc		;address of map for C
-00DA82  2  50           	.byte	80		;do checksums
-00DA83  2  63 DD        	.word	ckmpc		;checksum map
-00DA85  2               ;data area
-00DA85  2               
-00DA85  2               
-00DA85  2  02           sekdsk:	.byte	2		;seek disk number
-00DA86  2  00           hstwrt:	.byte	0		;0=written,1=pending host write
-00DA87  2               
-00DA87  2               ;allocate the following data areas to unused ram space
-00DA87  2  00           LASTCHAR: 	.byte 0		;save sector for warm boot
-00DA88  2  00           savsec:		.byte 0		;save sector for warm boot
-00DA89  2  00           count:		.byte 0		;counter in warm boot
-00DA8A  2  00           temp:		.byte 0		;save hstdsk for warm boot
-00DA8B  2  00           hstact:		.byte 0		;host active flag
-00DA8C  2  00           unacnt:		.byte 0		;unalloc rec cnt
-00DA8D  2  00 00        sektrk:		.word 0		;seek track number
-00DA8F  2  00 00        seksec:		.word 0		;seek sector number
-00DA91  2  00           debhead:	.byte 0		; DEBLOCKED HEAD
-00DA92  2  00           debcyl:		.byte 0		; DEBLOCKED CYLINDER ID
-00DA93  2  00           debsec:		.byte 0		; DEBLOCKED SECTOR
-00DA94  2  00 00        debtmp:		.word 0		; DEBLOCK TEMP VAR
-00DA96  2  FF           Cdebhead: 	.byte $FF		; DEBLOCKED HEAD
-00DA97  2  FF           Cdebcyl:	.byte $FF		; DEBLOCKED CYLINDER ID
-00DA98  2  FF           Cdebsec:	.byte $FF		; DEBLOCKED SECTOR
-00DA99  2  00           DEBDIRTY:	.byte 0		; DIRTY FLAG
-00DA9A  2               
-00DA9A  2               ;allocation maps
-00DA9A  2               ;drive a
-00DA9A  2  xx xx xx xx  almpa:		.res	45
-00DA9E  2  xx xx xx xx  
-00DAA2  2  xx xx xx xx  
-00DAC7  2               ;drive b
-00DAC7  2  xx xx xx xx  almpb:		.res	254
-00DACB  2  xx xx xx xx  
-00DACF  2  xx xx xx xx  
-00DBC5  2               ;drive c
-00DBC5  2  xx xx xx xx  almpc:		.res	254
-00DBC9  2  xx xx xx xx  
-00DBCD  2  xx xx xx xx  
-00DCC3  2               ;checksum maps
-00DCC3  2               
-00DCC3  2               
-00DCC3  2               ;drive a
-00DCC3  2  xx xx xx xx  ckmpa:		.res	32
-00DCC7  2  xx xx xx xx  
-00DCCB  2  xx xx xx xx  
-00DCE3  2               ;drive b
-00DCE3  2  xx xx xx xx  ckmpb:		.res	128
-00DCE7  2  xx xx xx xx  
-00DCEB  2  xx xx xx xx  
-00DD63  2               ;drive c
-00DD63  2  xx xx xx xx  ckmpc:		.res	128
-00DD67  2  xx xx xx xx  
-00DD6B  2  xx xx xx xx  
-00DDE3  2               ;deblocking buffer for dba
-00DDE3  2  xx xx xx xx  hstbuf:		.res	512		;256 or 512 byte sectors
-00DDE7  2  xx xx xx xx  
-00DDEB  2  xx xx xx xx  
-00DFE3  2               
-00DFE3  1               
-00DFE3  1               ;
-00DFE3  1               ;                .segment "VECTORS"
-00DFE3  1               ;NMIVECTOR:      .WORD   boot		;
-00DFE3  1               ;RSTVECTOR:      .WORD   boot		;
-00DFE3  1               ;INTVECTOR: 	.WORD   boot		; ROM VECTOR FOR IRQ
-00DFE3  1               
-00DFE3  1               	.end
+00D605  3               ; SEG DISPLAY WORKING STORAGE
+00D605  3               ;
+00D605  3  00 00 00 00  DSKY_BUF:	.BYTE	0,0,0,0,0,0,0,0
+00D609  3  00 00 00 00  
+00D60D  3               DSKY_BUFLEN	=	* - DSKY_BUF
+00D60D  3  00 00 00 00  DSKY_HEXBUF:	.BYTE	0,0,0,0
+00D611  3               DSKY_HEXBUFLEN	=	* - DSKY_HEXBUF
+00D611  3               
+00D611  2                   .ENDIF
+00D611  2               
+00D611  2               
+00D611  2               ;------------------------------------------------------------------------------------
+00D611  2               
+00D611  2               
+00D611  2               ;disk control blocks
+00D611  2               ;drive a (3.5" FDD)
+00D611  2               	.IF FLPA35=1
+00D611  2               dcba:	.word	350		;max block number
+00D611  2               	.word	36		;sectors per track
+00D611  2               	.word	4		;number system tracks
+00D611  2               	.byte	1		;block size = 2048
+00D611  2               	.word	127		;max directory number
+00D611  2               	.word	almpa		;address of map for a
+00D611  2               	.byte	80		;do checksums
+00D611  2               	.word	ckmpa		;checksum map
+00D611  2               	.ELSE
+00D611  2  AF 00        dcba:	.word	175		;max block number
+00D613  2  24 00        	.word	36		;sectors per track
+00D615  2  04 00        	.word	4		;number system tracks
+00D617  2  01           	.byte	1		;block size = 2048
+00D618  2  7F 00        	.word	127		;max directory number
+00D61A  2  50 D6        	.word	almpa		;address of map for a
+00D61C  2  50           	.byte	80		;do checksums
+00D61D  2  79 D8        	.word	ckmpa		;checksum map
+00D61F  2               	.endif
+00D61F  2               
+00D61F  2               	.IF FLPB35=1
+00D61F  2               dcbb:	.word	350		;max block number
+00D61F  2               	.word	36		;sectors per track
+00D61F  2               	.word	4		;number system tracks
+00D61F  2               	.byte	1		;block size = 2048
+00D61F  2               	.word	127		;max directory number
+00D61F  2               	.word	almpa		;address of map for a
+00D61F  2               	.byte	80		;do checksums
+00D61F  2               	.word	ckmpa		;checksum map
+00D61F  2               	.ELSE
+00D61F  2  AF 00        dcbb:	.word	175		;max block number
+00D621  2  24 00        	.word	36		;sectors per track
+00D623  2  04 00        	.word	4		;number system tracks
+00D625  2  01           	.byte	1		;block size = 2048
+00D626  2  7F 00        	.word	127		;max directory number
+00D628  2  50 D6        	.word	almpa		;address of map for a
+00D62A  2  50           	.byte	80		;do checksums
+00D62B  2  79 D8        	.word	ckmpa		;checksum map
+00D62D  2               	.endif
+00D62D  2               
+00D62D  2               ;drive c (IDE)
+00D62D  2  E1 07        dcbc:	.word	2017		;max block number
+00D62F  2  00 01        	.word	256		;sectors per track
+00D631  2  01 00        	.word	$0001		;number system tracks
+00D633  2  02           	.byte	2		;block size = 4096
+00D634  2  FF 01        	.word	511		;max directory number
+00D636  2  7B D7        	.word	almpc		;address of map for C
+00D638  2  50           	.byte	80		;do checksums
+00D639  2  19 D9        	.word	ckmpc		;checksum map
+00D63B  2               ;data area
+00D63B  2               
+00D63B  2               
+00D63B  2  02           sekdsk:	.byte	2		;seek disk number
+00D63C  2  00           hstwrt:	.byte	0		;0=written,1=pending host write
+00D63D  2               
+00D63D  2               ;allocate the following data areas to unused ram space
+00D63D  2  00           LASTCHAR: 	.byte 0		;save sector for warm boot
+00D63E  2  00           savsec:		.byte 0		;save sector for warm boot
+00D63F  2  00           count:		.byte 0		;counter in warm boot
+00D640  2  00           temp:		.byte 0		;save hstdsk for warm boot
+00D641  2  00           hstact:		.byte 0		;host active flag
+00D642  2  00           unacnt:		.byte 0		;unalloc rec cnt
+00D643  2  00 00        sektrk:		.word 0		;seek track number
+00D645  2  00 00        seksec:		.word 0		;seek sector number
+00D647  2  00           debhead:	.byte 0		; DEBLOCKED HEAD
+00D648  2  00           debcyl:		.byte 0		; DEBLOCKED CYLINDER ID
+00D649  2  00           debsec:		.byte 0		; DEBLOCKED SECTOR
+00D64A  2  00 00        debtmp:		.word 0		; DEBLOCK TEMP VAR
+00D64C  2  FF           Cdebhead: 	.byte $FF		; DEBLOCKED HEAD
+00D64D  2  FF           Cdebcyl:	.byte $FF		; DEBLOCKED CYLINDER ID
+00D64E  2  FF           Cdebsec:	.byte $FF		; DEBLOCKED SECTOR
+00D64F  2  00           DEBDIRTY:	.byte 0		; DIRTY FLAG
+00D650  2               
+00D650  2               ;allocation maps
+00D650  2               ;drive a
+00D650  2  xx xx xx xx  almpa:		.res	45
+00D654  2  xx xx xx xx  
+00D658  2  xx xx xx xx  
+00D67D  2               ;drive b
+00D67D  2  xx xx xx xx  almpb:		.res	254
+00D681  2  xx xx xx xx  
+00D685  2  xx xx xx xx  
+00D77B  2               ;drive c
+00D77B  2  xx xx xx xx  almpc:		.res	254
+00D77F  2  xx xx xx xx  
+00D783  2  xx xx xx xx  
+00D879  2               ;checksum maps
+00D879  2               
+00D879  2               
+00D879  2               ;drive a
+00D879  2  xx xx xx xx  ckmpa:		.res	32
+00D87D  2  xx xx xx xx  
+00D881  2  xx xx xx xx  
+00D899  2               ;drive b
+00D899  2  xx xx xx xx  ckmpb:		.res	128
+00D89D  2  xx xx xx xx  
+00D8A1  2  xx xx xx xx  
+00D919  2               ;drive c
+00D919  2  xx xx xx xx  ckmpc:		.res	128
+00D91D  2  xx xx xx xx  
+00D921  2  xx xx xx xx  
+00D999  2               ;deblocking buffer for dba
+00D999  2  xx xx xx xx  hstbuf:		.res	512		;256 or 512 byte sectors
+00D99D  2  xx xx xx xx  
+00D9A1  2  xx xx xx xx  
+00DB99  2               
+00DB99  1               
+00DB99  1               ;
+00DB99  1               ;                .segment "VECTORS"
+00DB99  1               ;NMIVECTOR:      .WORD   boot		;
+00DB99  1               ;RSTVECTOR:      .WORD   boot		;
+00DB99  1               ;INTVECTOR: 	.WORD   boot		; ROM VECTOR FOR IRQ
+00DB99  1               
+00DB99  1               	.end
