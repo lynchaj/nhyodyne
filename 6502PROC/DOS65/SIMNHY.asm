@@ -9,6 +9,8 @@ USEFLOPPYA 	= 	0	; SET TO ONE FOR FLOPPY = "A"
 USEFLOPPYB 	= 	0	; SET TO ONE FOR FLOPPY = "B"
 USEIDEC 	= 	1	; SET TO ONE FOR IDE HDD="C"
 USEDSKY 	= 	0	; SEND INFO TO DSKY
+USEDSKYNG 	= 	1	; SEND INFO TO DSKYNG
+DSKY_KBD	=	1	; USE DSKY KEYBOARD?
 DEFDRV  	=	2	; SET TO DEFAULT DRIVE LETTER
 USEDISKIOV1     = 	0	; Floppy and IDE card is  DISK IO V1
 USEDISKIOV3     = 	0	; Floppy and IDE card is  DISK IO V3
@@ -16,6 +18,7 @@ USEDISKIOV3     = 	0	; Floppy and IDE card is  DISK IO V3
 FLPA35		=	0	; set to 1 if floppy a is A 3.5" 80 track drive (0= 5.25" 40 track drive)
 FLPB35		=	0	; set to 1 if floppy a is B 3.5" 80 track drive (0= 5.25" 40 track drive)
 
+DSKYOSC         =	100000
 
 ;dos/65 system interface module (sim)
 ;version 3.00
@@ -135,6 +138,17 @@ setupl:	lda	inttbl,x	;get byte
   	JSR	DSKYINIT
   	JSR	SEGDISPLAY
   .ENDIF
+
+   .IF USEDSKYNG=1
+  	PRTDBG "Init DSKYNG$"
+  	JSR	DSKY_INIT
+  	JSR	DSKY_PUTLED
+	.BYTE 	$54,$6E,$5C,$5E,$6E,$54,$79,$40
+	JSR 	DSKY_BEEP
+  .ENDIF
+
+
+	BRK
 
 	lda	#DEFDRV		;set zero
 	jsr	seldsk		;and select drive zero
@@ -572,8 +586,13 @@ COPY_DOS_SECTOR1:
     .ENDIF
 
     .IF USEDSKY=1
-     .INCLUDE "DOS65\\DOSDSKY.ASM"
+     .INCLUDE "DOSDSKY.ASM"
     .ENDIF
+
+    .IF USEDSKYNG=1
+     .INCLUDE "DOSDSKYN.ASM"
+    .ENDIF
+
 
 ;------------------------------------------------------------------------------------
 
