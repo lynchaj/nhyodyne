@@ -692,12 +692,16 @@ VDU_LOADFONT_LOOP_1:
 ;
 ; 	INIT KEYBOARD CONTROLLER
 ;__________________________________________________________________________________________________
-KB_INITIALIZE:	
-	LD	C,0a7H			;
+KB_INITIALIZE:
+	LD	C,0aaH			; SELF TEST
 	CALL	I8242CommandPut		;
-	LD	C,0aeH			;
+	LD	C,060H			; SET COMMAND REGISTER
 	CALL	I8242CommandPut		;
-	LD	C,0aaH			;
+	LD	C,$60			; XLAT ENABLED, MOUSE DISABLED, NO INTS
+	CALL	I8242DataPut		;
+	LD	C,0a7H			; DISABLE MOUSE
+	CALL	I8242CommandPut		;
+	LD	C,0aeH			; ENABLE KEYBOARD
 	CALL	I8242CommandPut		;
 	LD	A,0			; EMPTY KB QUEUE
 	LD	(KB_QUEUE_PTR),A	; 
@@ -714,6 +718,19 @@ I8242CommandPut:
     	JR 	NZ,I8242CommandPut  	; wait for ready
 	LD	A,C			;
        	OUT 	(I8242Command),A      	; select register 
+	RET
+
+;__I8242DataPut____________________________________________________________________________________
+;
+; 	WRITE VALUE IN A TO 8242
+;	C: VALUE TO WRITE
+;__________________________________________________________________________________________________	
+I8242DataPut:
+	IN 	A,(I8242Status)         ; read status register
+    	BIT 	1,A             	; if bit 1 = 1 
+    	JR 	NZ,I8242DataPut  	; wait for ready
+	LD	A,C			;
+       	OUT 	(I8242Data),A      	; select register 
 	RET
 
 ;__WAIT_KBHIT______________________________________________________________________________________
@@ -1014,6 +1031,18 @@ normalkeys: ; The TI character codes, offset from label by keyboard scan code
 		.DB 000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000
 		.db 000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000
 		.db 000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000
+		
+		
+;		.DB	  0,"*",  0,"*","*","*","*","*",  0,"*","*","*","*",09H,"`",00H
+;		.DB   	  0,  0,  0,  0,  0,"q","1",  0,  0,  0,"z","s","a","w","2",0
+;		.DB   	  0,"c","x","d","e","4","3",  0,  0," ","v","f","t","r","5",0
+;		.DB   	  0,"n","b","h","g","y","6",  0,  0,  0,"m","j","u","7","8",0
+;		.DB   	  0,",","k","i","o","0","9",  0,  0,".","/","l",";","p","-",0
+;		.DB   	  0,  0,27H,  0,"[","=",  0,  0,  0,  0,0DH,"]",  0,5CH,  0,0
+;		.DB   	  0,  0,  0,  0,  0,  0,08H,  0,  0,11H,  0,13H,10H,  0,  0,  0
+;		.DB 	0BH,7FH,03H,15H,04H,05H,1BH,00H,"*",02H,18H,16H,0CH,17H,"*",0
+;		.DB   	  0,  0,  0,"*",  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
+
 	
  .include "font.asm"	
 
