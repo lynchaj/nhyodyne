@@ -11,6 +11,9 @@
 ;
 ; Additional help from https://isdaman.com/alsos/hardware/mouse/ps2interface.htm
 ;
+; Second PS/2 write data port info from 
+;   https://wiki.osdev.org/%228042%22_PS/2_Controller#Second_PS.2F2_Port 
+;
 ;=======================================================================
 ;
 ; Mouse controller port addresses (adjust as needed)
@@ -717,6 +720,16 @@ put_data:
 ; Put a data byte from A to the mouse interface with timeout
 ; CF set indicates timeout error
 ;
+; note: direct data to second PS/2 port, send $d4 to 8242 command register
+; different than keyboard which uses first PS/2 port
+
+	push	a			; save contents of a
+	ld	a,$d4			; direct to second PS/2 port for mouse
+	out	(iocmd),a		; send second port command to 8242
+	pop	a			; retrieve previous contents of a
+
+; rest of put_data is the same as for PS/2 keyboard
+
 	ld	e,a			; save incoming value
 	call	wait_write		; wait for controller ready
 	jr	z,put_data1		; if ready, move on
