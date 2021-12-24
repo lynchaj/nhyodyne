@@ -97,7 +97,8 @@ main:
 	call	crlf2
 	ld	de,str_trans_off
 	call	prtstr
-	ld	a,$60			; write to command register 0
+;	ld	a,$60			; write to command register 0
+	ld	a,$40			; write to command register 0, enable mouse
 	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	ld	a,$00			; xlat disabled, mouse enabled, no ints
@@ -465,11 +466,11 @@ test2:
 	call	get_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$FA			; Is it an ack as expected?
-	jp	nz,err_kbd_reset
+	jp	nz,err_mse_reset
 	call	get_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$AA			; Success?
-	jp	nz,err_kbd_reset
+	jp	nz,err_mse_reset
 	call	crlf
 	ld	de,str_mse_reset_ok
 	call	prtstr
@@ -477,7 +478,7 @@ test2:
 ; Identify keyboard
 ;
 	call	crlf2
-	ld	de,str_kbd_ident
+	ld	de,str_mse_ident
 	call	prtstr
 	ld	a,$f2			; Identify keyboard command
 	call	put_data_dbg
@@ -485,7 +486,7 @@ test2:
 	call	get_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$FA			; Is it an ack as expected?
-	jp	nz,err_kbd_ident
+	jp	nz,err_mse_ident
 	; Now we need to receive 0-2 bytes.  There is no way to know
 	; how many are coming, so we receive bytes until there is a
 	; timeout error.
@@ -502,7 +503,7 @@ ident_loop:
 	jr	ident_loop
 ident_done:
 	call	crlf
-	ld	de,str_kbd_ident_disp
+	ld	de,str_mse_ident_disp
 	call	prtstr
 	ld	a,'['
 	call	prtchr
@@ -523,7 +524,7 @@ ident_done2:
 ; Get active scan code set being used
 ;
 	call	crlf2
-	ld	de,str_kbd_getsc
+	ld	de,str_mse_getsc
 	call	prtstr
 	ld	a,$f0			; Keyboard get/set scan code
 	call	put_data_dbg
@@ -531,19 +532,19 @@ ident_done2:
 	call	get_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$FA			; Is it an ack as expected?
-	jp	nz,err_kbd_getsc
+	jp	nz,err_mse_getsc
 	ld	a,$00			; Get active scan code set
 	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	call	get_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$FA			; Is it an ack as expected?
-	jp	nz,err_kbd_getsc
+	jp	nz,err_mse_getsc
 	call	get_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	push	af
 	call	crlf
-	ld	de,str_kbd_dispsc
+	ld	de,str_mse_dispsc
 	call	prtstr
 	pop	af
 	call	prtdecb
@@ -551,7 +552,7 @@ ident_done2:
 ;;;; Set active scan code set to 2
 ;;;;
 ;;;	call	crlf2
-;;;	ld	de,str_kbd_setsc
+;;;	ld	de,str_mse_setsc
 ;;;	call	prtstr
 ;;;	ld	a,$f0			; Keyboard get/set scan code
 ;;;	call	put_data_dbg
@@ -559,19 +560,19 @@ ident_done2:
 ;;;	call	get_data_dbg
 ;;;	jp	c,err_ctlr_io		; handle controller error
 ;;;	cp	$FA			; Is it an ack as expected?
-;;;	jp	nz,err_kbd_getsc
+;;;	jp	nz,err_mse_getsc
 ;;;	ld	a,$02			; Set scan code set to 2
 ;;;	call	put_data_dbg
 ;;;	jp	c,err_ctlr_io		; handle controller error
 ;;;	call	get_data_dbg
 ;;;	jp	c,err_ctlr_io		; handle controller error
 ;;;	cp	$FA			; Is it an ack as expected?
-;;;	jp	nz,err_kbd_getsc
+;;;	jp	nz,err_mse_getsc
 ;;;;
 ;;;; Get active scan code set being used
 ;;;;
 ;;;	call	crlf2
-;;;	ld	de,str_kbd_getsc
+;;;	ld	de,str_mse_getsc
 ;;;	call	prtstr
 ;;;	ld	a,$f0			; Keyboard get/set scan code
 ;;;	call	put_data_dbg
@@ -579,19 +580,19 @@ ident_done2:
 ;;;	call	get_data_dbg
 ;;;	jp	c,err_ctlr_io		; handle controller error
 ;;;	cp	$FA			; Is it an ack as expected?
-;;;	jp	nz,err_kbd_getsc
+;;;	jp	nz,err_mse_getsc
 ;;;	ld	a,$00			; Get active scan code set
 ;;;	call	put_data_dbg
 ;;;	jp	c,err_ctlr_io		; handle controller error
 ;;;	call	get_data_dbg
 ;;;	jp	c,err_ctlr_io		; handle controller error
 ;;;	cp	$FA			; Is it an ack as expected?
-;;;	jp	nz,err_kbd_getsc
+;;;	jp	nz,err_mse_getsc
 ;;;	call	get_data_dbg
 ;;;	jp	c,err_ctlr_io		; handle controller error
 ;;;	push	af
 ;;;	call	crlf
-;;;	ld	de,str_kbd_dispsc
+;;;	ld	de,str_mse_dispsc
 ;;;	call	prtstr
 ;;;	pop	af
 ;;;	and	$0f
