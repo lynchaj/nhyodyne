@@ -144,7 +144,7 @@ setupl:	lda	inttbl,x	;get byte
   	JSR	DSKY_INIT
   	JSR	DSKY_PUTLED
 	.BYTE 	$54,$6E,$5C,$5E,$6E,$54,$79,$40
-	JSR 	DSKY_BEEP
+;	JSR 	DSKY_BEEP
   .ENDIF
 
 
@@ -153,8 +153,6 @@ setupl:	lda	inttbl,x	;get byte
 	lda	#DEFDRV		;set zero
 	jsr	seldsk		;and select drive zero
 	jsr	home		;home that drive
-
-	BRK
 
 	PRTDBG "Start CCM$"
 	jmp	ccm		;and go to ccm

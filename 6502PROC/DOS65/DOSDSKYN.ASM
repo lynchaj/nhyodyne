@@ -116,7 +116,6 @@ DSKY_INITA:
 ;____________________________________________________________________________________________________
 ; HARDWARE RESET 8279 BY PULSING RESET LINE
 DSKY_PREINIT:
-        PRTDBG "DSKY PREINIT:$"
 	; CHECK FOR PPI
 	JSR	DSKY_PPIDETECT		; TEST FOR PPI HARDWARE
         BNE     DSKY_ABORT      	; BAIL OUT IF NOT THERE
@@ -145,12 +144,10 @@ NOTDSKY_ABORT:
 	BNE     DSKY_ABORT			; BAIL OUT IF MISCOMPARE
 	LDA	#$FF
 	STA	DSKY_PRESENT
-        PRTDBG "DSKY DETECTED:$"
 DSKY_ABORT:
 	RTS
 ;
 DSKY_REINIT:
-        PRTDBG "DSKY REINIT:$"
 	JSR	DSKY_PPIIDLE
 	; SET CLOCK SCALER TO 20
 	LDA	#DSKY_CMD_CLK | DSKY_PRESCL
@@ -158,7 +155,6 @@ DSKY_REINIT:
 	; FALL THRU
 ;
 DSKY_RESET:
-        PRTDBG "DSKY RESET:$"
 	; RESET DSKY -- CLEAR RAM AND FIFO
 	LDA	#DSKY_CMD_CLR
 	JSR	DSKY_CMD
@@ -167,7 +163,6 @@ DSKY_RESET:
 	; DISPLAY RAM ARE INHIBITED.  HIGH BIT OF STATUS BYTE IS SET
 	; DURING THIS WINDOW.  TO PREVENT A DEADLOCK, A LOOP COUNTER
 	; IS USED TO IMPLEMENT A TIMEOUT.
-        PRTDBG "DSKY RESET DELAY:$"
 	LDX	#0			; TIMEOUT LOOP COUNTER
 DSKY_RESET1:
 	PHX     			; SAVE COUNTER
@@ -179,7 +174,6 @@ DSKY_RESET1:
         BNE     DSKY_RESET1		; LOOP TILL TIMEOUT
 ;
 DSKY_RESET2:
-        PRTDBG "DSKY RESET COMPLETE$"
 	RTS
 ;
 ;
@@ -197,7 +191,6 @@ DSKY_PPIDETECT:
 	; THEN THE BUS HOLD CIRCUITRY WILL READ BACK THE ZERO. SINCE
 	; WE ARE IN WRITE MODE, AN IDE CONTROLLER WILL NOT BE ABLE TO
 	; INTERFERE WITH THE VALUE BEING READ.
-        PRTDBG "DSKY PPIDETECT:$"
 	JSR	DSKY_PPIWR
 ;
 	LDA     #$00			; VALUE ZERO
@@ -458,7 +451,6 @@ DSKY_DIN:
 DSKY_DIN2:
 	; SET PPI LINE CONFIG TO READ MODE
 	JSR	DSKY_PPIRD
-        PRTDBG "DIN_CHECKPOINTA:$"
 ;
 	; SET ADDRESS FIRST
 	ORA	#DSKY_PPI_IDLE
@@ -475,7 +467,6 @@ DSKY_DIN2:
 	AND     #%11111011
 	STA	DSKY_PPIC
 ;
-        PRTDBG "DIN_CHECKPOINTB:$"
 
 	; GET VALUE
 	LDA	DSKY_PPIA
@@ -497,9 +488,8 @@ DSKY_DIN2:
 	STA	DSKY_PPIC
 ;
 	; DONE
-        PRTDBG "DIN_CHECKPOINTC:$"
 	JSR	DSKY_PPIIDLE
-        PRTDBG "DIN_CHECKPOINTD:$"
+        PLA
 	RTS
 
 ;__DSKY_BLANK_____________________________________________________________________________________
@@ -524,10 +514,9 @@ DSKY_BLANK1:
 ; WRITE A RAW BYTE VALUE TO DSKY DISPLAY RAM
 ; AT LOCATION IN REGISTER Y, VALUE IN A.
 ;
-;__DSKY_BEEP______________________________________________________________________________________
+;__________________________________________________________________________________________________
 ;
 DSKY_PUTBYTE:
-        PRTDBG "DSKY PUTBYTE:$"
         PHY
         PHA
         PHA
@@ -539,7 +528,6 @@ DSKY_PUTBYTE:
         PLA
 	EOR	#$FF
 	JSR	DSKY_DOUT
-        PRTDBG "DSKY PUTBYTED:$"
         PLA
         PLY
 	RTS
@@ -551,17 +539,13 @@ DSKY_PUTBYTE:
 ;_________________________________________________________________________________________________
 ;
 DSKY_GETBYTE:
-        PRTDBG "DSKY GETBYTE:$"
 	CLC
         TYA
 	ADC	#DSKY_CMD_RDSP
         TAY
-        PRTDBG "DSKY GETBYTEA:$"
 	JSR	DSKY_CMD
-        PRTDBG "DSKY GETBYTEB:$"
 	JSR	DSKY_DIN
 	EOR	#$FF
-        PRTDBG "DSKY GETBYTEC:$"
 	RTS
 
 ;
@@ -624,11 +608,12 @@ DSKY_BEEP:
 	PHY
         PHX
 	PHA
-	LDY 	#$0D
+	LDY 	#$0F
 	JSR	DSKY_GETBYTE
 	ORA 	#$20
-	LDY	#$0D
+	LDY	#$0F
 	JSR	DSKY_PUTBYTE
+
 ;;; 	timer . . .
 	LDX 	#$8F
         LDY     #$FF
@@ -638,10 +623,10 @@ DSKY_BEEP1:
         DEX
         BNE     DSKY_BEEP1
 
-	LDY 	#$0D
+	LDY 	#$0F
 	JSR	DSKY_GETBYTE
 	AND 	#$DF
-	LDY	#$0D
+	LDY	#$0F
 	JSR	DSKY_PUTBYTE
 
         PLA
@@ -722,7 +707,6 @@ DSKY_L2OFF:
 ;_________________________________________________________________________________________________
 ;
 DSKY_PPIWR:
-        PRTDBG "DSKY PPIWR:$"
 	PHA
 ;
 	; CHECK FOR WRITE MODE
@@ -741,7 +725,6 @@ DSKY_PPIWR:
 ;
 DSKY_PPIWR1:
 ;
-        PRTDBG "DSKY PPIWRD:$"
 	PLA
 	RTS
 ;
@@ -749,7 +732,6 @@ DSKY_PPIWR1:
 ; AVOID REWRTING PPIX IF ALREADY IN INPUT MODE
 ;
 DSKY_PPIRD:
-        PRTDBG "DSKY PPIRD:$"
 	PHA
 ;
 	; CHECK FOR READ MODE
@@ -764,13 +746,11 @@ DSKY_PPIRD:
 ;
 DSKY_PPIRD1:
 	PLA
-        PRTDBG "DSKY PPIRD_D:$"
 	RTS
 ;
 ; RELEASE USE OF PPI
 ;
 DSKY_PPIIDLE:
-        PRTDBG "DSKY PPIDLE:$"
 	JMP	DSKY_PPIRD		; SAME AS READ MODE
 ;
 ;__STORAGE_________________________________________________________________________________________
