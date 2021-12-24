@@ -9,6 +9,8 @@
 ; Based on Wayne Warthen's KBDINFO program, Thanks to his great work
 ; on RomWBW and support to the Retrobrewcomputers community at large
 ;
+; Additional help from https://isdaman.com/alsos/hardware/mouse/ps2interface.htm
+;
 ;=======================================================================
 ;
 ; Mouse controller port addresses (adjust as needed)
@@ -81,7 +83,7 @@ main:
 	ld	de,str_ctrl_test
 	call	prtstr
 	
-; Pass #1	
+; Reset Pass #1	
 	call	get_data_dbg		; Read Mouse for self-test status
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$AA			; expected value?
@@ -106,7 +108,7 @@ main:
 	ld	de,str_ctrl_test_ok
 	call	prtstr
 	
-; Pass #2
+; Reset Pass #2
 	call	get_data_dbg		; Read Mouse for self-test status
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$AA			; expected value?
@@ -131,7 +133,7 @@ main:
 	ld	de,str_ctrl_test_ok
 	call	prtstr
 
-; Pass #3
+; Reset Pass #3
 	call	get_data_dbg		; Read Mouse for self-test status
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$AA			; expected value?
