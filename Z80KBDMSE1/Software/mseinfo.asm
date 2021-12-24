@@ -72,9 +72,37 @@ main:
 	call	prtstr
 	ld	a,iodat
 	call	prthex
-
 ;
-; Attempt enable mouse with controller
+; Attempt self-test command on mouse controller
+;
+;   Mouse controller should respond with an 0x55 on data port
+;   after being sent a 0xAA on the command port.
+;
+	call	crlf2
+	ld	de,str_ctrl_test
+	call	prtstr
+	ld	a,$aa			; self-test command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	call	get_data_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$55			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+;
+; Disable translation on keyboard controller to get raw scan codes!
+;
+	call	crlf2
+	ld	de,str_trans_off
+	call	prtstr
+	ld	a,$60			; write to command register 0
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	ld	a,$00			; xlat disabled, mouse enabled, no ints
+	call	put_data_dbg
+	jp	c,err_ctlr_io		; handle controller error
 ;
 ;   Send 0xA8 Mouse Enable command to 8242 controller
 ;
@@ -87,10 +115,7 @@ main:
 	jp	c,err_ctlr_io		; handle controller error
 	
 ;
-; Attempt self-test command on mouse controller
-;
-;   Mouse should send an 0xAA "Self-test passed" on data port 
-;   and 0x00 "Mouse ID" after Power-on Reset.
+; Attempt three reset commands on mouse controller
 ;
 	call	crlf2
 	ld	de,str_ctrl_test
@@ -396,23 +421,6 @@ main:
 done:
 	ret
 
-
-
-
-
-	call	get_data_dbg		; Read Mouse for self-test status
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$AA			; expected value?
-	jp	nz,err_ctlr_test	; handle self-test error
-	call	crlf
-	
-	call	get_data_dbg		; Read Mouse for Mouse ID
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$00			; expected value?
-	jp	nz,err_ctlr_test	; handle self-test error
-	call	crlf
-	
-	
 ;
 ; Disable translation on keyboard controller to get raw scan codes!
 ;
