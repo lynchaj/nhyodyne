@@ -9,10 +9,14 @@
 ; Based on Wayne Warthen's KBDINFO program, Thanks to his great work
 ; on RomWBW and support to the Retrobrewcomputers community at large
 ;
-; Additional help from https://isdaman.com/alsos/hardware/mouse/ps2interface.htm
+; Additional help from these websites
+;   https://isdaman.com/alsos/hardware/mouse/ps2interface.htm
 ;
 ; Second PS/2 write data port info from 
-;   https://wiki.osdev.org/%228042%22_PS/2_Controller#Second_PS.2F2_Port 
+;   https://wiki.osdev.org/%228042%22_PS/2_Controller#Second_PS.2F2_Port
+;
+; PS/2 Mouse initialization code in C
+;   http://bos.asmhackers.net/docs/mouse/snippet_2/mouse.inc
 ;
 ;=======================================================================
 ;
@@ -95,6 +99,17 @@ main:
 	ld	de,str_ctrl_test_ok
 	call	prtstr
 ;
+;   Send 0xA8 Mouse Enable command to 8242 controller
+;
+	call	crlf2
+	ld	de,str_enable_mouse
+	call	prtstr
+	
+	ld	a,$a8			; Send Mouse Enable command to 8242
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+;
 ; Disable translation on keyboard controller to get raw scan codes!
 ;
 	call	crlf2
@@ -108,21 +123,10 @@ main:
 	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 ;
-;   Send 0xA8 Mouse Enable command to 8242 controller
-;
-	call	crlf2
-	ld	de,str_enable_mouse
-	call	prtstr
-	
-	ld	a,$a8			; Send Mouse Enable command to 8242
-	call	put_cmd_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	
-;
 ; Attempt three reset commands on mouse controller
 ;
 	call	crlf2
-	ld	de,str_mse_reset
+	ld	de,str_mse_init
 	call	prtstr
 	
 ; Reset Pass #1	
@@ -724,9 +728,15 @@ put_data:
 ; different than keyboard which uses first PS/2 port
 
 	push	af			; save contents of a
+	ld	e,a			; save incoming value
+	call	wait_write		; wait for controller ready
+	jr	z,put_data0		; if ready, move on
+	scf				; else, signal timeout error
+	ret				; and bail out
+put_data0:
 	ld	a,$d4			; direct to second PS/2 port for mouse
 	out	(iocmd),a		; send second port command to 8242
-	pop	af			; retrieve previous contents of a
+	pop	af
 
 ; rest of put_data is the same as for PS/2 keyboard
 
@@ -760,12 +770,18 @@ get_data:
 ;
 ; note: direct data to second PS/2 port, send $d4 to 8242 command register
 ; different than keyboard which uses first PS/2 port
-
-	push	af			; save contents of a
-	ld	a,$d4			; direct to second PS/2 port for mouse
-	out	(iocmd),a		; send second port command to 8242
-	pop	af			; retrieve previous contents of a
-
+;
+;	push	af			; save contents of a
+;	ld	e,a			; save incoming value
+;	call	wait_write		; wait for controller ready
+;	jr	z,get_data0		; if ready, move on
+;	scf				; else, signal timeout error
+;	ret				; and bail out
+;get_data0:
+;	ld	a,$d4			; direct to second PS/2 port for mouse
+;	out	(iocmd),a		; send second port command to 8242
+;	pop	af
+;
 ; rest of get_data is the same as for PS/2 keyboard
 
 	call	wait_read		; wait for byte to be ready
@@ -1025,7 +1041,7 @@ str_put_cmd		.db	"Sent Command 0x",0
 str_put_data		.db	"Sent Data 0x",0
 str_get_data		.db	"Got Data 0x",0
 str_ctrl_test		.db	"Attempting Controller Self-Test",0
-str_mse_reset		.db	"Attempting Mouse Initialization",0
+str_mse_init		.db	"Attempting Mouse Initialization",0
 str_enable_mouse	.db	"Enabling Mouse in 8242 Controller",0
 str_ctrl_test_ok	.db	"Controller Self-Test OK",0
 str_trans_off		.db	"Disabling Controller Translation",0
