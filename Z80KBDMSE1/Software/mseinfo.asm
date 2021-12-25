@@ -122,7 +122,7 @@ main:
 ; Attempt three reset commands on mouse controller
 ;
 	call	crlf2
-	ld	de,str_ctrl_test
+	ld	de,str_mse_reset
 	call	prtstr
 	
 ; Reset Pass #1	
@@ -723,10 +723,10 @@ put_data:
 ; note: direct data to second PS/2 port, send $d4 to 8242 command register
 ; different than keyboard which uses first PS/2 port
 
-	push	a			; save contents of a
+	push	af			; save contents of a
 	ld	a,$d4			; direct to second PS/2 port for mouse
 	out	(iocmd),a		; send second port command to 8242
-	pop	a			; retrieve previous contents of a
+	pop	af			; retrieve previous contents of a
 
 ; rest of put_data is the same as for PS/2 keyboard
 
@@ -757,6 +757,17 @@ put_data_dbg:
 ; CF set indicates timeout error
 ;
 get_data:
+;
+; note: direct data to second PS/2 port, send $d4 to 8242 command register
+; different than keyboard which uses first PS/2 port
+
+	push	af			; save contents of a
+	ld	a,$d4			; direct to second PS/2 port for mouse
+	out	(iocmd),a		; send second port command to 8242
+	pop	af			; retrieve previous contents of a
+
+; rest of get_data is the same as for PS/2 keyboard
+
 	call	wait_read		; wait for byte to be ready
 	jr	z,get_data1		; if ready, move on
 	scf				; else signal timeout error
@@ -1014,6 +1025,7 @@ str_put_cmd		.db	"Sent Command 0x",0
 str_put_data		.db	"Sent Data 0x",0
 str_get_data		.db	"Got Data 0x",0
 str_ctrl_test		.db	"Attempting Controller Self-Test",0
+str_mse_reset		.db	"Attempting Mouse Initialization",0
 str_enable_mouse	.db	"Enabling Mouse in 8242 Controller",0
 str_ctrl_test_ok	.db	"Controller Self-Test OK",0
 str_trans_off		.db	"Disabling Controller Translation",0
