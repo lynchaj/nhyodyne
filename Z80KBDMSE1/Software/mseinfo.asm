@@ -770,18 +770,18 @@ get_data:
 ;
 ; note: direct data to second PS/2 port, send $d4 to 8242 command register
 ; different than keyboard which uses first PS/2 port
-
-	push	af			; save contents of a
-	ld	e,a			; save incoming value
-	call	wait_write		; wait for controller ready
-	jr	z,get_data0		; if ready, move on
-	scf				; else, signal timeout error
-	ret				; and bail out
-get_data0:
-	ld	a,$d4			; direct to second PS/2 port for mouse
-	out	(iocmd),a		; send second port command to 8242
-	pop	af
-
+;
+;	push	af			; save contents of a
+;	ld	e,a			; save incoming value
+;	call	wait_write		; wait for controller ready
+;	jr	z,get_data0		; if ready, move on
+;	scf				; else, signal timeout error
+;	ret				; and bail out
+;get_data0:
+;	ld	a,$d4			; direct to second PS/2 port for mouse
+;	out	(iocmd),a		; send second port command to 8242
+;	pop	af
+;
 ; rest of get_data is the same as for PS/2 keyboard
 
 	call	wait_read		; wait for byte to be ready
