@@ -9,10 +9,14 @@
 ; Based on Wayne Warthen's KBDINFO program, Thanks to his great work
 ; on RomWBW and support to the Retrobrewcomputers community at large
 ;
-; Additional help from https://isdaman.com/alsos/hardware/mouse/ps2interface.htm
+; Additional help from these websites
+;   https://isdaman.com/alsos/hardware/mouse/ps2interface.htm
 ;
 ; Second PS/2 write data port info from 
-;   https://wiki.osdev.org/%228042%22_PS/2_Controller#Second_PS.2F2_Port 
+;   https://wiki.osdev.org/%228042%22_PS/2_Controller#Second_PS.2F2_Port
+;
+; PS/2 Mouse initialization code in C
+;   http://bos.asmhackers.net/docs/mouse/snippet_2/mouse.inc
 ;
 ;=======================================================================
 ;
