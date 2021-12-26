@@ -110,7 +110,7 @@ main:
 	jp	c,err_ctlr_io		; handle controller error
 	
 ;
-; Disable translation on keyboard controller to get raw scan codes!
+; Disable translation on keyboard controller to get raw scan codes!  Enable Mouse
 ;
 	call	crlf2
 	ld	de,str_trans_off
@@ -118,7 +118,8 @@ main:
 	ld	a,$60			; write to command register 0
 	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
-	ld	a,$20			; xlat disabled, mouse disabled, no ints
+;	ld	a,$20			; xlat disabled, mouse disabled, no ints
+	ld	a,$00			; xlat disabled, mouse enabled, no ints
 	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 
