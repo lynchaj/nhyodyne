@@ -469,6 +469,8 @@ ReadMousePackets:
 	jp	c,err_ctlr_io		; handle controller error
 	call	crlf
 	
+	call	crlf
+	
 	jp	ReadMousePackets
 
 ;
