@@ -316,7 +316,15 @@ main:
 
 	call	get_data_dbg		; Read Mouse for Mouse ID
 	jp	c,err_ctlr_io		; handle controller error
-	cp	$00			; expected value? ($03 if Microsoft Scrolling Mouse)
+	cp	$03					; detect MS Intellimouse/Microsoft Scrolling Mouse
+	jp	z,Intellimouse	
+	cp	$00			; expected value? ($00 if Regular PS/2 Mouse)
+	jp	z,ReadMouseID
+Intellimouse:	
+	call	crlf
+	ld	de,str_intellimouse_ok
+	call	prtstr
+ReadMouseID:
 	jp	nz,err_ctlr_test	; handle self-test error
 	call	crlf
 	
@@ -358,10 +366,19 @@ main:
 
 	call	get_data_dbg		; Read Mouse for Mouse ID
 	jp	c,err_ctlr_io		; handle controller error
-	cp	$00			; expected value? ($03 if Microsoft Scrolling Mouse)
+	cp	$03					; detect MS Intellimouse/Microsoft Scrolling Mouse
+	jp	z,Intellimouse2	
+	cp	$00			; expected value? ($00 if Regular PS/2 Mouse)
+	jp	z,ReadMouseID2
+Intellimouse2:	
+	call	crlf
+	ld	de,str_intellimouse_ok
+	call	prtstr
+ReadMouseID2:
 	jp	nz,err_ctlr_test	; handle self-test error
 	call	crlf
-	
+
+
 	ld	a,$e8			; Send Set Resolution command
 	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
@@ -834,6 +851,7 @@ str_ctrl_test		.db	"Attempting Controller Self-Test",0
 str_mse_init		.db	"Attempting Mouse Initialization",0
 str_enable_mouse	.db	"Enabling Mouse in 8242 Controller",0
 str_ctrl_test_ok	.db	"Controller Self-Test OK",0
+str_intellimouse_ok	.db	"MS Intellimouse OK",0
 str_trans_off		.db	"Disabling Controller Translation",0
 str_trans_on		.db	"Enabling Controller Translation",0
 str_mse_reset		.db	"Attempting Mouse Reset",0
