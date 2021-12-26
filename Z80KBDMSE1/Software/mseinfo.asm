@@ -118,9 +118,8 @@ main:
 	ld	a,$60			; write to command register 0
 	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
-;	ld	a,$20			; xlat disabled, mouse disabled, no ints
 	ld	a,$00			; xlat disabled, mouse enabled, no ints
-	call	put_data_dbg
+	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
 
 ; Attempt four reset commands on mouse controller
