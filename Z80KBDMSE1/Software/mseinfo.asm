@@ -110,40 +110,27 @@ main:
 	jp	c,err_ctlr_io		; handle controller error
 	
 ;
-; Disable translation on keyboard controller to get raw scan codes!
+; Disable translation on keyboard controller to get raw scan codes!  Enable Mouse
 ;
 	call	crlf2
 	ld	de,str_trans_off
 	call	prtstr
-;	ld	a,$60			; write to command register 0
-	ld	a,$40			; write to command register 0, enable mouse
+	ld	a,$60			; write to command register 0
 	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	ld	a,$00			; xlat disabled, mouse enabled, no ints
-	call	put_data_dbg
+	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
-;
-; Attempt three reset commands on mouse controller
+
+; Attempt four reset commands on mouse controller
 ;
 	call	crlf2
 	ld	de,str_mse_init
 	call	prtstr
 	
 ; Reset Pass #1	
-	call	get_data_dbg		; Read Mouse for self-test status
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$AA			; expected value?
-	jp	nz,err_ctlr_test	; handle self-test error
-	call	crlf
-	
-	call	get_data_dbg		; Read Mouse for Mouse ID
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$00			; expected value?
-	jp	nz,err_ctlr_test	; handle self-test error
-	call	crlf
-	
 	ld	a,$ff			; Send Mouse Reset command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -154,7 +141,6 @@ main:
 	ld	de,str_ctrl_test_ok
 	call	prtstr
 	
-; Reset Pass #2
 	call	get_data_dbg		; Read Mouse for self-test status
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$AA			; expected value?
@@ -167,8 +153,34 @@ main:
 	jp	nz,err_ctlr_test	; handle self-test error
 	call	crlf
 	
+; Reset Pass #2
 	ld	a,$ff			; Send Mouse Reset command
-	call	put_cmd_dbg
+	call	put_data_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+	
+	call	get_data_dbg		; Read Mouse for self-test status
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$AA			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$00			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+; Reset Pass #3
+	ld	a,$ff			; Send Mouse Reset command
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -179,7 +191,6 @@ main:
 	ld	de,str_ctrl_test_ok
 	call	prtstr
 
-; Reset Pass #3
 	call	get_data_dbg		; Read Mouse for self-test status
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$AA			; expected value?
@@ -192,8 +203,9 @@ main:
 	jp	nz,err_ctlr_test	; handle self-test error
 	call	crlf
 	
+; Reset Pass #4
 	ld	a,$ff			; Send Mouse Reset command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -204,7 +216,6 @@ main:
 	ld	de,str_ctrl_test_ok
 	call	prtstr
 	
-; Done with Resets, start commanding Mouse
 	call	get_data_dbg		; Read Mouse for self-test status
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$AA			; expected value?
@@ -220,7 +231,7 @@ main:
 ; Begin setting mouse parameters, Request Microsoft Scrolling Mouse Mode
 
 	ld	a,$f3			; Send Set Sample Rate command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -232,7 +243,7 @@ main:
 	call	prtstr
 
 	ld	a,$c8			; Send Decimal 200 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -244,7 +255,7 @@ main:
 	call	prtstr
 
 	ld	a,$f3			; Send Set Sample Rate command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -256,7 +267,7 @@ main:
 	call	prtstr
 
 	ld	a,$64			; Send Decimal 100 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -268,7 +279,7 @@ main:
 	call	prtstr
 
 	ld	a,$f3			; Send Set Sample Rate command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -280,7 +291,7 @@ main:
 	call	prtstr
 
 	ld	a,$50			; Send Decimal 80 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -292,7 +303,7 @@ main:
 	call	prtstr
 
 	ld	a,$f2			; Send Read Device Type command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -305,12 +316,20 @@ main:
 
 	call	get_data_dbg		; Read Mouse for Mouse ID
 	jp	c,err_ctlr_io		; handle controller error
-	cp	$00			; expected value? ($03 if Microsoft Scrolling Mouse)
+	cp	$03					; detect MS Intellimouse/Microsoft Scrolling Mouse
+	jp	z,Intellimouse	
+	cp	$00			; expected value? ($00 if Regular PS/2 Mouse)
+	jp	z,ReadMouseID
+Intellimouse:	
+	call	crlf
+	ld	de,str_intellimouse_ok
+	call	prtstr
+ReadMouseID:
 	jp	nz,err_ctlr_test	; handle self-test error
 	call	crlf
 	
 	ld	a,$f3			; Send Set Sample Rate command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -322,7 +341,7 @@ main:
 	call	prtstr
 
 	ld	a,$0a			; Send Decimal 10 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -334,7 +353,7 @@ main:
 	call	prtstr
 
 	ld	a,$f2			; Send Read Device Type command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -347,12 +366,21 @@ main:
 
 	call	get_data_dbg		; Read Mouse for Mouse ID
 	jp	c,err_ctlr_io		; handle controller error
-	cp	$00			; expected value? ($03 if Microsoft Scrolling Mouse)
+	cp	$03					; detect MS Intellimouse/Microsoft Scrolling Mouse
+	jp	z,Intellimouse2	
+	cp	$00			; expected value? ($00 if Regular PS/2 Mouse)
+	jp	z,ReadMouseID2
+Intellimouse2:	
+	call	crlf
+	ld	de,str_intellimouse_ok
+	call	prtstr
+ReadMouseID2:
 	jp	nz,err_ctlr_test	; handle self-test error
 	call	crlf
-	
+
+
 	ld	a,$e8			; Send Set Resolution command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -364,7 +392,7 @@ main:
 	call	prtstr
 
 	ld	a,$03			; Send 8 Counts/mm command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -376,7 +404,7 @@ main:
 	call	prtstr
 
 	ld	a,$e6			; Send Set Scaling 1:1 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -388,7 +416,7 @@ main:
 	call	prtstr
 
 	ld	a,$f3			; Send Set Sample Rate command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -400,7 +428,7 @@ main:
 	call	prtstr
 
 	ld	a,$28			; Send Decimal 40 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -412,7 +440,7 @@ main:
 	call	prtstr
 
 	ld	a,$f4			; Send Enable command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -428,211 +456,6 @@ main:
 ;
 done:
 	ret
-
-;
-; Disable translation on keyboard controller to get raw scan codes!
-;
-	call	crlf2
-	ld	de,str_trans_off
-	call	prtstr
-	ld	a,$60			; write to command register 0
-	call	put_cmd_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	ld	a,$20			; xlat disabled, mouse disabled, no ints
-	call	put_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-;
-;
-;
-	call	test2
-;
-; Enable translation on keyboard controller
-;
-	call	crlf2
-	ld	de,str_trans_on
-	call	prtstr
-	ld	a,$60			; write to command register 0
-	call	put_cmd_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	ld	a,$60			; xlat disabled, mouse disabled, no ints
-	call	put_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-;
-	; fall thru
-;
-test2:
-;
-; Perform a keyboard reset
-;
-	call	crlf2
-;	ld	de,str_mse_reset
-	call	prtstr
-	ld	a,$ff			; Keyboard reset
-	call	put_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	call	get_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$FA			; Is it an ack as expected?
-	jp	nz,err_mse_reset
-	call	get_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$AA			; Success?
-	jp	nz,err_mse_reset
-	call	crlf
-	ld	de,str_mse_reset_ok
-	call	prtstr
-;
-; Identify keyboard
-;
-	call	crlf2
-	ld	de,str_mse_ident
-	call	prtstr
-	ld	a,$f2			; Identify keyboard command
-	call	put_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	call	get_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$FA			; Is it an ack as expected?
-	jp	nz,err_mse_ident
-	; Now we need to receive 0-2 bytes.  There is no way to know
-	; how many are coming, so we receive bytes until there is a
-	; timeout error.
-	ld	ix,workbuf
-	ld	iy,workbuf_len
-	xor	a
-	ld	(iy),a
-ident_loop:	
-	call	get_data_dbg
-	jr	c,ident_done
-	ld	(ix),a
-	inc	ix
-	inc	(iy)
-	jr	ident_loop
-ident_done:
-	call	crlf
-	ld	de,str_mse_ident_disp
-	call	prtstr
-	ld	a,'['
-	call	prtchr
-	ld	ix,workbuf
-	ld	b,(iy)
-	xor	a
-	cp	b
-	jr	z,ident_done2
-ident_done1:
-	ld	a,(ix)
-	call	prthex
-	inc	ix
-	djnz	ident_done1
-ident_done2:
-	ld	a,']'
-	call	prtchr
-;
-; Get active scan code set being used
-;
-	call	crlf2
-	ld	de,str_mse_getsc
-	call	prtstr
-	ld	a,$f0			; Keyboard get/set scan code
-	call	put_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	call	get_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$FA			; Is it an ack as expected?
-	jp	nz,err_mse_getsc
-	ld	a,$00			; Get active scan code set
-	call	put_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	call	get_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$FA			; Is it an ack as expected?
-	jp	nz,err_mse_getsc
-	call	get_data_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	push	af
-	call	crlf
-	ld	de,str_mse_dispsc
-	call	prtstr
-	pop	af
-	call	prtdecb
-;;;;
-;;;; Set active scan code set to 2
-;;;;
-;;;	call	crlf2
-;;;	ld	de,str_mse_setsc
-;;;	call	prtstr
-;;;	ld	a,$f0			; Keyboard get/set scan code
-;;;	call	put_data_dbg
-;;;	jp	c,err_ctlr_io		; handle controller error
-;;;	call	get_data_dbg
-;;;	jp	c,err_ctlr_io		; handle controller error
-;;;	cp	$FA			; Is it an ack as expected?
-;;;	jp	nz,err_mse_getsc
-;;;	ld	a,$02			; Set scan code set to 2
-;;;	call	put_data_dbg
-;;;	jp	c,err_ctlr_io		; handle controller error
-;;;	call	get_data_dbg
-;;;	jp	c,err_ctlr_io		; handle controller error
-;;;	cp	$FA			; Is it an ack as expected?
-;;;	jp	nz,err_mse_getsc
-;;;;
-;;;; Get active scan code set being used
-;;;;
-;;;	call	crlf2
-;;;	ld	de,str_mse_getsc
-;;;	call	prtstr
-;;;	ld	a,$f0			; Keyboard get/set scan code
-;;;	call	put_data_dbg
-;;;	jp	c,err_ctlr_io		; handle controller error
-;;;	call	get_data_dbg
-;;;	jp	c,err_ctlr_io		; handle controller error
-;;;	cp	$FA			; Is it an ack as expected?
-;;;	jp	nz,err_mse_getsc
-;;;	ld	a,$00			; Get active scan code set
-;;;	call	put_data_dbg
-;;;	jp	c,err_ctlr_io		; handle controller error
-;;;	call	get_data_dbg
-;;;	jp	c,err_ctlr_io		; handle controller error
-;;;	cp	$FA			; Is it an ack as expected?
-;;;	jp	nz,err_mse_getsc
-;;;	call	get_data_dbg
-;;;	jp	c,err_ctlr_io		; handle controller error
-;;;	push	af
-;;;	call	crlf
-;;;	ld	de,str_mse_dispsc
-;;;	call	prtstr
-;;;	pop	af
-;;;	and	$0f
-;;;	call	prtdecb
-;
-; Read and display raw scan codes
-;
-	call	crlf2
-	ld	de,str_disp_scan_codes
-	call	prtstr
-read_loop:
-	ld	c,$06			; BDOS direct console I/O
-	ld	e,$FF			; Subfunction = read
-	call	bdos
-	cp	$1B			; Escape key?
-	jp	z,done
-	call	check_read
-	jr	nz,read_loop
-	call	get_data
-	jp	c,err_ctlr_io		; handle controller error
-	push	af
-	ld	a,' '
-	call	prtchr
-	ld	a,'['
-	call	prtchr
-	pop	af
-	call	prthex
-	ld	a,']'
-	call	prtchr
-	jr	read_loop
-
-;done:
-;	ret
 
 ;
 ;=======================================================================
@@ -768,22 +591,6 @@ put_data_dbg:
 ;
 get_data:
 ;
-; note: direct data to second PS/2 port, send $d4 to 8242 command register
-; different than keyboard which uses first PS/2 port
-;
-;	push	af			; save contents of a
-;	ld	e,a			; save incoming value
-;	call	wait_write		; wait for controller ready
-;	jr	z,get_data0		; if ready, move on
-;	scf				; else, signal timeout error
-;	ret				; and bail out
-;get_data0:
-;	ld	a,$d4			; direct to second PS/2 port for mouse
-;	out	(iocmd),a		; send second port command to 8242
-;	pop	af
-;
-; rest of get_data is the same as for PS/2 keyboard
-
 	call	wait_read		; wait for byte to be ready
 	jr	z,get_data1		; if ready, move on
 	scf				; else signal timeout error
@@ -1044,23 +851,24 @@ str_ctrl_test		.db	"Attempting Controller Self-Test",0
 str_mse_init		.db	"Attempting Mouse Initialization",0
 str_enable_mouse	.db	"Enabling Mouse in 8242 Controller",0
 str_ctrl_test_ok	.db	"Controller Self-Test OK",0
+str_intellimouse_ok	.db	"MS Intellimouse OK",0
 str_trans_off		.db	"Disabling Controller Translation",0
 str_trans_on		.db	"Enabling Controller Translation",0
 str_mse_reset		.db	"Attempting Mouse Reset",0
 str_mse_reset_ok	.db	"Mouse Reset OK",0
 str_err_mse_reset	.db	"Mouse Reset Failed",0
 
-str_mse_getsc		.db	"Requesting Active Scan Code Set from Keyboard",0
-str_mse_dispsc		.db	"Active Keyboard Scan Code Set is ",0
+;str_mse_getsc		.db	"Requesting Active Scan Code Set from Mouse",0
+;str_mse_dispsc		.db	"Active Keyboard Scan Code Set is ",0
 str_err_mse_getsc	.db	"Error getting active keyboard scan code set",0
-str_mse_setsc		.db	"Setting Active Keyboard Scan Code Set",0
+;str_mse_setsc		.db	"Setting Active Keyboard Scan Code Set",0
 str_err_mse_setsc	.db	"Error setting keyboard scan code set",0
-str_mse_ident		.db	"Keyboard Identification",0
-str_mse_ident_disp	.db	"Keyboard Identify: ",0
+;str_mse_ident		.db	"Mouse Identification",0
+;str_mse_ident_disp	.db	"Keyboard Identify: ",0
 str_err_mse_ident	.db	"Error performing Keyboard Identification",0
-str_disp_scan_codes	.db	"Displaying Raw Scan Codes",13,10
-			.db	"  Press keys on keyboard to display scan codes",13,10
-			.db	"  Press <esc> on CP/M console to end",13,10,13,10,0
+;str_disp_scan_codes	.db	"Displaying Raw Scan Codes",13,10
+;			.db	"  Press keys on keyboard to display scan codes",13,10
+;			.db	"  Press <esc> on CP/M console to end",13,10,13,10,0
 ;
 ;=======================================================================
 ; Working data
@@ -1075,5 +883,4 @@ workbuf_len	.db	0
 ;
 ;=======================================================================
 ;
-	.end
-  
+	.end  
