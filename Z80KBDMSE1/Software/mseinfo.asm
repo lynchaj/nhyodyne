@@ -108,19 +108,33 @@ main:
 	ld	a,$a8			; Send Mouse Enable command to 8242
 	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
+
+	call	get_data_dbg		; Read Mouse for self-test status
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$AA			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$00			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+
 	
 ;
 ; Disable translation on keyboard controller to get raw scan codes!  Enable Mouse
 ;
-	call	crlf2
-	ld	de,str_trans_off
-	call	prtstr
-	ld	a,$60			; write to command register 0
-	call	put_cmd_dbg
-	jp	c,err_ctlr_io		; handle controller error
-	ld	a,$00			; xlat disabled, mouse enabled, no ints
-	call	put_cmd_dbg
-	jp	c,err_ctlr_io		; handle controller error
+;	call	crlf2
+;	ld	de,str_trans_off
+;	call	prtstr
+;	ld	a,$60			; write to command register 0
+;	call	put_cmd_dbg
+;	jp	c,err_ctlr_io		; handle controller error
+;	ld	a,$00			; xlat disabled, mouse enabled, no ints
+;	call	put_cmd_dbg
+;	jp	c,err_ctlr_io		; handle controller error
 
 ; Attempt four reset commands on mouse controller
 ;
@@ -454,8 +468,8 @@ ReadMouseID2:
 
 ReadMousePackets:
 
-	call	check_read
-	jp	nz, ReadMousePackets
+;	call	check_read
+;	jp	nz, ReadMousePackets
 
 	call	get_data_dbg		; Read Mouse for self-test status
 	jp	c,err_ctlr_io		; handle controller error
@@ -879,3 +893,4 @@ workbuf_len	.db	0
 ;=======================================================================
 ;
 	.end
+	
