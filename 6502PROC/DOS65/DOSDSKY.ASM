@@ -1,5 +1,5 @@
 
-	
+
 ;__DSKY DRIVERS___________________________________________________________________________________________________________________
 ;
 ; 	DOS DSKY drivers for DSKY attached to the 6502 io card
@@ -12,57 +12,41 @@
 ;* HARDWARE I/O ADDRESSES
 ;*
 
-
-	.IF ORIGINAL6X0X=1
-PORTA	.EQU 	$F01F
-PORTB	.EQU 	$F010
-PORTC	.EQU 	$F02F	
-
-DDRA	.EQU 	$F013
-DDRB	.EQU 	$F012
-DDRC	.EQU 	$F023
-	.ENDIF
-	
-	
-	  .IF COLOSSUS6X0X=1
-DDRA		.EQU 	M6X0X_IOSPACE+$CF3
-DDRB		.EQU 	M6X0X_IOSPACE+$CF2
-DDRC		.EQU 	M6X0X_IOSPACE+$DF3
-DDRD		.EQU 	M6X0X_IOSPACE+$DF2
-PORTA		.EQU 	M6X0X_IOSPACE+$CFF
-PORTB		.EQU 	M6X0X_IOSPACE+$CF0
-PORTC		.EQU 	M6X0X_IOSPACE+$DFF
-PORTD		.EQU 	M6X0X_IOSPACE+$DF0
-	.ENDIF
+PPI		=	$0360		; PORT A
+PORTA		=	PPI+0		;
+PORTB		=	PPI+1		;
+PORTC		=	PPI+2		;
+PPIX		=	PPI+3		; CONTROL BYTE PPI 82C55
 
 
-	
+
+
+
 ;__DSKYINIT__________________________________________________________________________________________
 ;
 ;  SETUP DSKY
-;     
+;
 ;____________________________________________________________________________________________________
 DSKYINIT:
-	LDA	#$FF			;
-	STA	DDRA			;
-	STA	DDRC			;
-	LDA	#$00			;
-	STA	DDRB			;
-	RTS	
-	
-	
+	LDA	#$80			;
+	STA	PPIX			; PA OUT, PB OUT, PC OUT
+	LDA	#$70			;
+	STA	PORTC			;
+	RTS
+
+
 ;__HEXDISPLAY________________________________________________________________________________________
 ;
 ;  Display contents of DISPLAYBUF in decoded Hex bits 0-3 are displayed dig, bit 7 is DP
-;     
+;
 ;____________________________________________________________________________________________________
 HEXDISPLAY:
 	STA	DBGA
-	STY	DBGY	
+	STY	DBGY
 	STX	DBGX
-	
+
 	JSR	DSKYTRANSDISPLAY
-	
+
 	LDX	#$08			; SET DIGIT COUNT
 	LDA	#$40			; set Control port 7218 to off
 	STA	PORTC			; output
@@ -74,7 +58,7 @@ HEXDISPLAY:
 	JSR 	PAUSE			; wait
 	LDA	#$40			; set Control port 7218 to off
 	STA	PORTC			; output
-HEXDISPLAY_LP:		
+HEXDISPLAY_LP:
 	LDA	DISPLAYBUF-1,X		; GET DISPLAY DIGIT
 	JSR	DECODEDISPLAY		; DECODE DISPLAY
 	STA	PORTA			; OUT TO PORTA
@@ -87,14 +71,14 @@ HEXDISPLAY_LP:
 	DEX				; INC POINTER
 	BNE	HEXDISPLAY_LP		; LOOP FOR NEXT DIGIT
 	LDA	DBGA
-	LDY	DBGY	
+	LDY	DBGY
 	LDX	DBGX
 	RTS				;
 
 ;__DECODEDISPLAY_____________________________________________________________________________________
 ;
 ;  Display contents of DISPLAYBUF in decoded Hex bits 0-3 are displayed dig, bit 7 is DP
-;     
+;
 ;____________________________________________________________________________________________________
 DECODEDISPLAY:
 	PHA
@@ -113,11 +97,11 @@ DECODEDISPLAY:
 ;__SEGDISPLAY________________________________________________________________________________________
 ;
 ;  Display contents of DISPLAYBUF in RAW dig, bit 7 is DP
-;     
+;
 ;____________________________________________________________________________________________________
 SEGDISPLAY:
 	STA	DBGA
-	STY	DBGY	
+	STY	DBGY
 	STX	DBGX
 	LDX	#$08			; SET DIGIT COUNT
 	LDA	#$40			; set Control port 7218 to off
@@ -130,7 +114,7 @@ SEGDISPLAY:
 	JSR 	PAUSE			; wait
 	LDA	#$40			; set Control port 7218 to off
 	STA	PORTC			; output
-SEGDISPLAY_LP:		
+SEGDISPLAY_LP:
 	LDA	DISPLAYBUF-1,X		; GET DISPLAY DIGIT
 	STA	PORTA			; OUT TO PORTA
 	LDA	#$00			; SET WRITE STROBE
@@ -142,16 +126,16 @@ SEGDISPLAY_LP:
 	DEX				; INC POINTER
 	BNE	SEGDISPLAY_LP		; LOOP FOR NEXT DIGIT
 	LDA	DBGA
-	LDY	DBGY	
+	LDY	DBGY
 	LDX	DBGX
-	RTS				; RESTORE 
+	RTS				; RESTORE
 
-	
-	
+
+
 ;__DSKYTRANSDISPLAY__________________________________________________________________________________
 ;
 ;  TRANSLATE DSKYDISPLAY TO DISPLAYBUF
-;     
+;
 ;____________________________________________________________________________________________________
 DSKYTRANSDISPLAY:
 	LDY	#$07			; SET DIGIT COUNT
@@ -161,7 +145,7 @@ DSKYTRANSDISPLAY_LOOP:
     	LSR	A
    	LSR	A
     	LSR	A
-	LSR	A	
+	LSR	A
  	STA	DISPLAYBUF,Y
     	DEY
 	LDA	DSKYDISPLAY,X
@@ -172,29 +156,27 @@ DSKYTRANSDISPLAY_LOOP:
   	TXA
  	CMP	#$04
   	BNE	DSKYTRANSDISPLAY_LOOP
-    	RTS		
-    	
+    	RTS
+
 PAUSE:
 	PHA
 	PLA
-	RTS    	
-    	
-DBGX		.DB 0		
-DBGY		.DB 0		
-DBGA		.DB 0		
-XREG		.DB 0	
-ACC		.DB 0		
+	RTS
 
-	
+DBGX		.DB 0
+DBGY		.DB 0
+DBGA		.DB 0
+XREG		.DB 0
+ACC		.DB 0
+
+
 DISPLAYBUF:	.DB 	$84,$EE,$BB,$80,$BB,$EE,$CB,$84
 DSKYDISPLAY:	.DB	$23,$45,$67,$89
 
 ;_HEX 7_SEG_DECODE_TABLE__________________________________________________________________________________________________
-; 
+;
 ; 0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F, ,-
-; AND WITH 7FH TO TURN ON DP 
+; AND WITH 7FH TO TURN ON DP
 ;_________________________________________________________________________________________________________________________
 SEGDECODE:
 	.BYTE	$FB,$B0,$ED,$F5,$B6,$D7,$DF,$F0,$FF,$F7,$FE,$9F,$CB,$BD,$CF,$CE,$80,$84,$00,$EE,$9D
-	
-

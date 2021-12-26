@@ -59,7 +59,7 @@ tea	=	$800		;tea start
 ccmlng	=	2048		;ccm length
 pemlng	=	3072		;pem length
 ;zero page for setup
-trknum	=	$02		;current track
+trknum	=	$02			;current track
 dcbadd	=	$04			;dcb address
 nmsstr	=	$06			;number system tracks
 nsectr	=	$08			;number sectors per track
@@ -106,10 +106,12 @@ numcmd	=	36		;number commands
 
 DEBUG	=	1		; assemble with debug information on
 
+
  		.segment "LOADER"
+		.ORG $b7E0
 		.BYTE 		$F3 			;DI - DISABLE INTERRUPTS
 		.BYTE 		$01,$00,$49    		;LD	BC,$4900 -BYTES TO MOVE
-		.BYTE 		$11,$00,$37    		;LD	DE,$3700 -DESTINATION ADDRESS (6502 IS !A15)
+		.BYTE 		$11,$00,$38    		;LD	DE,$3800 -DESTINATION ADDRESS (6502 IS !A15)
 		.BYTE 		$21,$20,$01	    	;LD	HL,$0120 -SOURCE ADDRESS
 		.BYTE 		$ED,$B0       		;LDIR  		 -COPY RAM
 		.BYTE		$DB,$FF       		;IN 	A,$FF    -ENABLE 6502
@@ -120,14 +122,15 @@ DEBUG	=	1		; assemble with debug information on
 ;
 		.PC02
                 .segment "OS"
+		.ORG $B800
 		.include "CCM215.ASM"
 		.include "PEM215.ASM"
 		.include "SIMNHY.ASM"
 
-
-                .segment "VECTORS"
-NMIVECTOR:      .WORD   boot		;
-RSTVECTOR:      .WORD   boot		;
-INTVECTOR: 	.WORD   boot		; ROM VECTOR FOR IRQ
+;
+;                .segment "VECTORS"
+;NMIVECTOR:      .WORD   boot		;
+;RSTVECTOR:      .WORD   boot		;
+;INTVECTOR: 	.WORD   boot		; ROM VECTOR FOR IRQ
 
 	.end
