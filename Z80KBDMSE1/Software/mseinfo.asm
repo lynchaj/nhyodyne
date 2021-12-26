@@ -624,18 +624,6 @@ err_mse_reset:
 	ld	de,str_err_mse_reset
 	jr	err_ret
 ;
-err_mse_getsc:
-	ld	de,str_err_mse_getsc
-	jr	err_ret
-;
-err_mse_setsc:
-	ld	de,str_err_mse_setsc
-	jr	err_ret
-;
-err_mse_ident:
-	ld	de,str_err_mse_ident
-	jr	err_ret
-;
 err_ret:
 	call	crlf2
 	call	prtstr
@@ -855,10 +843,6 @@ str_trans_off		.db	"Disabling Controller Translation",0
 str_mse_reset		.db	"Attempting Mouse Reset",0
 str_mse_reset_ok	.db	"Mouse Reset OK",0
 str_err_mse_reset	.db	"Mouse Reset Failed",0
-
-str_err_mse_getsc	.db	"Error getting active keyboard scan code set",0
-str_err_mse_setsc	.db	"Error setting keyboard scan code set",0
-str_err_mse_ident	.db	"Error performing Keyboard Identification",0
 ;
 ;=======================================================================
 ; Working data
@@ -873,4 +857,4 @@ workbuf_len	.db	0
 ;
 ;=======================================================================
 ;
-	.end  
+	.end
