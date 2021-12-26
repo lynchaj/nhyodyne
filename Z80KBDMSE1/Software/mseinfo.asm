@@ -123,7 +123,7 @@ main:
 	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 
-; Attempt three reset commands on mouse controller
+; Attempt four reset commands on mouse controller
 ;
 	call	crlf2
 	ld	de,str_mse_init
@@ -131,7 +131,7 @@ main:
 	
 ; Reset Pass #1	
 	ld	a,$ff			; Send Mouse Reset command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -156,7 +156,7 @@ main:
 	
 ; Reset Pass #2
 	ld	a,$ff			; Send Mouse Reset command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -181,7 +181,7 @@ main:
 	
 ; Reset Pass #3
 	ld	a,$ff			; Send Mouse Reset command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -206,7 +206,7 @@ main:
 	
 ; Reset Pass #4
 	ld	a,$ff			; Send Mouse Reset command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -232,7 +232,7 @@ main:
 ; Begin setting mouse parameters, Request Microsoft Scrolling Mouse Mode
 
 	ld	a,$f3			; Send Set Sample Rate command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -244,7 +244,7 @@ main:
 	call	prtstr
 
 	ld	a,$c8			; Send Decimal 200 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -256,7 +256,7 @@ main:
 	call	prtstr
 
 	ld	a,$f3			; Send Set Sample Rate command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -268,7 +268,7 @@ main:
 	call	prtstr
 
 	ld	a,$64			; Send Decimal 100 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -280,7 +280,7 @@ main:
 	call	prtstr
 
 	ld	a,$f3			; Send Set Sample Rate command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -292,7 +292,7 @@ main:
 	call	prtstr
 
 	ld	a,$50			; Send Decimal 80 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -304,7 +304,7 @@ main:
 	call	prtstr
 
 	ld	a,$f2			; Send Read Device Type command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -322,7 +322,7 @@ main:
 	call	crlf
 	
 	ld	a,$f3			; Send Set Sample Rate command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -334,7 +334,7 @@ main:
 	call	prtstr
 
 	ld	a,$0a			; Send Decimal 10 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -346,7 +346,7 @@ main:
 	call	prtstr
 
 	ld	a,$f2			; Send Read Device Type command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -364,7 +364,7 @@ main:
 	call	crlf
 	
 	ld	a,$e8			; Send Set Resolution command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -376,7 +376,7 @@ main:
 	call	prtstr
 
 	ld	a,$03			; Send 8 Counts/mm command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -388,7 +388,7 @@ main:
 	call	prtstr
 
 	ld	a,$e6			; Send Set Scaling 1:1 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -400,7 +400,7 @@ main:
 	call	prtstr
 
 	ld	a,$f3			; Send Set Sample Rate command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -412,7 +412,7 @@ main:
 	call	prtstr
 
 	ld	a,$28			; Send Decimal 40 command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
@@ -424,7 +424,7 @@ main:
 	call	prtstr
 
 	ld	a,$f4			; Send Enable command
-	call	put_cmd_dbg
+	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
 	
 	call	get_data_dbg		; Read Mouse for Acknowledge
