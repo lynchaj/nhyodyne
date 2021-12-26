@@ -130,18 +130,6 @@ main:
 	call	prtstr
 	
 ; Reset Pass #1	
-	call	get_data_dbg		; Read Mouse for self-test status
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$AA			; expected value?
-	jp	nz,err_ctlr_test	; handle self-test error
-	call	crlf
-	
-	call	get_data_dbg		; Read Mouse for Mouse ID
-	jp	c,err_ctlr_io		; handle controller error
-	cp	$00			; expected value?
-	jp	nz,err_ctlr_test	; handle self-test error
-	call	crlf
-	
 	ld	a,$ff			; Send Mouse Reset command
 	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
@@ -154,7 +142,6 @@ main:
 	ld	de,str_ctrl_test_ok
 	call	prtstr
 	
-; Reset Pass #2
 	call	get_data_dbg		; Read Mouse for self-test status
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$AA			; expected value?
@@ -167,6 +154,32 @@ main:
 	jp	nz,err_ctlr_test	; handle self-test error
 	call	crlf
 	
+; Reset Pass #2
+	ld	a,$ff			; Send Mouse Reset command
+	call	put_cmd_dbg
+	jp	c,err_ctlr_io		; handle controller error
+	
+	call	get_data_dbg		; Read Mouse for Acknowledge
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$fa			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	ld	de,str_ctrl_test_ok
+	call	prtstr
+	
+	call	get_data_dbg		; Read Mouse for self-test status
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$AA			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	cp	$00			; expected value?
+	jp	nz,err_ctlr_test	; handle self-test error
+	call	crlf
+	
+; Reset Pass #3
 	ld	a,$ff			; Send Mouse Reset command
 	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
@@ -179,7 +192,6 @@ main:
 	ld	de,str_ctrl_test_ok
 	call	prtstr
 
-; Reset Pass #3
 	call	get_data_dbg		; Read Mouse for self-test status
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$AA			; expected value?
@@ -192,6 +204,7 @@ main:
 	jp	nz,err_ctlr_test	; handle self-test error
 	call	crlf
 	
+; Reset Pass #4
 	ld	a,$ff			; Send Mouse Reset command
 	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
@@ -204,7 +217,6 @@ main:
 	ld	de,str_ctrl_test_ok
 	call	prtstr
 	
-; Done with Resets, start commanding Mouse
 	call	get_data_dbg		; Read Mouse for self-test status
 	jp	c,err_ctlr_io		; handle controller error
 	cp	$AA			; expected value?
