@@ -316,7 +316,7 @@ main:
 
 	call	get_data_dbg		; Read Mouse for Mouse ID
 	jp	c,err_ctlr_io		; handle controller error
-	cp	$03					; detect MS Intellimouse/Microsoft Scrolling Mouse
+	cp	$03			; detect MS Intellimouse/Microsoft Scrolling Mouse
 	jp	z,Intellimouse	
 	cp	$00			; expected value? ($00 if Regular PS/2 Mouse)
 	jp	z,ReadMouseID
@@ -366,7 +366,7 @@ ReadMouseID:
 
 	call	get_data_dbg		; Read Mouse for Mouse ID
 	jp	c,err_ctlr_io		; handle controller error
-	cp	$03					; detect MS Intellimouse/Microsoft Scrolling Mouse
+	cp	$03			; detect MS Intellimouse/Microsoft Scrolling Mouse
 	jp	z,Intellimouse2	
 	cp	$00			; expected value? ($00 if Regular PS/2 Mouse)
 	jp	z,ReadMouseID2
@@ -377,7 +377,6 @@ Intellimouse2:
 ReadMouseID2:
 	jp	nz,err_ctlr_test	; handle self-test error
 	call	crlf
-
 
 	ld	a,$e8			; Send Set Resolution command
 	call	put_data_dbg
@@ -853,22 +852,13 @@ str_enable_mouse	.db	"Enabling Mouse in 8242 Controller",0
 str_ctrl_test_ok	.db	"Controller Self-Test OK",0
 str_intellimouse_ok	.db	"MS Intellimouse OK",0
 str_trans_off		.db	"Disabling Controller Translation",0
-str_trans_on		.db	"Enabling Controller Translation",0
 str_mse_reset		.db	"Attempting Mouse Reset",0
 str_mse_reset_ok	.db	"Mouse Reset OK",0
 str_err_mse_reset	.db	"Mouse Reset Failed",0
 
-;str_mse_getsc		.db	"Requesting Active Scan Code Set from Mouse",0
-;str_mse_dispsc		.db	"Active Keyboard Scan Code Set is ",0
 str_err_mse_getsc	.db	"Error getting active keyboard scan code set",0
-;str_mse_setsc		.db	"Setting Active Keyboard Scan Code Set",0
 str_err_mse_setsc	.db	"Error setting keyboard scan code set",0
-;str_mse_ident		.db	"Mouse Identification",0
-;str_mse_ident_disp	.db	"Keyboard Identify: ",0
 str_err_mse_ident	.db	"Error performing Keyboard Identification",0
-;str_disp_scan_codes	.db	"Displaying Raw Scan Codes",13,10
-;			.db	"  Press keys on keyboard to display scan codes",13,10
-;			.db	"  Press <esc> on CP/M console to end",13,10,13,10,0
 ;
 ;=======================================================================
 ; Working data
