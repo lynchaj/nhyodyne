@@ -115,14 +115,13 @@ main:
 	call	crlf2
 	ld	de,str_trans_off
 	call	prtstr
-;	ld	a,$60			; write to command register 0
-	ld	a,$40			; write to command register 0, enable mouse
+	ld	a,$60			; write to command register 0
 	call	put_cmd_dbg
 	jp	c,err_ctlr_io		; handle controller error
-	ld	a,$00			; xlat disabled, mouse enabled, no ints
+	ld	a,$20			; xlat disabled, mouse disabled, no ints
 	call	put_data_dbg
 	jp	c,err_ctlr_io		; handle controller error
-;
+
 ; Attempt three reset commands on mouse controller
 ;
 	call	crlf2
