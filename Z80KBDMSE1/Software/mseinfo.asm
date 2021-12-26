@@ -452,6 +452,25 @@ ReadMouseID2:
 
 ; Initialization Complete
 
+ReadMousePackets:
+
+	call	check_read
+	jp	nz, ReadMousePackets
+
+	call	get_data_dbg		; Read Mouse for self-test status
+	jp	c,err_ctlr_io		; handle controller error
+	call	crlf
+	
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	call	crlf
+	
+	call	get_data_dbg		; Read Mouse for Mouse ID
+	jp	c,err_ctlr_io		; handle controller error
+	call	crlf
+	
+	jp	ReadMousePackets
+
 ;
 done:
 	ret
