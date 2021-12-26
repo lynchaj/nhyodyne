@@ -828,14 +828,14 @@ str_mse_reset		.db	"Attempting Mouse Reset",0
 str_mse_reset_ok	.db	"Mouse Reset OK",0
 str_err_mse_reset	.db	"Mouse Reset Failed",0
 
-str_mse_getsc		.db	"Requesting Active Scan Code Set from Mouse",0
+;str_mse_getsc		.db	"Requesting Active Scan Code Set from Mouse",0
 ;str_mse_dispsc		.db	"Active Keyboard Scan Code Set is ",0
-;str_err_mse_getsc	.db	"Error getting active keyboard scan code set",0
-str_mse_setsc		.db	"Setting Active Keyboard Scan Code Set",0
-;str_err_mse_setsc	.db	"Error setting keyboard scan code set",0
-str_mse_ident		.db	"Mouse Identification",0
+str_err_mse_getsc	.db	"Error getting active keyboard scan code set",0
+;str_mse_setsc		.db	"Setting Active Keyboard Scan Code Set",0
+str_err_mse_setsc	.db	"Error setting keyboard scan code set",0
+;str_mse_ident		.db	"Mouse Identification",0
 ;str_mse_ident_disp	.db	"Keyboard Identify: ",0
-;str_err_mse_ident	.db	"Error performing Keyboard Identification",0
+str_err_mse_ident	.db	"Error performing Keyboard Identification",0
 ;str_disp_scan_codes	.db	"Displaying Raw Scan Codes",13,10
 ;			.db	"  Press keys on keyboard to display scan codes",13,10
 ;			.db	"  Press <esc> on CP/M console to end",13,10,13,10,0
