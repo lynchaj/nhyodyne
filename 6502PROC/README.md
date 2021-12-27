@@ -67,6 +67,8 @@ C11|	0.1u|	Capacitor
 C12|	10u|	Electrolytic Capacitor
 C13|	10u|	Electrolytic Capacitor
 C14|	0.1u|	Capacitor
+C15|	0.1u|	Capacitor
+C16|	0.1u|	Capacitor
 D1|	1N4148|	Diode
 D2|	POWER|	LED
 D3|	VP|	LED
@@ -105,6 +107,7 @@ U9|	74LS688|	74LS688
 U10|	74LS244|	74LS244
 U11|	74LS74|	74LS74
 U12|	74LS32|	74LS32
+U13|	74LS04|	74LS04
 
 # SOFTWARE
 ### HI
