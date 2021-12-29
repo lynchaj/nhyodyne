@@ -110,14 +110,17 @@ DEBUG	=	0		; assemble with debug information on
  		.segment "LOADER"
 		.ORG $b7E0
 		.BYTE 		$F3 			;DI - DISABLE INTERRUPTS
-		.BYTE 		$01,$00,$49    		;LD	BC,$4900 -BYTES TO MOVE
+		.BYTE 		$01,$00,$48    		;LD	BC,$3E00 -BYTES TO MOVE
 		.BYTE 		$11,$00,$38    		;LD	DE,$3800 -DESTINATION ADDRESS (6502 IS !A15)
 		.BYTE 		$21,$20,$01	    	;LD	HL,$0120 -SOURCE ADDRESS
-		.BYTE 		$ED,$B0       		;LDIR  		 -COPY RAM
+		.BYTE 		$ED,$B0       		;LDIR  	-COPY RAM
+		.BYTE 		$21,$FC,$7F	    	;LD	HL,$7FFC -VECTOR
+		.BYTE		$3E,<boot		;LD 	A,<BOOT
+		.BYTE 		$77			;LD 	(HL),A
+		.BYTE 		$21,$FD,$7F	    	;LD	HL,$7FFD -VECTOR
+		.BYTE		$3E,>boot		;LD 	A,<BOOT
+		.BYTE 		$77			;LD 	(HL),A
 		.BYTE		$DB,$FF       		;IN 	A,$FF    -ENABLE 6502
-		.BYTE		$0E,$00       		;LD	C,00H    -CP/M SYSTEM RESET CALL
-		.BYTE		$CD,$05,$00		;CALL	0005H	 -RETURN TO PROMPT
-		JMP 	boot
 ;
 ;
 		.PC02
@@ -126,11 +129,5 @@ DEBUG	=	0		; assemble with debug information on
 		.include "CCM215.ASM"
 		.include "PEM215.ASM"
 		.include "SIMNHY.ASM"
-
-;
-;                .segment "VECTORS"
-;NMIVECTOR:      .WORD   boot		;
-;RSTVECTOR:      .WORD   boot		;
-;INTVECTOR: 	.WORD   boot		; ROM VECTOR FOR IRQ
 
 	.end
