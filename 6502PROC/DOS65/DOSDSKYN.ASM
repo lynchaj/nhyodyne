@@ -119,7 +119,7 @@ DSKY_PREINIT:
 	; CHECK FOR PPI
 	JSR	DSKY_PPIDETECT		; TEST FOR PPI HARDWARE
         BNE     DSKY_ABORT      	; BAIL OUT IF NOT THERE
-NOTDSKY_ABORT:
+
 	; SETUP PPI TO DEFAULT MODE
 	JSR	DSKY_PPIRD
 	; INIT 8279 VALUES TO IDLE STATE
@@ -315,38 +315,39 @@ DSKY_KEYMAP:
 DSKY_BIN2SEG:
 	LDX	#$00
 DSKY_BIN2SEG1:
-	LDA	DSKY_BUF,X			; FIRST NIBBLE
+	LDA	DSKY_HEXBUF,X			; FIRST NIBBLE
 	LSR	A
         LSR	A
         LSR	A
         LSR	A
 	PHX                                     ; STORE READ INDEX
-        TAX
+        TAX					; MOVE DIGIT TO LOOKUP INDEX
 	LDA	DSKY_HEXMAP,X                   ; GET DECODED DIGIT INTO A
 	PLX                                     ; GET READ INDEX
-        PHX                                     ; STORE READ INDEX
-        PHA                                     ; STORE DECODED DIGIT
-        TXA                                     ; DOUBLE READ INDEX (FOR WRITE INDEX)
-        ASL
-        TAX
-        PLA                                     ;
-        STA     DSKY_HEXBUF,X                   ;STORE HIGH BYTE IN OUT BUFFER
-        PLX
-	LDA	DSKY_BUF,X			; SECOND NIBBLE
+	PHX
+	PHA
+	TXA
+	asl	a
+	TAX
+	PLA
+        STA     DSKY_BUF,X    		        ;STORE HIGH BYTE IN OUT BUFFER
+	PLX
+	LDA	DSKY_HEXBUF,X			; SECOND NIBBLE
+
 	AND	#$0F
         PHX
         TAX
 	LDA	DSKY_HEXMAP,X                   ; GET DECODED DIGIT INTO A
-	PLX                                     ; GET READ INDEX
-        PHX                                     ; STORE READ INDEX
-        PHA                                     ; STORE DECODED DIGIT
-        TXA                                     ; DOUBLE READ INDEX (FOR WRITE INDEX)
-        ASL
-        TAX
-        INX
-        PLA                                     ;
-        STA     DSKY_HEXBUF,X                   ;STORE HIGH BYTE IN OUT BUFFER
-        PLX
+	PLX
+	PHX
+	PHA
+	TXA		                        ; GET READ INDEX
+	asl	a
+	TAX
+	INX
+	PLA
+        STA     DSKY_BUF,X	                ;STORE HIGH BYTE IN OUT BUFFER
+	PLX
         INX
         CPX     #4
         BNE     DSKY_BIN2SEG1
@@ -360,10 +361,9 @@ DSKY_SHOW:
         PHA
         PHX
         PHY
-        LDX     #8
+        LDX     #0
 DSKY_SHOW1:
-	LDA     DSKY_HEXBUF,X
-	EOR	#$FF
+	LDA     DSKY_BUF,X
         PHX
         PLY
 	JSR	DSKY_PUTBYTE
@@ -458,31 +458,26 @@ DSKY_DIN2:
 	ORA     #%00011000
 	STA	DSKY_PPIC
 ;
-	; PPIC WORKING VALUE TO DSKY_TEMP_VAL
-	STA     DSKY_TEMP_VAL
-;
 	; ASSERT /RD
-	AND     #%11111011
+	AND     #%01111011
 	STA	DSKY_PPIC
 ;
-
+	STA 	DSKY_TEMP_VAL
 	; GET VALUE
 	LDA	DSKY_PPIA
         PHA
 
+	LDA 	DSKY_TEMP_VAL
 	; DEASSERT /RD
 	ORA     #%00000100
 	STA	DSKY_PPIC
 ;
 	; DEASSERT /CS
-	ORA     #%00000100
-	STA	DSKY_PPIC
-
         AND     #%11100111
 	STA	DSKY_PPIC
 ;
 	; CLEAR ADDRESS BIT
-        AND     #%11111110
+        AND     #%11100110
 	STA	DSKY_PPIC
 ;
 	; DONE
@@ -609,6 +604,7 @@ DSKY_BEEP:
 	LDY 	#$0F
 	JSR	DSKY_GETBYTE
 	ORA 	#$20
+			LDA 	#$20
 	LDY	#$0F
 	JSR	DSKY_PUTBYTE
 
@@ -624,6 +620,7 @@ DSKY_BEEP1:
 	LDY 	#$0F
 	JSR	DSKY_GETBYTE
 	AND 	#$DF
+			LDA 	#$DF
 	LDY	#$0F
 	JSR	DSKY_PUTBYTE
 

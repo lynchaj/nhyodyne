@@ -1,4 +1,4 @@
-ca65 V2.18 - Ubuntu 2.18-1
+ca65 V2.18 - Ubuntu 2.19-1
 Main file   : monitor.asm
 Current file: monitor.asm
 
@@ -6,6 +6,20 @@ Current file: monitor.asm
 000000r 1               ;__MONITOR_______________________________________________________
 000000r 1               ; This is a simple monitor program that can be uploaded to the MBC
 000000r 1               ; from Z80 mode.
+000000r 1               ;
+000000r 1               ; It assumes that the 65C02 board is set for IOPage 03.
+000000r 1               ; remember that bit A15 is inverted on the board so the dip switch is set to $83.
+000000r 1               ;
+000000r 1               ; If the SBC is the only CPU in the system, ensure that jumpers
+000000r 1               ; J1 and J2 are set for 1&2.   Then burn monrom.hex into EPROM.
+000000r 1               ; (note that this monitor does not initialize the UART yet, so this is broken at the moment)
+000000r 1               ;
+000000r 1               ; If the SBC is secondary to a Z80, the monitor.com file can be run from CP/M or the
+000000r 1               ; monitor.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4
+000000r 1               ; are set for 2&3, the 6502 toggle IO address is set for $FF and
+000000r 1               ; the 65C02 board is set for IOPage 03.
+000000r 1               ; remember that bit A15 is inverted on the board so the dip switch is set to $83.
+000000r 1               ;
 000000r 1               ;
 000000r 1               ; to run from the MBC Z80 monitor
 000000r 1               ;
