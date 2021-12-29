@@ -28,7 +28,7 @@ K7 is for 32 pin 128KB RAM0 or 512KB RAM0.  Pins 1-2 closed for 512KB RAM (defau
 
 K9 is for select Upper 32KB of RAM to be fixed, Lower 32KB of RAM to be switchable Pins 2-3 closed (default) or both to be switchable pins 1-2 closed.  Note: software needs to support latter feature.  RomWBW assumes default of pins 2-3 closed. One or the other must be selected.
 
-K6 is to select whether fixed top of RAM to be 32KB pins 2-3 closed (default) or 16KB pins 1-2 closed.  One or the other must be selected. 
+K6 is to select whether fixed top of RAM to be 32KB pins 1-2 closed (default) or 16KB pins 2-3 closed.  One or the other must be selected. 
 
 JP2 is battery select jumper option supports both RAM0 and RAM1. Pins 1-2 closed for onboard CR2032 battery (default).  Pins 3-4 must be closed also if CR2032 is used (default).  Optionally pins 3-4 can be used as external battery connector with pin 4 is positive terminal, pin 3 is negative (ground).  
 
