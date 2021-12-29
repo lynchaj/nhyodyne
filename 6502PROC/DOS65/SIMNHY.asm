@@ -129,8 +129,7 @@ setupl:	lda	inttbl,x	;get byte
   .ENDIF
 
     .IF USEIDEC=1
-    	PRTDBG "Init IDE$"
-    	JSR	IDE_SOFT_RESET
+    	JSR	PPIDE_INIT
   .ENDIF
 
   .IF USEDSKY=1
@@ -140,15 +139,11 @@ setupl:	lda	inttbl,x	;get byte
   .ENDIF
 
    .IF USEDSKYNG=1
-  	PRTDBG "Init DSKYNG$"
   	JSR	DSKY_INIT
   	JSR	DSKY_PUTLED
 	.BYTE 	$54,$6E,$5C,$5E,$6E,$54,$79,$40
 	JSR 	DSKY_BEEP
   .ENDIF
-
-
-	BRK
 
 	lda	#DEFDRV		;set zero
 	jsr	seldsk		;and select drive zero
@@ -177,7 +172,7 @@ wboot:
 ;________________________________________________________________________________________________________
 ;select disk
 seldsk:
-	and	#3		;three lsbs only
+	and	#7		;three lsbs only
 	sta	sekdsk		;save for later
  .IF (USEFLOPPYA=1 | USEFLOPPYB=1)
 	jsr	MOTOROFF	; TURN OFF ALL FLOPPY MOTORS
@@ -190,11 +185,25 @@ seldsk:
 	rts
 
 ;table of dcb addresses
-dcbtbl:	.word	dcba
-	.word	dcbb
-	.word	dcbc
+dcbtbl:	.word	dcba		; A
+	.word	dcbb		; B
+	.word	dcbwbw		; C
+	.word	dcbwbw		; D
+	.word	dcbwbw		; E
+	.word	dcbwbw		; F
+	.word	dcbwbw		; G
+	.word	dcbwbw		; H
 
-
+; disk configuration table
+dskcfg:
+	.byte $00,$00		;  disk A: unit,slice  (invalid for floppy and RAM disks)
+	.byte $00,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
+	.byte $00,$00		;  disk C: unit,slice
+	.byte $00,$01		;  disk D: unit,slice
+	.byte $00,$02		;  disk E: unit,slice
+	.byte $00,$03		;  disk F: unit,slice
+	.byte $00,$04		;  disk G: unit,slice
+	.byte $00,$05		;  disk H: unit,slice
 
 ;__HOME__________________________________________________________________________________________________
 ;
@@ -212,6 +221,7 @@ home:
 ;	Y=TRACK HIGH BYTE
 ;________________________________________________________________________________________________________
 seltrk:
+	CLC
 	sta	sektrk		;save number
 	sty	sektrk+1
 	rts
@@ -273,8 +283,6 @@ RDNOTA:					;
   .ENDIF				;
   					;
 RDNOTB:					;
-  	CMP	#$02			;
-	BNE	RDNOTC			;
 					;
   .IF USEIDEC=1				;
 	JSR	IDE_READ_SECTOR		;
@@ -282,9 +290,6 @@ RDNOTB:					;
   .ELSE					;
   	JMP	RDlowABEND		;
   .ENDIF				;
-  					;
-RDNOTC:    				;
-   	JMP	RDlowABEND		;
   					;
 RDlowEND:
 	RTS				;
@@ -328,8 +333,6 @@ WRNOTA:					;
   .ENDIF				;
   					;
 WRNOTB:					;
-  	CMP	#$02			;
-	BNE	WRNOTC			;
 					;
   .IF USEIDEC=1				;
 	JSR	IDE_WRITE_SECTOR	;
@@ -337,10 +340,6 @@ WRNOTB:					;
   .ELSE					;
   	JMP	WRABEND			;
   .ENDIF				;
-  					;
-WRNOTC:    				;
-   	JMP	WRABEND			;
-					;
 					;
 WREND:  				;
 	CMP	#$00			;
@@ -425,79 +424,109 @@ ENDOUTSTR:
 ; 	TRANSLATE SECTORS INTO ECB SERVER FORMAT
 ;________________________________________________________________________________________________________
 CONVERT_SECTOR_DOS:
-	LDA	sekdsk			; GET DISK #
-	CMP	#$02
-	BEQ	CONVERT_SECTOR_DOS1	; NOT ZERO, DO FULL TRANSLATE
 	LDA	sektrk			; LOAD TRACK # (LOW BYTE)
-	AND	#$01			; FILTER OUT HEAD
-	STA	debhead			; STORE HEAD
-	LDA	sektrk			; SAVE TRACK IN A
-	LSR	A			; REMOVE HEAD BIT
-	STA	debcyl			; STORE IN TRACK
+	AND 	#$0F			; ISOLATE HEAD IN LOW 4 BITS
+	asl	a			; MOVE TO HIGH BYTE
+	asl	a
+	asl	a
+	asl	a
+	TAX 				; PARK IN X
 	LDA	seksec			; LOAD SECTOR # (LOW BYTE)
 	LSR	A			;
 	LSR	A			; DIVIDE BY 4 (FOR BLOCKING)
-	STA	debsec			; STORE IN SECTOR
+	AND 	#$0F 			; CLEAR UPPER 4 BITS (JUST 'CAUSE)
+	STA	debsehd			; STORE IN SECTOR/HEAD
+	TXA 				; GET HEAD BACK
+	ORA 	debsehd
+	STA	debsehd			; STORE IN SECTOR/HEAD
 
-  .IF USEDSKY=1
+	LDA 	sektrk
+	STA	debcyll			; STORE IN TRACK (lsb)
+	LDA 	sektrk+1
+	STA	debcylm			; STORE IN TRACK (msb)
+					; REMOVE HEAD FROM TRACK VALUE (DIV/4)
+	LDA	debcylm
+	LSR 	A
+	STA	debcylm
+	LDA	debcyll
+	ROR 	A
+	STA	debcyll
+
+	LDA	debcylm
+	LSR 	A
+	STA	debcylm
+	LDA	debcyll
+	ROR 	A
+	STA	debcyll
+
+	LDA	debcylm
+	LSR 	A
+	STA	debcylm
+	LDA	debcyll
+	ROR 	A
+	STA	debcyll
+
+	LDA	debcylm
+	LSR 	A
+	STA	debcylm
+	LDA	debcyll
+	ROR 	A
+	STA	debcyll
+
+;	ADD SLICE OFFSET
+	LDA	sekdsk			; GET DRIVE#
+	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
+	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
+	TAX 				; MOVE TO X REGISTER
+	INC				; WANT SECOND BYTE OF ENTRY
+	LDA 	dskcfg,X 		; GET SLICE#
+
+	PHX
+	PHX
+	JSR 	PRTHEXBYTE
+	PLX
+	TXA
+	JSR 	PRTHEXBYTE
+	PLX
+
+	LDA 	dskcfg,X 		; GET SLICE#
+	STA 	slicetmp+1 		; SLICE OFFSET MSB
+	LDA 	#0	 		; GET SLICE#
+	STA 	slicetmp		; SLICE OFFSET LSB
+	CLC				; VOODOO MATH TO TAKE SLICE*$4000
+	ROR 	slicetmp+1
+	ROR	slicetmp
+	ROR 	slicetmp+1
+	ROR	slicetmp
+
+	LDA 	slicetmp+1
+	JSR 	PRTHEXBYTE
+	LDA 	slicetmp
+	JSR 	PRTHEXBYTE
+	JSR 	NEWLINE
+					; ADD SLICE OFFSET TO TRACK #
+	clc				; clear carry
+	lda slicetmp
+	adc debcyll
+	sta debcyll			; store sum of LSBs
+	lda slicetmp+1
+	adc debcylm			; add the MSBs using carry from
+	sta debcylm			; the previous calculation
+
+
+  .IF USEDSKY=1 || USEDSKYNG=1
+  	PRTDBG "DSKY OUTPUT 1$"
   	lda	sekdsk
-  	sta	DSKYDISPLAY
-  	lda	debhead
-  	sta	DSKYDISPLAY+1
- 	lda	debcyl
-  	sta	DSKYDISPLAY+2
- 	lda	debsec
-  	sta	DSKYDISPLAY+3
-  	JSR	HEXDISPLAY
+  	sta	DSKY_HEXBUF
+ 	lda	debcylm
+  	sta	DSKY_HEXBUF+1
+ 	lda	debcyll
+  	sta	DSKY_HEXBUF+2
+    	lda	debsehd
+  	sta	DSKY_HEXBUF+3
+  	JSR	DSKY_BIN2SEG
+	JSR	DSKY_SHOW
   .ENDIF
-
-	RTS
-
-CONVERT_SECTOR_DOS1:
-	LDA	sektrk			; LOAD TRACK # (LOW BYTE)
-	STA	debtmp+1		;
-	LDA	seksec			; LOAD SECTOR# (LOW BYTE)
-	STA	debtmp			;
-	JSR	RRA16			; ROTATE DEBTMP RIGHT (DIVIDE BY 2)
-	JSR	RRA16			; ROTATE DEBTMP RIGHT (DIVIDE BY 2)
-	LDA	sektrk+1		; GET HIGH BYTE OF TRACK INTO A
-	ASL	A			;
-	ASL	A
-	ASL	A
-	ASL	A
-	ASL	A			;
-	ASL	A			;
-	CLC
-	ORA	debtmp+1		;
-	STA	debtmp+1		;
-	LDA	sektrk+1		; GET HIGH BYTE OF TRACK INTO A
-	LSR	A
-	LSR	A
-	STA	debhead			;
-	LDA	debtmp			;
-	STA	debsec			; LBA REGISTER IS 00TTTTSS / 4
-	LDA	debtmp+1		;
-	STA	debcyl		 	;
-  .IF USEDSKY=1
-  	lda	sekdsk
-  	sta	DSKYDISPLAY
-  	lda	debhead
-  	sta	DSKYDISPLAY+1
- 	lda	debcyl
-  	sta	DSKYDISPLAY+2
- 	lda	debsec
-  	sta	DSKYDISPLAY+3
-  	JSR	HEXDISPLAY
-  .ENDIF
-	RTS
-RRA16:
-	CLC				; CLEAR CARRY FLAG
-	LDA	debtmp+1		; 16 BIT ROTATE HL WITH CARRY
-	ROR	A			;
-	STA	debtmp+1		; ROTATE HL RIGHT 1 BIT (DIVIDE BY 2)
-	LDA	debtmp			;
-	ROR	A			;
-	STA	debtmp			;
 	RTS
 
 ;___DEBSECR______________________________________________________________________________________________
@@ -637,15 +666,15 @@ dcbb:	.word	175		;max block number
 	.word	ckmpa		;checksum map
 	.endif
 
-;drive c (IDE)
-dcbc:	.word	2017		;max block number
-	.word	256		;sectors per track
-	.word	$0001		;number system tracks
+;RBW drives (FIXED IDE/LBA DRIVES)
+dcbwbw:	.word	2047		;max block number
+	.word	64		;sectors per track
+	.word	130		;number system tracks
 	.byte	2		;block size = 4096
 	.word	511		;max directory number
-	.word	almpc		;address of map for C
-	.byte	80		;do checksums
-	.word	ckmpc		;checksum map
+	.word	almpwbw		;address of map for C
+	.byte	0		;do checksums
+	.word	ckmpwbw		;checksum map
 ;data area
 
 
@@ -661,14 +690,15 @@ hstact:		.byte 0		;host active flag
 unacnt:		.byte 0		;unalloc rec cnt
 sektrk:		.word 0		;seek track number
 seksec:		.word 0		;seek sector number
-debhead:	.byte 0		; DEBLOCKED HEAD
-debcyl:		.byte 0		; DEBLOCKED CYLINDER ID
-debsec:		.byte 0		; DEBLOCKED SECTOR
+debcyll:	.byte 0		; DEBLOCKED CYLINDER LSB
+debcylm:	.byte 0		; DEBLOCKED CYLINDER MSB
+debsehd:	.byte 0		; DEBLOCKED SECTOR AND HEAD (HS)
 debtmp:		.word 0		; DEBLOCK TEMP VAR
-Cdebhead: 	.byte $FF		; DEBLOCKED HEAD
-Cdebcyl:	.byte $FF		; DEBLOCKED CYLINDER ID
-Cdebsec:	.byte $FF		; DEBLOCKED SECTOR
+Cdebcyll:	.byte 0		; DEBLOCKED CYLINDER LSB
+Cdebcylm:	.byte 0		; DEBLOCKED CYLINDER MSB
+Cdebsehd:	.byte 0		; DEBLOCKED SECTOR AND HEAD (HS)
 DEBDIRTY:	.byte 0		; DIRTY FLAG
+slicetmp:	.word 0		; USED TO CALCULATE SLICE OFFSET
 
 ;allocation maps
 ;drive a
@@ -676,7 +706,7 @@ almpa:		.res	45
 ;drive b
 almpb:		.res	254
 ;drive c
-almpc:		.res	254
+almpwbw:	.res	254
 ;checksum maps
 
 
@@ -685,6 +715,6 @@ ckmpa:		.res	32
 ;drive b
 ckmpb:		.res	128
 ;drive c
-ckmpc:		.res	128
+ckmpwbw:	.res	128
 ;deblocking buffer for dba
 hstbuf:		.res	512		;256 or 512 byte sectors

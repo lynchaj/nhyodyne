@@ -104,7 +104,7 @@ semico	=	$3b		;semicolon
 delete	=	$08		;delete character
 numcmd	=	36		;number commands
 
-DEBUG	=	1		; assemble with debug information on
+DEBUG	=	0		; assemble with debug information on
 
 
  		.segment "LOADER"
