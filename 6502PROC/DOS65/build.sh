@@ -1,4 +1,4 @@
-ca65 DOS65.ASM -l DOS65.LST -W3
+ca65 DOS65.ASM -l DOS65.LST
 ld65 DOS65.o -m DOS65.MAP -C dos65.cfg -o DOS65.out
 srec_cat  DOS65.out -binary -offset 0x0100 -exclude 0x0000 0xB800 -o  DOS65.s -data-only
 srec_cat  DOS65.out -binary -offset 0x0100 -exclude 0x0000 0xB7F3 -exclude 0xE500 0xFFFF -o  DOS65.s19  -data-only

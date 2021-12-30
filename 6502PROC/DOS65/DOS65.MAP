@@ -2,7 +2,7 @@ Modules list:
 -------------
 DOS65.o:
     LOADER            Offs=000000  Size=00001A  Align=00001  Fill=0000
-    OS                Offs=000000  Size=002523  Align=00002  Fill=0000
+    OS                Offs=000000  Size=0025BA  Align=00002  Fill=0000
 
 
 Segment list:
@@ -10,7 +10,7 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 LOADER                00B7E0  00B7F9  00001A  00001
-OS                    00B800  00DD22  002523  00002
+OS                    00B800  00DDB9  0025BA  00002
 
 
 Exports list by name:

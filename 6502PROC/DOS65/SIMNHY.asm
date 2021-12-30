@@ -113,6 +113,7 @@ setupl:	lda	inttbl,x	;get byte
 	jsr	setdma		;and set
 	lda	sekdsk		;get disk
 
+	JSR 	NEWLINE
 
   .IF USEFLOPPYA=1
   	PRTDBG "Init floppy A$"
