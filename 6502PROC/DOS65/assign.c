@@ -1,16 +1,46 @@
-#define FIFO_DATA     (*(unsigned char *) 0x1000)
-#define FIFO_STATUS   (*(unsigned char *) 0x1001)
+#include<conio.h>
 
-#define TX_FIFO_FULL  (FIFO_STATUS & 0x01)
-#define RX_FIFO_EMPTY (FIFO_STATUS & 0x02)
-
+#define DISKCFG     (*(unsigned int *) 0x002e)
 extern void __fastcall__ cputc(char c);
-extern void __fastcall__ cputs(char *s);
+void prtdevice(char);
+void prttable(char *);
+
 
 int main () {
+    unsigned int  **pptr = DISKCFG;
 
-        cputc('h');
-        cputs("\n\rI mean, Hello World! \n\r");
+   prttable((unsigned char *) pptr);
+  return (0);
+}
 
-  return (0);                                     //  We should never get here!
+void prttable(char *bytes)
+{
+int i;
+        cputs("\n\r DOS/65 Drive assignment:\n\r");
+        for(i=0;i<16;i++)
+        {
+            cprintf("  %c:=",i%2+'A');
+            prtdevice(*(bytes+i++));
+            cprintf(":%i\n\r",*(bytes+i));
+        }
+}
+
+void prtdevice(char dev)
+{
+    switch(dev & 0xf0)
+    {
+        case 0x00:
+          cputs("RAM");
+          break;
+        case 0x10:
+          cputs("ROM");
+          break;
+        case 0x30:
+          cputs("PPIDE");
+          break;
+        default:
+          cputs("UNKNOWN");
+          break;
+    }
+    cprintf("%i",dev & 0x0f);
 }

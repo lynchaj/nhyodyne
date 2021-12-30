@@ -11,15 +11,158 @@
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 	.macpack	longbranch
 	.forceimport	__STARTUP__
-	.import		_cputc
 	.import		_cputs
+	.import		_cprintf
+	.export		_prtdevice
+	.export		_prttable
 	.export		_main
 
 .segment	"RODATA"
 
-L0005:
-	.byte	$0A,$0D,$49,$20,$6D,$65,$61,$6E,$2C,$20,$48,$65,$6C,$6C,$6F,$20
-	.byte	$57,$6F,$72,$6C,$64,$21,$20,$0A,$0D,$00
+L000A:
+	.byte	$0A,$0D,$20,$44,$4F,$53,$2F,$36,$35,$20,$44,$72,$69,$76,$65,$20
+	.byte	$61,$73,$73,$69,$67,$6E,$6D,$65,$6E,$74,$3A,$0A,$0D,$00
+L0038:
+	.byte	$55,$4E,$4B,$4E,$4F,$57,$4E,$00
+L0017:
+	.byte	$20,$20,$25,$63,$3A,$3D,$00
+L001F:
+	.byte	$3A,$25,$69,$0A,$0D,$00
+L0034:
+	.byte	$50,$50,$49,$44,$45,$00
+L002F:
+	.byte	$52,$4F,$4D,$00
+L002A:
+	.byte	$52,$41,$4D,$00
+L003B:
+	.byte	$25,$69,$00
+
+; ---------------------------------------------------------------
+; void __near__ prtdevice (unsigned char)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_prtdevice: near
+
+.segment	"CODE"
+
+	jsr     pusha
+	lda     (sp)
+	and     #$F0
+	beq     L0028
+	cmp     #$10
+	beq     L002D
+	cmp     #$30
+	beq     L0032
+	bra     L0036
+L0028:	lda     #<(L002A)
+	ldx     #>(L002A)
+	bra     L003E
+L002D:	lda     #<(L002F)
+	ldx     #>(L002F)
+	bra     L003E
+L0032:	lda     #<(L0034)
+	ldx     #>(L0034)
+	bra     L003E
+L0036:	lda     #<(L0038)
+	ldx     #>(L0038)
+L003E:	jsr     _cputs
+	lda     #<(L003B)
+	ldx     #>(L003B)
+	jsr     pushax
+	ldy     #$02
+	lda     (sp),y
+	and     #$0F
+	jsr     pusha0
+	ldy     #$04
+	jsr     _cprintf
+	jmp     incsp1
+
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ prttable (__near__ unsigned char *)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_prttable: near
+
+.segment	"CODE"
+
+	jsr     pushax
+	jsr     decsp2
+	lda     #<(L000A)
+	ldx     #>(L000A)
+	jsr     _cputs
+	ldx     #$00
+	txa
+L0040:	jsr     stax0sp
+	cmp     #$10
+	txa
+	sbc     #$00
+	bvc     L0013
+	eor     #$80
+L0013:	bpl     L000D
+	lda     #<(L0017)
+	ldx     #>(L0017)
+	jsr     pushax
+	ldy     #$05
+	jsr     pushwysp
+	ldx     #$00
+	lda     #$02
+	jsr     tosmoda0
+	ldy     #$41
+	jsr     incaxy
+	jsr     pushax
+	ldy     #$04
+	jsr     _cprintf
+	ldy     #$05
+	jsr     pushwysp
+	ldy     #$03
+	jsr     ldaxysp
+	sta     regsave
+	stx     regsave+1
+	ina
+	bne     L001D
+	inx
+L001D:	ldy     #$02
+	jsr     staxysp
+	lda     regsave
+	ldx     regsave+1
+	jsr     tosaddax
+	sta     ptr1
+	stx     ptr1+1
+	lda     (ptr1)
+	jsr     _prtdevice
+	lda     #<(L001F)
+	ldx     #>(L001F)
+	jsr     pushax
+	ldy     #$03
+	jsr     ldaxysp
+	clc
+	ldy     #$04
+	adc     (sp),y
+	sta     ptr1
+	txa
+	iny
+	adc     (sp),y
+	sta     ptr1+1
+	lda     (ptr1)
+	jsr     pusha0
+	ldy     #$04
+	jsr     _cprintf
+	jsr     ldax0sp
+	sta     regsave
+	stx     regsave+1
+	ina
+	jne     L0040
+	inx
+	jmp     L0040
+L000D:	jmp     incsp4
+
+.endproc
 
 ; ---------------------------------------------------------------
 ; int __near__ main (void)
@@ -31,14 +174,14 @@ L0005:
 
 .segment	"CODE"
 
-	lda     #$68
-	jsr     _cputc
-	lda     #<(L0005)
-	ldx     #>(L0005)
-	jsr     _cputs
+	lda     $002E
+	ldx     $002E+1
+	jsr     pushax
+	jsr     ldax0sp
+	jsr     _prttable
 	ldx     #$00
 	txa
-	rts
+	jmp     incsp2
 
 .endproc
 
