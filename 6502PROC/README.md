@@ -218,3 +218,18 @@ Monitor Supports the following Commands:
         * DISASSEMBLE XXXX - Disassemble program at XXXX
 	* ASSEMBLE XXXX - Begin Assembling a program from XXXX
 ```
+
+# DOS65
+        TODO: Real DOS/65 docs -- this is here as a reminder
+
+        DOS/65 is provided as the operating system for the Nhyodyne 65C02 board
+
+        The CP/M program DOS65.com will load DOS/65 and transition control from Z80 CP/M to 65c02 DOS/65.
+
+        DOS/65 will recognize ROMWBW slices and CP/M images.
+        Rather than running .COM files, DOS/65 will run .CO6 files.
+
+        currently DOS/65 supports PPIDE, serial, and DSKYNG devices
+
+        DOS/65 utility programs:
+        CPM.CO6 - return control to the Z80 and Boot CPM into a sane state.

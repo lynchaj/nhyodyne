@@ -1,6 +1,6 @@
 ca65 V2.18 - Ubuntu 2.19-1
-Main file   : DOS65.ASM
-Current file: DOS65.ASM
+Main file   : dos65.asm
+Current file: dos65.asm
 
 000000r 1               ;sysgen
 000000r 1               ;version 2.15-a
@@ -131,11 +131,16 @@ Current file: DOS65.ASM
 00B7FA  1               		.PC02
 00B7FA  1                               .segment "OS"
 00B7FA  1               		.ORG $B800
-00B800  1               		.include "CCM215.ASM"
+00B800  1               		.include "ccmnhy.asm"
+00B800  2               ;________________________________________________________________________________________________________________________________
+00B800  2               ;
+00B800  2               ;	Nhyodyne dos/65 dos/65 console command module (ccm)
+00B800  2               ;
+00B800  2               ;  DWERNER 12/20/2021 	ported to Nhyodyne
+00B800  2               ;  DWERNER 12/30/2021   changed .COM files to .CO6 files to reduce confusion when
+00B800  2               ;                       sharing CP/M file system images
+00B800  2               ;________________________________________________________________________________________________________________________________
 00B800  2               
-00B800  2               ;-------------------------------
-00B800  2               ;dos/65 console command module
-00B800  2               ;-------------------------------
 00B800  2               ;ccm unique definitions
 00B800  2               nbuilt	=	7		;number built in commands
 00B800  2               ;main program
@@ -1021,7 +1026,7 @@ Current file: DOS65.ASM
 00BFC2  2  xx xx xx xx  
 00BFC6  2  xx xx xx xx  
 00BFDF  2               ;com type field
-00BFDF  2  43 4F 4D     typcom:	.byte	"COM"
+00BFDF  2  43 4F 36     typcom:	.byte	"CO6"
 00BFE2  2               ;variable storage
 00BFE2  2  00           cnbfpt:	.byte	0		;buffer index
 00BFE3  2  00           dfldsk:	.byte	0		;default drive
@@ -1044,7 +1049,7 @@ Current file: DOS65.ASM
 00BFF6  2  00 00        tnum:	.word	0		;temp in bldnum
 00BFF8  2  00 08        sadr:	.word	tea		;save start address
 00BFFA  2               
-00BFFA  1               		.include "PEM215.ASM"
+00BFFA  1               		.include "pem215.asm"
 00BFFA  2               ;-------------------------------
 00BFFA  2               ;dos/65 primitive execution module (pem)
 00BFFA  2               ;-------------------------------
@@ -2670,12 +2675,15 @@ Current file: DOS65.ASM
 00CBD6  2  00 00        	.word	0		;save alcpnt
 00CBD8  2  00 00        	.word	0		;save chkpnt
 00CBDA  2               
-00CBDA  1               		.include "SIMNHY.ASM"
-00CBDA  2               ;--------------------------------
-00CBDA  2               ;dos/65 system interface module (sim)
-00CBDA  2               ;--------------------------------
+00CBDA  1               		.include "simnhy.asm"
+00CBDA  2               ;________________________________________________________________________________________________________________________________
+00CBDA  2               ;
+00CBDA  2               ;	Nhyodyne dos/65 system interface module (sim)
+00CBDA  2               ;
+00CBDA  2               ;  DWERNER 12/20/2021 	ported to Nhyodyne
+00CBDA  2               ;________________________________________________________________________________________________________________________________
 00CBDA  2               
-00CBDA  2               		.include "MACRO.ASM"
+00CBDA  2               		.include "macro.asm"
 00CBDA  3               ;__MACRO___________________________________________________________________________________________________________________
 00CBDA  3               ;
 00CBDA  3               ; 	Macros for the betterment of Mankind
@@ -3526,7 +3534,7 @@ Current file: DOS65.ASM
 00D0ED  2               
 00D0ED  2               
 00D0ED  2                 .IF USESERIAL=1
-00D0ED  2               	.INCLUDE "DOSSER.ASM"
+00D0ED  2               	.INCLUDE "dosser.asm"
 00D0ED  3               ;__SERIAL DRIVERS________________________________________________________________________________________________________________
 00D0ED  3               ;
 00D0ED  3               ; 	Nhyodyne serial drivers for single serial port card
@@ -3645,7 +3653,7 @@ Current file: DOS65.ASM
 00D12B  2               
 00D12B  2               
 00D12B  2                   .IF USEIDEC=1
-00D12B  2               	.INCLUDE "DOSIDE.ASM"
+00D12B  2               	.INCLUDE "doside.asm"
 00D12B  3               ;__IDE DRIVERS___________________________________________________________________________________________________________________
 00D12B  3               ;
 00D12B  3               ; 	Nhyodyne IDE disk drivers for Z80PPIDE card
@@ -4259,7 +4267,7 @@ Current file: DOS65.ASM
 00D4D9  2                   .ENDIF
 00D4D9  2               
 00D4D9  2                   .IF USEDSKYNG=1
-00D4D9  2                    .INCLUDE "DOSDSKYN.ASM"
+00D4D9  2                    .INCLUDE "dosdskyn.asm"
 00D4D9  3               ;__DSKYNG DRIVERS_________________________________________________________________________________________________________________
 00D4D9  3               ;
 00D4D9  3               ; 	Nhyodyne DSKY/NG drivers
