@@ -113,6 +113,7 @@ setupl:	lda	inttbl,x	;get byte
 	jsr	setdma		;and set
 	lda	sekdsk		;get disk
 
+	JSR 	NEWLINE
 
   .IF USEFLOPPYA=1
   	PRTDBG "Init floppy A$"
@@ -144,6 +145,12 @@ setupl:	lda	inttbl,x	;get byte
 	.BYTE 	$54,$6E,$5C,$5E,$6E,$54,$79,$40
 	JSR 	DSKY_BEEP
   .ENDIF
+
+	LDA 	#<dskcfg	; STORE POINTER TO DISK CONFIG TABLE FOR APPS
+	STA 	dskcfpc
+	LDA 	#>dskcfg
+	STA 	dskcfpc+1
+	JSR 	DSPL_DSK_CFG	; DISPLAY DISK CONFIG TO USERS
 
 	lda	#DEFDRV		;set zero
 	jsr	seldsk		;and select drive zero
@@ -197,13 +204,13 @@ dcbtbl:	.word	dcba		; A
 ; disk configuration table
 dskcfg:
 	.byte $00,$00		;  disk A: unit,slice  (invalid for floppy and RAM disks)
-	.byte $00,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
-	.byte $00,$00		;  disk C: unit,slice
-	.byte $00,$01		;  disk D: unit,slice
-	.byte $00,$02		;  disk E: unit,slice
-	.byte $00,$03		;  disk F: unit,slice
-	.byte $00,$04		;  disk G: unit,slice
-	.byte $00,$05		;  disk H: unit,slice
+	.byte $10,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
+	.byte $30,$00		;  disk C: unit,slice
+	.byte $30,$01		;  disk D: unit,slice
+	.byte $30,$02		;  disk E: unit,slice
+	.byte $30,$03		;  disk F: unit,slice
+	.byte $30,$04		;  disk G: unit,slice
+	.byte $30,$05		;  disk H: unit,slice
 
 ;__HOME__________________________________________________________________________________________________
 ;
@@ -261,42 +268,43 @@ RDABEND:				;
 ;________________________________________________________________________________________________________
 READlow:
 	LDA	sekdsk			; GET DRIVE
-	CMP	#$00			;
-	BNE	RDNOTA			;
-     					;
-  .IF USEFLOPPYA=1			;
-  	JSR	READFL			;
-  	JMP	RDlowEND		;
-  .ENDIF
+	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
+	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
+	TAX 				; MOVE TO X REGISTER
+	LDA 	dskcfg,X 		; GET device
+	and 	#$F0			; only want first nybble
 
-  	JMP	RDlowABEND		;
-  					;
-RDNOTA:					;
-	CMP	#$01			;
-	BNE	RDNOTB			;
-					;
-  .IF USEFLOPPYB=1			;
-  	JSR	READFL			;
-  	JMP	RDlowEND		;
-  .ELSE					;
-  	JMP	RDlowABEND		;
-  .ENDIF				;
-  					;
-RDNOTB:					;
-					;
-  .IF USEIDEC=1				;
-	JSR	IDE_READ_SECTOR		;
-	JMP	RDlowEND		;
-  .ELSE					;
-  	JMP	RDlowABEND		;
-  .ENDIF				;
-  					;
-RDlowEND:
-	RTS				;
-RDlowABEND:				;
+	CMP 	#$00
+	BNE 	READlow1		; not RAM drive
+	;PRTS "RAM$"
 	LDA	#$FF			;
 	RTS				;
-
+READlow1:
+	CMP 	#$10
+	BNE 	READlow2		; not ROM drive
+	;PRTS "ROM$"
+	LDA	#$FF			;
+	RTS				;
+READlow2:
+	CMP 	#$20
+	BNE 	READlow3		; not floppy drive
+	;PRTS "FD$"
+  	.IF USEFLOPPYA=1 || USEFLOPPYB=1
+  	JMP	READFL			;
+  	.else
+  	LDA	#$FF			;
+	RTS				;
+  	.ENDIF
+READlow3:
+	CMP 	#$30
+	BNE 	READlowx		; invalid drive
+	;PRTS "PPIDE$"
+  	.IF USEIDEC=1
+	JMP	IDE_READ_SECTOR		;
+  	.ENDIF
+READlowx:
+	LDA	#$FF			; signal error
+	RTS				;
 
 
 ;__WRITE_________________________________________________________________________________________________
@@ -304,52 +312,53 @@ RDlowABEND:				;
 ; 	PERFORM DOS/65 SECTOR WRITE
 ;________________________________________________________________________________________________________
 write:
-	JSR	CONVERT_SECTOR_DOS	;
-	JSR	READlow			;
+	JSR	CONVERT_SECTOR_DOS	; determine physical sector
+	JSR	READlow			; read physical sector
 	CMP	#$00			;
-	BNE	WRABEND			;
-	JSR	BLKSECR			;
+	BNE	writex			; on error abort
+	JSR	BLKSECR			; block sector for writing
 					;
 	LDA	sekdsk			; GET DRIVE
-	CMP	#$00			;
-	BNE	WRNOTA			;
-					;
-  .IF USEFLOPPYA=1			;
-	JSR	WRITEFL			;
-	JMP	WREND			;
-  .ENDIF
- 						;
-  	JMP	WRABEND			;
-  					;
-WRNOTA:					;
-	CMP	#$01			;
-	BNE	WRNOTB			;
-					;
-  .IF USEFLOPPYB=1			;
-  	JSR	WRITEFL			;
-	JMP	WREND			;
-  .ELSE					;
-  	JMP	WRABEND			;
-  .ENDIF				;
-  					;
-WRNOTB:					;
-					;
-  .IF USEIDEC=1				;
-	JSR	IDE_WRITE_SECTOR	;
-	JMP	WREND			;
-  .ELSE					;
-  	JMP	WRABEND			;
-  .ENDIF				;
-					;
-WREND:  				;
-	CMP	#$00			;
-	BNE	WRABEND			;
-	JSR	DEBSECR			;
-	LDA	#$00			;
-	RTS				;
-WRABEND:				;
+	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
+	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
+	TAX 				; MOVE TO X REGISTER
+	LDA 	dskcfg,X 		; GET device
+	and 	#$F0			; only want first nybble
+
+	CMP 	#$00
+	BNE 	write1			; not RAM Drive
+	;PRTS "RAM$"
 	LDA	#$FF			;
 	RTS				;
+write1:
+	CMP 	#$10
+	BNE 	write2			; not ROM Drive
+	;PRTS "ROM$"
+	LDA	#$FF			; always invalid to write to ROM Drive
+	RTS				;
+write2:
+	CMP 	#$20
+	BNE 	write3			; not floppy drive
+	;PRTS "FD$"
+  	.IF USEFLOPPYA=1 || USEFLOPPYB=1
+  	Jsr	WRITEFL			;
+	RTS				;
+  	.else
+  	LDA	#$FF			;
+	RTS				;
+  	.ENDIF
+write3:
+	CMP 	#$30
+	BNE 	writex			; not ppide
+	;PRTS "PPIDE$"
+  	.IF USEIDEC=1
+	JSR	IDE_WRITE_SECTOR
+	RTS				;
+  	.ENDIF
+writex:
+	LDA	#$FF			; signal error
+	RTS				;
+
 
 ;__SETDMA________________________________________________________________________________________________
 ;
@@ -478,17 +487,7 @@ CONVERT_SECTOR_DOS:
 	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
 	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
 	TAX 				; MOVE TO X REGISTER
-	INC				; WANT SECOND BYTE OF ENTRY
-	LDA 	dskcfg,X 		; GET SLICE#
-
-	PHX
-	PHX
-	JSR 	PRTHEXBYTE
-	PLX
-	TXA
-	JSR 	PRTHEXBYTE
-	PLX
-
+	INX				; WANT SECOND BYTE OF ENTRY
 	LDA 	dskcfg,X 		; GET SLICE#
 	STA 	slicetmp+1 		; SLICE OFFSET MSB
 	LDA 	#0	 		; GET SLICE#
@@ -498,12 +497,6 @@ CONVERT_SECTOR_DOS:
 	ROR	slicetmp
 	ROR 	slicetmp+1
 	ROR	slicetmp
-
-	LDA 	slicetmp+1
-	JSR 	PRTHEXBYTE
-	LDA 	slicetmp
-	JSR 	PRTHEXBYTE
-	JSR 	NEWLINE
 					; ADD SLICE OFFSET TO TRACK #
 	clc				; clear carry
 	lda slicetmp
@@ -598,6 +591,76 @@ COPY_DOS_SECTOR1:
 	CMP	#$80			;
 	BNE	COPY_DOS_SECTOR1	;
 	RTS
+
+;___DSPL_DSK_CFG_________________________________________________________________________________________
+;
+;	DISPLAY THE DISK CONFIGURATION FOR THE USER
+;
+;________________________________________________________________________________________________________
+DSPL_DSK_CFG:
+	JSR 	NEWLINE
+	PRTS "Disk Configuration:$"
+	JSR 	NEWLINE
+	ldx 	#0
+DSPL_DSK_CFG_1:
+	PRTS "    $"		; MAKE IT PRETTY :)
+	TXA
+	LSR	A
+	CLC
+	ADC 	#'A'
+	JSR 	conwrt
+	LDA 	#':'
+	JSR 	conwrt
+	LDA 	#'='
+	JSR 	conwrt
+	JSR 	prtdevice	; PRINT DEVICE NAME FROM TABLE (X)
+	LDA 	#':'
+	JSR 	conwrt
+	INX				; WANT SECOND BYTE OF ENTRY
+	LDA 	dskcfg,x 		; GET SLICE
+	JSR 	PRTDEC 			; PRINT SLICE IN DECIMAL (A)
+	INX
+	JSR 	NEWLINE
+	CPX 	#16
+	BNE 	DSPL_DSK_CFG_1
+	RTS
+
+; 	DEVICE TABLE:
+;	$00	RAM
+;	$10	ROM
+;	$2x	FLOPPY
+;	$3x	IDE
+prtdevice:
+	LDA 	dskcfg,X 		; GET DEVICE TYPE
+	PHA
+	AND 	#$F0 			; FILTER OUT UNIT
+	CMP 	#$00
+	BNE 	prtdevice1
+	PRTS "RAM$"
+	jmp 	prtdevice_done
+prtdevice1:
+	CMP 	#$10
+	BNE 	prtdevice2
+	PRTS "ROM$"
+	jmp 	prtdevice_done
+prtdevice2:
+	CMP 	#$20
+	BNE 	prtdevice3
+	PRTS "FD$"
+	jmp 	prtdevice_done
+prtdevice3:
+	CMP 	#$30
+	BNE 	prtdevicex
+	PRTS "PPIDE$"
+	jmp 	prtdevice_done
+prtdevicex:
+	PRTS "UNK$"
+prtdevice_done:
+	PLA
+	AND 	#$0F 			; FILTER OUT DEVICE
+	JSR 	PRTDEC
+	RTS
+
 
   .IF USESERIAL=1
 	.INCLUDE "DOSSER.ASM"
