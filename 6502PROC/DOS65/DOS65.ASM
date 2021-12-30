@@ -127,8 +127,8 @@ DEBUG	=	0		; assemble with debug information on
 		.PC02
                 .segment "OS"
 		.ORG $B800
-		.include "CCM215.ASM"
-		.include "PEM215.ASM"
-		.include "SIMNHY.ASM"
+		.include "ccmnhy.asm"
+		.include "pem215.asm"
+		.include "simnhy.asm"
 
 	.end

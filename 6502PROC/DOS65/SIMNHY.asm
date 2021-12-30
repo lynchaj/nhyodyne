@@ -1,8 +1,11 @@
-;--------------------------------
-;dos/65 system interface module (sim)
-;--------------------------------
+;________________________________________________________________________________________________________________________________
+;
+;	Nhyodyne dos/65 system interface module (sim)
+;
+;  DWERNER 12/20/2021 	ported to Nhyodyne
+;________________________________________________________________________________________________________________________________
 
-		.include "MACRO.ASM"
+		.include "macro.asm"
 
 USESERIAL 	= 	1	; SET TO ONE SERIAL CONSOLE IO
 USEFLOPPYA 	= 	0	; SET TO ONE FOR FLOPPY = "A"
@@ -663,12 +666,12 @@ prtdevice_done:
 
 
   .IF USESERIAL=1
-	.INCLUDE "DOSSER.ASM"
+	.INCLUDE "dosser.asm"
   .ENDIF
 
 
     .IF USEIDEC=1
-	.INCLUDE "DOSIDE.ASM"
+	.INCLUDE "doside.asm"
     .ENDIF
 
     .IF USEFLOPPYA=1 | USEFLOPPYB=1
@@ -680,7 +683,7 @@ prtdevice_done:
     .ENDIF
 
     .IF USEDSKYNG=1
-     .INCLUDE "DOSDSKYN.ASM"
+     .INCLUDE "dosdskyn.asm"
     .ENDIF
 
 
