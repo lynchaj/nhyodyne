@@ -82,11 +82,14 @@ sysdef:
 
 ;opening id message
 opnmsg:	.byte	cr,lf
-    	.BYTE "     ____  ____  _____    _______ ______",cr,lf
-   	.BYTE "   / __ \/ __ \/ ___/  _/_/ ___// ____/",cr,lf
-  	.BYTE "  / / / / / / /\__ \ _/_// __ \/___ \",cr,lf
- 	.BYTE " / /_/ / /_/ /___/ //_/ / /_/ /___/ /",cr,lf
-	.BYTE "/_____/\____//____/_/   \____/_____/",cr,lf
+
+    	.BYTE "d8888b.  .d88b.  .d8888.    dD     ooooo",cr,lf
+    	.BYTE "88  `8D .8P  Y8. 88   YP   d8     8P~~~~",cr,lf
+    	.BYTE "88   88 88    88 `8bo.    d8     dP",cr,lf
+    	.BYTE "88   88 88    88   `Y8b. d8888b. V8888b.",cr,lf,0
+opnmsg1:
+    	.BYTE "88  .8D `8b  d8' db   8D 88  `8D     `8D",cr,lf
+    	.BYTE "Y8888D   `Y88P   `8888Y  `8888P  88oobY",cr,lf
 	.byte 17,"DOS/65 ON THE NHYODYNE 3.00",cr,lf,0
 
 
@@ -101,35 +104,16 @@ boot:
  	lda	#<opnmsg	;point to message
 	ldy	#>opnmsg
 	jsr	outmsg		;send it
-				;set up jumps into dos/65 in page one
-setup:	ldx	#0		;clear index
-				;first clear key dba variables
-	stx	hstact		;host buffer inactive
-	stx	unacnt		;clear unalloc count
-setupl:	lda	inttbl,x	;get byte
-	sta	$100,x		;insert at start
-	inx
-	cpx	#6
-	bne	setupl		;loop until done
-	lda	#<dflbuf	;get low buffer
-	ldy	#>dflbuf	;and high
-	jsr	setdma		;and set
-	lda	sekdsk		;get disk
+ 	lda	#<opnmsg1
+	ldy	#>opnmsg1
+	jsr	outmsg		;send it
 
 	JSR 	NEWLINE
-
   .IF USEFLOPPYA=1
-  	PRTDBG "Init floppy A$"
-  	lda	#0			;set zero
-	jsr	seldsk		;and select drive zero
-	JSR	SETUPDRIVE
-  .ENDIF
-
-  .IF USEFLOPPYB=1
-  	PRTDBG "Init floppy B$"
-  	lda	#1		;set 1
-	jsr	seldsk		;and select drive zero
-	JSR	SETUPDRIVE
+;  	PRTDBG "Init floppy A$"
+;  	lda	#0			;set zero
+;	jsr	seldsk		;and select drive zero
+;	JSR	SETUPDRIVE
   .ENDIF
 
     .IF USEIDEC=1
@@ -137,7 +121,7 @@ setupl:	lda	inttbl,x	;get byte
   .ENDIF
 
   .IF USEDSKY=1
-  	PRTDBG "Init DSKY$"
+ 	PRTDBG "Init DSKY$"
   	JSR	DSKYINIT
   	JSR	SEGDISPLAY
   .ENDIF
@@ -154,6 +138,22 @@ setupl:	lda	inttbl,x	;get byte
 	LDA 	#>dskcfg
 	STA 	dskcfpc+1
 	JSR 	DSPL_DSK_CFG	; DISPLAY DISK CONFIG TO USERS
+
+
+				;set up jumps into dos/65 in page one
+setup:	ldx	#0		;clear index
+				;first clear key dba variables
+	stx	hstact		;host buffer inactive
+	stx	unacnt		;clear unalloc count
+setupl:	lda	inttbl,x	;get byte
+	sta	$100,x		;insert at start
+	inx
+	cpx	#6
+	bne	setupl		;loop until done
+	lda	#<dflbuf	;get low buffer
+	ldy	#>dflbuf	;and high
+	jsr	setdma		;and set
+	lda	sekdsk		;get disk
 
 	lda	#DEFDRV		;set zero
 	jsr	seldsk		;and select drive zero

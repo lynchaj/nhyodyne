@@ -1,0 +1,124 @@
+Modules list:
+-------------
+assign.o:
+    CODE              Offs=000000  Size=000010  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=00001A  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(condes.o):
+    CODE              Offs=000010  Size=00000C  Align=00001  Fill=0000
+    DATA              Offs=000000  Size=000025  Align=00001  Fill=0000
+    ONCE              Offs=000000  Size=00000C  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(copydata.o):
+    CODE              Offs=00001C  Size=00002D  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(cputs.o):
+    CODE              Offs=000049  Size=000023  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(crt0.o):
+    STARTUP           Offs=000000  Size=00001E  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(zerobss.o):
+    CODE              Offs=00006C  Size=000023  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(zeropage.o):
+    ZEROPAGE          Offs=000000  Size=00001A  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(nhyodyne.o):
+    CODE              Offs=00008F  Size=000007  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+ZEROPAGE              000000  000019  00001A  00001
+STARTUP               000800  00081D  00001E  00001
+ONCE                  00081E  000829  00000C  00001
+CODE                  00082A  0008BF  000096  00001
+DATA                  0008C0  0008E4  000025  00001
+RODATA                0008E5  0008FE  00001A  00001
+
+
+Exports list by name:
+---------------------
+__BSS_RUN__               0008FF RLA    __BSS_SIZE__              000000 REA    
+__CONSTRUCTOR_COUNT__     000000 REA    __CONSTRUCTOR_TABLE__     00081E RLA    
+__DATA_LOAD__             0008C0 RLA    __DATA_RUN__              0008C0 RLA    
+__DATA_SIZE__             000025 REA    __DESTRUCTOR_COUNT__      000000 REA    
+__DESTRUCTOR_TABLE__      00081E RLA    __RAM_SIZE__              00C800 REA    
+__RAM_START__             000800 RLA    __STARTUP__               000001 REA    
+_cputc                    0008B9 RLA    _cputs                    00087D RLA    
+_main                     00082A RLA    copydata                  000846 RLA    
+donelib                   00083A RLA    gotoxy                    0008BF RLA    
+initlib                   00081E RLA    ptr1                      000008 RLZ    
+ptr2                      00000A RLZ    sp                        000000 RLZ    
+tmp1                      000010 RLZ    zerobss                   000896 RLA    
+
+
+
+Exports list by value:
+----------------------
+__BSS_SIZE__              000000 REA    __CONSTRUCTOR_COUNT__     000000 REA    
+__DESTRUCTOR_COUNT__      000000 REA    sp                        000000 RLZ    
+__STARTUP__               000001 REA    ptr1                      000008 RLZ    
+ptr2                      00000A RLZ    tmp1                      000010 RLZ    
+__DATA_SIZE__             000025 REA    __RAM_START__             000800 RLA    
+__CONSTRUCTOR_TABLE__     00081E RLA    __DESTRUCTOR_TABLE__      00081E RLA    
+initlib                   00081E RLA    _main                     00082A RLA    
+donelib                   00083A RLA    copydata                  000846 RLA    
+_cputs                    00087D RLA    zerobss                   000896 RLA    
+_cputc                    0008B9 RLA    gotoxy                    0008BF RLA    
+__DATA_LOAD__             0008C0 RLA    __DATA_RUN__              0008C0 RLA    
+__BSS_RUN__               0008FF RLA    __RAM_SIZE__              00C800 REA    
+
+
+
+Imports list:
+-------------
+__BSS_RUN__ ([linker generated]):
+    zerobss.o                 common/zerobss.s(8)
+__BSS_SIZE__ ([linker generated]):
+    zerobss.o                 common/zerobss.s(8)
+__CONSTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s(18)
+__CONSTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s(18)
+__DATA_LOAD__ ([linker generated]):
+    copydata.o                common/copydata.s(8)
+__DATA_RUN__ ([linker generated]):
+    copydata.o                common/copydata.s(8)
+__DATA_SIZE__ ([linker generated]):
+    copydata.o                common/copydata.s(8)
+__DESTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s(19)
+__DESTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s(19)
+__RAM_SIZE__ ([linker generated]):
+    crt0.o                    crt0.s(14)
+__RAM_START__ ([linker generated]):
+    crt0.o                    crt0.s(14)
+__STARTUP__ (crt0.o):
+    assign.o                  assign.s(13)
+_cputc (nhyodyne.o):
+    cputs.o                   conio/cputs.s(9)
+    assign.o                  assign.s(14)
+_cputs (cputs.o):
+    assign.o                  assign.s(15)
+_main (assign.o):
+    crt0.o                    crt0.s(11)
+copydata (copydata.o):
+    crt0.o                    crt0.s(16)
+donelib (condes.o):
+    crt0.o                    crt0.s(16)
+gotoxy (nhyodyne.o):
+    cputs.o                   conio/cputs.s(9)
+initlib (condes.o):
+    crt0.o                    crt0.s(16)
+ptr1 (zeropage.o):
+    copydata.o                common/copydata.s(9)
+    zerobss.o                 common/zerobss.s(9)
+    cputs.o                   conio/cputs.s(10)
+ptr2 (zeropage.o):
+    copydata.o                common/copydata.s(9)
+sp (zeropage.o):
+    crt0.o                    /usr/share/cc65/asminc/zeropage.inc(11)
+tmp1 (zeropage.o):
+    copydata.o                common/copydata.s(9)
+    cputs.o                   conio/cputs.s(10)
+zerobss (zerobss.o):
+    crt0.o                    crt0.s(16)
+
