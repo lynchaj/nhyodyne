@@ -87,7 +87,8 @@ simlng	=	$28			;length of sim
 room	=	$2A			;memory needed for sysgen
 stksav	=	$2C			;save stack register
 frstsc	=	$2D			;first sector number of disk
-lastzp	=	$2E
+dskcfpc	=	$2E			;pointer to disk configuration table
+lastzp	=	$30
 ;fixed parameters
 lf	=	$a		;linefeeed
 cr	=	$d		;return

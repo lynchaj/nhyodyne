@@ -114,3 +114,48 @@ NEWLINE:
                 JSR conwrt
                 LDA #$0A
                 JMP conwrt
+
+PRTDEC:
+                phy
+                PHX
+                PHA
+                ldy #00
+                LDX #$FF
+                SEC
+PrDec100:
+                INX
+                SBC #100
+                BCS PrDec100            ;Count how many 100s
+                ADC #100
+                JSR PrDecDigit          ;Print the 100s
+                LDX #$FF
+                SEC                     ;Prepare for subtraction
+PrDec10:
+                INX
+                SBC #10
+                BCS PrDec10             ;Count how many 10s
+                ADC #10
+                JSR PrDecDigit          ;Print the 10s
+                TAX                     ;Pass 1s into X
+                ldy #1
+                JSR PrDecDigit          ;Print the 1s
+                PLA
+                PLX
+                ply
+                RTS
+PrDecDigit:
+                PHA
+                cpy #$00
+                bne PrDecDigit1
+                txa
+                tay
+                cpy #$00
+                bne PrDecDigit1
+                jmp PrDecDigit2
+PrDecDigit1:
+                TXA                     ;Save A, pass digit to A
+                ORA #'0'
+                JSR  conwrt             ;Convert to character and print it
+PrDecDigit2:
+                PLA
+                RTS                     ;Restore A and return
