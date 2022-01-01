@@ -116,7 +116,7 @@ boot:
 ;	JSR	SETUPDRIVE
   .ENDIF
 
-;;;;;;;;;;;;;	JSR	MD_INIT
+	JSR	MD_INIT
 
     .IF USEIDEC=1
     	JSR	PPIDE_INIT
@@ -152,7 +152,7 @@ boot:
 
 				;set up jumps into dos/65 in page one
 setup:
-	;;;;;;;;;;;;;;;;;;;JSR	MD_REINIT
+	JSR	MD_REINIT
 	ldx	#0		;clear index
 				;first clear key dba variables
 	stx	hstact		;host buffer inactive
@@ -269,15 +269,9 @@ read:
 	JSR 	GET_DRIVE_DEVICE	;
 	and 	#$F0			; only want first nybble
 	CMP 	#$00
-	BNE 	:+			; not RAM drive
+	BNE 	:+			; not MD drive
 	;RAM
-	LDA	#$FF			;
-	RTS				;
-:
-	CMP 	#$10
-	BNE 	:+			; not ROM drive
-	;ROM
-	LDA	#$FF			;
+	JSR 	MD_READ_SECTOR
 	RTS				;
 :
 	CMP 	#$20
@@ -310,20 +304,15 @@ write:
 	and 	#$F0			; only want first nybble
 
 	CMP 	#$00
-	BNE 	write1			; not RAM Drive
-	;PRTS "RAM$"
-	LDA	#$FF			;
+	BNE 	:+			; not MD Drive
+	;MD
+	JSR 	MD_WRITE_SECTOR
+
 	RTS				;
-write1:
-	CMP 	#$10
-	BNE 	write2			; not ROM Drive
-	;PRTS "ROM$"
-	LDA	#$FF			; always invalid to write to ROM Drive
-	RTS				;
-write2:
+:
 	CMP 	#$20
-	BNE 	write3			; not floppy drive
-	;PRTS "FD$"
+	BNE 	:+			; not floppy drive
+	;FD
   	.IF USEFLOPPYA=1 || USEFLOPPYB=1
   	Jsr	WRITEFL			;
 	RTS				;
@@ -331,12 +320,15 @@ write2:
   	LDA	#$FF			;
 	RTS				;
   	.ENDIF
-write3:
+:
 	CMP 	#$30
 	BNE 	writex			; not ppide
-	;PRTS "PPIDE$"
+	;PPIDE
   	.IF USEIDEC=1
 	JSR	IDE_WRITE_SECTOR
+	RTS				;
+  	.else
+  	LDA	#$FF			;
 	RTS				;
   	.ENDIF
 writex:

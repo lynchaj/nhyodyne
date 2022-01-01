@@ -59,7 +59,7 @@ MD_REINIT:
         INX
         CPX     #$00
         BNE     :-
-
+        RTS
 
 ;       X=Control Word
 ;	7 6 5 4  3 2 1 0
@@ -85,15 +85,17 @@ md_pagecode:
         CMP     #$00
         BNE     MD_PAGE_ROREAD
 ; DO RAM READ
+        LDA     #$80
+        STA     MPCL_ROM
         PLA
-        ORA     #%10000000
+        ORA     #$80
         STA     MPCL_RAM
         BNE     MD_PAGE_COPYFRM
 MD_PAGE_ROREAD:
-        LDA     #$00000000
+        LDA     #$00
         STA     MPCL_RAM
         PLA
-        AND     #%01111111
+        AND     #$7F
         STA     MPCL_ROM
 MD_PAGE_COPYFRM:
 ; DO THE COPY
@@ -107,8 +109,9 @@ MD_PAGE_COPYFRM:
         CPX     #$00
         BNE     :-
         LDA     #$80
-        STA     MPCL_RAM
         STA     MPCL_ROM
+        LDA     #$8E
+        STA     MPCL_RAM
         RTS
 MD_PAGE_WRITE:
         PLA
@@ -125,8 +128,9 @@ MD_PAGE_WRITE:
         CPX     #$00
         BNE     :-
         LDA     #$80
-        STA     MPCL_RAM
         STA     MPCL_ROM
+        LDA     #$8E
+        STA     MPCL_RAM
         RTS
 md_pagecodeend:
 
@@ -137,29 +141,36 @@ md_pagecodeend:
 ;*
 ;*____________________________________________________________________________________________________
 MD_READ_SECTOR:
+                JSR MD_READ_RAW_SECTOR
+                JSR DEBSECR256
+                LDA #$00                        ; SHOULD ALWAYS SUCCEED
+                RTS
+
+MD_READ_RAW_SECTOR:
 		PRTDBG "MD Read Sector$"
                 JSR     GET_DRIVE_DEVICE
 		and 	#$01			; only want drive cfg
-		LSR	a			; SHIFT 6
-		LSR	a			;
-		LSR	a			;
-   		LSR	a			;
-		LSR	a			;
-		LSR	a			;
+		asl	a			; SHIFT 6
+		asl	a			;
+		asl	a			;
+   		asl	a			;
+		asl	a			;
+		asl	a			;
 		AND 	#%01111111              ; TOGGLE READ
                 TAX                             ; STASH CONTROL WORD
-
+                JSR     MD_CONVERT_SECTOR
+                cpx     #$00                    ; read if ram
+                BEQ     :+
+                inc     debcyll                 ; if rom, inc bank by 4 ()
+                inc     debcyll
+                inc     debcyll
+                inc     debcyll
+:
   	        LDA    	debcyll			; GET BANK
 		LDY    	debsehd			; GET PAGE
-                INC     A                       ; FIRST 8 RAM BANKS RESERVED
-                INC     A
-                INC     A
-                INC     A
-                INC     A
-                INC     A
-                INC     A
-                INC     A
+                PRTDBG "DO PAGER$"
                 JSR     MD_PAGERA
+                PRTDBG "PAGER RETURN$"
 		RTS
 
 
@@ -177,13 +188,115 @@ MD_WRITE_SECTOR:
                 LDA     #$FF
                 RTS
 MD_WRITE_SECTOR_RAM:
-		LDA 	#$80                    ; TOGGLE WRITE RAM
-                TAX                             ; STASH CONTROL WORD
+                JSR     MD_READ_RAW_SECTOR
+                JSR     MD_CONVERT_SECTOR
+                JSR     BLKSECR256
  	        LDA    	debcyll			; GET BANK
 		LDY    	debsehd			; GET PAGE
-                INC     A                       ; FIRST 4 ROM BANKS RESERVED
-                INC     A
-                INC     A
-                INC     A
+		LDX 	#$80                    ; TOGGLE WRITE RAM
+                PRTDBG "DO PAGER$"
                 JSR     MD_PAGERA
+                PRTDBG "PAGER RETURN$"
+                LDA     #$00
 		RTS
+
+;___MD_CONVERT_SECTOR___________________________________________________________________________________
+;
+; 	TRANSLATE SECTORS INTO MD FORMAT
+;________________________________________________________________________________________________________
+MD_CONVERT_SECTOR:
+        PRTDBG "CONVERT SECTOR$"
+        phx
+	LDA	seksec			; LOAD SECTOR # (LOW BYTE)
+	LSR	A			; DIVIDE BY 2 (FOR BLOCKING)
+	AND 	#$1F 			; CLEAR UPPER 3 BITS (JUST 'CAUSE)
+	STA	debsehd			; STORE IN SECTOR/HEAD
+	LDA	sektrk			; LOAD TRACK # (LOW BYTE)
+	AND 	#$03			; BOTTOM 2 BITS ARE PART OF PAGE (PAGES ARE 32k)
+	asl	a			; MOVE TO HIGH BITS
+	asl	a
+	asl	a
+	asl	a
+       	asl	a
+        ORA     #$80                    ; PAGES ARE ALWAYS IN UPPER BANK
+	ORA	debsehd			; STORE IN SECTOR/HEAD
+        STA     debsehd                 ; STORE IN SECTOR/HEAD
+                                        ; AT THIS POINT PAGE REGISTER SHOULD BE
+                                        ; SET
+	LDA	sektrk			; LOAD TRACK #
+       	LSR	a			; LOSE BOTTOM TWO BITS
+	LSR	a
+	STA	debcyll			; THIS SHOULD BE BANK#
+
+
+  .IF USEDSKY=1 || USEDSKYNG=1
+  	PRTDBG "DSKY OUTPUT 1$"
+  	lda	sekdsk
+  	sta	DSKY_HEXBUF
+ 	lda	#$00
+  	sta	DSKY_HEXBUF+1
+ 	lda	debcyll
+  	sta	DSKY_HEXBUF+2
+    	lda	debsehd
+  	sta	DSKY_HEXBUF+3
+  	JSR	DSKY_BIN2SEG
+	JSR	DSKY_SHOW
+  .ENDIF
+        plx
+	RTS
+
+;___DEBSECR256________________________________________________________________________________________
+;
+;	DEBLOCK 256 BYTE SECTOR FOR DOS/65
+;
+;________________________________________________________________________________________________________
+DEBSECR256:
+	PHA
+	LDA	seksec			;
+	AND	#$01			; GET SECTOR INDEX
+        CMP     #$00
+        BNE     DEBSECR256_H
+	LDA	#$00                     ;
+	STA     SRC
+        JMP     DEBSECR256_GO
+DEBSECR256_H:
+	LDA	#$80                     ;
+	STA     SRC
+DEBSECR256_GO:
+	LDA	#>MD_PAGEBU             ;
+	STA	SRC+1			;
+	LDA	dmaadr			;
+	STA	DEST			;
+	LDA	dmaadr+1		;
+	STA	DEST+1			;
+	JSR	COPY_DOS_SECTOR		;
+	PLA
+        RTS
+
+;___BLKSECR256________________________________________________________________________________________
+;
+;	BLOCK 256 BYTE SECTOR FOR DOS/65
+;
+;________________________________________________________________________________________________________
+BLKSECR256:
+	PHA
+	LDA	seksec			;
+	AND	#$01			; GET SECTOR INDEX
+        CMP     #$00
+        BNE     BLKSECR256_H
+	LDA	#$00                     ;
+	STA     DEST
+        JMP     BLKSECR256_GO
+BLKSECR256_H:
+	LDA	#$80                     ;
+	STA     DEST
+BLKSECR256_GO:
+	LDA	#>MD_PAGEBU             ;
+	STA	DEST+1			;
+	LDA	dmaadr			;
+	STA	SRC			;
+	LDA	dmaadr+1		;
+	STA	SRC+1			;
+	JSR	COPY_DOS_SECTOR		;
+	PLA
+        RTS

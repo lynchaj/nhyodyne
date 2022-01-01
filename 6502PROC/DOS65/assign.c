@@ -92,7 +92,7 @@ void prtdevice(char dev)
   {
   case 0x00:
     cputs("MD");
-    return;
+     break;
   case 0x10:
     cputs("UNKNOWN");
     return;
@@ -115,9 +115,10 @@ void prtusage()
   cputs("          ASSIGN C:=FD0:	(assign C: to floppy unit 0) \n\r");
   cputs("          ASSIGN C:=IDE0:1	(assign C: to IDE unit0, slice 1) \n\r");
   cputs("\n\r POSSIBLE DEVICES:\n\r");
-  cputs("          RAM    RAM DISK\n\r");
-  cputs("          ROM    ROM DISK\n\r");
-  cputs("          PPIDE  PPIDE FIXED DISK\n\r");
+  cputs("          MD0:    RAM DISK\n\r");
+  cputs("          MD1:    ROM DISK\n\r");
+  cputs("          PPIDE0: PRIMARY PPIDE FIXED DISK\n\r");
+  cputs("          PPIDE1: SECONDARY PPIDE FIXED DISK\n\r");
 }
 
 void toupper(char *name)
@@ -135,8 +136,7 @@ void mapdrive(char *bytes, char *token1, char *token2)
   char drive = (token1[0] & 0x5F) - 65;
   char newdevice = 0xff;
   char *token, *rtoken;
-  unsigned long lslice = 0x00;
-  unsigned char slice;
+  unsigned char slice = 0x00;
 
   if ((drive < 0) || (drive > 7))
   {
