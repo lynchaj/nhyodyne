@@ -1,5 +1,5 @@
 
-all:  	dos65.s19 dos65.hex dos65.com cpm.co6 assign.co6
+all:  	dos65.s19 dos65.hex dos65.com cpm.co6 assign.co6 alloc.co6
 
 
 dos65.out: dos65.asm ccmnhy.asm pem215.asm simnhy.asm macro.asm dosmd.asm doside.asm dosdskyn.asm
@@ -15,6 +15,11 @@ assign.co6: assign.c
 	ca65 --cpu 65sc02  assign.s
 	ld65 assign.o  ./nhyodyne/nhyodyne.lib -m assign.map -C dos65c.cfg -o assign.co6
 	cp assign.co6 bin/
+
+alloc.out: alloc203.asm
+	ca65 --cpu 65sc02 alloc203.asm -l alloc.lst
+	ld65 alloc203.o  -m alloc.map -C dos65.cfg -o alloc.out
+
 
 
 dos65.s19: dos65.out
@@ -36,6 +41,13 @@ dos65.com: dos65.out
 	@rm -f dos65A.s
 	@rm -f dos652.s
 	cp dos65.com bin/
+
+alloc.co6: alloc.out
+	srec_cat  alloc.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  alloc.s19  -data-only
+	srec_cat  alloc.s19  -offset -0x0800  -o  allocA.s  -data-only
+	srec_cat  allocA.s -o alloc.co6  -BINARY
+	@rm -f allocA.s
+	cp alloc.co6 bin/
 
 
 cpm.co6: cpm.out
