@@ -133,6 +133,14 @@ boot:
 	JSR 	DSKY_BEEP
   .ENDIF
 
+
+	LDA 	#<cnstxt	; STORE POINTER TO COMMAND LINE
+	STA 	cmdlnp
+	LDA 	#>cnstxt
+	STA 	cmdlnp+1
+
+
+
 	LDA 	#<dskcfg	; STORE POINTER TO DISK CONFIG TABLE FOR APPS
 	STA 	dskcfpc
 	LDA 	#>dskcfg
@@ -160,6 +168,7 @@ setupl:	lda	inttbl,x	;get byte
 	jsr	home		;home that drive
 
 	PRTDBG "Start CCM$"
+	lda	#DEFDRV		;set zero
 	jmp	ccm		;and go to ccm
 ;initialization table
 inttbl:	.byte	$4c,<wboote,>wboote,$4c,<pem,>pem
@@ -197,12 +206,12 @@ seldsk:
 ;table of dcb addresses
 dcbtbl:	.word	dcba		; A
 	.word	dcbb		; B
-	.word	dcbwbw		; C
-	.word	dcbwbw		; D
-	.word	dcbwbw		; E
-	.word	dcbwbw		; F
-	.word	dcbwbw		; G
-	.word	dcbwbw		; H
+	.word	dcbc		; C
+	.word	dcbd		; D
+	.word	dcbe		; E
+	.word	dcbf		; F
+	.word	dcbg		; G
+	.word	dcbh		; H
 
 ; disk configuration table
 dskcfg:
@@ -691,56 +700,71 @@ prtdevice_done:
 
 
 ;disk control blocks
-;drive a (3.5" FDD)
-	.IF FLPA35=1
 dcba:	.word	350		;max block number
 	.word	36		;sectors per track
 	.word	4		;number system tracks
 	.byte	1		;block size = 2048
 	.word	127		;max directory number
 	.word	almpa		;address of map for a
-	.byte	80		;do checksums
-	.word	ckmpa		;checksum map
-	.ELSE
-dcba:	.word	175		;max block number
-	.word	36		;sectors per track
-	.word	4		;number system tracks
-	.byte	1		;block size = 2048
-	.word	127		;max directory number
-	.word	almpa		;address of map for a
-	.byte	80		;do checksums
-	.word	ckmpa		;checksum map
-	.endif
-
-	.IF FLPB35=1
+	.byte	00		;do checksums
+	.word	ckmp		;checksum map
 dcbb:	.word	350		;max block number
 	.word	36		;sectors per track
 	.word	4		;number system tracks
 	.byte	1		;block size = 2048
 	.word	127		;max directory number
-	.word	almpa		;address of map for a
-	.byte	80		;do checksums
-	.word	ckmpa		;checksum map
-	.ELSE
-dcbb:	.word	175		;max block number
-	.word	36		;sectors per track
-	.word	4		;number system tracks
-	.byte	1		;block size = 2048
-	.word	127		;max directory number
-	.word	almpa		;address of map for a
-	.byte	80		;do checksums
-	.word	ckmpa		;checksum map
-	.endif
-
-;RBW drives (FIXED IDE/LBA DRIVES)
-dcbwbw:	.word	2047		;max block number
+	.word	almpb		;address of map for b
+	.byte	00		;do checksums
+	.word	ckmp		;checksum map
+dcbc:	.word	2047		;max block number
 	.word	64		;sectors per track
 	.word	130		;number system tracks
 	.byte	2		;block size = 4096
 	.word	511		;max directory number
-	.word	almpwbw		;address of map for C
+	.word	almpc		;address of map for C
 	.byte	0		;do checksums
-	.word	ckmpwbw		;checksum map
+	.word	ckmp		;checksum map
+dcbd:	.word	2047		;max block number
+	.word	64		;sectors per track
+	.word	130		;number system tracks
+	.byte	2		;block size = 4096
+	.word	511		;max directory number
+	.word	almpd		;address of map for d
+	.byte	0		;do checksums
+	.word	ckmp		;checksum map
+dcbe:	.word	2047		;max block number
+	.word	64		;sectors per track
+	.word	130		;number system tracks
+	.byte	2		;block size = 4096
+	.word	511		;max directory number
+	.word	almpe		;address of map for e
+	.byte	0		;do checksums
+	.word	ckmp		;checksum map
+dcbf:	.word	2047		;max block number
+	.word	64		;sectors per track
+	.word	130		;number system tracks
+	.byte	2		;block size = 4096
+	.word	511		;max directory number
+	.word	almpf		;address of map for f
+	.byte	0		;do checksums
+	.word	ckmp		;checksum map
+dcbg:	.word	2047		;max block number
+	.word	64		;sectors per track
+	.word	130		;number system tracks
+	.byte	2		;block size = 4096
+	.word	511		;max directory number
+	.word	almpg		;address of map for g
+	.byte	0		;do checksums
+	.word	ckmp		;checksum map
+dcbh:	.word	2047		;max block number
+	.word	64		;sectors per track
+	.word	130		;number system tracks
+	.byte	2		;block size = 4096
+	.word	511		;max directory number
+	.word	almph		;address of map for h
+	.byte	0		;do checksums
+	.word	ckmp		;checksum map
+
 ;data area
 
 
@@ -767,20 +791,18 @@ DEBDIRTY:	.byte 0		; DIRTY FLAG
 slicetmp:	.word 0		; USED TO CALCULATE SLICE OFFSET
 
 ;allocation maps
-;drive a
-almpa:		.res	45
-;drive b
+almpa:		.res	254
 almpb:		.res	254
-;drive c
-almpwbw:	.res	254
+almpc:		.res	254
+almpd:		.res	254
+almpe:		.res	254
+almpf:		.res	254
+almpg:		.res	254
+almph:		.res	254
 ;checksum maps
 
+;not used
+ckmp:		.res	128
 
-;drive a
-ckmpa:		.res	32
-;drive b
-ckmpb:		.res	128
-;drive c
-ckmpwbw:	.res	128
 ;deblocking buffer for dba
 hstbuf:		.res	512		;256 or 512 byte sectors

@@ -13,29 +13,231 @@
 	.forceimport	__STARTUP__
 	.import		_cputs
 	.import		_cprintf
+	.import		_strncmp
+	.import		_strncpy
+	.import		_strtok
+	.import		_strtoul
+	.export		_floppy35720dcb
+	.export		_floppy35144dcb
+	.export		_floppy525360dcb
+	.export		_floppy52512dcb
+	.export		_hdddcb
+	.export		_ramdcb
+	.export		_romdcb
+	.export		_prtusage
 	.export		_prtdevice
 	.export		_prttable
+	.export		_parsecmd
+	.export		_mapdrive
+	.export		_updatedosmap
+	.export		_toupper
 	.export		_main
+
+.segment	"DATA"
+
+_floppy35720dcb:
+	.byte	$5E
+	.byte	$01
+	.byte	$24
+	.byte	$00
+	.byte	$04
+	.byte	$00
+	.byte	$01
+	.byte	$7F
+	.byte	$00
+_floppy35144dcb:
+	.byte	$5E
+	.byte	$01
+	.byte	$24
+	.byte	$00
+	.byte	$04
+	.byte	$00
+	.byte	$01
+	.byte	$7F
+	.byte	$00
+_floppy525360dcb:
+	.byte	$5E
+	.byte	$01
+	.byte	$24
+	.byte	$00
+	.byte	$04
+	.byte	$00
+	.byte	$01
+	.byte	$7F
+	.byte	$00
+_floppy52512dcb:
+	.byte	$5E
+	.byte	$01
+	.byte	$24
+	.byte	$00
+	.byte	$04
+	.byte	$00
+	.byte	$01
+	.byte	$7F
+	.byte	$00
+_hdddcb:
+	.byte	$FF
+	.byte	$07
+	.byte	$40
+	.byte	$00
+	.byte	$82
+	.byte	$00
+	.byte	$02
+	.byte	$FF
+	.byte	$01
+_ramdcb:
+	.byte	$FF
+	.byte	$07
+	.byte	$40
+	.byte	$00
+	.byte	$82
+	.byte	$00
+	.byte	$02
+	.byte	$FF
+	.byte	$01
+_romdcb:
+	.byte	$FF
+	.byte	$07
+	.byte	$40
+	.byte	$00
+	.byte	$82
+	.byte	$00
+	.byte	$02
+	.byte	$FF
+	.byte	$01
 
 .segment	"RODATA"
 
-L000A:
+L00E8:
+	.byte	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$41,$53,$53,$49,$47,$4E
+	.byte	$20,$43,$3A,$3D,$49,$44,$45,$30,$3A,$31,$09,$28,$61,$73,$73,$69
+	.byte	$67,$6E,$20,$43,$3A,$20,$74,$6F,$20,$49,$44,$45,$20,$75,$6E,$69
+	.byte	$74,$30,$2C,$20,$73,$6C,$69,$63,$65,$20,$31,$29,$20,$0A,$0D,$00
+L00DF:
+	.byte	$20,$20,$20,$20,$20,$20,$65,$78,$3A,$20,$41,$53,$53,$49,$47,$4E
+	.byte	$09,$09,$28,$64,$69,$73,$70,$6C,$61,$79,$20,$61,$6C,$6C,$20,$61
+	.byte	$63,$74,$69,$76,$65,$20,$64,$72,$69,$76,$65,$20,$61,$73,$73,$69
+	.byte	$67,$6E,$6D,$65,$6E,$74,$73,$29,$20,$0A,$0D,$00
+L00E5:
+	.byte	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$41,$53,$53,$49,$47,$4E
+	.byte	$20,$43,$3A,$3D,$46,$44,$30,$3A,$09,$28,$61,$73,$73,$69,$67,$6E
+	.byte	$20,$43,$3A,$20,$74,$6F,$20,$66,$6C,$6F,$70,$70,$79,$20,$75,$6E
+	.byte	$69,$74,$20,$30,$29,$20,$0A,$0D,$00
+L00DC:
+	.byte	$20,$20,$20,$20,$41,$53,$53,$49,$47,$4E,$20,$44,$3A,$3D,$5B,$7B
+	.byte	$44,$3A,$7C,$3C,$64,$65,$76,$69,$63,$65,$3E,$5B,$3C,$75,$6E,$69
+	.byte	$74,$6E,$75,$6D,$3E,$5D,$3A,$5B,$3C,$73,$6C,$69,$63,$65,$6E,$75
+	.byte	$6D,$3E,$5D,$7D,$5D,$20,$0A,$0D,$00
+L00E2:
+	.byte	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$41,$53,$53,$49,$47,$4E
+	.byte	$20,$2F,$3F,$09,$09,$28,$64,$69,$73,$70,$6C,$61,$79,$20,$76,$65
+	.byte	$72,$73,$69,$6F,$6E,$20,$61,$6E,$64,$20,$75,$73,$61,$67,$65,$29
+	.byte	$20,$0A,$0D,$00
+L0111:
+	.byte	$41,$73,$73,$69,$67,$6E,$65,$64,$20,$64,$72,$69,$76,$65,$20,$6D
+	.byte	$75,$73,$74,$20,$62,$65,$20,$69,$6E,$20,$74,$68,$65,$20,$72,$61
+	.byte	$6E,$67,$65,$20,$6F,$66,$20,$41,$2D,$48,$2E,$0A,$0D,$00
+L00F4:
+	.byte	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$50,$50,$49,$44,$45,$20
+	.byte	$20,$50,$50,$49,$44,$45,$20,$46,$49,$58,$45,$44,$20,$44,$49,$53
+	.byte	$4B,$0A,$0D,$00
+L00A3:
 	.byte	$0A,$0D,$20,$44,$4F,$53,$2F,$36,$35,$20,$44,$72,$69,$76,$65,$20
 	.byte	$61,$73,$73,$69,$67,$6E,$6D,$65,$6E,$74,$3A,$0A,$0D,$00
-L0038:
+L0153:
+	.byte	$55,$6E,$6B,$6F,$77,$6E,$20,$64,$65,$76,$69,$63,$65,$20,$61,$73
+	.byte	$73,$69,$67,$6E,$6D,$65,$6E,$74,$2E,$20,$0A,$0D,$00
+L00EE:
+	.byte	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$52,$41,$4D,$20,$20,$20
+	.byte	$20,$52,$41,$4D,$20,$44,$49,$53,$4B,$0A,$0D,$00
+L00F1:
+	.byte	$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$52,$4F,$4D,$20,$20,$20
+	.byte	$20,$52,$4F,$4D,$20,$44,$49,$53,$4B,$0A,$0D,$00
+L00EB:
+	.byte	$0A,$0D,$20,$50,$4F,$53,$53,$49,$42,$4C,$45,$20,$44,$45,$56,$49
+	.byte	$43,$45,$53,$3A,$0A,$0D,$00
+L0114:
+	.byte	$43,$75,$72,$72,$65,$6E,$74,$6C,$79,$3A,$20,$20,$20,$25,$63,$3A
+	.byte	$3D,$00
+L0171:
+	.byte	$43,$68,$61,$6E,$67,$65,$64,$20,$74,$6F,$3A,$20,$20,$25,$63,$3A
+	.byte	$3D,$00
+L00D9:
+	.byte	$20,$55,$73,$61,$67,$65,$3A,$20,$0A,$0D,$00
+L00D1:
 	.byte	$55,$4E,$4B,$4E,$4F,$57,$4E,$00
-L0017:
-	.byte	$20,$20,$25,$63,$3A,$3D,$00
-L001F:
-	.byte	$3A,$25,$69,$0A,$0D,$00
-L0034:
+L0148:
+	.byte	$50,$50,$49,$44,$45,$31,$3A,$00
+L013D:
+	.byte	$50,$50,$49,$44,$45,$30,$3A,$00
+L011C:
+	.byte	$3A,$25,$75,$20,$0A,$0D,$00
+L00B0	:=	L0114+11
+L0179	:=	L011C+0
+L00CD:
 	.byte	$50,$50,$49,$44,$45,$00
-L002F:
-	.byte	$52,$4F,$4D,$00
-L002A:
+L00B8:
+	.byte	$3A,$25,$69,$0A,$0D,$00
+L0127:
+	.byte	$52,$41,$4D,$3A,$00
+L0132:
+	.byte	$52,$4F,$4D,$3A,$00
+L00C3:
 	.byte	$52,$41,$4D,$00
-L003B:
+L00C8:
+	.byte	$52,$4F,$4D,$00
+L00D4:
 	.byte	$25,$69,$00
+L0087	:=	L0114+16
+L0158	:=	L0148+6
+L015D	:=	L0148+6
+L007F:
+	.byte	$20,$00
+L007A	:=	L007F+0
+L0095	:=	L0114+16
+
+; ---------------------------------------------------------------
+; void __near__ prtusage (void)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_prtusage: near
+
+.segment	"CODE"
+
+	lda     #<(L00D9)
+	ldx     #>(L00D9)
+	jsr     _cputs
+	lda     #<(L00DC)
+	ldx     #>(L00DC)
+	jsr     _cputs
+	lda     #<(L00DF)
+	ldx     #>(L00DF)
+	jsr     _cputs
+	lda     #<(L00E2)
+	ldx     #>(L00E2)
+	jsr     _cputs
+	lda     #<(L00E5)
+	ldx     #>(L00E5)
+	jsr     _cputs
+	lda     #<(L00E8)
+	ldx     #>(L00E8)
+	jsr     _cputs
+	lda     #<(L00EB)
+	ldx     #>(L00EB)
+	jsr     _cputs
+	lda     #<(L00EE)
+	ldx     #>(L00EE)
+	jsr     _cputs
+	lda     #<(L00F1)
+	ldx     #>(L00F1)
+	jsr     _cputs
+	lda     #<(L00F4)
+	ldx     #>(L00F4)
+	jmp     _cputs
+
+.endproc
 
 ; ---------------------------------------------------------------
 ; void __near__ prtdevice (unsigned char)
@@ -50,26 +252,30 @@ L003B:
 	jsr     pusha
 	lda     (sp)
 	and     #$F0
-	beq     L0028
+	beq     L00C1
 	cmp     #$10
-	beq     L002D
+	beq     L00C6
 	cmp     #$30
-	beq     L0032
-	bra     L0036
-L0028:	lda     #<(L002A)
-	ldx     #>(L002A)
-	bra     L003E
-L002D:	lda     #<(L002F)
-	ldx     #>(L002F)
-	bra     L003E
-L0032:	lda     #<(L0034)
-	ldx     #>(L0034)
-	bra     L003E
-L0036:	lda     #<(L0038)
-	ldx     #>(L0038)
-L003E:	jsr     _cputs
-	lda     #<(L003B)
-	ldx     #>(L003B)
+	beq     L00CB
+	bra     L00CF
+L00C1:	lda     #<(L00C3)
+	ldx     #>(L00C3)
+	jsr     _cputs
+	jmp     incsp1
+L00C6:	lda     #<(L00C8)
+	ldx     #>(L00C8)
+	jsr     _cputs
+	jmp     incsp1
+L00CB:	lda     #<(L00CD)
+	ldx     #>(L00CD)
+	jsr     _cputs
+	bra     L00BF
+L00CF:	lda     #<(L00D1)
+	ldx     #>(L00D1)
+	jsr     _cputs
+	jmp     incsp1
+L00BF:	lda     #<(L00D4)
+	ldx     #>(L00D4)
 	jsr     pushax
 	ldy     #$02
 	lda     (sp),y
@@ -93,26 +299,24 @@ L003E:	jsr     _cputs
 
 	jsr     pushax
 	jsr     decsp2
-	lda     #<(L000A)
-	ldx     #>(L000A)
+	lda     #<(L00A3)
+	ldx     #>(L00A3)
 	jsr     _cputs
 	ldx     #$00
 	txa
-L0040:	jsr     stax0sp
+L0193:	jsr     stax0sp
 	cmp     #$10
 	txa
 	sbc     #$00
-	bvc     L0013
+	bvc     L00AC
 	eor     #$80
-L0013:	bpl     L000D
-	lda     #<(L0017)
-	ldx     #>(L0017)
+L00AC:	bpl     L00A6
+	lda     #<(L00B0)
+	ldx     #>(L00B0)
 	jsr     pushax
-	ldy     #$05
-	jsr     pushwysp
-	ldx     #$00
-	lda     #$02
-	jsr     tosmoda0
+	ldy     #$03
+	jsr     ldaxysp
+	jsr     asrax1
 	ldy     #$41
 	jsr     incaxy
 	jsr     pushax
@@ -125,9 +329,9 @@ L0013:	bpl     L000D
 	sta     regsave
 	stx     regsave+1
 	ina
-	bne     L001D
+	bne     L00B6
 	inx
-L001D:	ldy     #$02
+L00B6:	ldy     #$02
 	jsr     staxysp
 	lda     regsave
 	ldx     regsave+1
@@ -136,8 +340,8 @@ L001D:	ldy     #$02
 	stx     ptr1+1
 	lda     (ptr1)
 	jsr     _prtdevice
-	lda     #<(L001F)
-	ldx     #>(L001F)
+	lda     #<(L00B8)
+	ldx     #>(L00B8)
 	jsr     pushax
 	ldy     #$03
 	jsr     ldaxysp
@@ -154,13 +358,543 @@ L001D:	ldy     #$02
 	ldy     #$04
 	jsr     _cprintf
 	jsr     ldax0sp
-	sta     regsave
-	stx     regsave+1
 	ina
-	jne     L0040
+	bne     L0193
 	inx
-	jmp     L0040
-L000D:	jmp     incsp4
+	bra     L0193
+L00A6:	jmp     incsp4
+
+.endproc
+
+; ---------------------------------------------------------------
+; int __near__ parsecmd (__near__ unsigned char *, __near__ unsigned char *, __near__ unsigned char *)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_parsecmd: near
+
+.segment	"CODE"
+
+	jsr     pushax
+	jsr     push0
+	ldy     #$07
+	jsr     ldaxysp
+	jsr     decax1
+	sta     ptr1
+	stx     ptr1+1
+	lda     (ptr1)
+	jsr     pusha
+	jsr     decsp2
+	ldy     #$08
+	jsr     ldaxysp
+	sta     ptr1
+	stx     ptr1+1
+	lda     #$00
+	sta     (ptr1)
+	ldy     #$06
+	jsr     ldaxysp
+	sta     ptr1
+	stx     ptr1+1
+	lda     #$00
+	sta     (ptr1)
+	ldy     #$02
+	lda     (sp),y
+	cmp     #$80
+	bcc     L0070
+	lda     #$7F
+	sta     (sp),y
+L0070:	lda     (sp),y
+	clc
+	ldy     #$09
+	adc     (sp),y
+	sta     ptr1
+	lda     #$00
+	iny
+	adc     (sp),y
+	sta     ptr1+1
+	lda     #$00
+	sta     (ptr1)
+	ldy     #$0C
+	jsr     pushwysp
+	lda     #<(L007A)
+	ldx     #>(L007A)
+	jsr     _strtok
+	jsr     stax0sp
+	jsr     push0
+	lda     #<(L007F)
+	ldx     #>(L007F)
+	jsr     _strtok
+	jsr     stax0sp
+	cpx     #$00
+	bne     L0194
+	cmp     #$00
+	beq     L0097
+L0194:	jsr     pushw0sp
+	lda     #<(L0087)
+	ldx     #>(L0087)
+	jsr     _strtok
+	jsr     stax0sp
+	cpx     #$00
+	bne     L0195
+	cmp     #$00
+	beq     L0097
+L0195:	ldy     #$0A
+	jsr     pushwysp
+	ldy     #$05
+	jsr     pushwysp
+	ldx     #$00
+	lda     #$1D
+	jsr     _strncpy
+	ldx     #$00
+	lda     #$01
+	ldy     #$03
+	jsr     staxysp
+	jsr     push0
+	lda     #<(L0095)
+	ldx     #>(L0095)
+	jsr     _strtok
+	jsr     stax0sp
+	cpx     #$00
+	bne     L0196
+	cmp     #$00
+	beq     L0097
+L0196:	ldy     #$08
+	jsr     pushwysp
+	ldy     #$05
+	jsr     pushwysp
+	ldx     #$00
+	lda     #$1D
+	jsr     _strncpy
+	ldx     #$00
+	lda     #$02
+	ldy     #$03
+	jsr     staxysp
+L0097:	ldy     #$04
+	jsr     ldaxysp
+	ldy     #$0B
+	jmp     addysp
+
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ mapdrive (__near__ unsigned char *, __near__ unsigned char *, __near__ unsigned char *)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_mapdrive: near
+
+.segment	"CODE"
+
+	jsr     pushax
+	ldy     #$03
+	jsr     ldaxysp
+	sta     ptr1
+	stx     ptr1+1
+	lda     (ptr1)
+	ldx     #$00
+	and     #$5F
+	ldy     #$41
+	jsr     decaxy
+	jsr     pusha
+	lda     #$FF
+	jsr     pusha
+	jsr     decsp4
+	jsr     pushl0
+	jsr     decsp1
+	ldy     #$0A
+	lda     (sp),y
+	cmp     #$08
+	bcc     L010B
+	lda     #<(L0111)
+	ldx     #>(L0111)
+	jsr     _cputs
+	jmp     L0105
+L010B:	lda     #<(L0114)
+	ldx     #>(L0114)
+	jsr     pushax
+	ldy     #$0C
+	ldx     #$00
+	lda     (sp),y
+	ldy     #$41
+	jsr     incaxy
+	jsr     pushax
+	ldy     #$04
+	jsr     _cprintf
+	ldx     #$00
+	ldy     #$0A
+	lda     (sp),y
+	asl     a
+	bcc     L019E
+	inx
+	clc
+L019E:	ldy     #$0F
+	adc     (sp),y
+	sta     ptr1
+	txa
+	iny
+	adc     (sp),y
+	sta     ptr1+1
+	lda     (ptr1)
+	jsr     _prtdevice
+	lda     #<(L011C)
+	ldx     #>(L011C)
+	jsr     pushax
+	ldx     #$00
+	ldy     #$0C
+	lda     (sp),y
+	asl     a
+	bcc     L019F
+	inx
+	clc
+L019F:	ldy     #$11
+	adc     (sp),y
+	pha
+	txa
+	iny
+	adc     (sp),y
+	tax
+	pla
+	ina
+	bne     L0121
+	inx
+L0121:	sta     ptr1
+	stx     ptr1+1
+	lda     (ptr1)
+	jsr     pusha0
+	ldy     #$04
+	jsr     _cprintf
+	ldy     #$0C
+	jsr     ldaxysp
+	jsr     _toupper
+	ldy     #$0E
+	jsr     pushwysp
+	lda     #<(L0127)
+	ldx     #>(L0127)
+	jsr     pushax
+	ldx     #$00
+	lda     #$04
+	jsr     _strncmp
+	stx     tmp1
+	ora     tmp1
+	bne     L0124
+	ldy     #$09
+	sta     (sp),y
+	iny
+	lda     (sp),y
+	jsr     pusha
+	lda     #<(_ramdcb)
+	ldx     #>(_ramdcb)
+	jsr     _updatedosmap
+L0124:	ldy     #$0E
+	jsr     pushwysp
+	lda     #<(L0132)
+	ldx     #>(L0132)
+	jsr     pushax
+	ldx     #$00
+	lda     #$04
+	jsr     _strncmp
+	stx     tmp1
+	ora     tmp1
+	bne     L012F
+	lda     #$10
+	ldy     #$09
+	sta     (sp),y
+	iny
+	lda     (sp),y
+	jsr     pusha
+	lda     #<(_romdcb)
+	ldx     #>(_romdcb)
+	jsr     _updatedosmap
+L012F:	ldy     #$0E
+	jsr     pushwysp
+	lda     #<(L013D)
+	ldx     #>(L013D)
+	jsr     pushax
+	ldx     #$00
+	lda     #$07
+	jsr     _strncmp
+	stx     tmp1
+	ora     tmp1
+	bne     L013A
+	lda     #$30
+	ldy     #$09
+	sta     (sp),y
+	iny
+	lda     (sp),y
+	jsr     pusha
+	lda     #<(_hdddcb)
+	ldx     #>(_hdddcb)
+	jsr     _updatedosmap
+L013A:	ldy     #$0E
+	jsr     pushwysp
+	lda     #<(L0148)
+	ldx     #>(L0148)
+	jsr     pushax
+	ldx     #$00
+	lda     #$07
+	jsr     _strncmp
+	stx     tmp1
+	ora     tmp1
+	bne     L0145
+	lda     #$31
+	ldy     #$09
+	sta     (sp),y
+	iny
+	lda     (sp),y
+	jsr     pusha
+	lda     #<(_ramdcb)
+	ldx     #>(_ramdcb)
+	jsr     _updatedosmap
+L0145:	ldy     #$09
+	lda     (sp),y
+	cmp     #$FF
+	bne     L0150
+	lda     #<(L0153)
+	ldx     #>(L0153)
+	jsr     pushax
+	ldy     #$02
+	jmp     L019D
+L0150:	ldy     #$0E
+	jsr     pushwysp
+	lda     #<(L0158)
+	ldx     #>(L0158)
+	jsr     _strtok
+	ldy     #$07
+	jsr     staxysp
+	jsr     push0
+	lda     #<(L015D)
+	ldx     #>(L015D)
+	jsr     _strtok
+	ldy     #$07
+	jsr     staxysp
+	cpx     #$00
+	bne     L01A5
+	cmp     #$00
+	beq     L01A6
+L01A5:	ldy     #$0A
+	jsr     pushwysp
+	lda     #$07
+	jsr     leaa0sp
+	jsr     pushax
+	ldx     #$00
+	lda     #$0A
+	jsr     _strtoul
+	sta     (sp)
+	ldx     #$00
+L01A6:	ldy     #$0A
+	lda     (sp),y
+	asl     a
+	bcc     L01A0
+	inx
+	clc
+L01A0:	ldy     #$0F
+	adc     (sp),y
+	sta     ptr1
+	txa
+	iny
+	adc     (sp),y
+	sta     ptr1+1
+	ldy     #$09
+	lda     (sp),y
+	sta     (ptr1)
+	ldx     #$00
+	iny
+	lda     (sp),y
+	asl     a
+	bcc     L01A1
+	inx
+	clc
+L01A1:	ldy     #$0F
+	adc     (sp),y
+	pha
+	txa
+	iny
+	adc     (sp),y
+	tax
+	pla
+	ina
+	bne     L016E
+	inx
+L016E:	sta     ptr1
+	stx     ptr1+1
+	lda     (sp)
+	sta     (ptr1)
+	lda     #<(L0171)
+	ldx     #>(L0171)
+	jsr     pushax
+	ldy     #$0C
+	ldx     #$00
+	lda     (sp),y
+	ldy     #$41
+	jsr     incaxy
+	jsr     pushax
+	ldy     #$04
+	jsr     _cprintf
+	ldx     #$00
+	ldy     #$0A
+	lda     (sp),y
+	asl     a
+	bcc     L01A2
+	inx
+	clc
+L01A2:	ldy     #$0F
+	adc     (sp),y
+	sta     ptr1
+	txa
+	iny
+	adc     (sp),y
+	sta     ptr1+1
+	lda     (ptr1)
+	jsr     _prtdevice
+	lda     #<(L0179)
+	ldx     #>(L0179)
+	jsr     pushax
+	ldx     #$00
+	ldy     #$0C
+	lda     (sp),y
+	asl     a
+	bcc     L01A3
+	inx
+	clc
+L01A3:	ldy     #$11
+	adc     (sp),y
+	pha
+	txa
+	iny
+	adc     (sp),y
+	tax
+	pla
+	ina
+	bne     L017E
+	inx
+L017E:	sta     ptr1
+	stx     ptr1+1
+	lda     (ptr1)
+	jsr     pusha0
+	ldy     #$04
+L019D:	jsr     _cprintf
+L0105:	ldy     #$11
+	jmp     addysp
+
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ updatedosmap (unsigned char, unsigned char *)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_updatedosmap: near
+
+.segment	"CODE"
+
+	jsr     pushax
+	lda     $002E
+	ldx     $002E+1
+	jsr     pushax
+	ldx     #$00
+	ldy     #$04
+	lda     (sp),y
+	asl     a
+	bcc     L01A8
+	inx
+	clc
+L01A8:	adc     (sp)
+	pha
+	txa
+	ldy     #$01
+	adc     (sp),y
+	tax
+	pla
+	ldy     #$10
+	jsr     decaxy
+	jsr     pushw
+	jsr     decsp2
+	ldx     #$00
+	txa
+L01AA:	jsr     stax0sp
+	cmp     #$09
+	txa
+	sbc     #$00
+	bvc     L018B
+	eor     #$80
+L018B:	bpl     L0185
+	jsr     ldax0sp
+	clc
+	ldy     #$02
+	adc     (sp),y
+	sta     sreg
+	txa
+	iny
+	adc     (sp),y
+	sta     sreg+1
+	jsr     ldax0sp
+	clc
+	ldy     #$06
+	adc     (sp),y
+	sta     ptr1
+	txa
+	iny
+	adc     (sp),y
+	sta     ptr1+1
+	lda     (ptr1)
+	sta     (sreg)
+	jsr     ldax0sp
+	ina
+	bne     L01AA
+	inx
+	bra     L01AA
+L0185:	ldy     #$09
+	jmp     addysp
+
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ toupper (__near__ unsigned char *)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_toupper: near
+
+.segment	"CODE"
+
+	jsr     pushax
+	bra     L00F9
+L00F7:	jsr     ldax0sp
+	sta     ptr1
+	stx     ptr1+1
+	lda     (ptr1)
+	cmp     #$61
+	bcc     L00FB
+	jsr     ldax0sp
+	sta     ptr1
+	stx     ptr1+1
+	lda     (ptr1)
+	cmp     #$7B
+	bcs     L00FB
+	jsr     ldax0sp
+	sta     sreg
+	stx     sreg+1
+	jsr     ldax0sp
+	sta     ptr1
+	stx     ptr1+1
+	lda     (ptr1)
+	and     #$5F
+	sta     (sreg)
+L00FB:	jsr     ldax0sp
+	ina
+	bne     L0104
+	inx
+L0104:	jsr     stax0sp
+L00F9:	jsr     ldax0sp
+	sta     ptr1
+	stx     ptr1+1
+	lda     (ptr1)
+	bne     L00F7
+	jmp     incsp2
 
 .endproc
 
@@ -177,11 +911,49 @@ L000D:	jmp     incsp4
 	lda     $002E
 	ldx     $002E+1
 	jsr     pushax
-	jsr     ldax0sp
+	lda     $0030
+	ldx     $0030+1
+	jsr     pushax
+	ldy     #$3E
+	jsr     subysp
+	lda     $0030
+	ldx     $0030+1
+	jsr     pushax
+	lda     #$20
+	jsr     leaa0sp
+	jsr     pushax
+	lda     #$04
+	jsr     leaa0sp
+	jsr     _parsecmd
+	ldy     #$3C
+	jsr     staxysp
+	cpx     #$00
+	bne     L0056
+	cmp     #$00
+	beq     L0058
+	cmp     #$01
+	beq     L005C
+	cmp     #$02
+	beq     L005F
+	bra     L01AE
+L0058:	ldy     #$41
+	jsr     ldaxysp
 	jsr     _prttable
-	ldx     #$00
-	txa
-	jmp     incsp2
+	bra     L0056
+L005C:	jsr     _prtusage
+	bra     L0056
+L005F:	ldy     #$43
+	jsr     pushwysp
+	lda     #$20
+	jsr     leaa0sp
+	jsr     pushax
+	lda     #$04
+	jsr     leaa0sp
+	jsr     _mapdrive
+L0056:	ldx     #$00
+L01AE:	txa
+	ldy     #$42
+	jmp     addysp
 
 .endproc
 
