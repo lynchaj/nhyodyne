@@ -56,8 +56,6 @@ iostat	=	$106		;i/o status
 dflfcb	=	$107		;default fcb
 dflbuf	=	$128		;default buffer
 tea	=	$800		;tea start
-ccmlng	=	2048		;ccm length
-pemlng	=	3072		;pem length
 ;zero page for setup
 trknum	=	$02			;current track
 dcbadd	=	$04			;dcb address
@@ -88,7 +86,8 @@ room	=	$2A			;memory needed for sysgen
 stksav	=	$2C			;save stack register
 frstsc	=	$2D			;first sector number of disk
 dskcfpc	=	$2E			;pointer to disk configuration table
-lastzp	=	$30
+cmdlnp	=	$30			;pointer to command line buffer
+lastzp	=	$32
 ;fixed parameters
 lf	=	$a		;linefeeed
 cr	=	$d		;return
