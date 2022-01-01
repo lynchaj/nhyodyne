@@ -55,6 +55,7 @@ pemjmp	=	$103		;jump to pem
 iostat	=	$106		;i/o status
 dflfcb	=	$107		;default fcb
 dflbuf	=	$128		;default buffer
+memmovr =	$200		;subr to move data from ram/rom disks
 tea	=	$800		;tea start
 ;zero page for setup
 trknum	=	$02			;current track

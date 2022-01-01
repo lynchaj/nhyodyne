@@ -3,9 +3,9 @@
 ; 	Nhyodyne IDE disk drivers for Z80PPIDE card
 ;
 ;	Entry points:
-;		IDE_SOFT_RESET   - called during OS init
-;		IDE_READ_SECTOR  - read a sector from drive
-;		IDE_WRITE_SECTOR - write a sector to drive
+;		PPIDE_INIT   	- called during OS init
+;		IDE_READ_SECTOR - read a sector from drive
+;		IDE_WRITE_SECTOR- write a sector to drive
 ;________________________________________________________________________________________________________________________________
 ;
 PPIDE_PPI	=	$0360		; PORT A
@@ -222,6 +222,14 @@ IDE_PPIDETECT:
 ;*____________________________________________________________________________________________________
 IDE_READ_SECTOR:
 		PRTDBG "IDE Read Sector$"
+		JSR 	IDE_READ_RAW_SECTOR
+		JSR 	DEBSECR512
+		RTS
+
+IDE_READ_RAW_SECTOR:
+		PRTDBG "IDE Read Raw Sector$"
+	  	JSR	IDE_CONVERT_SECTOR	;
+
 		LDA	debsehd			; STORE CURRENT PARMS
 		CMP	Cdebsehd		;
 		BNE	IDE_READ_SECTOR_DIRTY
@@ -255,7 +263,7 @@ IDE_READ_SECTOR_DIRTY:
 		LDA	#$00			; ZERO = 1 ON RETURN = OPERATION OK
 		RTS
 IDE_READ_SECTOR_DIRTY_ERROR:
-		LDA	#$01			; ZERO = 1 ON RETURN = OPERATION OK
+		LDA	#$FF			; ZERO = 1 ON RETURN = OPERATION OK
 		RTS
 
 ;*__IDE_WRITE_SECTOR__________________________________________________________________________________
@@ -265,6 +273,8 @@ IDE_READ_SECTOR_DIRTY_ERROR:
 ;*____________________________________________________________________________________________________
 IDE_WRITE_SECTOR:
 		PRTDBG "IDE Write Sector$"
+	  	JSR	IDE_READ_RAW_SECTOR	; determine physical sector
+	  	JSR	BLKSECR512		; block sector for writing
 		JSR	IDE_WAIT_NOT_BUSY	;MAKE SURE DRIVE IS READY
 		BCS 	IDE_WRITE_SECTOR_ERROR	; IF TIMEOUT, REPORT NO IDE PRESENT
 
@@ -285,7 +295,7 @@ IDE_WRITE_SECTOR:
 		LDA	#$00			; ZERO ON RETURN = OPERATION OK
 		RTS
 IDE_WRITE_SECTOR_ERROR:
-		LDA	#$01			; 1 ON RETURN = OPERATION FAIL
+		LDA	#$FF			; 1 ON RETURN = OPERATION FAIL
 		RTS
 
 ;*__PPIDE_RESET____________________________________________________________________________________
@@ -473,12 +483,7 @@ IDEBUFWT1:
 ;*____________________________________________________________________________________________________
 IDE_SETUP_LBA:
 		PRTDBG "PPIDE SETUP LBA$"
-
-		LDA	sekdsk			; GET DRIVE
-		AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
-		asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
-		TAX 				; MOVE TO X REGISTER
-		LDA 	dskcfg,X 		; GET device
+		JSR 	GET_DRIVE_DEVICE
 		and 	#$01			; only want drive cfg
 		asl	a			; SHIFT 4
 		asl	a			;
@@ -507,6 +512,100 @@ IDE_SETUP_LBA:
 		JSR	IDE_WRITE
 
 		RTS
+
+;___IDE_CONVERT_SECTOR___________________________________________________________________________________
+;
+; 	TRANSLATE SECTORS INTO IDE FORMAT
+;________________________________________________________________________________________________________
+IDE_CONVERT_SECTOR:
+	LDA	sektrk			; LOAD TRACK # (LOW BYTE)
+	AND 	#$0F			; ISOLATE HEAD IN LOW 4 BITS
+	asl	a			; MOVE TO HIGH BYTE
+	asl	a
+	asl	a
+	asl	a
+	TAX 				; PARK IN X
+	LDA	seksec			; LOAD SECTOR # (LOW BYTE)
+	LSR	A			;
+	LSR	A			; DIVIDE BY 4 (FOR BLOCKING)
+	AND 	#$0F 			; CLEAR UPPER 4 BITS (JUST 'CAUSE)
+	STA	debsehd			; STORE IN SECTOR/HEAD
+	TXA 				; GET HEAD BACK
+	ORA 	debsehd
+	STA	debsehd			; STORE IN SECTOR/HEAD
+
+	LDA 	sektrk
+	STA	debcyll			; STORE IN TRACK (lsb)
+	LDA 	sektrk+1
+	STA	debcylm			; STORE IN TRACK (msb)
+					; REMOVE HEAD FROM TRACK VALUE (DIV/4)
+	LDA	debcylm
+	LSR 	A
+	STA	debcylm
+	LDA	debcyll
+	ROR 	A
+	STA	debcyll
+
+	LDA	debcylm
+	LSR 	A
+	STA	debcylm
+	LDA	debcyll
+	ROR 	A
+	STA	debcyll
+
+	LDA	debcylm
+	LSR 	A
+	STA	debcylm
+	LDA	debcyll
+	ROR 	A
+	STA	debcyll
+
+	LDA	debcylm
+	LSR 	A
+	STA	debcylm
+	LDA	debcyll
+	ROR 	A
+	STA	debcyll
+
+;	ADD SLICE OFFSET
+	LDA	sekdsk			; GET DRIVE#
+	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
+	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
+	TAX 				; MOVE TO X REGISTER
+	INX				; WANT SECOND BYTE OF ENTRY
+	LDA 	dskcfg,X 		; GET SLICE#
+	STA 	slicetmp+1 		; SLICE OFFSET MSB
+	LDA 	#0	 		; GET SLICE#
+	STA 	slicetmp		; SLICE OFFSET LSB
+	CLC				; VOODOO MATH TO TAKE SLICE*$4000
+	ROR 	slicetmp+1
+	ROR	slicetmp
+	ROR 	slicetmp+1
+	ROR	slicetmp
+					; ADD SLICE OFFSET TO TRACK #
+	clc				; clear carry
+	lda slicetmp
+	adc debcyll
+	sta debcyll			; store sum of LSBs
+	lda slicetmp+1
+	adc debcylm			; add the MSBs using carry from
+	sta debcylm			; the previous calculation
+
+
+  .IF USEDSKY=1 || USEDSKYNG=1
+  	PRTDBG "DSKY OUTPUT 1$"
+  	lda	sekdsk
+  	sta	DSKY_HEXBUF
+ 	lda	debcylm
+  	sta	DSKY_HEXBUF+1
+ 	lda	debcyll
+  	sta	DSKY_HEXBUF+2
+    	lda	debsehd
+  	sta	DSKY_HEXBUF+3
+  	JSR	DSKY_BIN2SEG
+	JSR	DSKY_SHOW
+  .ENDIF
+	RTS
 
 
 ;-------------------------------------------------------------------------------
