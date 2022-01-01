@@ -116,6 +116,8 @@ boot:
 ;	JSR	SETUPDRIVE
   .ENDIF
 
+	JSR	MD_INIT
+
     .IF USEIDEC=1
     	JSR	PPIDE_INIT
   .ENDIF
@@ -149,7 +151,9 @@ boot:
 
 
 				;set up jumps into dos/65 in page one
-setup:	ldx	#0		;clear index
+setup:
+	JSR	MD_REINIT
+	ldx	#0		;clear index
 				;first clear key dba variables
 	stx	hstact		;host buffer inactive
 	stx	unacnt		;clear unalloc count
@@ -216,7 +220,7 @@ dcbtbl:	.word	dcba		; A
 ; disk configuration table
 dskcfg:
 	.byte $00,$00		;  disk A: unit,slice  (invalid for floppy and RAM disks)
-	.byte $10,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
+	.byte $01,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
 	.byte $30,$00		;  disk C: unit,slice
 	.byte $30,$01		;  disk D: unit,slice
 	.byte $30,$02		;  disk E: unit,slice
@@ -262,59 +266,31 @@ selsec:
 ; 	PERFORM DOS/65 SECTOR READ
 ;________________________________________________________________________________________________________
 read:
-
-	JSR	CONVERT_SECTOR_DOS	;
-	JSR	READlow			;
-	CMP	#$00			;
-	BNE	RDABEND			;
-	JSR	DEBSECR			;
-	LDA	#$00			;
-	RTS				;
-RDABEND:				;
-	LDA	#$FF			;
-	RTS				;
-
-;__READlow_______________________________________________________________________________________________
-;
-; 	PERFORM LOW LEVEL SECTOR READ
-;________________________________________________________________________________________________________
-READlow:
-	LDA	sekdsk			; GET DRIVE
-	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
-	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
-	TAX 				; MOVE TO X REGISTER
-	LDA 	dskcfg,X 		; GET device
+	JSR 	GET_DRIVE_DEVICE	;
 	and 	#$F0			; only want first nybble
-
 	CMP 	#$00
-	BNE 	READlow1		; not RAM drive
-	;PRTS "RAM$"
-	LDA	#$FF			;
+	BNE 	:+			; not MD drive
+	;RAM
+	JSR 	MD_READ_SECTOR
 	RTS				;
-READlow1:
-	CMP 	#$10
-	BNE 	READlow2		; not ROM drive
-	;PRTS "ROM$"
-	LDA	#$FF			;
-	RTS				;
-READlow2:
+:
 	CMP 	#$20
-	BNE 	READlow3		; not floppy drive
-	;PRTS "FD$"
+	BNE 	:+			; not floppy drive
+	;FD
   	.IF USEFLOPPYA=1 || USEFLOPPYB=1
   	JMP	READFL			;
   	.else
   	LDA	#$FF			;
 	RTS				;
   	.ENDIF
-READlow3:
+:
 	CMP 	#$30
-	BNE 	READlowx		; invalid drive
-	;PRTS "PPIDE$"
+	BNE 	:+			; invalid drive
+	;PPIDE
   	.IF USEIDEC=1
 	JMP	IDE_READ_SECTOR		;
   	.ENDIF
-READlowx:
+:
 	LDA	#$FF			; signal error
 	RTS				;
 
@@ -324,34 +300,19 @@ READlowx:
 ; 	PERFORM DOS/65 SECTOR WRITE
 ;________________________________________________________________________________________________________
 write:
-	JSR	CONVERT_SECTOR_DOS	; determine physical sector
-	JSR	READlow			; read physical sector
-	CMP	#$00			;
-	BNE	writex			; on error abort
-	JSR	BLKSECR			; block sector for writing
-					;
-	LDA	sekdsk			; GET DRIVE
-	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
-	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
-	TAX 				; MOVE TO X REGISTER
-	LDA 	dskcfg,X 		; GET device
+	JSR 	GET_DRIVE_DEVICE	;
 	and 	#$F0			; only want first nybble
 
 	CMP 	#$00
-	BNE 	write1			; not RAM Drive
-	;PRTS "RAM$"
-	LDA	#$FF			;
+	BNE 	:+			; not MD Drive
+	;MD
+	JSR 	MD_WRITE_SECTOR
+
 	RTS				;
-write1:
-	CMP 	#$10
-	BNE 	write2			; not ROM Drive
-	;PRTS "ROM$"
-	LDA	#$FF			; always invalid to write to ROM Drive
-	RTS				;
-write2:
+:
 	CMP 	#$20
-	BNE 	write3			; not floppy drive
-	;PRTS "FD$"
+	BNE 	:+			; not floppy drive
+	;FD
   	.IF USEFLOPPYA=1 || USEFLOPPYB=1
   	Jsr	WRITEFL			;
 	RTS				;
@@ -359,12 +320,15 @@ write2:
   	LDA	#$FF			;
 	RTS				;
   	.ENDIF
-write3:
+:
 	CMP 	#$30
 	BNE 	writex			; not ppide
-	;PRTS "PPIDE$"
+	;PPIDE
   	.IF USEIDEC=1
 	JSR	IDE_WRITE_SECTOR
+	RTS				;
+  	.else
+  	LDA	#$FF			;
 	RTS				;
   	.ENDIF
 writex:
@@ -440,106 +404,13 @@ ENDOUTSTR:
        	RTS			; RETURN
 
 
-;___CONVERT_SECTOR_DOS________________________________________________________________________________
-;
-; 	TRANSLATE SECTORS INTO ECB SERVER FORMAT
-;________________________________________________________________________________________________________
-CONVERT_SECTOR_DOS:
-	LDA	sektrk			; LOAD TRACK # (LOW BYTE)
-	AND 	#$0F			; ISOLATE HEAD IN LOW 4 BITS
-	asl	a			; MOVE TO HIGH BYTE
-	asl	a
-	asl	a
-	asl	a
-	TAX 				; PARK IN X
-	LDA	seksec			; LOAD SECTOR # (LOW BYTE)
-	LSR	A			;
-	LSR	A			; DIVIDE BY 4 (FOR BLOCKING)
-	AND 	#$0F 			; CLEAR UPPER 4 BITS (JUST 'CAUSE)
-	STA	debsehd			; STORE IN SECTOR/HEAD
-	TXA 				; GET HEAD BACK
-	ORA 	debsehd
-	STA	debsehd			; STORE IN SECTOR/HEAD
-
-	LDA 	sektrk
-	STA	debcyll			; STORE IN TRACK (lsb)
-	LDA 	sektrk+1
-	STA	debcylm			; STORE IN TRACK (msb)
-					; REMOVE HEAD FROM TRACK VALUE (DIV/4)
-	LDA	debcylm
-	LSR 	A
-	STA	debcylm
-	LDA	debcyll
-	ROR 	A
-	STA	debcyll
-
-	LDA	debcylm
-	LSR 	A
-	STA	debcylm
-	LDA	debcyll
-	ROR 	A
-	STA	debcyll
-
-	LDA	debcylm
-	LSR 	A
-	STA	debcylm
-	LDA	debcyll
-	ROR 	A
-	STA	debcyll
-
-	LDA	debcylm
-	LSR 	A
-	STA	debcylm
-	LDA	debcyll
-	ROR 	A
-	STA	debcyll
-
-;	ADD SLICE OFFSET
-	LDA	sekdsk			; GET DRIVE#
-	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
-	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
-	TAX 				; MOVE TO X REGISTER
-	INX				; WANT SECOND BYTE OF ENTRY
-	LDA 	dskcfg,X 		; GET SLICE#
-	STA 	slicetmp+1 		; SLICE OFFSET MSB
-	LDA 	#0	 		; GET SLICE#
-	STA 	slicetmp		; SLICE OFFSET LSB
-	CLC				; VOODOO MATH TO TAKE SLICE*$4000
-	ROR 	slicetmp+1
-	ROR	slicetmp
-	ROR 	slicetmp+1
-	ROR	slicetmp
-					; ADD SLICE OFFSET TO TRACK #
-	clc				; clear carry
-	lda slicetmp
-	adc debcyll
-	sta debcyll			; store sum of LSBs
-	lda slicetmp+1
-	adc debcylm			; add the MSBs using carry from
-	sta debcylm			; the previous calculation
-
-
-  .IF USEDSKY=1 || USEDSKYNG=1
-  	PRTDBG "DSKY OUTPUT 1$"
-  	lda	sekdsk
-  	sta	DSKY_HEXBUF
- 	lda	debcylm
-  	sta	DSKY_HEXBUF+1
- 	lda	debcyll
-  	sta	DSKY_HEXBUF+2
-    	lda	debsehd
-  	sta	DSKY_HEXBUF+3
-  	JSR	DSKY_BIN2SEG
-	JSR	DSKY_SHOW
-  .ENDIF
-	RTS
-
-;___DEBSECR______________________________________________________________________________________________
+;___DEBSECR512________________________________________________________________________________________
 ;
 ;	DEBLOCK 512 BYTE SECTOR FOR DOS/65
 ;
 ;________________________________________________________________________________________________________
-DEBSECR:
+DEBSECR512:
+	PHA
 	LDA	seksec			;
 	AND	#$03			; GET SECTOR INDEX
 	CLC				;
@@ -555,6 +426,7 @@ DEBSECR:
 	LDA	dmaadr+1		;
 	STA	DEST+1			;
 	JSR	COPY_DOS_SECTOR		;
+	PLA
 	RTS
 
 DEBTAB:
@@ -564,12 +436,13 @@ DEBTAB:
 	.word	hstbuf+384		;
 
 
-;___BLKSECR______________________________________________________________________________________________
+;___BLKSECR512___________________________________________________________________________________________
 ;
-;	BLOCK 512 BYTE SECTOR FOR DOS/65
+;	BLOCK 512 SECTOR FOR DOS/65
 ;
 ;________________________________________________________________________________________________________
-BLKSECR:
+BLKSECR512:
+	PHA
 	LDA	seksec			;
 	AND	#$03			; GET SECTOR INDEX
 	CLC				;
@@ -585,6 +458,22 @@ BLKSECR:
 	LDA	dmaadr+1		;
 	STA	SRC+1			;
 	JSR	COPY_DOS_SECTOR		;
+	PLA
+	RTS
+
+;___GET_DRIVE_DEVICE_____________________________________________________________________________________
+;
+;	GET SELECTED DEVICE TYPE AND UNIT, RETURN IN "A"
+;
+;________________________________________________________________________________________________________
+GET_DRIVE_DEVICE:
+	PHX
+	LDA	sekdsk			; GET DRIVE
+	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
+	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
+	TAX 				; MOVE TO X REGISTER
+	LDA 	dskcfg,X 		; GET device
+	PLX
 	RTS
 
 
@@ -594,6 +483,7 @@ BLKSECR:
 ;
 ;________________________________________________________________________________________________________
 COPY_DOS_SECTOR:
+	PHY
 	LDY	#$00			;
 COPY_DOS_SECTOR1:
 	LDA	(SRC),Y			;
@@ -602,6 +492,7 @@ COPY_DOS_SECTOR1:
 	TYA				;
 	CMP	#$80			;
 	BNE	COPY_DOS_SECTOR1	;
+	PLY
 	RTS
 
 ;___DSPL_DSK_CFG_________________________________________________________________________________________
@@ -638,8 +529,7 @@ DSPL_DSK_CFG_1:
 	RTS
 
 ; 	DEVICE TABLE:
-;	$00	RAM
-;	$10	ROM
+;	$00	MD
 ;	$2x	FLOPPY
 ;	$3x	IDE
 prtdevice:
@@ -648,12 +538,12 @@ prtdevice:
 	AND 	#$F0 			; FILTER OUT UNIT
 	CMP 	#$00
 	BNE 	prtdevice1
-	PRTS "RAM$"
+	PRTS "MD$"
 	jmp 	prtdevice_done
 prtdevice1:
 	CMP 	#$10
 	BNE 	prtdevice2
-	PRTS "ROM$"
+	PRTS "UNK$"
 	jmp 	prtdevice_done
 prtdevice2:
 	CMP 	#$20
@@ -674,45 +564,43 @@ prtdevice_done:
 	RTS
 
 
-  .IF USESERIAL=1
-	.INCLUDE "dosser.asm"
-  .ENDIF
+	.IF USESERIAL=1
+		.INCLUDE "dosser.asm"
+	.ENDIF
+	.IF USEIDEC=1
+		.INCLUDE "doside.asm"
+	.ENDIF
 
+	.IF USEFLOPPYA=1 | USEFLOPPYB=1
+		.INCLUDE "DOS65\\DOSFLPV3.ASM"
+	.ENDIF
 
-    .IF USEIDEC=1
-	.INCLUDE "doside.asm"
-    .ENDIF
+	.IF USEDSKY=1
+		.INCLUDE "DOSDSKY.ASM"
+	.ENDIF
 
-    .IF USEFLOPPYA=1 | USEFLOPPYB=1
-	.INCLUDE "DOS65\\DOSFLPV3.ASM"
-    .ENDIF
-
-    .IF USEDSKY=1
-     .INCLUDE "DOSDSKY.ASM"
-    .ENDIF
-
-    .IF USEDSKYNG=1
-     .INCLUDE "dosdskyn.asm"
-    .ENDIF
-
+	.IF USEDSKYNG=1
+		.INCLUDE "dosdskyn.asm"
+	.ENDIF
+	.INCLUDE "dosmd.asm"
 
 ;------------------------------------------------------------------------------------
 
 
 ;disk control blocks
-dcba:	.word	350		;max block number
-	.word	36		;sectors per track
-	.word	4		;number system tracks
+dcba:	.word	127		;max block number
+	.word	64		;sectors per track
+	.word	0		;number system tracks
 	.byte	1		;block size = 2048
-	.word	127		;max directory number
+	.word	255		;max directory number
 	.word	almpa		;address of map for a
 	.byte	00		;do checksums
 	.word	ckmp		;checksum map
-dcbb:	.word	350		;max block number
-	.word	36		;sectors per track
-	.word	4		;number system tracks
+dcbb:	.word	191		;max block number
+	.word	64		;sectors per track
+	.word	0		;number system tracks
 	.byte	1		;block size = 2048
-	.word	127		;max directory number
+	.word	155		;max directory number
 	.word	almpb		;address of map for b
 	.byte	00		;do checksums
 	.word	ckmp		;checksum map

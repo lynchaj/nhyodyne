@@ -8,8 +8,8 @@ char floppy35144dcb[9]={0x5e,0x01,0x24,0x00,0x04,0x00,0x01,0x7f,0x00};
 char floppy525360dcb[9]={0x5e,0x01,0x24,0x00,0x04,0x00,0x01,0x7f,0x00};
 char floppy52512dcb[9]={0x5e,0x01,0x24,0x00,0x04,0x00,0x01,0x7f,0x00};
 char hdddcb[9]={0xff,0x07,0x40,0x00,0x82,0x00,0x02,0xff,0x01};
-char ramdcb[9]={0xff,0x07,0x40,0x00,0x82,0x00,0x02,0xff,0x01};
-char romdcb[9]={0xff,0x07,0x40,0x00,0x82,0x00,0x02,0xff,0x01};
+char ramdcb[9]={0x7f,0x00,0x40,0x00,0x00,0x00,0x01,0xff,0x00};
+char romdcb[9]={0xbf,0x00,0x40,0x00,0x00,0x00,0x01,0xff,0x00};
 
 void prtusage();
 void prtdevice(char);
@@ -91,10 +91,10 @@ void prtdevice(char dev)
   switch (dev & 0xf0)
   {
   case 0x00:
-    cputs("RAM");
-    return;
+    cputs("MD");
+     break;
   case 0x10:
-    cputs("ROM");
+    cputs("UNKNOWN");
     return;
   case 0x30:
     cputs("PPIDE");
@@ -115,9 +115,10 @@ void prtusage()
   cputs("          ASSIGN C:=FD0:	(assign C: to floppy unit 0) \n\r");
   cputs("          ASSIGN C:=IDE0:1	(assign C: to IDE unit0, slice 1) \n\r");
   cputs("\n\r POSSIBLE DEVICES:\n\r");
-  cputs("          RAM    RAM DISK\n\r");
-  cputs("          ROM    ROM DISK\n\r");
-  cputs("          PPIDE  PPIDE FIXED DISK\n\r");
+  cputs("          MD0:    RAM DISK\n\r");
+  cputs("          MD1:    ROM DISK\n\r");
+  cputs("          PPIDE0: PRIMARY PPIDE FIXED DISK\n\r");
+  cputs("          PPIDE1: SECONDARY PPIDE FIXED DISK\n\r");
 }
 
 void toupper(char *name)
@@ -135,8 +136,7 @@ void mapdrive(char *bytes, char *token1, char *token2)
   char drive = (token1[0] & 0x5F) - 65;
   char newdevice = 0xff;
   char *token, *rtoken;
-  unsigned long lslice = 0x00;
-  unsigned char slice;
+  unsigned char slice = 0x00;
 
   if ((drive < 0) || (drive > 7))
   {
@@ -148,14 +148,14 @@ void mapdrive(char *bytes, char *token1, char *token2)
   cprintf(":%u \n\r", *(bytes + (drive * 2) + 1));
 
   toupper(token2);
-  if (!strncmp(token2, "RAM:", 4))
+  if (!strncmp(token2, "MD0:", 4))
     {
     newdevice = 0x00;
     updatedosmap(drive,ramdcb);
     }
-  if (!strncmp(token2, "ROM:", 4))
+  if (!strncmp(token2, "MD1:", 4))
   {
-    newdevice = 0x10;
+    newdevice = 0x01;
     updatedosmap(drive,romdcb);
   }
   if (!strncmp(token2, "PPIDE0:", 7))
