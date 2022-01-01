@@ -91,10 +91,10 @@ void prtdevice(char dev)
   switch (dev & 0xf0)
   {
   case 0x00:
-    cputs("RAM");
+    cputs("MD");
     return;
   case 0x10:
-    cputs("ROM");
+    cputs("UNKNOWN");
     return;
   case 0x30:
     cputs("PPIDE");
@@ -148,14 +148,14 @@ void mapdrive(char *bytes, char *token1, char *token2)
   cprintf(":%u \n\r", *(bytes + (drive * 2) + 1));
 
   toupper(token2);
-  if (!strncmp(token2, "RAM:", 4))
+  if (!strncmp(token2, "MD0:", 4))
     {
     newdevice = 0x00;
     updatedosmap(drive,ramdcb);
     }
-  if (!strncmp(token2, "ROM:", 4))
+  if (!strncmp(token2, "MD1:", 4))
   {
-    newdevice = 0x10;
+    newdevice = 0x01;
     updatedosmap(drive,romdcb);
   }
   if (!strncmp(token2, "PPIDE0:", 7))

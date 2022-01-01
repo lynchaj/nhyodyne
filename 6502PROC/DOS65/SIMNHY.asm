@@ -220,7 +220,7 @@ dcbtbl:	.word	dcba		; A
 ; disk configuration table
 dskcfg:
 	.byte $00,$00		;  disk A: unit,slice  (invalid for floppy and RAM disks)
-	.byte $10,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
+	.byte $01,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
 	.byte $30,$00		;  disk C: unit,slice
 	.byte $30,$01		;  disk D: unit,slice
 	.byte $30,$02		;  disk E: unit,slice
@@ -537,8 +537,7 @@ DSPL_DSK_CFG_1:
 	RTS
 
 ; 	DEVICE TABLE:
-;	$00	RAM
-;	$10	ROM
+;	$00	MD
 ;	$2x	FLOPPY
 ;	$3x	IDE
 prtdevice:
@@ -547,12 +546,12 @@ prtdevice:
 	AND 	#$F0 			; FILTER OUT UNIT
 	CMP 	#$00
 	BNE 	prtdevice1
-	PRTS "RAM$"
+	PRTS "MD$"
 	jmp 	prtdevice_done
 prtdevice1:
 	CMP 	#$10
 	BNE 	prtdevice2
-	PRTS "ROM$"
+	PRTS "UNK$"
 	jmp 	prtdevice_done
 prtdevice2:
 	CMP 	#$20
