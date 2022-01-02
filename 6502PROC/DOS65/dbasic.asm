@@ -79,7 +79,7 @@ ut1_ph		= ut1_pl+1	; utility pointer 1 high byte
 ut2_pl		= $73		; utility pointer 2 low byte
 ut2_ph		= ut2_pl+1	; utility pointer 2 high byte
 
-Temp_2		= ut1_pl	; temp byte for block move	
+Temp_2		= ut1_pl	; temp byte for block move
 
 FACt_1		= $75		; FAC temp mantissa1
 FACt_2		= FACt_1+1	; FAC temp mantissa2
@@ -427,15 +427,17 @@ VEC_CC		= ccnull+1	; ctrl c check vector
 
 ; This start can be changed to suit your system (TEA START)
 
-	*=	$0800
+		.FEATURE labels_without_colons
+ 		.segment "TEA"
+		.ORG $0800
 
 BASICBEGIN:
 	LDA	$0104
 	STA	PEMVEC
 	LDA	$0105
 	STA	PEMVEC+1
-	
-	
+
+
 LAB_COLD
 	LDY	#PG2_TABE-PG2_TABS-1
 					; byte count-1
@@ -1544,7 +1546,7 @@ LAB_1602
 	JMP	LAB_LET			; else go do implied LET
 
 LAB_1609
-TK_TABUSE .EQU 	(TK_TAB-$80)*2
+TK_TABUSE = 	(TK_TAB-$80)*2
 	CMP	#TK_TABUSE		; compare normalised token * 2 with TAB
 	BCS	LAB_15D9		; branch if A>=TAB (do syntax error then warm start)
 					; only tokens before TAB can start a line
@@ -6191,8 +6193,8 @@ LAB_288B
 
 	BCS	LAB_s28FE		; branch if 1st NOT character numeric
 	JMP	LAB_28FE		; branch if 1st character numeric
-LAB_s28FE:	
-	
+LAB_s28FE:
+
 ; get FAC1 from string .. first character wasn't numeric
 
 	CMP	#'-'			; else compare with "-"
@@ -6272,7 +6274,7 @@ LAB_28C9
 	BIT	expneg		; test exponent -ve flag
 	BPL	LAB_28DB		; if +ve go evaluate exponent
 
-					; else do exponent = -exponent 
+					; else do exponent = -exponent
 	LDA	#$00			; clear result
 	SEC				; set carry for subtract
 	SBC	expcnt		; subtract exponent byte
@@ -6505,7 +6507,7 @@ LAB_29F5
 	STY	Sendl			; save output string index
 LAB_29F7
 	LDY	#$00			; clear index (point to 100,000)
-	LDX	#$80			; 
+	LDX	#$80			;
 LAB_29FB
 	LDA	FAC1_3		; get FAC1 mantissa3
 	CLC				; clear carry for add
@@ -6517,22 +6519,22 @@ LAB_29FB
 	LDA	FAC1_1		; get FAC1 mantissa1
 	ADC	LAB_2A9A,Y		; add -ve MSB
 	STA	FAC1_1		; save FAC1 mantissa1
-	INX				; 
-	BCS	LAB_2A18		; 
+	INX				;
+	BCS	LAB_2A18		;
 
 	BPL	LAB_29FB		; not -ve so try again
 
-	BMI	LAB_2A1A		; 
+	BMI	LAB_2A1A		;
 
 LAB_2A18
-	BMI	LAB_29FB		; 
+	BMI	LAB_29FB		;
 
 LAB_2A1A
-	TXA				; 
-	BCC	LAB_2A21		; 
+	TXA				;
+	BCC	LAB_2A21		;
 
-	EOR	#$FF			; 
-	ADC	#$0A			; 
+	EOR	#$FF			;
+	ADC	#$0A			;
 LAB_2A21
 	ADC	#'0'-1		; add "0"-1 to result
 	INY				; increment index ..
@@ -6555,9 +6557,9 @@ LAB_2A3B
 	STY	Sendl			; save output string index
 	LDY	Cvaral		; get current var address low byte
 	TXA				; get character back
-	EOR	#$FF			; 
-	AND	#$80			; 
-	TAX				; 
+	EOR	#$FF			;
+	AND	#$80			;
+	TAX				;
 	CPY	#$12			; compare index with max
 	BNE	LAB_29FB		; loop if not max
 
@@ -7057,7 +7059,7 @@ NextB1
 	BEQ	GoPr2			; if zero print whole string
 
 	BNE	GoPr1			; else go make output string
-	
+
 ; this is the exit code and is also used by HEX$()
 ; truncate string to remove leading "0"s
 
@@ -7762,9 +7764,9 @@ StrTab
 	.word LAB_COLD		; initial warm start vector (cold start)
 
 	.byte	$00			; these bytes are not used by BASIC
-	.word	$0000			; 
-	.word	$0000			; 
-	.word	$0000			; 
+	.word	$0000			;
+	.word	$0000			;
+	.word	$0000			;
 
 	.byte	$4C			; JMP opcode
 	.word	LAB_FCER		; initial user function vector ("Function call" error)
@@ -8247,7 +8249,7 @@ LBB_IRQ
 	.byte	$00
 TAB_ASCK
 LBB_KILL
-	.byte	"ILL",TK_KILL	; KILL	
+	.byte	"ILL",TK_KILL	; KILL
 TAB_ASCL
 LBB_LCASES
 	.byte	"CASE$(",TK_LCASES
@@ -8486,7 +8488,7 @@ LAB_KEYT
 	.byte	4,'K'
 	.word	LBB_KILL		; KILL
 
-	
+
 ; secondary commands (can't start a statement)
 
 	.byte	4,'T'
@@ -8678,7 +8680,7 @@ LAB_RMSG	.byte	$0D,$0A,"Ready",$0D,$0A,$00
 LAB_IMSG	.byte	" Extra ignored",$0D,$0A,$00
 LAB_REDO	.byte	" Redo from start",$0D,$0A,$00
 
-AA_end_basic   
+AA_end_basic
 
 
 
@@ -8692,7 +8694,7 @@ BYTEIN:
 	LDX	#11			;
 	JSR	PEM			;
 	CMP	#$00			;
-	BEQ	LAB_nobyw		; branch if no byte waiting		
+	BEQ	LAB_nobyw		; branch if no byte waiting
 	LDX	#6			;
 	JSR	PEM			;
 	LDY	DBGY
@@ -8717,12 +8719,12 @@ BYTEOUT:
 	LDX	DBGX
 	RTS
 
-			
-PEMVEC		.DW	$0000
 
-DBGX		.DB 0		
-DBGY		.DB 0		
-DBGA		.DB 0		
+PEMVEC		.word	$0000
+
+DBGX		.byte 0
+DBGY		.byte 0
+DBGA		.byte 0
 
 
 
@@ -8730,52 +8732,52 @@ PEM:
 	JMP	(PEMVEC)
 
 
-LAB_KILL:	
-RETURN_TO_OS:	
-	JMP $0100	
-	
-	
-	
+LAB_KILL:
+RETURN_TO_OS:
+	JMP $0100
+
+
+
 V_SAVE:					; save BASIC program
 DOS65SAVE:
 	JSR	DOS65FCBPREP		; parse parameters into FCB
 	BCS	DOS65SAVE_ERR1		; Error?, if so abort
 	LDX	#13			;
-	JSR	PEM			;	
-	LDA	#(FCB & $FF)		; CREATE File 
+	JSR	PEM			;
+	LDA	#(FCB & $FF)		; CREATE File
 	LDY	#((FCB /$100)& $FF)	;
 	LDX	#22			;
 	JSR	PEM			;
 	LDA	#0			; clear
-	STA	FCB+32			; record number	
-	LDA	#(FCB & $FF)		; Open File 
+	STA	FCB+32			; record number
+	LDA	#(FCB & $FF)		; Open File
 	LDY	#((FCB /$100)& $FF)	;
 	LDX	#15			;
 	JSR	PEM			;
 	CMP	#$FF			; error?, if NOT, continue
 	BNE	DOS65SAVE_1		;
-DOS65SAVE_ERR:	
+DOS65SAVE_ERR:
 	LDA	#(FILEERROR2 & $FF)	; NO, ERROR OUT
-	LDY	#((FILEERROR2 /$100)& $FF)	
+	LDY	#((FILEERROR2 /$100)& $FF)
 	LDX	#9			; Print error message
 	JSR	PEM			;
-DOS65SAVE_ERR1:	
+DOS65SAVE_ERR1:
 	JMP	LAB_REM			; comment out the remainder of the line (if any)
 DOS65SAVE_1:
 	LDA	#(FCBBUFFER & $FF)			; SETUP BUFFER
-	STA	FCBPTR			; STORE DEST BUFFER IN FCBPTR	
+	STA	FCBPTR			; STORE DEST BUFFER IN FCBPTR
 	LDY	#((FCBBUFFER /$100)& $FF)			;
-	STY	FCBPTR+1		;	
+	STY	FCBPTR+1		;
 	LDX	#26			; Setup Buffer
-	JSR	PEM			;	
+	JSR	PEM			;
 	JSR	DOS65SAVE_CONTROL	;
 DOS65SAVE_2:
 	LDA	#(Ram_base & $FF)	; All is well, file opened and continue
-	STA	FCBPTR+2		; point to base of RAM	
+	STA	FCBPTR+2		; point to base of RAM
 	LDA	#((Ram_base /$100)& $FF);
-	STA	FCBPTR+3		;		
+	STA	FCBPTR+3		;
 	LDX	#$00			; x=0 (null counter)
-DOS65SAVE_2A:	
+DOS65SAVE_2A:
 	LDY	#$00			; y=0 (Loop Index)
 DOS65SAVE_3:
 	LDA	(FCBPTR+2),Y		; load from RAM
@@ -8784,27 +8786,27 @@ DOS65SAVE_3:
 	BNE	DOS65SAVE_3A		; No, continue
 	INX				; yes, bump Null Counter
 	CPX	#$03			; Three nulls in a row?
-	BNE	DOS65SAVE_3B		; no, continue	
+	BNE	DOS65SAVE_3B		; no, continue
 	LDA	#$90			; yes, signal end
-	STA	FCBPTR+2		;	
+	STA	FCBPTR+2		;
 	LDA	#((Ram_top /$100)& $FF)-1	; yes, signal end
 	STA	FCBPTR+3		;
-	JMP	DOS65SAVE_3C	
+	JMP	DOS65SAVE_3C
 DOS65SAVE_3A:				;
 	LDX	#$00			; prior char not null, reset null counter
 DOS65SAVE_3B:				;
 	INY				; bump index
 	CPY	#$80			; end of buffer?
 	BNE	DOS65SAVE_3		; no, loop
-DOS65SAVE_3C:	
+DOS65SAVE_3C:
 	LDA	#(FCB & $FF)		; Write record in buffer to disk file
 	LDY	#((FCB /$100)& $FF)	;
 	LDX	#21			;
 	JSR	PEM			;
-	AND	#$FE			; strip out extension 
+	AND	#$FE			; strip out extension
 	CMP	#$00			; is error
 	BNE	DOS65SAVE_ERR		; ERROR, do error handling
-	CLC				; 
+	CLC				;
 	LDA	FCBPTR+2		; add $80 to base counter
 	ADC	#$80			;
 	STA	FCBPTR+2		;
@@ -8816,24 +8818,24 @@ DOS65SAVE_3C:
 	CMP	#((Ram_top /$100)& $FF)			; are we at the end of RAM?
 	BEQ	DOS65SAVE_4
 	JMP	DOS65SAVE_2A
-DOS65SAVE_4:	
-	LDA	#(FCB & $FF)		; 
+DOS65SAVE_4:
+	LDA	#(FCB & $FF)		;
 	LDY	#((FCB /$100)& $FF)	;
 	LDX	#16			;
 	JSR	PEM			;
 	CMP	#$FF			;
 	BNE	DOS65SAVE_5		;
 	JMP	DOS65SAVE_ERR		; ERROR, DISPLAY IT
-DOS65SAVE_5	
-	JMP	LAB_REM			;	
+DOS65SAVE_5
+	JMP	LAB_REM			;
 
 
 
 DOS65SAVE_CONTROL:
 	LDA	#$60			; SAVE 80H OF CONTROL DATA
-	STA	FCBPTR+2		; 
+	STA	FCBPTR+2		;
 	LDA	#$00			;
-	STA	FCBPTR+3		;		
+	STA	FCBPTR+3		;
 	LDY	#$00			; y=0 (Loop Index)
 	LDX	#$00			; x=0 (null counter)
 DOS65SAVE_CONTROL1:
@@ -8847,42 +8849,42 @@ DOS65SAVE_CONTROL1:
 	LDY	#((FCB /$100)& $FF)	;
 	LDX	#21			;
 	JSR	PEM			;
-	RTS	
-	
-	
-V_LOAD:					; load BASIC program	
+	RTS
+
+
+V_LOAD:					; load BASIC program
 DOS65LOAD:
 	JSR	DOS65FCBPREP		; parse parameters into FCB
 	BCS	DOS65LOAD_ERR1		; Error?, if so abort
 	LDX	#13			;
-	JSR	PEM			;	
+	JSR	PEM			;
 	LDA	#0			; clear
-	STA	FCB+32			; record number	
-	LDA	#(FCB & $FF)		; Open File 
+	STA	FCB+32			; record number
+	LDA	#(FCB & $FF)		; Open File
 	LDY	#((FCB /$100)& $FF)	;
 	LDX	#15			;
 	JSR	PEM			;
 	CMP	#$FF			; error?, if NOT, continue
 	BNE	DOS65LOAD_1		;
-DOS65LOAD_ERR:	
+DOS65LOAD_ERR:
 	LDA	#(FILEERROR2 & $FF)	; NO, ERROR OUT
-	LDY	#((FILEERROR2 /$100)& $FF)	
+	LDY	#((FILEERROR2 /$100)& $FF)
 	LDX	#9			; Print error message
 	JSR	PEM			;
-DOS65LOAD_ERR1:	
+DOS65LOAD_ERR1:
 	JMP	LAB_REM			; comment out the remainder of the line (if any)
 DOS65LOAD_1:
 	LDA	#(FCBBUFFER & $FF)			; SETUP BUFFER
-	STA	FCBPTR			; STORE DEST BUFFER IN FCBPTR	
+	STA	FCBPTR			; STORE DEST BUFFER IN FCBPTR
 	LDY	#((FCBBUFFER /$100)& $FF)			;
 	LDX	#26			; Setup Buffer
-	JSR	PEM			;	
+	JSR	PEM			;
 	JSR	DOS65LOAD_CONTROL	;
 DOS65LOAD_2:
 	LDA	#(Ram_base & $FF)	; All is well, file opened and continue
-	STA	FCBPTR+2		; point to base of RAM	
+	STA	FCBPTR+2		; point to base of RAM
 	LDA	#((Ram_base /$100)& $FF);
-	STA	FCBPTR+3		;		
+	STA	FCBPTR+3		;
 	JMP	DOS65LOAD_3C
 DOS65LOAD_3:
 	LDA	(FCBPTR),Y		; load from BUFFER
@@ -8890,8 +8892,8 @@ DOS65LOAD_3:
 	INY				; bump index
 	CPY	#$80			; end of buffer?
 	BNE	DOS65LOAD_3		; no, loop
-	
-	CLC				; 
+
+	CLC				;
 	LDA	FCBPTR+2		; add $80 to base counter
 	ADC	#$80			;
 	STA	FCBPTR+2		;
@@ -8903,7 +8905,7 @@ DOS65LOAD_3:
 	CMP	#((Ram_top /$100)& $FF)		; are we at the end of RAM?
 	BEQ	DOS65LOAD_4
 
-DOS65LOAD_3C:	
+DOS65LOAD_3C:
 	LDA	#(FCB & $FF)		; READ record buffer from disk file
 	LDY	#((FCB /$100)& $FF)	;
 	JSR	RDERCR		;
@@ -8912,19 +8914,19 @@ DOS65LOAD_3C:
 	BEQ	DOS65LOAD_3		;
 	CMP	#$01			; EOF?
 	BNE	DOS65LOAD_ERR		; ERROR, do error handling
-DOS65LOAD_4:	
-	LDA	#(FCB & $FF)		; 
+DOS65LOAD_4:
+	LDA	#(FCB & $FF)		;
 	LDY	#((FCB /$100)& $FF)	;
 	LDX	#16			;
 	JSR	PEM			;
-	JMP	LAB_REM			; comment out the remainder of the line (if any)	
-	
-	
+	JMP	LAB_REM			; comment out the remainder of the line (if any)
+
+
 DOS65LOAD_CONTROL:
 	LDA	#$60			; RESTORE CONTORL DATA
-	STA	FCBPTR+2		; point to base of RAM	
+	STA	FCBPTR+2		; point to base of RAM
 	LDA	#$00			;
-	STA	FCBPTR+3		;		
+	STA	FCBPTR+3		;
 
 	LDA	#(FCB & $FF)		; READ record buffer from disk file
 	LDY	#((FCB /$100)& $FF)	;
@@ -8937,37 +8939,37 @@ DOS65LOAD_CONTROL1:
 	INY				; bump index
 	CPY	#$80			; end of buffer?
 	BNE	DOS65LOAD_CONTROL1	; no, loop
-	RTS	
-	
-DOS65FCBPREP:	
+	RTS
+
+DOS65FCBPREP:
 	JSR	LAB_GBYT		; GET DRIVE LETTER
 	SEC				;
 	SBC	#64			; PARSE DRIVE NUMBER
 	STA	DOSDRIVE		; STORE IT IN FCB
 	JSR	LAB_IGBY		; GET ":"
 	CMP	#':'			;
-	BEQ	DOS65FCBPREP_1		; YES, IT WAS A DRIVE, CONTINUE					
+	BEQ	DOS65FCBPREP_1		; YES, IT WAS A DRIVE, CONTINUE
 	LDA	#(FILEERROR1 & $FF)	; NO, ERROR OUT
-	LDY	#((FILEERROR1 /$100)& $FF)	
+	LDY	#((FILEERROR1 /$100)& $FF)
 	LDX	#9
 	JSR	PEM
 	JSR	LAB_REM
 	SEC
-	RTS				
+	RTS
 DOS65FCBPREP_1:
 	LDA	#(FCB & $FF)		; SETUP FCBPTR
-	STA	FCBPTR			;	
+	STA	FCBPTR			;
 	LDA	#((FCB /$100)& $FF)	;
-	STA	FCBPTR+1		;	
+	STA	FCBPTR+1		;
 	LDY	#$01			; POINT Y TO FCB FILE NAME
 	LDA	#$20			; LOAD SPACE CHAR INTO A
 DOS65FCBPREP_1A:			; BLANK OUT FCB
 	STA	(FCBPTR),Y		;
 	INY				;
 	CPY	#$09			; IS DONE
-	BNE	DOS65FCBPREP_1A		; NO, LOOP	
+	BNE	DOS65FCBPREP_1A		; NO, LOOP
 	LDY	#$01			; POINT Y TO FCB FILE NAME
-DOS65FCBPREP_2:				; COPY FILE NAME PARAMETER INTO FCB 
+DOS65FCBPREP_2:				; COPY FILE NAME PARAMETER INTO FCB
 	JSR	LAB_IGBY		;
 	BEQ	DOS65FCBPREP_3		;
 	STA	(FCBPTR),Y		;
@@ -9004,127 +9006,125 @@ RNMFIL	LDX	#23
 ;SET BUFFER
 SETBUF	LDX	#26
 	JMP	PEM
-	
-	
-VDOS65SAVE	.DW	DOS65SAVE
-VDOS65LOAD	.DW	DOS65LOAD
-FILEERROR1:	.TEXT	"** NO DRIVE SPECIFIED, OPERATION ABORTED"
-		.DB	$0D,$0A,'$'
-FILEERROR2:	.TEXT	"** DOS/65 ERROR, OPERATION ABORTED"
-		.DB	$0D,$0A,'$'
+
+
+VDOS65SAVE	.word	DOS65SAVE
+VDOS65LOAD	.word	DOS65LOAD
+FILEERROR1:	.byte	"** NO DRIVE SPECIFIED, OPERATION ABORTED"
+		.byte	$0D,$0A,'$'
+FILEERROR2:	.byte	"** DOS/65 ERROR, OPERATION ABORTED"
+		.byte	$0D,$0A,'$'
 FCB:
-DOSDRIVE	.DB	0		; DRIVE NUMBER
-DOSFN		.DB	"        "	; FILE NAME
-DOSEX		.DB	"BAS"		; EXTENSION
-DOSET		.DB	0,0,0		; EXTENT
-DOSNR		.DB	0		; NUMBER OF RECORDS IN FILE
-DOSBL		.DB	0,0,0,0,0,0,0,0	; BLOCKS IN FILE
-		.DB	0,0,0,0,0,0,0,0	; 
-DOSNX		.DB	0		; NEXT RECORD
-FCBBUFFER   
-ENDOFBASIC	.TEXT	"DERIVED FROM ehBASIC"
-			
+DOSDRIVE	.byte	0		; DRIVE NUMBER
+DOSFN		.byte	"        "	; FILE NAME
+DOSEX		.byte	"BAS"		; EXTENSION
+DOSET		.byte	0,0,0		; EXTENT
+DOSNR		.byte	0		; NUMBER OF RECORDS IN FILE
+DOSBL		.byte	0,0,0,0,0,0,0,0	; BLOCKS IN FILE
+		.byte	0,0,0,0,0,0,0,0	;
+DOSNX		.byte	0		; NEXT RECORD
+FCBBUFFER
+ENDOFBASIC	.byte	"DERIVED FROM ehBASIC"
+
 
 ; Ibuffs can now be anywhere in RAM AS LONG AS IT IS BEFORE RAM_BASE AND IS NOT PAGE ALIGNED!, ensure that the max length is < $80
 
-Ibuffs		.EQU  (ENDOFBASIC & $FF00)+$181					
+Ibuffs		=  (ENDOFBASIC & $FF00)+$181
 Ibuffe		= Ibuffs+$47; end of input buffer
 
-Ram_base	.EQU (Ibuffe & $FF00)+$100	; start of user RAM (set as needed, should be page aligned)			
+Ram_base	= (Ibuffe & $FF00)+$100	; start of user RAM (set as needed, should be page aligned)
 Ram_top		= $B800						; end of user RAM+1 (set as needed, should be page aligned)
 
 
 
-LAB_MSZM_LO .EQU (LAB_MSZM & $FF)
-LAB_MSZM_HI .EQU ((LAB_MSZM & $FF00) >>8)
-Ram_top_HI .EQU ((Ram_top & $FF00) >>8)
-Ram_base_LO .EQU (Ram_base & $FF)
-Ram_base_HI .EQU ((Ram_base & $FF00) >>8)
-LAB_SMSG_LO .EQU (LAB_SMSG & $FF)
-LAB_SMSG_HI .EQU ((LAB_SMSG & $FF00) >>8)
-LAB_1274_LO .EQU (LAB_1274 & $FF)
-LAB_1274_HI .EQU ((LAB_1274 & $FF00) >>8)
-LAB_EMSG_LO .EQU (LAB_EMSG & $FF)
-LAB_EMSG_HI .EQU ((LAB_EMSG & $FF00) >>8)
-LAB_RMSG_LO .EQU (LAB_RMSG & $FF)
-LAB_RMSG_HI .EQU ((LAB_RMSG & $FF00) >>8)
-Ibuffs_LO .EQU (Ibuffs & $FF)
-TAB_1STC_LO .EQU (TAB_1STC & $FF)
-TAB_1STC_HI .EQU ((TAB_1STC & $FF00) >>8)
-LAB_KEYT_HI .EQU ((LAB_KEYT & $FF00) >>8)
-LAB_KEYT_LO .EQU (LAB_KEYT & $FF)
-LAB_159F_LO .EQU (LAB_159F & $FF)
-LAB_159F_HI .EQU ((LAB_159F & $FF00) >>8)
-Ibuffs_HI .EQU ((Ibuffs & $FF00) >>8)
-LAB_BMSG_LO .EQU (LAB_BMSG & $FF)
-LAB_BMSG_HI .EQU ((LAB_BMSG & $FF00) >>8)
-LAB_2AFD_LO .EQU (LAB_2AFD & $FF)
-FAC1_e_LO .EQU (FAC1_e & $FF)
-FAC1_e_HI .EQU ((FAC1_e & $FF00) >>8)
-LAB_REDO_LO .EQU (LAB_REDO & $FF)
-LAB_REDO_HI .EQU ((LAB_REDO & $FF00) >>8)
-LAB_IMSG_LO .EQU (LAB_IMSG & $FF)
-LAB_IMSG_HI .EQU ((LAB_IMSG & $FF00) >>8)
-LAB_STAK_HI .EQU ((LAB_STAK & $FF00) >>8)
-FAC2_e_LO .EQU (FAC2_e & $FF)
-FAC2_e_HI .EQU ((FAC2_e & $FF00) >>8)
-LAB_1C18p2_LO .EQU (LAB_1C18p2 & $FF)
-LAB_1D96_LO .EQU (LAB_1D96 & $FF)
-LAB_1D96_HI .EQU ((LAB_1D96 & $FF00) >>8)
-LAB_1DF7_LO .EQU (LAB_1DF7 & $FF)
-LAB_1DF7_HI .EQU ((LAB_1DF7 & $FF00) >>8)
-CallExit_HI .EQU ((CallExit & $FF00) >>8)
-CallExit_LO .EQU (CallExit & $FF)
-LAB_2A96_LO .EQU (LAB_2A96 & $FF)
-LAB_2A96_HI .EQU ((LAB_2A96 & $FF00) >>8)
-LAB_25AD_LO .EQU (LAB_25AD & $FF)
-LAB_25AD_HI .EQU ((LAB_25AD & $FF00) >>8)
-LAB_25B1_LO .EQU (LAB_25B1 & $FF)
-LAB_25B1_HI .EQU ((LAB_25B1 & $FF00) >>8)
-LAB_25A0_LO .EQU (LAB_25A0 & $FF)
-LAB_25A0_HI .EQU ((LAB_25A0 & $FF00) >>8)
-LAB_25B5_LO .EQU (LAB_25B5 & $FF)
-LAB_25B5_HI .EQU ((LAB_25B5 & $FF00) >>8)
-LAB_25B9_LO .EQU (LAB_25B9 & $FF)
-LAB_25B9_HI .EQU ((LAB_25B9 & $FF00) >>8)
-LAB_26B5_LO .EQU (LAB_26B5 & $FF)
-LAB_26B5_HI .EQU ((LAB_26B5 & $FF00) >>8)
-LAB_LMSG_LO .EQU (LAB_LMSG & $FF)
-LAB_LMSG_HI .EQU ((LAB_LMSG & $FF00) >>8)
-LAB_294F_LO .EQU (LAB_294F & $FF)
-LAB_294F_HI .EQU ((LAB_294F & $FF00) >>8)
-LAB_294B_LO .EQU (LAB_294B & $FF)
-LAB_294B_HI .EQU ((LAB_294B & $FF00) >>8)
-LAB_2947_LO .EQU (LAB_2947 & $FF)
-LAB_2947_HI .EQU ((LAB_2947 & $FF00) >>8)
-Decssp1_LO .EQU (Decssp1 & $FF)
-Decssp1_HI .EQU ((Decssp1 & $FF00) >>8)
-func_l_LO .EQU (func_l & $FF)
-func_l_HI .EQU ((func_l & $FF00) >>8)
-garb_l_LO .EQU (garb_l & $FF)
-garb_l_HI .EQU ((garb_l & $FF00) >>8)
-LAB_2AFA_LO .EQU (LAB_2AFA & $FF)
-LAB_2AFA_HI .EQU ((LAB_2AFA & $FF00) >>8)
-LAB_2AFE_LO .EQU (LAB_2AFE & $FF)
-LAB_2AFE_HI .EQU ((LAB_2AFE & $FF00) >>8)
-Adatal_LO .EQU (Adatal & $FF)
-Adatal_HI .EQU ((Adatal & $FF00) >>8)
-numexp_LO .EQU (numexp & $FF)
-numexp_HI .EQU ((numexp & $FF00) >>8)
-LAB_2C80_LO .EQU (LAB_2C80 & $FF)
-LAB_2C80_HI .EQU ((LAB_2C80 & $FF00) >>8)
-LAB_2C84_LO .EQU (LAB_2C84 & $FF)
-LAB_2C84_HI .EQU ((LAB_2C84 & $FF00) >>8)
-LAB_259C_LO .EQU (LAB_259C & $FF)
-LAB_259C_HI .EQU ((LAB_259C & $FF00) >>8)
-LAB_2CC9_LO .EQU (LAB_2CC9 & $FF)
-LAB_2CC9_HI .EQU ((LAB_2CC9 & $FF00) >>8)
-LAB_2C78_LO .EQU (LAB_2C78 & $FF)
-LAB_2C78_HI .EQU ((LAB_2C78 & $FF00) >>8)
-LAB_2C7C_LO .EQU (LAB_2C7C & $FF)
-LAB_2C7C_HI .EQU ((LAB_2C7C & $FF00) >>8)
+LAB_MSZM_LO = (LAB_MSZM & $FF)
+LAB_MSZM_HI = ((LAB_MSZM & $FF00) >>8)
+Ram_top_HI = ((Ram_top & $FF00) >>8)
+Ram_base_LO = (Ram_base & $FF)
+Ram_base_HI = ((Ram_base & $FF00) >>8)
+LAB_SMSG_LO = (LAB_SMSG & $FF)
+LAB_SMSG_HI = ((LAB_SMSG & $FF00) >>8)
+LAB_1274_LO = (LAB_1274 & $FF)
+LAB_1274_HI = ((LAB_1274 & $FF00) >>8)
+LAB_EMSG_LO = (LAB_EMSG & $FF)
+LAB_EMSG_HI = ((LAB_EMSG & $FF00) >>8)
+LAB_RMSG_LO = (LAB_RMSG & $FF)
+LAB_RMSG_HI = ((LAB_RMSG & $FF00) >>8)
+Ibuffs_LO = (Ibuffs & $FF)
+TAB_1STC_LO = (TAB_1STC & $FF)
+TAB_1STC_HI = ((TAB_1STC & $FF00) >>8)
+LAB_KEYT_HI = ((LAB_KEYT & $FF00) >>8)
+LAB_KEYT_LO = (LAB_KEYT & $FF)
+LAB_159F_LO = (LAB_159F & $FF)
+LAB_159F_HI = ((LAB_159F & $FF00) >>8)
+Ibuffs_HI = ((Ibuffs & $FF00) >>8)
+LAB_BMSG_LO = (LAB_BMSG & $FF)
+LAB_BMSG_HI = ((LAB_BMSG & $FF00) >>8)
+LAB_2AFD_LO = (LAB_2AFD & $FF)
+FAC1_e_LO = (FAC1_e & $FF)
+FAC1_e_HI = ((FAC1_e & $FF00) >>8)
+LAB_REDO_LO = (LAB_REDO & $FF)
+LAB_REDO_HI = ((LAB_REDO & $FF00) >>8)
+LAB_IMSG_LO = (LAB_IMSG & $FF)
+LAB_IMSG_HI = ((LAB_IMSG & $FF00) >>8)
+LAB_STAK_HI = ((LAB_STAK & $FF00) >>8)
+FAC2_e_LO = (FAC2_e & $FF)
+FAC2_e_HI = ((FAC2_e & $FF00) >>8)
+LAB_1C18p2_LO = (LAB_1C18p2 & $FF)
+LAB_1D96_LO = (LAB_1D96 & $FF)
+LAB_1D96_HI = ((LAB_1D96 & $FF00) >>8)
+LAB_1DF7_LO = (LAB_1DF7 & $FF)
+LAB_1DF7_HI = ((LAB_1DF7 & $FF00) >>8)
+CallExit_HI = ((CallExit & $FF00) >>8)
+CallExit_LO = (CallExit & $FF)
+LAB_2A96_LO = (LAB_2A96 & $FF)
+LAB_2A96_HI = ((LAB_2A96 & $FF00) >>8)
+LAB_25AD_LO = (LAB_25AD & $FF)
+LAB_25AD_HI = ((LAB_25AD & $FF00) >>8)
+LAB_25B1_LO = (LAB_25B1 & $FF)
+LAB_25B1_HI = ((LAB_25B1 & $FF00) >>8)
+LAB_25A0_LO = (LAB_25A0 & $FF)
+LAB_25A0_HI = ((LAB_25A0 & $FF00) >>8)
+LAB_25B5_LO = (LAB_25B5 & $FF)
+LAB_25B5_HI = ((LAB_25B5 & $FF00) >>8)
+LAB_25B9_LO = (LAB_25B9 & $FF)
+LAB_25B9_HI = ((LAB_25B9 & $FF00) >>8)
+LAB_26B5_LO = (LAB_26B5 & $FF)
+LAB_26B5_HI = ((LAB_26B5 & $FF00) >>8)
+LAB_LMSG_LO = (LAB_LMSG & $FF)
+LAB_LMSG_HI = ((LAB_LMSG & $FF00) >>8)
+LAB_294F_LO = (LAB_294F & $FF)
+LAB_294F_HI = ((LAB_294F & $FF00) >>8)
+LAB_294B_LO = (LAB_294B & $FF)
+LAB_294B_HI = ((LAB_294B & $FF00) >>8)
+LAB_2947_LO = (LAB_2947 & $FF)
+LAB_2947_HI = ((LAB_2947 & $FF00) >>8)
+Decssp1_LO = (Decssp1 & $FF)
+Decssp1_HI = ((Decssp1 & $FF00) >>8)
+func_l_LO = (func_l & $FF)
+func_l_HI = ((func_l & $FF00) >>8)
+garb_l_LO = (garb_l & $FF)
+garb_l_HI = ((garb_l & $FF00) >>8)
+LAB_2AFA_LO = (LAB_2AFA & $FF)
+LAB_2AFA_HI = ((LAB_2AFA & $FF00) >>8)
+LAB_2AFE_LO = (LAB_2AFE & $FF)
+LAB_2AFE_HI = ((LAB_2AFE & $FF00) >>8)
+Adatal_LO = (Adatal & $FF)
+Adatal_HI = ((Adatal & $FF00) >>8)
+numexp_LO = (numexp & $FF)
+numexp_HI = ((numexp & $FF00) >>8)
+LAB_2C80_LO = (LAB_2C80 & $FF)
+LAB_2C80_HI = ((LAB_2C80 & $FF00) >>8)
+LAB_2C84_LO = (LAB_2C84 & $FF)
+LAB_2C84_HI = ((LAB_2C84 & $FF00) >>8)
+LAB_259C_LO = (LAB_259C & $FF)
+LAB_259C_HI = ((LAB_259C & $FF00) >>8)
+LAB_2CC9_LO = (LAB_2CC9 & $FF)
+LAB_2CC9_HI = ((LAB_2CC9 & $FF00) >>8)
+LAB_2C78_LO = (LAB_2C78 & $FF)
+LAB_2C78_HI = ((LAB_2C78 & $FF00) >>8)
+LAB_2C7C_LO = (LAB_2C7C & $FF)
+LAB_2C7C_HI = ((LAB_2C7C & $FF00) >>8)
 
 
 		 .END
-
-		 

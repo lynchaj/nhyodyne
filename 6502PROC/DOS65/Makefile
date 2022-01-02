@@ -1,6 +1,7 @@
 
 all:  	dos65.s19 dos65.hex dos65.com cpm.co6 assign.co6 alloc.co6 asm.co6 \
-	bcompile.co6 compare.co6 copy.co6 debug.co6 edit.co6 run.co6 sedit.co6
+	bcompile.co6 compare.co6 copy.co6 debug.co6 edit.co6 run.co6 sedit.co6 \
+	dbasic.co6
 
 
 dos65.out: dos65.asm ccmnhy.asm pem215.asm simnhy.asm macro.asm dosmd.asm doside.asm dosdskyn.asm
@@ -36,6 +37,10 @@ compare.out: compr202.asm
 copy.out: copy201.asm
 	ca65 --cpu 65sc02 copy201.asm -l copy.lst
 	ld65 copy201.o  -m copy.map -C dos65.cfg -o copy.out
+
+dbasic.out: dbasic.asm
+	ca65 --cpu 65sc02 dbasic.asm -l dbasic.lst
+	ld65 dbasic.o  -m dbasic.map -C dos65.cfg -o dbasic.out
 
 debug.out: debug202.asm
 	ca65 --cpu 65sc02 debug202.asm -l debug.lst
@@ -115,6 +120,13 @@ debug.co6: debug.out
 	srec_cat  debugA.s -o debug.co6  -BINARY
 	@rm -f debugA.s
 	cp debug.co6 bin/
+
+dbasic.co6: dbasic.out
+	srec_cat  dbasic.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  dbasic.s19  -data-only
+	srec_cat  dbasic.s19  -offset -0x0800  -o  dbasicA.s  -data-only
+	srec_cat  dbasicA.s -o dbasic.co6  -BINARY
+	@rm -f dbasicA.s
+	cp dbasic.co6 bin/
 
 edit.co6: edit.out
 	srec_cat  edit.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  edit.s19  -data-only
