@@ -226,10 +226,23 @@ Monitor Supports the following Commands:
 
         The CP/M program DOS65.com will load DOS/65 and transition control from Z80 CP/M to 65c02 DOS/65.
 
-        DOS/65 will recognize ROMWBW slices and CP/M images.
+        DOS/65 will recognize Old style ROMWBW slices and CP/M images.
         Rather than running .COM files, DOS/65 will run .CO6 files.
 
         currently DOS/65 supports PPIDE, serial, and DSKYNG devices
 
         DOS/65 utility programs:
         CPM.CO6 - return control to the Z80 and Boot CPM into a sane state.
+        ASSIGN.CO6 - dynamically adjust drive mapping
+        SEDIT.CO6 - Text editor (only partially working)
+        DBASIC.CO6 - ehBasic for DOS/65
+
+        The following utilities are from the DOS/65 distribution and are documented in the DOS/65 documentation.
+        alloc.CO6 - DOS/65 drive utility
+        compare.CO6- DOS/65 compare utility
+        debug.CO6- DOS/65 debugger
+        edit.CO6- DOS/65 line editor
+        asm.CO6- DOS/65 assembler
+        bcompile.CO6- DOS/65 Basic-E compiler
+        copy.CO6- DOS/65 file copy utility
+        run.CO6- DOS/65 Basic-E run time
