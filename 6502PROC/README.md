@@ -246,3 +246,12 @@ Monitor Supports the following Commands:
         bcompile.CO6- DOS/65 Basic-E compiler
         copy.CO6- DOS/65 file copy utility
         run.CO6- DOS/65 Basic-E run time
+
+# Items left on the DOS/65 To Do list:
+        * clean up the make file
+        * correct bugs in sedit
+        * get autodetection of new/old slices working and decline to mount new
+        * Hardware support for RTC
+        * Hardware support for Floppy Drive
+        * Hardware Support for VDC/Keyboard
+        * Hardware support for Dual Serial
