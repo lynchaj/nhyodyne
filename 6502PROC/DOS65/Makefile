@@ -1,6 +1,6 @@
 
 all:  	dos65.s19 dos65.hex dos65.com cpm.co6 assign.co6 alloc.co6 asm.co6 \
-	bcompile.co6 compare.co6 copy.co6 debug.co6 edit.co6 run.co6
+	bcompile.co6 compare.co6 copy.co6 debug.co6 edit.co6 run.co6 sedit.co6
 
 
 dos65.out: dos65.asm ccmnhy.asm pem215.asm simnhy.asm macro.asm dosmd.asm doside.asm dosdskyn.asm
@@ -48,6 +48,11 @@ edit.out: edit203.asm
 run.out: run205.asm
 	ca65 --cpu 65sc02 run205.asm -l run.lst
 	ld65 run205.o  -m run.map -C dos65.cfg -o run.out
+
+sedit.out: sedit.asm
+	ca65 --cpu 65sc02 sedit.asm -l sedit.lst
+	ld65 sedit.o  -m sedit.map -C dos65.cfg -o sedit.out
+
 
 dos65.s19: dos65.out
 	srec_cat  dos65.out -binary -offset 0x0100 -exclude 0x0000 0xB7F3 -exclude 0xE500 0xFFFF -o  dos65.s19  -data-only
@@ -124,6 +129,13 @@ run.co6: run.out
 	srec_cat  runA.s -o run.co6  -BINARY
 	@rm -f runA.s
 	cp run.co6 bin/
+
+sedit.co6: sedit.out
+	srec_cat  sedit.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  sedit.s19  -data-only
+	srec_cat  sedit.s19  -offset -0x0800  -o  seditA.s  -data-only
+	srec_cat  seditA.s -o sedit.co6  -BINARY
+	@rm -f editA.s
+	cp sedit.co6 bin/
 
 cpm.co6: cpm.out
 	srec_cat  cpm.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  cpm.s19  -data-only
