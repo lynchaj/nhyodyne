@@ -1,66 +1,66 @@
 ;COMPILE
-;BASIC-E/65 COMPILER
-;VERSION 2.03-A
+;BASIC-E/65 Compiler
+;Version 2.03-A
 ;COPYRIGHT - RICHARD A. LEARY - 1982
-;RELEASED:	18 OCTOBER 1982
-;LAST REVISION:
-;	24 DECEMBER 1983
-;		ADDED CHKULE FOR PROD 5
-;		MODIFIED ERROR TO PRINT LINE
-;		ADDED CODE TO SET SEPRTR
-;	12 JANUARY 1984
-;		DELETED ERROR0 BIT AND BRANCH
-;		FIXED FIRST BLANK LINE LIST FOR $B OPTION
-;		FIXED BUFFER OVERWRITE ON ERROR
-;	4 APRIL 2008
-;		REFORMATTED FOR ASM211 & TASM
-;		ELIMINATED PAGE ZERO 0 & 1
-;		MOVED SOME VARIABLES FROM PAGE ZERO
-;A TRANSLATION OF GORDON EUBANKS BASIC-E TO OPERATE UNDER DOS/65.  THIS IS A
-;COMPILE-INTERPRET SYSTEMS INVOKED AGAINST A SOURCE FILE OF TYPE .BAS.  THE
-;COMPILER PRODUCES AN INTERMEDIATE CODE FILE OF TYPE .INT WHICH IS EXECUTED
-;BY THE PROGRAM RUN.
-;EXTERNAL REFERENCES
-BOOT	=	$100		;BOOT ENTRY
-PEM	=	$103		;PEM ENTRY
-FCB	=	$107		;DEFAULT FCB
-TEA	=	$800		;LOAD ADDRESS
-;FIXED PARAMETERS AND CONSTANTS
-;CAUTION: WHEN A REGISTER IS SET TO TRUE, Z IS SET TO 0 (I.E. NE).  IF A
-;REGISTER IS SET TO FALSE THEN Z IS SET TO 1 (I.E. EQ).
+;released:	18 october 1982
+;last revision:
+;	24 december 1983
+;		added chkule for prod 5
+;		modified error to print line
+;		added code to set seprtr
+;	12 january 1984
+;		deleted error0 bit and branch
+;		fixed first blank line list for $b option
+;		fixed buffer overwrite on error
+;	4 april 2008
+;		reformatted for ASM211 & TASM
+;		eliminated page zero 0 & 1
+;		moved some variables from page zero
+;A translation of Gordon Eubanks BASIC-E to operate under DOS/65.  This is a
+;compile-interpret systems invoked against a source file of type .BAS.  The
+;compiler produces an intermediate code file of type .INT which is executed
+;by the program RUN.
+;external references
+BOOT	=	$100		;boot entry
+PEM	=	$103		;pem entry
+FCB	=	$107		;default fcb
+TEA	=	$800		;load address
+;fixed parameters and constants
+;CAUTION: When a register is set to TRUE, Z is set to 0 (i.e. NE).  If a
+;register is set to FALSE then Z is set to 1 (i.e. EQ).
 TRUE	=	$FF
 FALSE	=	0
-;ASCII CHARACTERS
-TAB	=	9		;TAB
-LF	=	10		;LINEFEED
-CR	=	13		;RETURN AND EOL
-EOF	=	26		;EOF CHAR
-SPACE	=	32		;ASCII BLANK
-SEMICO	=	59		;SEMICOLON
-BACKSL	=	92		;BACKSLASH
-;OTHER
-IDNTSZ	=	32		;MAX IDENTIFIER SIZE + 1
-VARCSZ	=	100		;VARC STACK SIZE
-PSTKSZ	=	32		;PARSE STACK SIZE
-SRCRSZ	=	128		;SOURCE FILE RECORD SIZE
-INTRSZ	=	128		;INT FILE RECORD SIZE
-CBUFSZ	=	82		;CONSOLE BUFFER SIZE
-HSHTSZ	=	64		;HASH TABLE SIZE
-HSHMSK	=	HSHTSZ-1	;HASHING MASK
-MAXOCT	=	15		;MAX NUMBER ON STATEMENTS
-MAXRWL	=	9		;MAX RESERVED WORD LENGTH
-MAXRNO	=	120		;MAX READ COUNT
-MAXLNO	=	175		;MAX LOOK COUNT
-MAXPNO	=	189		;MAX PUSH COUNT
-MAXSNO	=	341		;MAX STATE COUNT
-STARTS	=	121		;START STATE
-PRODNO	=	152		;NUMBER PRODUCTIONS
+;ascii characters
+TAB	=	9		;tab
+LF	=	10		;linefeed
+CR	=	13		;return and eol
+EOF	=	26		;eof char
+SPACE	=	32		;ascii blank
+semico	=	59		;semicolon
+backsl	=	92		;backslash
+;other
+IDNTSZ	=	32		;max identifier size + 1
+VARCSZ	=	100		;varc stack size
+PSTKSZ	=	32		;parse stack size
+SRCRSZ	=	128		;source file record size
+INTRSZ	=	128		;int file record size
+CBUFSZ	=	82		;console buffer size
+HSHTSZ	=	64		;hash table size
+HSHMSK	=	HSHTSZ-1	;hashing mask
+MAXOCT	=	15		;max number on statements
+MAXRWL	=	9		;max reserved word length
+MAXRNO	=	120		;max read count
+MAXLNO	=	175		;max look count
+MAXPNO	=	189		;max push count
+MAXSNO	=	341		;max state count
+STARTS	=	121		;start state
+PRODNO	=	152		;number productions
 SIMVAR	=	0
 SUBVAR	=	2
 CONST	=	4
 LABLE	=	8
 UNFUNC	=	$A
-;MNEMONICS FOR BASIC-E MACHINE
+;mnemonics for basic-e machine
 FAD	=	0
 FMI	=	1
 FMU	=	2
@@ -134,7 +134,7 @@ EXR	=	93
 DEF	=	94
 BOL	=	95
 ADJ	=	96
-;TOKEN DEFINITIONS
+;token definitions
 POUND	=	12
 ASTRK	=	4
 LESST	=	1
@@ -190,640 +190,643 @@ TXOR	=	33
 STRING	=	50
 FLOTPT	=	49
 TREM	=	0
-;PAGE ZERO VARIABLES
-;ALL NON-ZERO INITIAL VALUES ARE SHOWN AS I=XXXX WHERE XXXX IS THE INITIAL
-;VALUE. PL/M NAME IS SHOWN IF SIGNIFICANTLY DIFFERENT.
-GPIND	=$02			;INDEX IN GETCHR
-ERRCNT	=$03			;ERROR COUNT (ERRORCOUNT)
-DATACT	=$05			;COUNT DATA AREA SIZE
-INPSTM	=$07			;(INPUTSTMT)
-GSBSTM	=$08			;(GOSUBSTMT)
-TOKEN	=$09			;TYPE OF TOKEN
-SUBTYP	=$0A			;SUBTYPE OF TOKEN (SUBTYPE)
-FUNCOP	=$0B			;FUNCTION NUMBER IF FUNCTION
-HSHCDE	=$0C			;HASH OF CURRENT TOKEN (HASHCODE)
-NXTCHR	=$0D			;CURRENT CHAR FROM GETCHR (NEXTCHAR)
-ACCUM	=$0E			;CURRENT TOKEN
-ACCLEN	=	ACCUM		;LENGTH IS FIRST BYTE
-CONT	=$2E			;ACCUM FULL FLAG
-COLUMN	=$2F			;CURRENT COLUMN
-LINENO	=$30			;CURRENT LINE NUMBER
-OUTIND	=$32			;INT BUFFER INDEX (BUFFPTR)
-LENGTH	=$33			;OUTPUT LINE LENGTH
-SEPRTR	=$34			;SEPARATOR I=':'
-SRCIND	=$35			;SOURCE INDEX I=SRCRSZ (SOURCEPTR)
-LNEPTR	=$36			;LINE POINTER
-POINTR	=$37			;POINTER IN ERROR
-ERRCDE	=$38			;COMPILER ERROR CODE
-STATE	=$39			;STATE
-SP		=$3B			;STACK POINTER
-MP		=$3C			;
-MPP1	=$3D			;MP + 1
-NOLOOK	=$3E			;
-VARIND	=$3F			;INDEX INTO VAR
-TYPESP	=$40			;GROUP OF
-TYPEM1	=$41			;VARIABLES
-TYPEMP	=$42			;TO HOLD
-STYPSP	=$43			;PARSER STACK
-STYPM1	=$44			;CONTENTS
-STYPMP	=$45			;DURING
-SYMLSP	=$46			;ACTION
-SYMLM1	=$48			;OF SYNTHESIZE
-SYMLMP	=$4A			;IN
-HASHSP	=$4C			;ORDER TO
-HASHM1	=$4D			;REDUCE
-HASHMP	=$4E			;THE AMOUNT
-SRLOSP	=$4F			;OF INDEXING
-SRLOMP	=$51			;IN SYNTHE
-DECOUT	=$53			;DECIMAL WORD
-LZFLAG	=$55			;LEADING ZERO FLAG IN PRNDEC
-FIELD	=$56			;POINTER IN COMPARE
-I		=$58			;PARSER VAR
-J		=$5A			;SAME
-K		=$5C			;EVEN MORE
-INDEX	=$5E			;
-I2		=$5F			;I*2 AND WORD POINTER
-IC		=$61			;INDEX IN COMPAR
-PTR	=$62			;POINTER IN LOOKUP AND COMPAR
-IL		=$64			;INDEX IN LOOKUP
-SBTTOP	=$65			;TOP OF FOR/NEXT STACK
-BASE	=$67			;BASE OF CURRENT ENTRY
-FORCNT	=$69			;FOR COUNT
-SBTBL	=$6A			;TOP OF SYMBOL TABLE
-APTADD	=$6C			;UTILITY VAR TO ACCESS TABLE
-PRTCT	=$6E			;COUNT PRT ENTRIES
-FDACT	=$70			;COUNT FDA ENTRIES
-CODESI	=$72			;COUNT SIZE OF CODE AREA
-ULERFL	=$74			;
-PRNTNM	=$75			;POINTER SET BEFORE SLOOKU OR ENTER
-SYMHSH	=$77			;HASH OF TOKEN REFERENCE
-PRODCT	=$78			;PRODUCTION NUMBER (0 TO PRODNO)
-NXSTPT	=$79			;NEXT STATEMENT POINTER
-TMPHSH	=$7B			;LOCAL HASH IN GETHSH
-TMPPTR	=$7C			;LOCAL PTR IN GETHSH
-LEN	=$7D			;TEMP IN SLOOKU
-NUMPRM	=$7E			;TEMP IN UNLINK/RELINK
-LINKI	=$7F			;TEMP IN UNLINK/RELINK
-TMPADR	=$80			;TEMP IN UNLINK/RELINK
-WHERE	=$82			;TEMP IN GENILS
-STRPTR	=$84			;TEMP IN GINILS
-IGEN	=$85			;TEMP IN GENCON
-LZ		=$86			;
-;ENTRY POINT
-	*=	TEA
+;page zero variables
+;all non-zero initial values are shown as i=xxxx where xxxx is the initial
+;value. PL/M name is shown if significantly different.
+GPIND	=$02+$40		;INDEX IN GETCHR
+ERRCNT	=$03+$40		;ERROR COUNT (ERRORCOUNT)
+DATACT	=$05+$40		;COUNT DATA AREA SIZE
+INPSTM	=$07+$40		;(INPUTSTMT)
+GSBSTM	=$08+$40		;(GOSUBSTMT)
+TOKEN	=$09+$40		;TYPE OF TOKEN
+SUBTYP	=$0A+$40		;SUBTYPE OF TOKEN (SUBTYPE)
+FUNCOP	=$0B+$40		;FUNCTION NUMBER IF FUNCTION
+HSHCDE	=$0C+$40		;HASH OF CURRENT TOKEN (HASHCODE)
+NXTCHR	=$0D+$40		;CURRENT CHAR FROM GETCHR (NEXTCHAR)
+ACCUM	=$0E+$40		;CURRENT TOKEN
+ACCLEN	=ACCUM			;LENGTH IS FIRST BYTE
+CONT	=$2E+$40		;ACCUM FULL FLAG
+COLUMN	=$2F+$40		;CURRENT COLUMN
+LINENO	=$30+$40		;CURRENT LINE NUMBER
+OUTIND	=$32+$40		;INT BUFFER INDEX (BUFFPTR)
+LENGTH	=$33+$40		;OUTPUT LINE LENGTH
+SEPRTR	=$34+$40		;SEPARATOR I=':'
+SRCIND	=$35+$40		;SOURCE INDEX I=SRCRSZ (SOURCEPTR)
+LNEPTR	=$36+$40		;LINE POINTER
+POINTR	=$37+$40		;POINTER IN ERROR
+ERRCDE	=$38+$40		;COMPILER ERROR CODE
+STATE	=$39+$40		;STATE
+SP	=$3B+$40		;STACK POINTER
+MP	=$3C+$40		;
+MPP1	=$3D+$40		;MP + 1
+NOLOOK	=$3E+$40		;
+VARIND	=$3F+$40		;INDEX INTO VAR
+TYPESP	=$40+$40		;GROUP OF
+TYPEM1	=$41+$40		;VARIABLES
+TYPEMP	=$42+$40		;TO HOLD
+STYPSP	=$43+$40		;PARSER STACK
+STYPM1	=$44+$40		;CONTENTS
+STYPMP	=$45+$40		;DURING
+SYMLSP	=$46+$40		;ACTION
+SYMLM1	=$48+$40		;OF SYNTHESIZE
+SYMLMP	=$4A+$40		;IN
+HASHSP	=$4C+$40		;ORDER TO
+HASHM1	=$4D+$40		;REDUCE
+HASHMP	=$4E+$40		;THE AMOUNT
+SRLOSP	=$4F+$40		;OF INDEXING
+SRLOMP	=$51+$40		;IN SYNTHE
+DECOUT	=$53+$40		;DECIMAL WORD
+LZFLAG	=$55+$40		;LEADING ZERO FLAG IN PRNDEC
+FIELD	=$56+$40		;POINTER IN COMPARE
+I	=$58+$40		;PARSER VAR
+J	=$5A+$40		;SAME
+K	=$5C+$40		;EVEN MORE
+INDEX	=$5E+$40		;
+I2	=$5F+$40		;I*2 AND WORD POINTER
+IC	=$61+$40		;INDEX IN COMPAR
+PTR	=$62+$40		;POINTER IN LOOKUP AND COMPAR
+IL	=$64+$40		;INDEX IN LOOKUP
+SBTTOP	=$65+$40		;TOP OF FOR/NEXT STACK
+BASE	=$67+$40		;BASE OF CURRENT ENTRY
+FORCNT	=$69+$40		;FOR COUNT
+SBTBL	=$6A+$40		;TOP OF SYMBOL TABLE
+APTADD	=$6C+$40		;UTILITY VAR TO ACCESS TABLE
+PRTCT	=$6E+$40		;COUNT PRT ENTRIES
+FDACT	=$70+$40		;COUNT FDA ENTRIES
+CODESI	=$72+$40		;COUNT SIZE OF CODE AREA
+ULERFL	=$74+$40		;
+PRNTNM	=$75+$40		;POINTER SET BEFORE SLOOKU OR ENTER
+SYMHSH	=$77+$40		;HASH OF TOKEN REFERENCE
+PRODCT	=$78+$40		;PRODUCTION NUMBER (0 TO PRODNO)
+NXSTPT	=$79+$40		;NEXT STATEMENT POINTER
+TMPHSH	=$7B+$40		;LOCAL HASH IN GETHSH
+TMPPTR	=$7C+$40		;LOCAL PTR IN GETHSH
+LEN	=$7D+$40		;TEMP IN SLOOKU
+NUMPRM	=$7E+$40		;TEMP IN UNLINK/RELINK
+LINKI	=$7F+$40		;TEMP IN UNLINK/RELINK
+TMPADR	=$80+$40		;TEMP IN UNLINK/RELINK
+WHERE	=$82+$40		;TEMP IN GENILS
+STRPTR	=$84+$40		;TEMP IN GINILS
+IGEN	=$85+$40		;TEMP IN GENCON
+LZ	=$86+$40		;
+
+;entry point
+		.FEATURE labels_without_colons
+ 		.segment "TEA"
+		.ORG $0800
 	JMP	MAIN
-;COPYRIGHT NOTICE
-	.BYTE	"COPYRIGHT - RICHARD"
-	.BYTE	" A. LEARY - 2008"
+;copyright notice
+	.byte	"COPYRIGHT - RICHARD"
+	.byte	" A. LEARY - 2008"
 ;SUBROUTINES
-;SUBROUTINE TO POINT TO SOURCE FCB AND GO TO PEM
-RFCBX	LDA	#(FCB & $FF)	;POINT
-	LDY	#((FCB / $100)& $FF);TO FCB
-	JMP	PEM		;AND GO
-;POINT TO INT FCB AND GO TO PEM
-WFCBX	LDA	#(WFCB & $FF)		;POINT
-	LDY	#((WFCB / $100)& $FF)		;TO FCB
-	JMP	PEM		;AND GO
-;SEND CR AND LF TO CONSOLE/LIST
-CRLF	LDA	#CR		;GET
-	JSR	PRNCHR		;A CR
-	LDA	#LF		;AND
-	JMP	PRNCHR		;THEN A LF
-;OUTPUT CHAR IN A TO CONSOLE OR LIST DEVICE AS A FUNCTION OF LSTFLG
-SPCOUT	LDA	#SPACE		;GET SPACE
-CHROUT	BIT	LSTFLG		;TEST FLAG
-	BMI	*+7		;USE LIST IF SET
-	LDX	#2		;ELSE SET
-	JMP	PEM		;AND DO CONSOLE
-	LDX	#5		;SET LIST
-	JMP	PEM		;AND DO
-;PRINT CHAR IN A AND HANDLE TABS AND LINEFEEDS
-PRNCHR	CMP	#TAB		;SEE IF TAB
-	BNE	NOTTAB		;BRANCH IF NOT
-TABOVR	JSR	SPCOUT		;SEND A SPACE
-	INC	COLUMN		;BUMP COLUMN
-	LDA	COLUMN		;GET IT
-	AND	#7		;SEE IF MOD 8
-	BNE	TABOVR		;LOOP IF NOT
-	RTS			;ELSE DONE
-NOTTAB	PHA			;SAVE CHAR
-	JSR	CHROUT		;SEND IT
-	INC	COLUMN		;BUMP COLUMN
-	PLA			;GET CHAR
-	CMP	#LF		;IF A LF
-	BEQ	*+3		;THEN BRANCH
-	RTS			;ELSE DONE
-	LDA	#0		;CLEAR COLUMN
-	STA	COLUMN		;AND THEN
-	RTS			;DONE
-;CONVERT AY TO DECIMAL NUMBER AND PRINT ON CONSOLE
-PRNDEC	STA	DECOUT		;SAVE
-	STY	DECOUT+1	;VALUE
-	LDA	#FALSE		;SET FLAG
-	STA	LZFLAG		;TO FALSE
-	LDX	#'0'-1		;SET DIGIT TO '0' - 1
-	SEC			;NOW
-P10000	LDA	DECOUT		;SUBTRACT
-	SBC	#(10000*256/256) & $ff	;10000
-	STA	DECOUT		;FROM
-	LDA	DECOUT+1	;VALUE
-	SBC	#10000/256	;AND
-	STA	DECOUT+1	;SAVE
-	INX			;BUMP DIGIT
-	BCS	P10000		;LOOP IF NO BORROW
-	LDA	DECOUT		;ELSE
-	ADC	#(10000*256/256) & $ff	;ADD
+;subroutine to point to source fcb and go to pem
+RFCBX	LDA	#<FCB		;point
+	LDY	#>FCB		;to fcb
+	JMP	PEM		;and go
+;point to int fcb and go to pem
+WFCBX	LDA	#<WFCB		;point
+	LDY	#>WFCB		;to fcb
+	JMP	PEM		;and go
+;send cr and lf to console/list
+CRLF	LDA	#CR		;get
+	JSR	PRNCHR		;a cr
+	LDA	#LF		;and
+	JMP	PRNCHR		;then a lf
+;output char in A to console or list device as a function of LSTFLG
+SPCOUT	LDA	#SPACE		;get space
+CHROUT	BIT	LSTFLG		;test flag
+	BMI	*+7		;use list if set
+	LDX	#2		;else set
+	JMP	PEM		;and do console
+	LDX	#5		;set list
+	JMP	PEM		;and do
+;print char in A and handle tabs and linefeeds
+PRNCHR	CMP	#TAB		;see if tab
+	BNE	NOTTAB		;branch if not
+TABOVR	JSR	SPCOUT		;send a space
+	INC	COLUMN		;bump column
+	LDA	COLUMN		;get it
+	AND	#7		;see if mod 8
+	BNE	TABOVR		;loop if not
+	RTS			;else done
+NOTTAB	PHA			;save char
+	JSR	CHROUT		;send it
+	INC	COLUMN		;bump column
+	PLA			;get char
+	CMP	#LF		;if a lf
+	BEQ	*+3		;then branch
+	RTS			;else done
+	LDA	#0		;clear column
+	STA	COLUMN		;and then
+	RTS			;done
+;convert AY to decimal number and print on console
+PRNDEC	STA	DECOUT		;save
+	STY	DECOUT+1	;value
+	LDA	#FALSE		;set flag
+	STA	LZFLAG		;to false
+	LDX	#'0'-1		;set digit to '0' - 1
+	SEC			;now
+P10000	LDA	DECOUT		;subtract
+	SBC	#<10000		;10000
+	STA	DECOUT		;from
+	LDA	DECOUT+1	;value
+	SBC	#>10000		;and
+	STA	DECOUT+1	;save
+	INX			;bump digit
+	BCS	P10000		;loop if no borrow
+	LDA	DECOUT		;else
+	ADC	#<10000		;add
 	STA	DECOUT		;10000
-	LDA	DECOUT+1	;BACK
-	ADC	#10000/256	;IN TO
-	STA	DECOUT+1	;CORRECT
-	JSR	DIGOUT		;SEND DIGIT
-P1000	LDA	DECOUT		;NOW
-	SBC	#(1000*256/256) & $ff	;DROP
-	STA	DECOUT		;BY
+	LDA	DECOUT+1	;back
+	ADC	#>10000		;in to
+	STA	DECOUT+1	;correct
+	JSR	DIGOUT		;send digit
+P1000	LDA	DECOUT		;now
+	SBC	#<1000		;drop
+	STA	DECOUT		;by
 	LDA	DECOUT+1	;1000
-	SBC	#1000/256	;UNTIL
-	STA	DECOUT+1	;A BORROW
-	INX			;BUMP DIGIT
-	BCS	P1000		;LOOP IF MORE
-	LDA	DECOUT		;NOW
-	ADC	#(1000*256/256) & $ff	;ADD
+	SBC	#>1000		;until
+	STA	DECOUT+1	;a borrow
+	INX			;bump digit
+	BCS	P1000		;loop if more
+	LDA	DECOUT		;now
+	ADC	#<1000		;add
 	STA	DECOUT		;1000
-	LDA	DECOUT+1	;BACK
-	ADC	#1000/256	;IN TO
-	STA	DECOUT+1	;CORRECT
-	JSR	DIGOUT		;SEND 1000S
-P100	LDA	DECOUT		;NOW
-	SBC	#100		;DO
-	STA	DECOUT		;SUBTRACT
-	LDA	DECOUT+1	;FOR
+	LDA	DECOUT+1	;back
+	ADC	#>1000		;in to
+	STA	DECOUT+1	;correct
+	JSR	DIGOUT		;send 1000s
+P100	LDA	DECOUT		;now
+	SBC	#100		;do
+	STA	DECOUT		;subtract
+	LDA	DECOUT+1	;for
 	SBC	#0		;100
-	STA	DECOUT+1	;WITH
-	INX			;DIGIT BUMP
-	BCS	P100		;LOOP IF MORE
-	LDA	DECOUT		;ELSE
-	ADC	#100		;ADD BACK
-	STA	DECOUT		;TO CORRECT
-	JSR	DIGOUT		;SEND 100S
-P10	LDA	DECOUT		;NOW
-	SBC	#10		;DROP
-	STA	DECOUT		;BY 10
-	INX			;BUMP DIGIT
-	BCS	P10		;LOOP IF MORE
-	ADC	#10		;CORRECT
-	STA	DECOUT		;SAVE
-	JSR	DIGOUT		;AND SEND 10S
-	LDA	#'0'		;GET ZERO
-	ORA	DECOUT		;ADD NUMBER
-	JMP	PRNCHR		;AND PRINT ALWAYS
-;SEND A SINGLE DIGIT IN X AND HANDLE LEADING ZEROS
-DIGOUT	LDA	#SPACE		;PRESET FOR BLANK
-	BIT	LZFLAG		;TEST FLAG
-	BMI	D2		;BRANCH IF SET
-	CPX	#'0'		;ELSE TEST CURRENT
-	BEQ	D3		;BRANCH IF '0'
-	LDA	#TRUE		;ELSE SET
-	STA	LZFLAG		;FLAG
-D2	TXA			;GET CHAR
-D3	JSR	PRNCHR		;PRINT IT
-	LDX	#'0'-1		;NOW PRESET
-	SEC			;FOR NEXT
+	STA	DECOUT+1	;with
+	INX			;digit bump
+	BCS	P100		;loop if more
+	LDA	DECOUT		;else
+	ADC	#100		;add back
+	STA	DECOUT		;to correct
+	JSR	DIGOUT		;send 100s
+P10	LDA	DECOUT		;now
+	SBC	#10		;drop
+	STA	DECOUT		;by 10
+	INX			;bump digit
+	BCS	P10		;loop if more
+	ADC	#10		;correct
+	STA	DECOUT		;save
+	JSR	DIGOUT		;and send 10s
+	LDA	#'0'		;get zero
+	ORA	DECOUT		;add number
+	JMP	PRNCHR		;and print always
+;send a single digit in X and handle leading zeros
+DIGOUT	LDA	#SPACE		;preset for blank
+	BIT	LZFLAG		;test flag
+	BMI	D2		;branch if set
+	CPX	#'0'		;else test current
+	BEQ	D3		;branch if '0'
+	LDA	#TRUE		;else set
+	STA	LZFLAG		;flag
+D2	TXA			;get char
+D3	JSR	PRNCHR		;print it
+	LDX	#'0'-1		;now preset
+	SEC			;for next
 	RTS
-;PRINT MESSAGE POINTED TO BY AY UNTIL A $ IS ENCOUNTERED
-PRNMSG	STA	PRN0+1		;SAVE MESSAGE
-	STY	PRN0+2		;ADDRESS
-PRN0	LDA	$FFFF		;GET BYTE
-	CMP	#'$'		;SEE IF END
-	BNE	*+3		;BRANCH IF NOT
-	RTS			;ELSE DONE
-	JSR	PRNCHR		;PRINT IT
-	INC	PRN0+1		;BUMP LOW
-	BNE	PRN0		;LOOP IF NO CARRY
-	INC	PRN0+2		;BUMP HIGH
-	JMP	PRN0		;AND LOOP
-;DISK ERROR EXIT
-DSKERR	LDA	#(DEMSG & $FF)		;POINT TO
-	LDY	#((DEMSG / $100)& $FF)		;MESSAGE
-DSKER0	JSR	PRNMSG		;PRINT IT
-	JMP	BOOT		;AND BOOT
-;OPEN SOURCE FILE
-OPNSRC	LDX	#3		;FIRST
-OPN1	LDA	BASSTR-1,X	;MOVE
-	STA	FCB+8,X		;BAS TO
-	DEX			;TYPE PART
-	BNE	OPN1		;OF FCB
-	STX	FCB+12		;CLEAR EXTENT
-	STX	FCB+13
-	STX	FCB+32		;AND RECORD
-	LDA	#(INPBUF & $FF)	;POINT TO
-	LDY	#((INPBUF / $100)& $FF)	;BUFFER
-	LDX	#26		;AND SET
-	JSR	PEM		;AS BUFFER LOCATION
-	LDX	#15		;OPEN CODE
-	JSR	RFCBX		;DO IT
-	BMI	*+3		;BRANCH IF BAD
-	RTS			;ELSE DONE
-	LDA	#(NSMSG & $FF)		;POINT TO
-	LDY	#((NSMSG / $100)& $FF)		;NO SOURCE MESSAGE
-	JMP	DSKER0		;SEND AND QUIT
-;CLOSE OUTPUT (INT) FILE
-CLSINT	LDX	#16		;CLOSE CODE
-	JSR	WFCBX		;DO IT
-	BMI	*+3		;BRANCH IF BAD
-	RTS			;ELSE DONE
-	JMP	DSKERR		;ERROR EXIT
-;SET-UP INT FILE
-SUPINT	BIT	NINTFL		;TEST NO-INT FLAG
-	BPL	*+3		;BRANCH IF FALSE
-	RTS			;ELSE DONE
-	LDX	#8		;MOVE 9
-SUP0	LDA	FCB,X		;CHAR INCLUDING DRIVE
-	STA	WFCB,X		;TO WRITE FCB
-	DEX			;DROP COUNT
-	BPL	SUP0		;LOOP IF MORE
+;print message pointed to by AY until a $ is encountered
+PRNMSG	STA	PRN0+1		;save message
+	STY	PRN0+2		;address
+PRN0	LDA	$FFFF		;get byte
+	CMP	#'$'		;see if end
+	BNE	*+3		;branch if not
+	RTS			;else done
+	JSR	PRNCHR		;print it
+	INC	PRN0+1		;bump low
+	BNE	PRN0		;loop if no carry
+	INC	PRN0+2		;bump high
+	JMP	PRN0		;and loop
+;disk error exit
+DSKERR	LDA	#<DEMSG		;point to
+	LDY	#>DEMSG		;message
+DSKER0	JSR	PRNMSG		;print it
+	JMP	BOOT		;and boot
+;open source file
+OPNSRC	LDX	#3		;first
+OPN1	LDA	BASSTR-1,X	;move
+	STA	FCB+8,X		;BAS to
+	DEX			;type part
+	BNE	OPN1		;of fcb
+	STX	FCB+12		;clear extent
+	stx	FCB+13
+	STX	FCB+32		;and record
+	LDA	#<INPBUF	;point to
+	LDY	#>INPBUF	;buffer
+	LDX	#26		;and set
+	JSR	PEM		;as buffer location
+	LDX	#15		;open code
+	JSR	RFCBX		;do it
+	BMI	*+3		;branch if bad
+	RTS			;else done
+	LDA	#<NSMSG		;point to
+	LDY	#>NSMSG		;no source message
+	JMP	DSKER0		;send and quit
+;close output (INT) file
+CLSINT	LDX	#16		;close code
+	JSR	WFCBX		;do it
+	BMI	*+3		;branch if bad
+	RTS			;else done
+	JMP	DSKERR		;error exit
+;set-up INT file
+SUPINT	BIT	NINTFL		;test no-int flag
+	BPL	*+3		;branch if false
+	RTS			;else done
+	LDX	#8		;move 9
+SUP0	LDA	FCB,X		;char including drive
+	STA	WFCB,X		;to write fcb
+	DEX			;drop count
+	BPL	SUP0		;loop if more
 	INX
 	STX	WFCB+12
-	STX	WFCB+13
-	STX	WFCB+32		;CLEAR EXTENT AND RECORD
-	LDX	#19		;NOW DELETE
-	JSR	WFCBX		;IT IF THERE
-	LDX	#22		;NOW TRY
-	JSR	WFCBX		;TO CREATE
-	BPL	*+5		;BRANCH IF OK
-	JMP	DSKERR		;ELSE ERROR
-	RTS			;AND QUIT
-;RESET COMPILER FLAGS
+	stx	WFCB+13
+	STX	WFCB+32		;clear extent and record
+	LDX	#19		;now delete
+	JSR	WFCBX		;it if there
+	LDX	#22		;now try
+	JSR	WFCBX		;to create
+	BPL	*+5		;branch if ok
+	JMP	DSKERR		;else error
+	RTS			;and quit
+;reset compiler flags
 SETFLG	LDA	#FALSE
-	STA	RNDFLE		;RANDOM FILE
-	STA	FILEIO		;FILE IO
-	STA	INPSTM		;INPUT STATEMENT
-	STA	FORSTM		;FOR STATEMENT
-	STA	GSBSTM		;GOSUB STATEMENT
+	STA	RNDFLE		;random file
+	STA	FILEIO		;file io
+	STA	INPSTM		;input statement
+	STA	FORSTM		;for statement
+	STA	GSBSTM		;gosub statement
 	RTS
-;WRITE INT RECORD
-WRTINT	BIT	NINTFL		;TEST FLAG
-	BPL	*+3		;OK IF FALSE
-	RTS			;ELSE DONE
-	LDA	#(OUTBUF & $FF)	;POINT TO
-	LDY	#((OUTBUF / $100)& $FF)	;BUFFER
-	LDX	#26		;AND SET
-	JSR	PEM		;AS DMA
-	LDX	#21		;NOW DO
-	JSR	WFCBX		;WRITE OP
-	BEQ	*+5		;OK IF ZERO
-	JMP	DSKERR		;ELSE ERROR
-	LDA	#(INPBUF & $FF)	;POINT BACK
-	LDY	#((INPBUF / $100)& $FF)	;TO INPUT
-	LDX	#26		;AND SET
-	JMP	PEM		;AS DEFAULT
-;EMIT BYTE IN A TO INT FILE
-EMIT	LDX	OUTIND		;GET INDEX
-	BPL	EMIT0		;OK IF < 128
-	PHA			;ELSE SAVE
-	JSR	WRTINT		;WRITE BUFFER
-	PLA			;GET BYTE
-	LDX	#0		;NOW CLEAR
-	STX	OUTIND		;INDEX
-EMIT0	INC	OUTIND		;BUMP FOR NEXT
-	STA	OUTBUF,X	;SAVE BYTE
-	RTS			;AND DONE
-;READ SOURCE FILE RECORD
-RDESRC	LDX	#20		;GET CODE
-	JSR	RFCBX		;DO IT
-	CMP	#2		;SEE IF OK
-	BCC	*+5		;BRANCH IF WAS
-	JMP	DSKERR		;ELSE ERROR
+;write INT record
+WRTINT	BIT	NINTFL		;test flag
+	BPL	*+3		;ok if false
+	RTS			;else done
+	LDA	#<OUTBUF	;point to
+	LDY	#>OUTBUF	;buffer
+	LDX	#26		;and set
+	JSR	PEM		;as dma
+	LDX	#21		;now do
+	JSR	WFCBX		;write op
+	BEQ	*+5		;ok if zero
+	JMP	DSKERR		;else error
+	LDA	#<INPBUF	;point back
+	LDY	#>INPBUF	;to input
+	LDX	#26		;and set
+	JMP	PEM		;as default
+;emit byte in A to INT file
+EMIT	LDX	OUTIND		;get index
+	BPL	EMIT0		;ok if < 128
+	PHA			;else save
+	JSR	WRTINT		;write buffer
+	PLA			;get byte
+	LDX	#0		;now clear
+	STX	OUTIND		;index
+EMIT0	INC	OUTIND		;bump for next
+	STA	OUTBUF,X	;save byte
+	RTS			;and done
+;read source file record
+RDESRC	LDX	#20		;get code
+	JSR	RFCBX		;do it
+	CMP	#2		;see if ok
+	BCC	*+5		;branch if was
+	JMP	DSKERR		;else error
 	RTS
-;CLEAR OUTPUT LINE BUFFER
-CLLNBF	LDX	#CBUFSZ-1	;GET LENGTH - 1
-	LDA	#SPACE		;USE SPACE
-CLLN0	STA	CONBUF,X	;STORE
-	DEX			;DROP INDEX
-	CPX	#255		;SEE IF WRAP
-	BNE	CLLN0		;LOOP IF NOT
+;clear output line buffer
+CLLNBF	LDX	#CBUFSZ-1	;get length - 1
+	LDA	#SPACE		;use space
+CLLN0	STA	CONBUF,X	;store
+	DEX			;drop index
+	CPX	#255		;see if wrap
+	BNE	CLLN0		;loop if not
 	RTS
-;LIST LINE OF LENGTH LENGTH
-;NOTE THAT THIS ROUTINE ALSO SETS SEPRTR TO : (JUST IN CASE!!)
-LSTLNE	LDA	LINENO		;GET LINE
-	LDY	LINENO+1	;NUMBER
-	JSR	PRNDEC		;PRINT IT
-	LDA	SEPRTR		;THEN PRINT
-	JSR	PRNCHR		;SEPARATOR
-	LDA	#SPACE		;AND A
-	JSR	PRNCHR		;SPACE
-	LDA	#0		;NOW CLEAR
-	STA	GPIND		;INDEX
-LSTL0	LDX	GPIND		;GET INDEX
-	LDA	CONBUF,X	;GET CHAR
-	JSR	PRNCHR		;PRINT IT
-	INC	GPIND		;BUMP INDEX
-	LDA	GPIND		;GET INDEX
-	CMP	LENGTH		;COMPARE TO LENGTH
-	BCC	LSTL0		;LOOP IF MORE
-	BEQ	LSTL0		;OR IF SAME
-	JSR	CRLF		;DO CR AND LF
-	JSR	CLLNBF		;CLEAR BUFFER
-	LDA	#':'		;AND SET
-	STA	SEPRTR		;SEPARATOR
+;list line of length LENGTH
+;note that this routine also sets seprtr to : (just in case!!)
+LSTLNE	LDA	LINENO		;get line
+	LDY	LINENO+1	;number
+	JSR	PRNDEC		;print it
+	LDA	SEPRTR		;then print
+	JSR	PRNCHR		;separator
+	LDA	#SPACE		;and a
+	JSR	PRNCHR		;space
+	LDA	#0		;now clear
+	STA	GPIND		;index
+LSTL0	LDX	GPIND		;get index
+	LDA	CONBUF,X	;get char
+	JSR	PRNCHR		;print it
+	INC	GPIND		;bump index
+	LDA	GPIND		;get index
+	CMP	LENGTH		;compare to length
+	BCC	LSTL0		;loop if more
+	BEQ	LSTL0		;or if same
+	JSR	CRLF		;do cr and lf
+	JSR	CLLNBF		;clear buffer
+	LDA	#':'		;and set
+	STA	SEPRTR		;separator
 	RTS
-;SET GLOBAL VARIABLE NXTCHR TO NEXT SOURCE FILE CHARACTER AND RETURN WITH
-;NXTCHR IN A. REPLACE TAB WITH SPACE AND IF LSTSRC IS TRUE OR AN ERROR
-;OCCURS SEND THE LINE TO THE CONSOLE.
-GETCHR	JSR	CHKFLE		;GO GET CHAR
-	BNE	GETEOF		;BRANCH IF EOF
-	LDA	NXTCHR		;GET NEXTCHAR
-	CMP	#EOF		;SEE IF EOF CHAR
-	BNE	NTEOF		;BRANCH IF NOT
-GETEOF	LDX	#4		;MOVE 5
-GETE0	LDA	ADDEND,X	;FROM ADDEND
-	STA	INPBUF,X	;TO INPUT BUFFER
-	DEX			;DROP COUNT
-	BPL	GETE0		;LOOP IF MORE
-	INX			;CLEAR X
-	STX	SRCIND		;AND THEN INDEX
-	JSR	NXTSRC		;GET NEXT
-	STA	NXTCHR		;SAVE IT
-NTEOF	LDX	LNEPTR		;GET POINTER
-	CPX	#CBUFSZ		;COMPARE TO MAX
-	BCS	LTOBIG		;BRANCH IF TOO BIG
-	INX			;ELSE BUMP
-	STX	LNEPTR		;AND SAVE
-	LDA	NXTCHR		;GET CHAR
-	STA	CONBUF,X	;AND SAVE
-LTOBIG	LDA	NXTCHR		;GET CHAR
-	CMP	#CR		;SEE IF A CR
-	BNE	NTEOL		;BRANCH IF NOT
-	INC	LINENO		;ELSE BUMP
-	BNE	*+4		;LINE
-	INC	LINENO+1	;NUMBER
-	LDX	LNEPTR		;GET POINTER
-	DEX			;DROP IT
-	STX	LENGTH		;PUT IN LENGTH
-	LDA	LSTSRC		;GET FLAG
-	BEQ	NOLSLN		;BRANCH IF NOT TRUE
-	JSR	LSTLNE		;LIST IT
-NOLSLN	LDA	#0		;THEN CLEAR
-	STA	LNEPTR		;POINTER
-	LDA	NXTCHR		;GET CHAR
-NTEOL	CMP	#TAB		;SEE IT TAB
-	BEQ	*+3		;BRANCH IF IS
+;set global variable NXTCHR to next source file character and return with
+;NXTCHR in A. Replace TAB with SPACE and if LSTSRC is TRUE or an error
+;occurs send the line to the console.
+GETCHR	JSR	CHKFLE		;go get char
+	BNE	GETEOF		;branch if eof
+	LDA	NXTCHR		;get nextchar
+	CMP	#EOF		;see if eof char
+	BNE	NTEOF		;branch if not
+GETEOF	LDX	#4		;move 5
+GETE0	LDA	ADDEND,X	;from ADDEND
+	STA	INPBUF,X	;to input buffer
+	DEX			;drop count
+	BPL	GETE0		;loop if more
+	INX			;clear X
+	STX	SRCIND		;and then index
+	JSR	NXTSRC		;get next
+	STA	NXTCHR		;save it
+NTEOF	LDX	LNEPTR		;get pointer
+	CPX	#CBUFSZ		;compare to max
+	BCS	LTOBIG		;branch if too big
+	INX			;else bump
+	STX	LNEPTR		;and save
+	LDA	NXTCHR		;get char
+	STA	CONBUF,X	;and save
+LTOBIG	LDA	NXTCHR		;get char
+	CMP	#CR		;see if a cr
+	BNE	NTEOL		;branch if not
+	INC	LINENO		;else bump
+	BNE	*+4		;line
+	INC	LINENO+1	;number
+	LDX	LNEPTR		;get pointer
+	DEX			;drop it
+	STX	LENGTH		;put in length
+	LDA	LSTSRC		;get flag
+	BEQ	NOLSLN		;branch if not true
+	JSR	LSTLNE		;list it
+NOLSLN	LDA	#0		;then clear
+	STA	LNEPTR		;pointer
+	LDA	NXTCHR		;get char
+NTEOL	CMP	#TAB		;see it tab
+	BEQ	*+3		;branch if is
 	RTS
-	LDA	#SPACE		;ELSE GET SPACE
-	STA	NXTCHR		;SET
-	RTS			;AND DONE
-;GET BYTE FROM SOURCE FILE
-NXTSRC	LDX	SRCIND		;GET INDEX
-	LDA	INPBUF,X	;THEN BYTE
+	LDA	#SPACE		;else get space
+	STA	NXTCHR		;set
+	RTS			;and done
+;get byte from source file
+NXTSRC	LDX	SRCIND		;get index
+	LDA	INPBUF,X	;then byte
 	RTS
-;MAINTAIN SOURCE BUFFER FULL AND CHECK FOR EOF. IF EOF IS DETECTED THEN
-;A:=TRUE ELSE A:=FALSE
-CHKFLE	INC	SRCIND		;BUMP INDEX
-	BPL	CHKFL0		;BRANCH IF OK
-	LDA	#0		;ELSE CLEAR
-	STA	SRCIND		;INDEX
-	JSR	RDESRC		;READ RECORD
-	CMP	#1		;SEE IF EOF
-	BNE	CHKFL0		;BRANCH IF NOT
-	LDA	#TRUE		;ELSE SET
-	RTS			;EOF=TRUE
-CHKFL0	JSR	NXTSRC		;GET NEXT
-	STA	NXTCHR		;SAVE IT
-	CMP	#LF		;IF A LF
-	BEQ	CHKFLE		;LOOP FOR MORE
-	LDA	#FALSE		;ELSE SAY
-	RTS			;WASN'T EOF
-;GET NON-BLANK FROM SOURCE. WILL ALSO SKIP PAST EOF TO REACH PHYSICAL EOF.
-GTNBLK	JSR	GETCHR		;GET NEW CHAR
-	CMP	#SPACE		;IF A SPACE
-	BEQ	GTNBLK		;TRY AGAIN
-	CMP	#EOF		;IF AN EOF
-	BEQ	GTNBLK		;TRY AGAIN
+;maintain source buffer full and check for eof. if eof is detected then
+;A:=TRUE else A:=FALSE
+CHKFLE	INC	SRCIND		;bump index
+	BPL	CHKFL0		;branch if ok
+	LDA	#0		;else clear
+	STA	SRCIND		;index
+	JSR	RDESRC		;read record
+	CMP	#1		;see if eof
+	BNE	CHKFL0		;branch if not
+	LDA	#TRUE		;else set
+	RTS			;eof=true
+CHKFL0	JSR	NXTSRC		;get next
+	STA	NXTCHR		;save it
+	CMP	#LF		;if a lf
+	BEQ	CHKFLE		;loop for more
+	LDA	#FALSE		;else say
+	RTS			;wasn't eof
+;get non-blank from source. will also skip past eof to reach physical eof.
+GTNBLK	JSR	GETCHR		;get new char
+	CMP	#SPACE		;if a space
+	BEQ	GTNBLK		;try again
+	CMP	#EOF		;if an eof
+	BEQ	GTNBLK		;try again
 	RTS
-;CHECK FOR CONTINUATION CHARACTER. IF IT IS WILL GET FIRST CHAR FROM NEXT LINE.
-CHKCNT	LDA	NXTCHR		;GET NEXT
-	CMP	#BACKSL		;SEE IF CONTINUE
-	BEQ	*+3		;BRANCH IF IS
+;check for continuation character. if it is will get first char from next line.
+CHKCNT	LDA	NXTCHR		;get next
+	CMP	#backsl		;see if continue
+	BEQ	*+3		;branch if is
 	RTS
-CHKCN0	JSR	GETCHR		;GET NEXT
-	CMP	#CR		;SEE IF EOL
-	BNE	CHKCN0		;LOOP IF ISN'T
-	JMP	GTNBLK		;NOW GET FIRST NON-BLANK
-;COMPILER ERROR HANDLER
-;AT ENTRY A CONTAINS ERROR NUMBER
-ERROR	STA	ERRCDE		;SAVE
-	LDA	LNEPTR		;GET INDEX
-	STA	POINTR		;MOVE TO POINTER
-	INC	POINTR		;AND BUMP
-	INC	POINTR		;BY TWO
-	LDA	TOKEN		;GET TOKEN
-	CMP	#TCR		;SEE IF FOR EOL
-	BEQ	ERROR3		;BRANCH IF IS
-	LDA	NXTCHR		;ELSE GET NEXT
-ERROR1	CMP	#CR		;IF A CR
-	BEQ	ERROR3		;THEN DONE
-	JSR	CHKCNT		;ELSE SEE IF CONTINUE
-	JSR	GETCHR		;GET ANOTHER CHAR
-	JMP	ERROR1		;AND LOOP
-ERROR3	BIT	PASS2		;TEST PASS 2 FLAG
-	BPL	ERROR6		;BRANCH IF CLEAR
-	BIT	LSTSRC		;SEE IF SOURCE ALREADY LISTED
-	BMI	*+5		;SKIP LIST IF WAS
-	JSR	LSTLNE		;ELSE LIST
-	INC	ERRCNT		;BUMP
-	BNE	*+4		;ERROR
-	INC	ERRCNT+1	;COUNT
-	LDA	#'?'		;PRINT A ?
+CHKCN0	JSR	GETCHR		;get next
+	CMP	#CR		;see if eol
+	BNE	CHKCN0		;loop if isn't
+	JMP	GTNBLK		;now get first non-blank
+;compiler error handler
+;at entry a contains error number
+ERROR	STA	ERRCDE		;save
+	LDA	LNEPTR		;get index
+	STA	POINTR		;move to pointer
+	INC	POINTR		;and bump
+	INC	POINTR		;by two
+	LDA	TOKEN		;get token
+	CMP	#TCR		;see if for eol
+	BEQ	ERROR3		;branch if is
+	LDA	NXTCHR		;else get next
+ERROR1	CMP	#CR		;if a cr
+	BEQ	ERROR3		;then done
+	JSR	CHKCNT		;else see if continue
+	JSR	GETCHR		;get another char
+	JMP	ERROR1		;and loop
+ERROR3	BIT	PASS2		;test pass 2 flag
+	BPL	ERROR6		;branch if clear
+	BIT	LSTSRC		;see if source already listed
+	BMI	*+5		;skip list if was
+	JSR	LSTLNE		;else list
+	INC	ERRCNT		;bump
+	BNE	*+4		;error
+	INC	ERRCNT+1	;count
+	LDA	#'?'		;print a ?
 	JSR	PRNCHR
 	LDA	#'-'
-	JSR	PRNCHR		;PRINT TWO -
+	JSR	PRNCHR		;print two -
 	LDA	#'-'
 	JSR	PRNCHR
-ERROR4	DEC	POINTR		;DROP POINTER
-	BEQ	ERROR5		;DONE IF ZERO
-	BMI	ERROR5		;OR <0
-	LDA	#'-'		;ELSE GET -
-	JSR	PRNCHR		;PRINT IT
-	JMP	ERROR4		;AND LOOP
-ERROR5	LDA	#'^'		;GET UP ARROW
-	JSR	PRNCHR		;PRINT IT
-	JSR	CRLF		;THEN A CR AND LF
-	LDA	ERRCDE		;GET ERROR CODE
-	ASL	A		;MULT BY TWO
+ERROR4	DEC	POINTR		;drop pointer
+	BEQ	ERROR5		;done if zero
+	BMI	ERROR5		;or <0
+	LDA	#'-'		;else get -
+	JSR	PRNCHR		;print it
+	JMP	ERROR4		;and loop
+ERROR5	LDA	#'^'		;get up arrow
+	JSR	PRNCHR		;print it
+	JSR	CRLF		;then a cr and lf
+	LDA	ERRCDE		;get error code
+	ASL	A		;mult by two
 	TAX
 	LDA	ERMTBL,X
-	LDY	ERMTBL+1,X	;GET MESSAGE ADDRESS
-	JSR	PRNMSG		;PRINT IT
+	LDY	ERMTBL+1,X	;get message address
+	JSR	PRNMSG		;print it
 	JSR	CRLF
-ERROR6	LDA	#FALSE		;NOW CLEAR
-	STA	CMPLNG		;COMPILING FLAG
-	JMP	SETFLG		;AND THEN OTHER FLAGS
-;INITIALIZE SCANNER BY SETTING NXTCHR TO THE FIRST NON-BLANK CHARACTER FROM THE
-;INPUT FILE AND BY SETTING THE LINE NUMBER AND POINTER
-INSCAN	BIT	PASS1		;TEST FOR PASS 1
-	BPL	NOGTPR		;BRANCH IF NOT
-	LDX	#8		;MOVE 8 PARMS
-INSCA0	LDA	FCB+16,X	;FROM FCB
-	STA	PRMLST-1,X	;TO SAVE AREA
-	DEX			;DROP COUNT
-	BNE	INSCA0		;LOOP IF MORE
-NOGTPR	JSR	OPNSRC		;OPEN FILE
-	LDA	#0		;NOW
-	STA	CONT		;CLEAR
-	STA	COLUMN		;VARIABLES
-	STA	LINENO		;FOR START
-	STA	LINENO+1	;OF A
-	STA	LNEPTR		;PASS
-	JSR	CLLNBF		;CLEAR OUTPUT BUFFER
-	LDA	#SRCRSZ		;NOW SET SOURCE
-	STA	SRCIND		;INDEX TO INVALID
-	LDA	#':'		;SET SEPARATOR
-	STA	SEPRTR		;TO A COLON
-	LDA	PRMLST		;GET FIRST PARM
-	CMP	#'$'		;SEE IF START
-	BNE	INSDNE		;NOT SO EXIT
-	LDX	#1		;SET INDEX TO FIRST
-INSCAP	LDA	PRMLST,X	;GET PARM
-	INX			;BUMP INDEX
-	CMP	#SPACE		;IF NOT A SPACE
-	BEQ	INSDNE		;DONE IF SPACE
-	LDY	#TRUE		;SET TRUE
-	CMP	#'A'		;IF NOT A
-	BNE	PNOTA		;TRY NEXT
-	STY	LSTPRD		;ELSE SET
-	BEQ	INSCAP		;AND LOOP
-PNOTA	CMP	#'C'		;IF NOT C
-	BNE	PNOTC		;TRY NEXT
-	STY	NINTFL		;ELSE SET
-	BEQ	INSCAP		;AND LOOP
-PNOTC	CMP	#'E'		;SEE IF E
-	BNE	PNOTE		;BRANCH IF NOT
-	STY	DEBUGL		;ELSE SET
-	BEQ	INSCAP		;AND LOOP
-PNOTE	CMP	#'F'		;SEE IF F
-	BNE	PNOTF		;BRANCH IF NOT
-	STY	LSTFLG		;ELSE SET
-	BEQ	INSCAP		;AND LOOP
-PNOTF	LDY	#FALSE		;NOW USE FALSE
-	CMP	#'B'		;IF NOT B
-	BNE	PNOTB		;TRY NEXT
-	STY	LSTSRC		;ELSE SET
-	BEQ	INSCAP		;AND LOOP
-PNOTB	CMP	#'D'		;IF NOT D
-	BNE	INSCAP		;THEN NOT VALID
-	STY	LWRUPR		;ELSE SET
-	BEQ	INSCAP		;AND LOOP
-;DONE WITH INSCAN SO GET FIRST NON-BLANK
-INSDNE	LDA	#0		;CLEAR EOL FLAG
+ERROR6	LDA	#FALSE		;now clear
+	STA	CMPLNG		;compiling flag
+	JMP	SETFLG		;and then other flags
+;initialize scanner by setting NXTCHR to the first non-blank character from the
+;input file and by setting the line number and pointer
+INSCAN	BIT	PASS1		;test for pass 1
+	BPL	NOGTPR		;branch if not
+	LDX	#8		;move 8 parms
+INSCA0	LDA	FCB+16,X	;from fcb
+	STA	PRMLST-1,X	;to save area
+	DEX			;drop count
+	BNE	INSCA0		;loop if more
+NOGTPR	JSR	OPNSRC		;open file
+	LDA	#0		;now
+	STA	CONT		;clear
+	STA	COLUMN		;variables
+	STA	LINENO		;for start
+	STA	LINENO+1	;of a
+	STA	LNEPTR		;pass
+	JSR	CLLNBF		;clear output buffer
+	LDA	#SRCRSZ		;now set source
+	STA	SRCIND		;index to invalid
+	LDA	#':'		;set separator
+	STA	SEPRTR		;to a colon
+	LDA	PRMLST		;get first parm
+	CMP	#'$'		;see if start
+	BNE	INSDNE		;not so exit
+	LDX	#1		;set index to first
+INSCAP	LDA	PRMLST,X	;get parm
+	INX			;bump index
+	CMP	#SPACE		;if not a space
+	BEQ	INSDNE		;done if space
+	LDY	#TRUE		;set true
+	CMP	#'A'		;if not A
+	BNE	PNOTA		;try next
+	STY	LSTPRD		;else set
+	BEQ	INSCAP		;and loop
+PNOTA	CMP	#'C'		;if not C
+	BNE	PNOTC		;try next
+	STY	NINTFL		;else set
+	BEQ	INSCAP		;and loop
+PNOTC	CMP	#'E'		;see if E
+	BNE	PNOTE		;branch if not
+	STY	DEBUGL		;else set
+	BEQ	INSCAP		;and loop
+PNOTE	CMP	#'F'		;see if F
+	BNE	PNOTF		;branch if not
+	STY	LSTFLG		;else set
+	BEQ	INSCAP		;and loop
+PNOTF	LDY	#FALSE		;now use false
+	CMP	#'B'		;if not B
+	BNE	PNOTB		;try next
+	STY	LSTSRC		;else set
+	BEQ	INSCAP		;and loop
+PNOTB	CMP	#'D'		;if not D
+	BNE	INSCAP		;then not valid
+	STY	LWRUPR		;else set
+	BEQ	INSCAP		;and loop
+;done with INSCAN so get first non-blank
+INSDNE	LDA	#0		;clear eol flag
 	STA	EOLSTS
 	JMP	GTNBLK
-;PUT NXTCHR IN ACCUM
-PUTACC	BIT	CONT		;TEST FOR CONTINUE
-	BPL	*+3		;DO IF NOT
-	RTS			;ELSE DONE
-	INC	ACCLEN		;BUMP LENGTH
-	LDX	ACCLEN		;GET IT AS INDEX
-	LDA	NXTCHR		;GET NEXT
-	STA	ACCUM,X		;STORE IT
-	CLC			;CLEAR CARRY
-	ADC	HSHCDE		;ADD HASHCDE
-	AND	#HSHMSK		;MASK IT
-	STA	HSHCDE		;AND SAVE
-	CPX	#IDNTSZ-1	;COMPARE TO MAX
-	BCS	*+3		;BRANCH IF TOO BIG
-	RTS			;ELSE DONE
-	LDA	#TRUE		;SET CONT
-	STA	CONT		;FLAG
+;put NXTCHR in ACCUM
+PUTACC	BIT	CONT		;test for continue
+	BPL	*+3		;do if not
+	RTS			;else done
+	INC	ACCLEN		;bump length
+	LDX	ACCLEN		;get it as index
+	LDA	NXTCHR		;get next
+	STA	ACCUM,X		;store it
+	CLC			;clear carry
+	ADC	HSHCDE		;add hashcde
+	AND	#HSHMSK		;mask it
+	STA	HSHCDE		;and save
+	CPX	#IDNTSZ-1	;compare to max
+	BCS	*+3		;branch if too big
+	RTS			;else done
+	LDA	#TRUE		;set CONT
+	STA	CONT		;flag
 	RTS
-;PUT NXTCHR IN ACCUM AND GET ANOTHER NON-BLANK
-PUTGET	JSR	PUTACC		;PUT
-	JMP	GTNBLK		;AND GET
-;PUT NXTCHR IN ACCUM AND GET ANOTHER CHAR
-PUTCHR	JSR	PUTACC		;PUT
-	JMP	GETCHR		;AND GET
-;TEST FOR NUMERIC NXTCHR. RETURN WITH A:=TRUE IFF NXTCHR IN '0' TO '9'
-NUMRIC	LDA	NXTCHR		;GET CHAR
-	CMP	#'0'		;SEE IF LESS THAN 0
-	BCC	NOTNUM		;BRANCH IF IS
-	CMP	#'9'+1		;SEE IF OVER 9
-	BCS	NOTNUM		;BRANCH IF IS
-	LDA	#TRUE		;ELSE SET
-	RTS			;FOR NUMERIC
-NOTNUM	LDA	#FALSE		;SET FALSE
+;put NXTCHR in ACCUM and get another non-blank
+PUTGET	JSR	PUTACC		;put
+	JMP	GTNBLK		;and get
+;put NXTCHR in ACCUM and get another char
+PUTCHR	JSR	PUTACC		;put
+	JMP	GETCHR		;and get
+;test for numeric NXTCHR. return with A:=TRUE iff NXTCHR in '0' to '9'
+NUMRIC	LDA	NXTCHR		;get char
+	CMP	#'0'		;see if less than 0
+	BCC	NOTNUM		;branch if is
+	CMP	#'9'+1		;see if over 9
+	BCS	NOTNUM		;branch if is
+	LDA	#TRUE		;else set
+	RTS			;for numeric
+NOTNUM	LDA	#FALSE		;set false
 	RTS
-;TEST FOR LOWER CASE NXTCHR. RETURN WITH A:=TRUE IFF NXTCHR IN 'A' TO 'Z'
-LWRCSE	LDA	NXTCHR		;GET CHAT
-	CMP	#'A'		;SEE IF < A
-	BCC	NOTLWR		;BRANCH IF IS
-	CMP	#'Z'+1		;SEE IF > Z
-	BCS	NOTLWR		;BRANCH IF IS
-	LDA	#TRUE		;ELSE 
-	RTS			;IS LOWER
-NOTLWR	LDA	#FALSE		;NOT LOWER
+;test for lower case NXTCHR. return with A:=TRUE iff NXTCHR in 'a' to 'z'
+LWRCSE	LDA	NXTCHR		;get chat
+	CMP	#'a'		;see if < a
+	BCC	NOTLWR		;branch if is
+	CMP	#'z'+1		;see if > z
+	BCS	NOTLWR		;branch if is
+	LDA	#TRUE		;else
+	RTS			;is lower
+NOTLWR	LDA	#FALSE		;not lower
 	RTS
-;TEST FOR NXTCHR A DECIMAL POINT
-DCMLPT	LDA	NXTCHR		;GET CHAR
-	CMP	#'.'		;TEST IT
-	BNE	NTDCML		;BRANCH IF NOT
-	LDA	#TRUE		;SET FOR TRUE
+;test for NXTCHR a decimal point
+DCMLPT	LDA	NXTCHR		;get char
+	CMP	#'.'		;test it
+	BNE	NTDCML		;branch if not
+	LDA	#TRUE		;set for true
 	RTS
-NTDCML	LDA	#FALSE		;FALSE
+NTDCML	LDA	#FALSE		;false
 	RTS
-;CONVERT LOWERCASE TO UPPERCASE
-CNVLWR	JSR	LWRCSE		;SEE IF LOWER
-	AND	LWRUPR		;AND WITH FLAG
-	BNE	*+3		;OK IF BOTH TRUE
-	RTS			;ELSE DONE
-	LDA	NXTCHR		;GET CHAR
-	AND	#$5F		;CONVERT
-	STA	NXTCHR		;AND SAVE
+;convert lowercase to uppercase
+CNVLWR	JSR	LWRCSE		;see if lower
+	AND	LWRUPR		;and with flag
+	BNE	*+3		;ok if both true
+	RTS			;else done
+	LDA	NXTCHR		;get char
+	AND	#$5F		;convert
+	STA	NXTCHR		;and save
 	RTS
-;TEST FOR LETTER. SET A:=TRUE IF LOWERCASE OR UPPERCASE LETTER
-LETTER	JSR	CNVLWR		;COVERT IF ALL SET
-	JSR	LWRCSE		;SEE IF STILL LOWERCASE
-	BEQ	*+3		;BRANCH IF NOT
-	RTS			;ELSE IS TRUE
-	LDA	NXTCHR		;GET CHAR
-	CMP	#'A'		;IF < A
-	BCC	NOTLTR		;IS NOT LETTER
-	CMP	#'Z'+1		;IF > Z
-	BCS	NOTLTR		;IS NOT LETTER
-	LDA	#TRUE		;ELSE IS
+;test for letter. set A:=TRUE if lowercase or uppercase letter
+LETTER	JSR	CNVLWR		;covert if all set
+	JSR	LWRCSE		;see if still lowercase
+	BEQ	*+3		;branch if not
+	RTS			;else is TRUE
+	LDA	NXTCHR		;get char
+	CMP	#'A'		;if < A
+	BCC	NOTLTR		;is not letter
+	CMP	#'Z'+1		;if > Z
+	BCS	NOTLTR		;is not letter
+	LDA	#TRUE		;else is
 	RTS
-NOTLTR	LDA	#FALSE		;NOT LETTER
+NOTLTR	LDA	#FALSE		;not letter
 	RTS
-;TEST FOR LETTER, NUMBER OR DECIMAL POINT. RETURN A:=TRUE IF EITHER
-ALPNUM	JSR	LETTER		;FIRST TRY LETTER
-	BEQ	*+3		;BRANCH IF NOT
+;test for letter, number or decimal point. return A:=TRUE if either
+ALPNUM	JSR	LETTER		;first try letter
+	BEQ	*+3		;branch if not
 	RTS
-	JSR	NUMRIC		;NOW TRY NUMBER
-	BEQ	*+3		;BRANCH IF NOT
+	JSR	NUMRIC		;now try number
+	BEQ	*+3		;branch if not
 	RTS
-	JMP	DCMLPT		;FINALLY TRY DECIMAL POINT
-;SPOOL NUMERIC DATA INTO ACCUM
-SPLNUM	JSR	NUMRIC		;SEE IF NUMBER
-	BNE	*+3		;BRANCH IF IS
-	RTS			;ELSE DONE
-	JSR	PUTCHR		;STUFF IT
-	JMP	SPLNUM		;AND LOOP
-;SET UP NEXT CALL
-SUPNCL	LDA	NXTCHR		;GET NEXT
-	CMP	#SPACE		;SEE IF BLANK
-	BNE	*+5		;BRANCH IF NOT
-	JSR	GTNBLK		;GET NON-BLANK
-	LDA	#FALSE		;SET CONTINUE
-	STA	CONT		;TO FALSE
+	JMP	DCMLPT		;finally try decimal point
+;spool numeric data into ACCUM
+SPLNUM	JSR	NUMRIC		;see if number
+	BNE	*+3		;branch if is
+	RTS			;else done
+	JSR	PUTCHR		;stuff it
+	JMP	SPLNUM		;and loop
+;set up next call
+SUPNCL	LDA	NXTCHR		;get next
+	CMP	#SPACE		;see if blank
+	BNE	*+5		;branch if not
+	JSR	GTNBLK		;get non-blank
+	LDA	#FALSE		;set continue
+	STA	CONT		;to false
 	RTS
-;PROCEDURE CALLED BY SYNTHE TO REDUCE THE AMOUNT OF INDEXING
-SCOPY	LDX	SP		;GET STACK POINTER
-	LDA	TYPE,X		;DO
-	STA	TYPESP		;BYTE
-	LDA	STYPE,X		;VALUES
-	STA	STYPSP		;FIRST
+;procedure called by SYNTHE to reduce the amount of indexing
+SCOPY	LDX	SP		;get stack pointer
+	LDA	TYPE,X		;do
+	STA	TYPESP		;byte
+	LDA	STYPE,X		;values
+	STA	STYPSP		;first
 	LDA	HASH,X
 	STA	HASHSP
-	TXA			;NOW
-	ASL	A		;MAKE A
-	TAX			;WORD INDEX
+	TXA			;now
+	ASL	A		;make a
+	TAX			;word index
 	LDA	SYMLOC,X
 	LDY	SYMLOC+1,X
 	STA	SYMLSP
@@ -832,16 +835,16 @@ SCOPY	LDX	SP		;GET STACK POINTER
 	LDY	SRLOC+1,X
 	STA	SRLOSP
 	STY	SRLOSP+1
-	LDX	MP		;NOW GET MP
+	LDX	MP		;now get MP
 	LDA	TYPE,X
 	STA	TYPEMP
 	LDA	STYPE,X
 	STA	STYPMP
 	LDA	HASH,X
 	STA	HASHMP
-	TXA			;NOW
-	ASL	A		;MAKE A
-	TAX			;WORD INDEX
+	TXA			;now
+	ASL	A		;make a
+	TAX			;word index
 	LDA	SYMLOC,X
 	LDY	SYMLOC+1,X
 	STA	SYMLMP
@@ -850,1611 +853,1611 @@ SCOPY	LDX	SP		;GET STACK POINTER
 	LDY	SRLOC+1,X
 	STA	SRLOMP
 	STY	SRLOMP+1
-	LDX	MPP1		;NOW GET MP+1
+	LDX	MPP1		;now get MP+1
 	LDA	TYPE,X
 	STA	TYPEM1
 	LDA	STYPE,X
 	STA	STYPM1
 	LDA	HASH,X
 	STA	HASHM1
-	TXA			;NOW
-	ASL	A		;MAKE A
-	TAX			;WORD INDEX
+	TXA			;now
+	ASL	A		;make a
+	TAX			;word index
 	LDA	SYMLOC,X
 	LDY	SYMLOC+1,X
 	STA	SYMLM1
 	STY	SYMLM1+1
 	RTS
-;CALLED BY SYNTHE TO SET SYMLOC(SP) TO AY
-STSLSP	PHA			;SAVE A PART
-	LDA	SP		;GET SP
-STSL	ASL	A		;MULT BY TWO
-	TAX			;MAKE INDEX
-	PLA			;GET BYTE
-	STA	SYMLOC,X	;SAVE IT
-	TYA			;GET HIGH
-	STA	SYMLOC+1,X	;SAVE IT
+;called by SYNTHE to set SYMLOC(SP) to AY
+STSLSP	PHA			;save A part
+	LDA	SP		;get SP
+STSL	ASL	A		;mult by two
+	TAX			;make index
+	PLA			;get byte
+	STA	SYMLOC,X	;save it
+	TYA			;get high
+	STA	SYMLOC+1,X	;save it
 	RTS
-;CALLED BY SYNTHE TO SET SYMLOC(MP) TO AY
-STSLMP	PHA			;SAVE LOW
-	LDA	MP		;GET MP
-	JMP	STSL		;GO DO
-;CALLED BY SYNTHE TO SET TYPE(SP) TO A
-STTYSP	LDX	SP		;GET SP
-	STA	TYPE,X		;SAVE
+;called by SYNTHE to set SYMLOC(MP) to AY
+STSLMP	PHA			;save low
+	LDA	MP		;get MP
+	JMP	STSL		;go do
+;called by SYNTHE to set TYPE(SP) to A
+STTYSP	LDX	SP		;get SP
+	STA	TYPE,X		;save
 	RTS
-;CALLED BY SYNTHE TO SET STYPE(SP) TO A
-STSTSP	LDX	SP		;GET SP
-	STA	STYPE,X		;SAVE
+;called by SYNTHE to set STYPE(SP) to A
+STSTSP	LDX	SP		;get SP
+	STA	STYPE,X		;save
 	RTS
-;SET STYPE(MP) TO A
-STSTMP	LDX	MP		;GET MP
-	STA	STYPE,X		;SAVE
+;set STYPE(MP) to A
+STSTMP	LDX	MP		;get MP
+	STA	STYPE,X		;save
 	RTS
-;SET TYPE(MP) TO A
-STTYMP	LDX	MP		;GET MP
-	STA	TYPE,X		;SAVE
+;set TYPE(MP) to A
+STTYMP	LDX	MP		;get MP
+	STA	TYPE,X		;save
 	RTS
-;SET HASH(MP) TO A
-STHAMP	LDX	MP		;GET MP
-	STA	HASH,X		;INSERT
+;set HASH(MP) to A
+STHAMP	LDX	MP		;get MP
+	STA	HASH,X		;insert
 	RTS
-;SET HASH(SP) TO A
-STHASP	LDX	SP		;GET SP
-	STA	HASH,X		;INSERT
+;set HASH(SP) to A
+STHASP	LDX	SP		;get SP
+	STA	HASH,X		;insert
 	RTS
-;SET SRLOC(SP) TO AY
-STSRSP	PHA			;SAVE LOW
-	LDA	SP		;GET SP
-	ASL	A		;MULT BY TWO
-	TAX			;MAKE INDEX
-	PLA			;GET LOW
-	STA	SRLOC,X		;SAVE IR
-	TYA			;GET HIGH
-	STA	SRLOC+1,X	;SAVE IT
+;set SRLOC(SP) to AY
+STSRSP	PHA			;save low
+	LDA	SP		;get SP
+	ASL	A		;mult by two
+	TAX			;make index
+	PLA			;get low
+	STA	SRLOC,X		;save ir
+	TYA			;get high
+	STA	SRLOC+1,X	;save it
 	RTS
-;WRITE GENERATED CODE IN A AND COUNT SIZE OF CODE AREA
-GENERT	INC	CODESI		;BUMP
-	BNE	*+4		;CODE
-	INC	CODESI+1	;SIZE
-	BIT	PASS1		;TEST FOR PASS 1
-	BMI	*+5		;BRANCH IF
-	JMP	EMIT		;ELSE GO EMIT
+;write generated code in A and count size of code area
+GENERT	INC	CODESI		;bump
+	BNE	*+4		;code
+	INC	CODESI+1	;size
+	BIT	PASS1		;test for pass 1
+	BMI	*+5		;branch if
+	JMP	EMIT		;else go emit
 	RTS
-;WRITE DATA IN A DURING PASS 2 AND COUNT SIZE OF DATA AREA
-EMITDT	INC	DATACT		;BUMP
-	BNE	*+4		;DATA
-	INC	DATACT+1	;SIZE
-	BIT	PASS2		;TEST FOR PASS 2
-	BPL	*+5		;BRANCH IF NOT
-	JMP	EMIT		;ELSE GO EMIT
+;write data in A during pass 2 and count size of data area
+EMITDT	INC	DATACT		;bump
+	BNE	*+4		;data
+	INC	DATACT+1	;size
+	BIT	PASS2		;test for pass 2
+	BPL	*+5		;branch if not
+	JMP	EMIT		;else go emit
 	RTS
-;COMPARE ACCUM TO RESERVED WORD STRING
+;compare ACCUM to reserved word string
 COMPAR	LDA	#0
 	STA	IC
 COMPA0	LDY	IC
-	LDA	(PTR),Y		;A=FIELD(I)
+	LDA	(PTR),Y		;a=field(i)
 	INC	IC
-	LDY	IC		;I=I+1
-	CMP	ACCUM,Y		;COMPARE FIELD(I) TO ACCUM(I=I+1)
-	BNE	COMPAX		;EXIT IF DIFFERENT
+	LDY	IC		;i=i+1
+	CMP	ACCUM,Y		;compare field(i) to accum(i=i+1)
+	BNE	COMPAX		;exit if different
 	LDA	ACCLEN
-	CMP	IC		;IF I<=ACCLEN
-	BCS	COMPA0		;THEN LOOP
-COMPAT	LDA	#TRUE		;WAS A MATCH
+	CMP	IC		;if i<=acclen
+	BCS	COMPA0		;then loop
+COMPAT	LDA	#TRUE		;was a match
 	RTS
-COMPAX	LDA	ACCLEN		;CHECK TERMINATION CONDITION
+COMPAX	LDA	ACCLEN		;check termination condition
 	CMP	IC
-	BCC	COMPAT		;IF I>ACCLEN IS TRUE
+	BCC	COMPAT		;if i>acclen is true
 	LDA	#FALSE
 	RTS
-;ATTEMPT TO MATCH RESERVED WORD
-LOOKUP	LDA	#MAXRWL		;COMPARE MAX WORD LENGTH
-	CMP	ACCLEN		;TO LENGTH
-	BCC	LOOKFL		;EXIT AS FALSE IF TOO BIG
-	LDX	ACCLEN		;GET LENGTH
-	LDA	OFFSET,X	;AND OFFSET
-	CLC			;IN RESERVED WORD TABLE
-	ADC	#(LNG1 & $FF)		;NOW ADD TO
-	STA	PTR		;START TO
-	LDA	#0		;GET
-	ADC	#((LNG1 / $100)& $FF)		;INDIRECT
-	STA	PTR+1		;POINTER
-	LDA	#0		;SET INDEX
-	STA	IL		;TO ZERO
-LOOKU0	INC	IL		;BUMP INDEX
-	LDX	ACCLEN		;SEE IF COUNT
-	LDA	COUNT,X		;BIGGER THAN
-	CMP	IL		;NUMBER WORDS
-	BCC	LOOKFL		;NO MATCH IF IS
-	JSR	COMPAR		;TRY TO MATCH
-	BNE	LOOKMT		;BRANCH IF DID
-	CLC			;ELSE
-	LDA	PTR		;BUMP
-	ADC	ACCLEN		;POINTER
-	STA	PTR		;BY LENGTH
-	BCC	LOOKU0		;OF WORD
-	INC	PTR+1		;AND TRY
-	JMP	LOOKU0		;NEXT
-LOOKMT	LDX	ACCLEN		;GET LENGTH
-	LDA	TKOS,X		;AND TOKEN OFFSET
-	CLC			;ADD TO
-	ADC	IL		;INDEX
-	TAX			;MAKE AN INDEX
-	LDA	TK,X		;GET TOKEN
-	STA	TOKEN		;AND SAVE
-	CMP	#64+1		;SEE IF OVER 64
-	BCC	LOOKTR		;BRANCH IF NOT
-	CMP	#TDATA		;SEE IF TDATA
-	BEQ	LOOKTR		;BRANCH IF IS
-	STA	FUNCOP		;ELSE SAVE AS FUNCOP
-	SEC			;NOW SUBTRACT
-	SBC	#65		;65 TO
-	TAX			;MAKE INDEX
-	LDA	ST,X		;GET SUBTYPE
-	STA	SUBTYP		;AND SAVE
+;attempt to match reserved word
+LOOKUP	LDA	#MAXRWL		;compare max word length
+	CMP	ACCLEN		;to length
+	BCC	LOOKFL		;exit as false if too big
+	LDX	ACCLEN		;get length
+	LDA	OFFSET,X	;and offset
+	CLC			;in reserved word table
+	ADC	#<LNG1		;now add to
+	STA	PTR		;start to
+	LDA	#0		;get
+	ADC	#>LNG1		;indirect
+	STA	PTR+1		;pointer
+	LDA	#0		;set index
+	STA	IL		;to zero
+LOOKU0	INC	IL		;bump index
+	LDX	ACCLEN		;see if count
+	LDA	COUNT,X		;bigger than
+	CMP	IL		;number words
+	BCC	LOOKFL		;no match if is
+	JSR	COMPAR		;try to match
+	BNE	LOOKMT		;branch if did
+	CLC			;else
+	LDA	PTR		;bump
+	ADC	ACCLEN		;pointer
+	STA	PTR		;by length
+	BCC	LOOKU0		;of word
+	INC	PTR+1		;and try
+	JMP	LOOKU0		;next
+LOOKMT	LDX	ACCLEN		;get length
+	LDA	TKOS,X		;and token offset
+	CLC			;add to
+	ADC	IL		;index
+	TAX			;make an index
+	LDA	TK,X		;get token
+	STA	TOKEN		;and save
+	CMP	#64+1		;see if over 64
+	BCC	LOOKTR		;branch if not
+	CMP	#TDATA		;see if TDATA
+	BEQ	LOOKTR		;branch if is
+	STA	FUNCOP		;else save as FUNCOP
+	SEC			;now subtract
+	SBC	#65		;65 to
+	TAX			;make index
+	LDA	ST,X		;get subtype
+	STA	SUBTYP		;and save
 	LDA	#FUNCT
-	STA	TOKEN		;TOKEN=FUNCT
-LOOKTR	LDA	#TRUE		;MATCH
+	STA	TOKEN		;token=funct
+LOOKTR	LDA	#TRUE		;match
 	RTS
-LOOKFL	LDA	#FALSE		;NO MATCH
+LOOKFL	LDA	#FALSE		;no match
 	RTS
-;SCANNER ACCEPTS INPUT CHARACTERS FROM THE SOURCE FILE RETURNING TOKENS TO THE
-;PARSER.  CONVERSION TO UPPERCASE IS PERFORMED IF LWRUPR IS SET.  EACH TOKEN IS
-;PLACED IN ACCUM AND ACCLEN IS THE LENGTH OF THE TOKEN.  THE TOKEN IS HASHED BY
-;SUMMING EACH ASCII CHARACTER MODULO HSHTSZ (HASHTABLESIZE) AND IS STORED IN
-;HSHCDE (HASHCODE).  SUBTYP AND FUNCOP ARE SET IF THE TOKEN IS A PREDEFINED
-;FUNCTION.  REM AND DATA STATEMENTS ARE HANDLED COMPLETELY BY THE SCANNER. REM
-;AND REMARK STATEMENTS CAUSE THE INPUT TO BE SCANNED UNTIL THE END OF THE
-;CURRENT INPUT LINE IS LOCATED.  THE CR IS THEN SCANNED AND RETURNED.  DATA
-;STATEMENTS ARE SIMILAR EXCEPT DATA IS OUTPUT USING EMITDT.
-SCANNR	LDA	#0		;CLEAR
-	STA	ACCLEN		;THESE
-	STA	HSHCDE		;VARIABLES
-	STA	TOKEN		;AT
-	STA	SUBTYP		;START
-	BIT	CONT		;TEST CONTINUE FLAG
-	BMI	SCAN1		;BRANCH IF SET
-	BIT	EOLSTS		;TEST EOL STATUS
-	BPL	SCAN28		;SKIP IF CHAR READY
-	JSR	GTNBLK		;ELSE GO READ
-	LDA	#0		;THEN CLEAR FLAG
+;scanner accepts input characters from the source file returning tokens to the
+;parser.  conversion to uppercase is performed if LWRUPR is set.  each token is
+;placed in ACCUM and ACCLEN is the length of the token.  the token is hashed by
+;summing each ASCII character modulo HSHTSZ (hashtablesize) and is stored in
+;HSHCDE (hashcode).  SUBTYP and FUNCOP are set if the token is a predefined
+;function.  REM and DATA statements are handled completely by the scanner. REM
+;and REMARK statements cause the input to be scanned until the end of the
+;current input line is located.  the cr is then scanned and returned.  DATA
+;statements are similar except data is output using EMITDT.
+SCANNR	LDA	#0		;clear
+	STA	ACCLEN		;these
+	STA	HSHCDE		;variables
+	STA	TOKEN		;at
+	STA	SUBTYP		;start
+	BIT	CONT		;test continue flag
+	BMI	SCAN1		;branch if set
+	BIT	EOLSTS		;test eol status
+	BPL	SCAN28		;skip if char ready
+	JSR	GTNBLK		;else go read
+	LDA	#0		;then clear flag
 	STA	EOLSTS
-SCAN28	LDA	NXTCHR		;ELSE GET NEXT
-	CMP	#'"'		;SEE IF "
-	BNE	SCAN5		;BRANCH IF NOT
-;FIRST CASE IS STRING OR STRING CONTINUATION
-SCAN1	LDA	#STRING		;GET TOKEN
-	STA	TOKEN		;AND SET
-	LDA	#FALSE		;AND SET
-	STA	CONT		;CONT AS FALSE
-SCAN2	JSR	GETCHR		;GET CHAR
-	CMP	#'"'		;SEE IF DELIMITER
-	BEQ	SCAN4		;BRANCH IF IS
-	CMP	#CR		;SEE IF EOL
-	BNE	SCAN3		;BRANCH IF NOT
-	LDA	#22		;ELSE IS UNTERMINATED STRING
-	JMP	ERROR		;DO ERROR AND QUIT
-SCAN3	JSR	PUTACC		;PUT IN ACCUM
-	BIT	CONT		;TEST FOR CONTINUE
-	BPL	SCAN2		;LOOP IF NOT
-	RTS			;ELSE DONE
-SCAN4	JSR	GTNBLK		;GET NON-BLANK
-	CMP	#'"'		;SEE IF ANOTHER DELIMITER
-	BEQ	*+3		;BRANCH IF IS
-	RTS			;ELSE DONE
-	JSR	PUTACC		;PUT IN ACCUM
-	JMP	SCAN2		;AND LOOP
-SCAN5	JSR	NUMRIC		;SEE IF NUMBER
-	BNE	SCAN6		;BRANCH IF IS
-	JSR	DCMLPT		;SEE IF DECIMAL POINT
-	BEQ	SCAN15		;BRANCH IF NOT
-;IS A NUMERIC OF UP TO IDNTSZ-1 CHARACTERS
-SCAN6	LDA	#FLOTPT		;GET TOKEN
-	STA	TOKEN		;AND SET
-	LDA	NXTCHR		;GET NEXT CHAR
-SCAN7	CMP	#'0'		;SEE IF LEADING ZERO
-	BNE	SCAN8		;BRANCH IF NOT
-	JSR	GETCHR		;ELSE GET NEXT
-	JMP	SCAN7		;AND LOOP TO FLUSH
-SCAN8	JSR	SPLNUM		;SPOOL NUMERIC
-	JSR	DCMLPT		;TEST FOR DECIMAL POINT
-	BEQ	SCAN9		;BRANCH IF NOT
-	JSR	PUTCHR		;INSERT IT
-	JSR	SPLNUM		;SPOOL REST
-SCAN9	JSR	CNVLWR		;CONVERT NEXT TO UPPER
-	LDA	NXTCHR		;GET IT
-	CMP	#'E'		;SEE IF E FOR EXPONENT
-	BNE	SCAN13		;BRANCH IF NOT
-	JSR	PUTGET		;ELSE INSERT AND GET ANOTHER
-	CMP	#'+'		;IF A +
-	BEQ	SCAN10		;GO INSERT AND GET ANOTHER
-	CMP	#'-'		;IF NOT A -
-	BNE	SCAN11		;SKIP AHEAD
-SCAN10	JSR	PUTGET		;INSERT AND GET
-SCAN11	JSR	NUMRIC		;TEST FOR NUMBER
-	BNE	SCAN12		;BRANCH IF IS
-	LDA	#9		;ELSE ILLEGAL FLOATING POINT FORMAT
-	JSR	ERROR		;ERROR
-SCAN12	JSR	SPLNUM		;SPOOL NUMBERS
-SCAN13	LDA	ACCLEN		;GET LENGTH
-	BNE	SCAN14		;BRANCH IF NOT ZERO
-	INC	ACCLEN		;ELSE BUMP
-	LDA	#'0'		;AND INSERT A '0'
-	STA	ACCUM+1		;IN ACCUM
-	STA	HSHCDE		;AND HASHCODE
-SCAN14	JMP	SUPNCL		;SETUPNEXTCALL AND RETURN
-SCAN15	JSR	LETTER		;SEE IF LETTER
-	BNE	*+5		;CONTINUE IF IS
-	JMP	SCAN26		;ELSE GO TO NEXT SECTION
-;IS AN IDENTIFIER OR MAY BE REM, REMARK, OR DATA STATEMENTS. THESE TWO ARE
-;HANDLED HERE
-SCAN16	JSR	ALPNUM		;TEST FOR ALPHANUMERIC
-	BEQ	SCAN17		;BRANCH IF NOT
-	JSR	PUTCHR		;ELSE INSERT AND GET
-	JMP	SCAN16		;AND LOOP
-SCAN17	LDA	NXTCHR		;GET NEXT CHAR
-	CMP	#'$'		;IF NOT A $
-	BNE	SCAN18		;IS FLOATING
-	LDA	#STRING		;ELSE SET STRING
-	STA	SUBTYP		;AS SUBTYPE
-	JSR	PUTCHR		;PUT AND GET
-	JMP	SCAN19		;AND CONTINUE
-SCAN18	LDA	#FLOTPT		;SET FLOATING
-	STA	SUBTYP		;AS SUBTYPE
-SCAN19	JSR	LOOKUP		;TRY TO MATCH
-	BNE	SCAN21		;BRANCH IF RESERVED
-	LDA	ACCUM+1		;CHECK FOR USER
-	CMP	#'F'		;DEFINED FUNCTION
-	BNE	SCAN20		;BRANCH IF NOT
-	LDA	ACCUM+2		;SAME FOR NEXT
-	CMP	#'N'		;CHAR IN ACCUM
+SCAN28	LDA	NXTCHR		;else get next
+	CMP	#'"'		;see if "
+	BNE	SCAN5		;branch if not
+;first case is string or string continuation
+SCAN1	LDA	#STRING		;get token
+	STA	TOKEN		;and set
+	LDA	#FALSE		;and set
+	STA	CONT		;CONT as false
+SCAN2	JSR	GETCHR		;get char
+	CMP	#'"'		;see if delimiter
+	BEQ	SCAN4		;branch if is
+	CMP	#CR		;see if eol
+	BNE	SCAN3		;branch if not
+	LDA	#22		;else is unterminated string
+	JMP	ERROR		;do error and quit
+SCAN3	JSR	PUTACC		;put in ACCUM
+	BIT	CONT		;test for continue
+	BPL	SCAN2		;loop if not
+	RTS			;else done
+SCAN4	JSR	GTNBLK		;get non-blank
+	CMP	#'"'		;see if another delimiter
+	BEQ	*+3		;branch if is
+	RTS			;else done
+	JSR	PUTACC		;put in ACCUM
+	JMP	SCAN2		;and loop
+SCAN5	JSR	NUMRIC		;see if number
+	BNE	SCAN6		;branch if is
+	JSR	DCMLPT		;see if decimal point
+	BEQ	SCAN15		;branch if not
+;is a numeric of up to IDNTSZ-1 characters
+SCAN6	LDA	#FLOTPT		;get token
+	STA	TOKEN		;and set
+	LDA	NXTCHR		;get next char
+SCAN7	CMP	#'0'		;see if leading zero
+	BNE	SCAN8		;branch if not
+	JSR	GETCHR		;else get next
+	JMP	SCAN7		;and loop to flush
+SCAN8	JSR	SPLNUM		;spool numeric
+	JSR	DCMLPT		;test for decimal point
+	BEQ	SCAN9		;branch if not
+	JSR	PUTCHR		;insert it
+	JSR	SPLNUM		;spool rest
+SCAN9	JSR	CNVLWR		;convert next to upper
+	LDA	NXTCHR		;get it
+	CMP	#'E'		;see if e for exponent
+	BNE	SCAN13		;branch if not
+	JSR	PUTGET		;else insert and get another
+	CMP	#'+'		;if a +
+	BEQ	SCAN10		;go insert and get another
+	CMP	#'-'		;if not a -
+	BNE	SCAN11		;skip ahead
+SCAN10	JSR	PUTGET		;insert and get
+SCAN11	JSR	NUMRIC		;test for number
+	BNE	SCAN12		;branch if is
+	LDA	#9		;else illegal floating point format
+	JSR	ERROR		;error
+SCAN12	JSR	SPLNUM		;spool numbers
+SCAN13	LDA	ACCLEN		;get length
+	BNE	SCAN14		;branch if not zero
+	INC	ACCLEN		;else bump
+	LDA	#'0'		;and insert a '0'
+	STA	ACCUM+1		;in ACCUM
+	STA	HSHCDE		;and hashcode
+SCAN14	JMP	SUPNCL		;setupnextcall and return
+SCAN15	JSR	LETTER		;see if letter
+	BNE	*+5		;continue if is
+	JMP	SCAN26		;else go to next section
+;is an identifier or may be REM, REMARK, or DATA statements. these two are
+;handled here
+SCAN16	JSR	ALPNUM		;test for alphanumeric
+	BEQ	SCAN17		;branch if not
+	JSR	PUTCHR		;else insert and get
+	JMP	SCAN16		;and loop
+SCAN17	LDA	NXTCHR		;get next char
+	CMP	#'$'		;if not a $
+	BNE	SCAN18		;is floating
+	LDA	#STRING		;else set string
+	STA	SUBTYP		;as subtype
+	JSR	PUTCHR		;put and get
+	JMP	SCAN19		;and continue
+SCAN18	LDA	#FLOTPT		;set floating
+	STA	SUBTYP		;as subtype
+SCAN19	JSR	LOOKUP		;try to match
+	BNE	SCAN21		;branch if reserved
+	LDA	ACCUM+1		;check for user
+	CMP	#'F'		;defined function
+	BNE	SCAN20		;branch if not
+	LDA	ACCUM+2		;same for next
+	CMP	#'N'		;char in ACCUM
 	BNE	SCAN20
-	LDA	ACCLEN		;GET LENGTH
-	CMP	#1		;MUST NOT BE 1
-	BEQ	SCAN20		;BRANCH IF IS
-	LDA	#UDFUNC		;AH!AH! IS FN--
-	STA	TOKEN		;SET TOKEN
-	JMP	SUPNCL		;EXIT WITH SETUPNEXTCALL
-SCAN20	LDA	#IDENT		;IS IDENTIFIER
-	STA	TOKEN		;SET TOKEN
-	JMP	SUPNCL		;EXIT WITH SETUPNEXTCALL
-SCAN21	LDA	TOKEN		;IS A RESERVED
-	CMP	#TREM		;SEE IF REM
-	BNE	SCAN23		;BRANCH IF NOT
-SCAN22	LDA	NXTCHR		;GET NEXT
-	CMP	#CR		;SEE IF EOL
-	BNE	*+5		;BRANCH IF NOT
-	JMP	SCANNR		;ELSE LOOP TO START
-	JSR	GETCHR		;GET CHAR
-	JSR	CHKCNT		;CHECK FOR CONTINUE
-	JMP	SCAN22		;AND LOOP
-SCAN23	CMP	#TDATA		;SEE IF DATA
-	BEQ	*+5		;BRANCH IF IS
-	JMP	SUPNCL		;ELSE SETUPNEXTCALL AND EXIT
-	LDA	#DAT		;EMIT DAT OPCODE
-	JSR	EMITDT		;TO START
-	LDA	NXTCHR		;GET NEXT
-	JSR	EMITDT		;EMIT IT
-SCAN24	JSR	GETCHR		;GET ANOTHER
-	CMP	#CR		;SEE IF EOL
-	BEQ	SCAN25		;BRANCH IF IS
-	JSR	CHKCNT		;ELSE CHECK FOR CONTINUE
-	LDA	NXTCHR		;GET CHAR
-	JSR	EMITDT		;EMIT IT
-	JMP	SCAN24		;AND LOOP
-SCAN25	LDA	#','		;NOW EMIT
-	JSR	EMITDT		;A COMMA
-	LDA	#0		;AND A
-	JSR	EMITDT		;ZERO
-	LDA	DATACT		;NOW
-	BNE	*+4		;DROP
-	DEC	DATACT+1	;DATA COUNT
-	DEC	DATACT		;BY ONE
-	JMP	SCANNR		;AND LOOP TO START
-;FINAL CASE IS A SPECIAL CHARACTER -- IT MAY BE CONTINUATION CHAR IN WHICH CASE
-;JUST GO TO NEXT LINE AND SCAN SOMEMORE
-SCAN26	LDA	NXTCHR		;GET CHAR
-	CMP	#BACKSL		;SEE IF CONTINUE
-	BNE	SCAN27		;BRANCH IF NOT
-	JSR	CHKCNT		;CHECK IT
-	JMP	SCANNR		;AND LOOP
-SCAN27	JSR	PUTACC		;PUT IN ACCUM
-	LDA	NXTCHR		;GET LAST CHAR
-	CMP	#CR		;SEE IF EOL
-	BNE	SCAN29		;NOT SO SKIP
-	LDA	#$FF		;SET FLAG TO READ
+	LDA	ACCLEN		;get length
+	CMP	#1		;must not be 1
+	BEQ	SCAN20		;branch if is
+	LDA	#UDFUNC		;ah!ah! is FN--
+	STA	TOKEN		;set token
+	JMP	SUPNCL		;exit with setupnextcall
+SCAN20	LDA	#IDENT		;is identifier
+	STA	TOKEN		;set token
+	JMP	SUPNCL		;exit with setupnextcall
+SCAN21	LDA	TOKEN		;is a reserved
+	CMP	#TREM		;see if REM
+	BNE	SCAN23		;branch if not
+SCAN22	LDA	NXTCHR		;get next
+	CMP	#CR		;see if eol
+	BNE	*+5		;branch if not
+	JMP	SCANNR		;else loop to start
+	JSR	GETCHR		;get char
+	JSR	CHKCNT		;check for continue
+	JMP	SCAN22		;and loop
+SCAN23	CMP	#TDATA		;see if DATA
+	BEQ	*+5		;branch if is
+	JMP	SUPNCL		;else setupnextcall and exit
+	LDA	#DAT		;emit DAT opcode
+	JSR	EMITDT		;to start
+	LDA	NXTCHR		;get next
+	JSR	EMITDT		;emit it
+SCAN24	JSR	GETCHR		;get another
+	CMP	#CR		;see if eol
+	BEQ	SCAN25		;branch if is
+	JSR	CHKCNT		;else check for continue
+	LDA	NXTCHR		;get char
+	JSR	EMITDT		;emit it
+	JMP	SCAN24		;and loop
+SCAN25	LDA	#','		;now emit
+	JSR	EMITDT		;a comma
+	LDA	#0		;and a
+	JSR	EMITDT		;zero
+	LDA	DATACT		;now
+	BNE	*+4		;drop
+	DEC	DATACT+1	;data count
+	DEC	DATACT		;by one
+	JMP	SCANNR		;and loop to start
+;final case is a special character -- it may be continuation char in which case
+;just go to next line and scan somemore
+SCAN26	LDA	NXTCHR		;get char
+	CMP	#backsl		;see if continue
+	BNE	SCAN27		;branch if not
+	JSR	CHKCNT		;check it
+	JMP	SCANNR		;and loop
+SCAN27	JSR	PUTACC		;put in accum
+	LDA	NXTCHR		;get last char
+	CMP	#CR		;see if eol
+	BNE	SCAN29		;not so skip
+	LDA	#$FF		;set flag to read
 	STA	EOLSTS
-	BMI	SCAN30		;THEN JUMP AHEAD
-SCAN29	JSR	GTNBLK		;GET NON BLANK
-SCAN30	JSR	LOOKUP		;SEE IF MATCH
-	BEQ	*+3		;BRANCH IF NOT
-	RTS			;ELSE DONE
-	LDA	#7		;ILLEGAL CHARACTER ERROR
-	JMP	ERROR		;AND QUIT
-;ADJUST BASE FOR NEXT ENTRY
-NXTENT	LDY	#0		;CLEAR INDEX
-	LDA	(BASE),Y	;GET NAME LENGTH
-	CLC			;NOW
-	ADC	BASE		;ADD TO CURRENT
-	STA	BASE		;AND UPDATE
-	BCC	*+4		;DON'T FORGET
-	INC	BASE+1		;CARRY
-	CLC			;NOW
-	LDA	BASE		;ADD
-	ADC	#7		;SEVEN FOR
-	STA	BASE		;OVERHEAD
-	BCC	*+4		;TO GET
-	INC	BASE+1		;NEW BASE
+	BMI	SCAN30		;then jump ahead
+SCAN29	JSR	GTNBLK		;get non blank
+SCAN30	JSR	LOOKUP		;see if match
+	BEQ	*+3		;branch if not
+	RTS			;else done
+	LDA	#7		;illegal character error
+	JMP	ERROR		;and quit
+;adjust base for next entry
+NXTENT	LDY	#0		;clear index
+	LDA	(BASE),Y	;get name length
+	CLC			;now
+	ADC	BASE		;add to current
+	STA	BASE		;and update
+	BCC	*+4		;don't forget
+	INC	BASE+1		;carry
+	CLC			;now
+	LDA	BASE		;add
+	ADC	#7		;seven for
+	STA	BASE		;overhead
+	BCC	*+4		;to get
+	INC	BASE+1		;new base
 	RTS
-;GET LENGTH OF PRINTNAME
-GETLEN	LDY	#0		;CLEAR INDEX
-	LDA	(BASE),Y	;GET LENGTH
+;get length of printname
+GETLEN	LDY	#0		;clear index
+	LDA	(BASE),Y	;get length
 	RTS
-;WRITE NUMERIC CONSTANT DURING PASS 1
-EMITCN	BIT	PASS1		;TEST FOR PASS 1
-	BMI	*+3		;BRANCH IF IS
-	RTS			;ELSE DONE
-	JMP	EMIT		;WRITE BYTE
-;WRITE TWO BYTES OF OBJECT CODE ON DISK FOR LITERALS
-GENTWO	PHA			;SAVE LOW
-	TYA			;GET HIGH
-	JSR	GENERT		;WRITE IT
-	PLA			;GET LOW
-	JMP	GENERT		;DO IT
+;write numeric constant during pass 1
+EMITCN	BIT	PASS1		;test for pass 1
+	BMI	*+3		;branch if is
+	RTS			;else done
+	JMP	EMIT		;write byte
+;write two bytes of object code on disk for literals
+GENTWO	PHA			;save low
+	TYA			;get high
+	JSR	GENERT		;write it
+	PLA			;get low
+	JMP	GENERT		;do it
 ;
-LITERL	PHA			;SAVE LOW
-	TYA			;GET HIGH
-	ORA	#$80		;SET MSB
-	TAY			;BACK TO Y
-	PLA			;GET LOW
-	JMP	GENTWO		;SEND IT
+LITERL	PHA			;save low
+	TYA			;get high
+	ORA	#$80		;set msb
+	TAY			;back to Y
+	PLA			;get low
+	JMP	GENTWO		;send it
 ;
-LITLOD	PHA			;SAVE LOW
-	TYA			;GET HIGH
-	ORA	#$C0		;OR WITH MASK
-	TAY			;BACK TO Y
-	PLA			;GET LOW
-	JMP	GENTWO		;WRITE IT
+LITLOD	PHA			;save low
+	TYA			;get high
+	ORA	#$C0		;or with mask
+	TAY			;back to Y
+	PLA			;get low
+	JMP	GENTWO		;write it
 ;
-LINENU	BIT	DEBUGL		;TEST DEBUG FLAG
-	BMI	*+3		;BRANCH IF SET
-	RTS			;ELSE DO NOTHING
-	LDA	LINENO		;GET LOW
-	LDY	LINENO+1	;AND HIGH NUMBER
-	JSR	LITERL		;SEND AS LITERAL
-	LDA	#BOL		;THEN SEND BOL
-	JMP	GENERT		;OPCODE
-;FILL HASHTABLE WITH 0'S AND INITIALIZE POINTER TO TOP OF SYMBOL TABLE
-INSYMT	BIT	PASS1		;SEE IF PASS 1
-	BPL	INSYM1		;BRANCH IF NOT
-	LDX	#HSHTSZ*2-1	;GET NUMBER TO CLEAR
-	LDA	#0		;THEN VALUE
-INSYM0	STA	HSHTBL,X	;STORE IT
-	DEX			;DROP COUNT
-	CPX	#255		;SEE IF WRAP
-	BNE	INSYM0		;LOOP IF NOT
-	LDA	#(MEMORY & $FF)	;GET MEMORY
-	LDY	#((MEMORY / $100)& $FF)	;START
-	STA	SBTBL		;AND SET
-	STY	SBTBL+1		;TABLE START
-INSYM1	LDA	PEM+1		;GET LIMIT
-	LDY	PEM+2		;OF MEMORY
-	SEC			;DROP
-	SBC	#2		;TWO
-	STA	SBTTOP		;TO GET
-	STA	NXSTPT		;TOP STARTING
-	BCS	*+3		;BRANCH IF NO BORROW
-	DEY			;ELSE DROP Y
-	STY	SBTTOP+1	;SET HIGH
-	STY	NXSTPT+1	;AND SET
-	LDA	#0		;CLEAR A
-	LDY	#1		;SET INDEX TO 1
-	STA	(NXSTPT),Y	;PUT IN MEMORY
+LINENU	BIT	DEBUGL		;test debug flag
+	BMI	*+3		;branch if set
+	RTS			;else do nothing
+	LDA	LINENO		;get low
+	LDY	LINENO+1	;and high number
+	JSR	LITERL		;send as literal
+	LDA	#BOL		;then send BOL
+	JMP	GENERT		;opcode
+;fill hashtable with 0's and initialize pointer to top of symbol table
+INSYMT	BIT	PASS1		;see if pass 1
+	BPL	INSYM1		;branch if not
+	LDX	#HSHTSZ*2-1	;get number to clear
+	LDA	#0		;then value
+INSYM0	STA	HSHTBL,X	;store it
+	DEX			;drop count
+	CPX	#255		;see if wrap
+	BNE	INSYM0		;loop if not
+	LDA	#<MEMORY	;get memory
+	LDY	#>MEMORY	;start
+	STA	SBTBL		;and set
+	STY	SBTBL+1		;table start
+INSYM1	LDA	PEM+1		;get limit
+	LDY	PEM+2		;of memory
+	SEC			;drop
+	SBC	#2		;two
+	STA	SBTTOP		;to get
+	STA	NXSTPT		;top starting
+	BCS	*+3		;branch if no borrow
+	DEY			;else drop Y
+	STY	SBTTOP+1	;set high
+	STY	NXSTPT+1	;and set
+	LDA	#0		;clear A
+	LDY	#1		;set index to 1
+	STA	(NXSTPT),Y	;put in memory
 	RTS
 ;
-GETHSH	LDY	#0		;GET
+GETHSH	LDY	#0		;get
 	LDA	(BASE),Y	;PTR
-	STA	TMPPTR		;AND SAVE
-	STY	TMPHSH		;CLEAR INTERNAL HASH
-	LDA	BASE		;GET
-	LDY	BASE+1		;BASE
-	CLC			;NOW
-	ADC	#2		;ADD 2
-	STA	APTADD		;AND SAVE
-	BCC	*+3		;BRANCH IF
-	INY			;NO CARRY
-	STY	APTADD+1	;SAVE HIGH
-	LDY	#1		;SET STARTING INDEX
-GETHS0	CPY	TMPPTR		;COMPARE TO LIMIT
-	BEQ	GETHS1		;CONTINUE IF EQUAL
-	BCC	GETHS1		;BRANCH IF LESS
-	LDA	TMPHSH		;ELSE GET HASH
-	RTS			;AND QUIT
-GETHS1	LDA	(APTADD),Y	;GET VALUE
-	CLC			;NOW ADD
-	ADC	TMPHSH		;IN OLD HASH
-	AND	#HSHMSK		;AND MASK
-	STA	TMPHSH		;AND SAVE
-	INY			;BUMP LOOP INDEX
-	JMP	GETHS0		;THEN LOOP
+	STA	TMPPTR		;and save
+	STY	TMPHSH		;clear internal hash
+	LDA	BASE		;get
+	LDY	BASE+1		;base
+	CLC			;now
+	ADC	#2		;add 2
+	STA	APTADD		;and save
+	BCC	*+3		;branch if
+	INY			;no carry
+	STY	APTADD+1	;save high
+	LDY	#1		;set starting index
+GETHS0	CPY	TMPPTR		;compare to limit
+	BEQ	GETHS1		;continue if equal
+	BCC	GETHS1		;branch if less
+	LDA	TMPHSH		;else get HASH
+	RTS			;and quit
+GETHS1	LDA	(APTADD),Y	;get value
+	CLC			;now add
+	ADC	TMPHSH		;in old hash
+	AND	#HSHMSK		;and mask
+	STA	TMPHSH		;and save
+	INY			;bump loop index
+	JMP	GETHS0		;then loop
 ;
-HSOSYM	LDA	SYMHSH		;GET SYMHSH
-	ASL	A		;MULT BY TWO
-	TAX			;MAKE INDEX
-	LDA	HSHTBL,X	;GET VALUE
-	LDY	HSHTBL+1,X	;IN TABLE
+HSOSYM	LDA	SYMHSH		;get symhsh
+	ASL	A		;mult by two
+	TAX			;make index
+	LDA	HSHTBL,X	;get value
+	LDY	HSHTBL+1,X	;in table
 	RTS
 ;
-SETLNK	LDX	BASE		;GET
-	LDY	BASE+1		;BASE
-	INX			;BUMP
-	STX	APTADD		;BY
-	BNE	*+3		;ONE
-	INY			;AND
-	STY	APTADD+1	;SAVE
+SETLNK	LDX	BASE		;get
+	LDY	BASE+1		;base
+	INX			;bump
+	STX	APTADD		;by
+	BNE	*+3		;one
+	INY			;and
+	STY	APTADD+1	;save
 	RTS
-;SET POINTER FOR ADDR REFERENCE WITH OFFSET IN A
-SETADP	LDY	#0		;CLEAR INDEX
-	CLC			;AND CARRY
-	ADC	(BASE),Y	;ADD PTR
-	BCC	*+3		;BRANCH IF NO CARRY
-	INY			;ELSE SET Y TO 1
-	CLC			;CLEAR CARRY
-	ADC	BASE		;ADD BASE
-	STA	APTADD		;TO LOW
-	TYA			;NOW ADD
-	ADC	BASE+1		;WITH CARRY TO HIGH
-	STA	APTADD+1	;AND SAVE
+;set pointer for addr reference with offset in A
+SETADP	LDY	#0		;clear index
+	CLC			;and carry
+	ADC	(BASE),Y	;add PTR
+	BCC	*+3		;branch if no carry
+	INY			;else set Y to 1
+	CLC			;clear carry
+	ADC	BASE		;add base
+	STA	APTADD		;to low
+	TYA			;now add
+	ADC	BASE+1		;with carry to high
+	STA	APTADD+1	;and save
 	RTS
-;CHECK TO SEE IF ADDITIONAL SBTBL ENTRY WILL OVERFLOW LIMITS OF MEMORY. IF
-;SO THEN ABORT ELSE RETURN. AT ENTRY A CONTAINS AMOUNT TO BE ADDED (COUNT)
-LIMITS	CLC			;ADD COUNT
-	ADC	SBTBL		;TO START
-	LDY	SBTBL+1		;WITH
-	BCC	*+3		;CARRY TO
-	INY			;HIGH
-	CMP	SBTTOP		;COMPARE TO LIMIT
-	TYA			;INCLUDING
-	SBC	SBTTOP+1	;HIGH
-	BCS	*+3		;WHOOPS! NO BORROW
-	RTS			;ELSE OK
-	LDA	#TRUE		;SET TO
-	STA	PASS2		;PASS 2
-	LDA	#19		;SYMBOL TABLE ERROR
-	JSR	ERROR		;SEND IT
-	JMP	BOOT		;AND ABORT
-;SET THE ADDRESS FIELD AT LOCATION LOC IN AY AND RESOLVED BIT
-SETRSV	PHA			;SAVE
+;check to see if additional SBTBL entry will overflow limits of memory. if
+;so then abort else return. at entry A contains amount to be added (COUNT)
+LIMITS	CLC			;add count
+	ADC	SBTBL		;to start
+	LDY	SBTBL+1		;with
+	BCC	*+3		;carry to
+	INY			;high
+	CMP	SBTTOP		;compare to limit
+	TYA			;including
+	SBC	SBTTOP+1	;high
+	BCS	*+3		;whoops! no borrow
+	RTS			;else ok
+	LDA	#TRUE		;set to
+	STA	PASS2		;pass 2
+	LDA	#19		;symbol table error
+	JSR	ERROR		;send it
+	JMP	BOOT		;and abort
+;set the address field at location LOC in AY and resolved bit
+SETRSV	PHA			;save
 	TYA			;A
-	PHA			;AND Y
-	LDA	#4		;SET OFFSET
-	JSR	SETADP		;OF FOUR
-	LDY	#1		;SET INDEX TO 1
-	PLA			;GET HIGH
-	STA	(APTADD),Y	;AND SAVE
-	DEY			;DROP Y TO 0
-	PLA			;GET LOW
-	STA	(APTADD),Y	;SAVE IT
-	LDA	APTADD		;NOW
-	BNE	*+4		;DROP
-	DEC	APTADD+1	;POINTER
-	DEC	APTADD		;BY ONE
-	LDA	(APTADD),Y	;NOW SET
-	ORA	#$80		;RESOLVED
-	STA	(APTADD),Y	;BIT
+	PHA			;and Y
+	LDA	#4		;set offset
+	JSR	SETADP		;of four
+	LDY	#1		;set index to 1
+	PLA			;get high
+	STA	(APTADD),Y	;and save
+	DEY			;drop Y to 0
+	PLA			;get low
+	STA	(APTADD),Y	;save it
+	LDA	APTADD		;now
+	BNE	*+4		;drop
+	DEC	APTADD+1	;pointer
+	DEC	APTADD		;by one
+	LDA	(APTADD),Y	;now set
+	ORA	#$80		;resolved
+	STA	(APTADD),Y	;bit
 	RTS
-;RETURN TYPE OF VARIABLE
-GETTYP	LDA	#3		;BUILD
-	JSR	SETADP		;NEW INDIRECT
-	LDY	#0		;CLEAR INDEX
-	LDA	(APTADD),Y	;GET
-	AND	#$7F		;MASK OUT SET BIT
+;return type of variable
+GETTYP	LDA	#3		;build
+	JSR	SETADP		;new indirect
+	LDY	#0		;clear index
+	LDA	(APTADD),Y	;get
+	AND	#$7F		;mask out set bit
 	RTS
-;SET TYPE OF VARIABLE TO A AND PRESERVE RESOLVED BIT
-SETTYP	PHA			;SAVE TYPE
-	LDA	#3		;CALCULATE
-	JSR	SETADP		;NEW POINTER
-	LDY	#0		;CLEAR INDEX
-	PLA			;GET TYPE
-	ORA	(APTADD),Y	;OR WITH CONTENTS
-	STA	(APTADD),Y	;SAVE IT
+;set type of variable to A and preserve resolved bit
+SETTYP	PHA			;save type
+	LDA	#3		;calculate
+	JSR	SETADP		;new pointer
+	LDY	#0		;clear index
+	PLA			;get type
+	ORA	(APTADD),Y	;or with contents
+	STA	(APTADD),Y	;save it
 	RTS
-;GET RESOLVED BIT A:=TRUE IFF BIT=1 ELSE A:=FALSE
-GETRES	LDA	#3		;BUILD
-	JSR	SETADP		;POINTER
-	LDY	#0		;CLEAR INDEX
-	LDA	(APTADD),Y	;GET BYTE
-	BMI	*+5		;BRANCH IF SET
-	LDA	#FALSE		;ELSE SET
-	RTS			;FALSE
-	LDA	#TRUE		;WAS SET
+;get resolved bit A:=TRUE iff bit=1 else A:=FALSE
+GETRES	LDA	#3		;build
+	JSR	SETADP		;pointer
+	LDY	#0		;clear index
+	LDA	(APTADD),Y	;get byte
+	BMI	*+5		;branch if set
+	LDA	#FALSE		;else set
+	RTS			;false
+	LDA	#TRUE		;was set
 	RTS
-;GET THE ADDRESS OF THE PRINTNAME LOCATION IN AY
-GETADR	LDA	#4		;BUILD
-	JSR	SETADP		;POINTER
-	LDY	#0		;CLEAR INDEX
-	LDA	(APTADD),Y	;NOW GET LOW
-	PHA			;SAVE
-	INY			;SET Y TO 1
-	LDA	(APTADD),Y	;GET HIGH
-	TAY			;MOVE TO Y
-	PLA			;GET LOW
+;get the address of the printname location in AY
+GETADR	LDA	#4		;build
+	JSR	SETADP		;pointer
+	LDY	#0		;clear index
+	LDA	(APTADD),Y	;now get low
+	PHA			;save
+	INY			;set Y to 1
+	LDA	(APTADD),Y	;get high
+	TAY			;move to Y
+	PLA			;get low
 	RTS
-;CHECK TO SEE IF PRINTNAME LOCATED AT ADDRESS IN PRNTNM IS IN SBTBL. IF IS
-;THEN A:=TRUE AND BASE:=ADDRESS ELSE A:=FALSE
-SLOOKU	JSR	HSOSYM		;FIND BASE
-SLOOKX	STA	BASE		;AND
-	STY	BASE+1		;SAVE
-SLOOK0	LDA	BASE		;SEE IF
-	ORA	BASE+1		;BASE = 0
-	BEQ	SLOOFL		;FALSE IF IS
-	LDY	#0		;CLEAR INDEX
-	LDA	(BASE),Y	;GET PTR
-	STA	LEN		;SAVE AS LENGTH
-	CMP	(PRNTNM),Y	;COMPARE
-	BNE	SLOOK2		;BRANCH IF DIFFERENT
-SLOOK1	LDY	LEN		;GET LENGTH
-	LDA	(PRNTNM),Y	;GET NAME
-	INY			;BUMP INDEX
-	INY			;BY TWO
-	CMP	(BASE),Y	;COMPARE TO ENTRY
-	BNE	SLOOK2		;BRANCH IF DIFFERENT
-	DEC	LEN		;DROP LENGTH
-	BNE	SLOOK1		;LOOP FOR MORE
-	LDA	#TRUE		;ELSE SAY TRUE
+;check to see if printname located at address in PRNTNM is in SBTBL. if is
+;then A:=TRUE and BASE:=address else A:=FALSE
+SLOOKU	JSR	HSOSYM		;find base
+SLOOKX	STA	BASE		;and
+	STY	BASE+1		;save
+SLOOK0	LDA	BASE		;see if
+	ORA	BASE+1		;base = 0
+	BEQ	SLOOFL		;false if is
+	LDY	#0		;clear index
+	LDA	(BASE),Y	;get PTR
+	STA	LEN		;save as length
+	CMP	(PRNTNM),Y	;compare
+	BNE	SLOOK2		;branch if different
+SLOOK1	LDY	LEN		;get length
+	LDA	(PRNTNM),Y	;get name
+	INY			;bump index
+	INY			;by two
+	CMP	(BASE),Y	;compare to entry
+	BNE	SLOOK2		;branch if different
+	DEC	LEN		;drop length
+	BNE	SLOOK1		;loop for more
+	LDA	#TRUE		;else say true
 	RTS
-SLOOK2	JSR	SETLNK		;SET LINK
-	LDY	#0		;CLEAR INDEX
-	LDA	(APTADD),Y	;GET LOW
-	PHA			;SAVE IT
-	INY			;SET Y TO 1
-	LDA	(APTADD),Y	;GET HIGH
-	TAY			;MOVE TO Y
-	PLA			;GET LOW
-	JMP	SLOOKX		;AND LOOP
-SLOOFL	LDA	#FALSE		;WAS NOT
-	RTS			;FOUND
-;ENTER TOKEN REFERENCE BY PRNTNM AND SYMHSH INTO NEXT AVAILABLE LOCATION IN THE
-;SYMBOL TABLE.  SET BASE TO BEGINNING OF THIS ENTRY AND INCREMENT SBTBL. CHECK
-;FOR SYMBOL TABLE FULL
-ENTER	LDY	#0		;CLEAR INDEX
-	LDA	(PRNTNM),Y	;GET LENGTH
-	CLC			;NOW
-	ADC	#7		;ADD SEVEN
-	PHA			;SAVE ON STACK
-	JSR	LIMITS		;TEST LIMITS
-	LDA	SBTBL		;UPDATE
-	LDY	SBTBL+1		;BASE
+SLOOK2	JSR	SETLNK		;set link
+	LDY	#0		;clear index
+	LDA	(APTADD),Y	;get low
+	PHA			;save it
+	INY			;set y to 1
+	LDA	(APTADD),Y	;get high
+	TAY			;move to Y
+	PLA			;get low
+	JMP	SLOOKX		;and loop
+SLOOFL	LDA	#FALSE		;was not
+	RTS			;found
+;enter token reference by PRNTNM and SYMHSH into next available location in the
+;symbol table.  set BASE to beginning of this entry and increment SBTBL. check
+;for symbol table full
+ENTER	LDY	#0		;clear index
+	LDA	(PRNTNM),Y	;get length
+	CLC			;now
+	ADC	#7		;add seven
+	PHA			;save on stack
+	JSR	LIMITS		;test limits
+	LDA	SBTBL		;update
+	LDY	SBTBL+1		;base
 	STA	BASE
 	STY	BASE+1
-	LDY	#0		;GET
-	LDA	(PRNTNM),Y	;LENGTH
-	STA	(BASE),Y	;MOVE TO TABLE
-	TAX			;MAKE A COUNTER
-	BEQ	ENTER1		;DONE IF ZERO
-	INY			;START WITH Y=1
-ENTER0	LDA	(PRNTNM),Y	;GET NAME
-	INY			;BUMP INDEX
-	INY			;BY TWO
-	STA	(SBTBL),Y	;INSERT
-	DEY			;DROP Y BY ONE
-	DEX			;DROP COUNT
-	BNE	ENTER0		;LOOP IF MORE
-ENTER1	LDA	#3		;CLEAR RESOLVE BIT
-	JSR	SETADP		;BY GETTING POINTER
-	LDY	#0		;CLEAR INDEX
-	TYA			;AND A
-	STA	(APTADD),Y	;INSERT
-	JSR	SETLNK		;SET LINK
-	JSR	HSOSYM		;FIND ADDRESS
-	PHA			;SAVE LOW ON STACK
-	TYA			;HIGH TO A
-	LDY	#1		;DO HIGH
-	STA	(APTADD),Y	;FIRST
-	DEY			;DROP Y
-	PLA			;GET LOW
-	STA	(APTADD),Y	;AND SET
-	LDA	SYMHSH		;GET HASH
-	ASL	A		;MULT BY TWO
-	TAX			;MAKE INDEX
-	LDA	BASE		;GET
-	STA	HSHTBL,X	;AND MOVE
-	LDA	BASE+1		;TO
-	STA	HSHTBL+1,X	;TABLE
-	PLA			;GET NEW LENGTH
-	CLC			;NOW
-	ADC	SBTBL		;TO START
-	STA	SBTBL		;TO GET
-	BCC	*+4		;NEW
-	INC	SBTBL+1		;TABLE ADDRESS
+	LDY	#0		;get
+	LDA	(PRNTNM),Y	;length
+	STA	(BASE),Y	;move to table
+	TAX			;make a counter
+	BEQ	ENTER1		;done if zero
+	INY			;start with Y=1
+ENTER0	LDA	(PRNTNM),Y	;get name
+	INY			;bump index
+	INY			;by two
+	STA	(SBTBL),Y	;insert
+	DEY			;drop y by one
+	DEX			;drop count
+	BNE	ENTER0		;loop if more
+ENTER1	LDA	#3		;clear resolve bit
+	JSR	SETADP		;by getting pointer
+	LDY	#0		;clear index
+	TYA			;and A
+	STA	(APTADD),Y	;insert
+	JSR	SETLNK		;set link
+	JSR	HSOSYM		;find address
+	PHA			;save low on stack
+	TYA			;high to A
+	LDY	#1		;do high
+	STA	(APTADD),Y	;first
+	DEY			;drop Y
+	PLA			;get low
+	STA	(APTADD),Y	;and set
+	LDA	SYMHSH		;get hash
+	ASL	A		;mult by two
+	TAX			;make index
+	LDA	BASE		;get
+	STA	HSHTBL,X	;and move
+	LDA	BASE+1		;to
+	STA	HSHTBL+1,X	;table
+	PLA			;get new length
+	CLC			;now
+	ADC	SBTBL		;to start
+	STA	SBTBL		;to get
+	BCC	*+4		;new
+	INC	SBTBL+1		;table address
 	RTS
-;INSERT SUBTYPE IN SBTBL
-SETSUB	PHA			;SAVE CODE
-	LDA	#6		;OFFSET POINTER
-	JSR	SETADP		;GET POINTER
-	LDY	#0		;CLEAR INDEX
-	PLA			;GET CODE
-	STA	(APTADD),Y	;SAVE
+;insert subtype in SBTBL
+SETSUB	PHA			;save code
+	LDA	#6		;offset pointer
+	JSR	SETADP		;get pointer
+	LDY	#0		;clear index
+	PLA			;get code
+	STA	(APTADD),Y	;save
 	RTS
-;RETURN THE SUBTYPE
-GETSUB	LDA	#6		;BUILD
-	JSR	SETADP		;POINTER
-	LDY	#0		;CLEAR POINTER
-	LDA	(APTADD),Y	;GET SUBTYPE
+;return the subtype
+GETSUB	LDA	#6		;build
+	JSR	SETADP		;pointer
+	LDY	#0		;clear pointer
+	LDA	(APTADD),Y	;get subtype
 	RTS
 ;
-UNLINK	JSR	GETTYP		;GET TYPE
-	STA	NUMPRM		;SAVE IT
-	LDA	#1		;SET INDEX
-	STA	LINKI		;TO ONE
-UNLNK0	LDA	NUMPRM		;COMPARE LIMIT
-	CMP	LINKI		;TO COUNT
-	BCS	*+3		;CONTINUE IF OK
-	RTS			;ELSE DONE
-	JSR	NXTENT		;GET NEXT
-	JSR	GETHSH		;AND HASH
-	ASL	A		;MULT
-	CLC			;BY TWO
-	ADC	#(HSHTBL & $FF)	;AND ADD
-	STA	TMPADR		;HASH TABLE START
-	LDY	#((HSHTBL / $100)& $FF)	;GET HIGH
-	BCC	*+3		;WITH CARRY
-	INY			;BUMP
-	STY	TMPADR+1	;AND SAVE
-UNLNK1	LDY	#0		;CLEAR INDEX
-	LDA	BASE		;COMPARE BASE LOW
-	CMP	(TMPADR),Y	;TO BYTE
-	BNE	UNLNK2		;BRANCH IF DIFFERENT
-	INY			;SET Y TO 1
-	LDA	BASE+1		;DO SAME
-	CMP	(TMPADR),Y	;FOR HIGH
-	BEQ	UNLNK3		;BRANCH IF ALL SAME
-UNLNK2	LDY	#0		;Y BACK TO ZERO
-	LDA	(TMPADR),Y	;GET LOW
-	PHA			;SAVE IT
-	INY			;BUMP INDEX
-	LDA	(TMPADR),Y	;GET HIGH
-	STA	TMPADR+1	;CHANGE ADDRESS
-	PLA			;GET LOW
-	STA	TMPADR		;SAVE IT
+UNLINK	JSR	GETTYP		;get type
+	STA	NUMPRM		;save it
+	LDA	#1		;set index
+	STA	LINKI		;to one
+UNLNK0	LDA	NUMPRM		;compare limit
+	CMP	LINKI		;to count
+	BCS	*+3		;continue if ok
+	RTS			;else done
+	JSR	NXTENT		;get next
+	JSR	GETHSH		;and hash
+	ASL	A		;mult
+	CLC			;by two
+	ADC	#<HSHTBL	;and add
+	STA	TMPADR		;hash table start
+	LDY	#>HSHTBL	;get high
+	BCC	*+3		;with carry
+	INY			;bump
+	STY	TMPADR+1	;and save
+UNLNK1	LDY	#0		;clear index
+	LDA	BASE		;compare base low
+	CMP	(TMPADR),Y	;to byte
+	BNE	UNLNK2		;branch if different
+	INY			;set y to 1
+	LDA	BASE+1		;do same
+	CMP	(TMPADR),Y	;for high
+	BEQ	UNLNK3		;branch if all same
+UNLNK2	LDY	#0		;y back to zero
+	LDA	(TMPADR),Y	;get low
+	PHA			;save it
+	INY			;bump index
+	LDA	(TMPADR),Y	;get high
+	STA	TMPADR+1	;change address
+	PLA			;get low
+	STA	TMPADR		;save it
 	INC	TMPADR
 	BNE	UNLNK1
 	INC	TMPADR+1
-	JMP	UNLNK1		;AND LOOP
-UNLNK3	JSR	SETLNK		;SET LINK
-	LDY	#0		;CLEAR INDEX
-	LDA	(APTADD),Y	;GET LOW
-	STA	(TMPADR),Y	;AND MOVE
-	INY			;NOW
-	LDA	(APTADD),Y	;SAME
-	STA	(TMPADR),Y	;FOR HIGH
-	INC	LINKI		;BUMP LOOP INDEX
-	JMP	UNLNK0		;AND LOOP
+	JMP	UNLNK1		;and loop
+UNLNK3	JSR	SETLNK		;set link
+	LDY	#0		;clear index
+	LDA	(APTADD),Y	;get low
+	STA	(TMPADR),Y	;and move
+	INY			;now
+	LDA	(APTADD),Y	;same
+	STA	(TMPADR),Y	;for high
+	INC	LINKI		;bump loop index
+	JMP	UNLNK0		;and loop
 ;
-RELINK	JSR	GETTYP		;GET TYPE
-	STA	NUMPRM		;SAVE IT
-	LDA	#1		;SET COUNT
-	STA	LINKI		;TO ONE
-RELNK0	LDA	NUMPRM		;GET LIMIT AND
-	CMP	LINKI		;COMPARE TO COUNT
-	BCS	*+3		;BRANCH IF >=
-	RTS			;ELSE DONE
-	JSR	NXTENT		;DO NEXT ENTRY
-	LDA	BASE		;NOW SET
-	LDY	BASE+1		;TEMP
+RELINK	JSR	GETTYP		;get type
+	STA	NUMPRM		;save it
+	LDA	#1		;set count
+	STA	LINKI		;to one
+RELNK0	LDA	NUMPRM		;get limit and
+	CMP	LINKI		;compare to count
+	BCS	*+3		;branch if >=
+	RTS			;else done
+	JSR	NXTENT		;do next entry
+	LDA	BASE		;now set
+	LDY	BASE+1		;temp
 	STA	TMPADR
-	INC	TMPADR		;BUMP LOW
+	INC	TMPADR		;bump low
 	BNE	*+3
 	INY
-	STY	TMPADR+1	;SAVE HIGH
-	JSR	GETHSH		;GET HASH
-	ASL	A		;MULT BY TWO
-	TAX			;MAKE INDEX
-	LDY	#0		;CLEAR Y
-	LDA	HSHTBL,X	;GET LOW
-	STA	(TMPADR),Y	;SAVE IT
-	INY			;NOW HIGH
-	LDA	HSHTBL+1,X	;GET IT
-	STA	(TMPADR),Y	;SAVE IT
-	JSR	GETHSH		;GETHASH
+	STY	TMPADR+1	;save high
+	JSR	GETHSH		;get hash
+	ASL	A		;mult by two
+	TAX			;make index
+	LDY	#0		;clear Y
+	LDA	HSHTBL,X	;get low
+	STA	(TMPADR),Y	;save it
+	INY			;now high
+	LDA	HSHTBL+1,X	;get it
+	STA	(TMPADR),Y	;save it
+	JSR	GETHSH		;gethash
 	ASL	A
 	TAX
-	LDA	BASE		;NOW GET
-	STA	HSHTBL,X	;AND PUT
-	LDA	BASE+1		;NEW BASE
-	STA	HSHTBL+1,X	;IN TABLE
-	INC	LINKI		;BUMP LOOP INDEX
-	JMP	RELNK0		;AND LOOP
-;INITIALIZE SYNTHE
-;DATA DEFINITIONS FOR INITIALIZATION
-CONZER	.BYTE	1,"0"
-CONONE	.BYTE	1,"1"
-INSYN	LDA	#0		;FIRST
-	STA	CODESI		;CLEAR
-	STA	CODESI+1	;VARIABLES
+	LDA	BASE		;now get
+	STA	HSHTBL,X	;and put
+	LDA	BASE+1		;new base
+	STA	HSHTBL+1,X	;in table
+	INC	LINKI		;bump loop index
+	JMP	RELNK0		;and loop
+;initialize SYNTHE
+;data definitions for initialization
+CONZER	.byte	1,"0"
+CONONE	.byte	1,"1"
+INSYN	LDA	#0		;first
+	STA	CODESI		;clear
+	STA	CODESI+1	;variables
 	STA	DATACT
 	STA	DATACT+1
 	STA	ONSP
 	STA	IFLABL
-	STA	FDACT+1		;SET FDA
-	LDA	#1		;COUNT TO
-	STA	FDACT		;ONE
-	LDA	#$FF		;SET PRT
-	STA	PRTCT		;COUNT
-	STA	PRTCT+1		;TO -1
-	JSR	SETFLG		;SET FLAGS
-	BIT	PASS1		;SEE IF PASS 1
-	BMI	*+3		;BRANCH IF IS
-	RTS			;ELSE DONE
-	JSR	SUPINT		;SETUP INT FILE
-	LDA	#(CONONE & $FF)	;INITIALIZE
-	LDY	#((CONONE / $100)& $FF)	;PRINTNAME
-	STA	PRNTNM		;POINTER
+	STA	FDACT+1		;set fda
+	LDA	#1		;count to
+	STA	FDACT		;one
+	LDA	#$FF		;set prt
+	STA	PRTCT		;count
+	STA	PRTCT+1		;to -1
+	JSR	SETFLG		;set flags
+	BIT	PASS1		;see if pass 1
+	BMI	*+3		;branch if is
+	RTS			;else done
+	JSR	SUPINT		;setup int file
+	LDA	#<CONONE	;initialize
+	LDY	#>CONONE	;printname
+	STA	PRNTNM		;pointer
 	STY	PRNTNM+1
-	LDA	#'1'		;THEN
-	STA	SYMHSH		;SYMBOL HASH
-	JSR	ENTER		;PUT IN TABLE
-	LDA	#'1'		;EMIT
-	JSR	EMITCN		;EMIT
-	LDA	#'$'		;DO A $
+	LDA	#'1'		;then
+	STA	SYMHSH		;symbol hash
+	JSR	ENTER		;put in table
+	LDA	#'1'		;emit
+	JSR	EMITCN		;emit
+	LDA	#'$'		;do a $
 	JSR	EMITCN
-	LDA	#0		;CONSTANT 1
-	TAY			;IS AT FDA POSITION 0
-	JSR	SETRSV		;SET
-	LDA	#CONST		;SET TYPE
-	JSR	SETTYP		;AS CONSTANT
-	LDA	#(CONZER & $FF)	;NOW
-	LDY	#((CONZER / $100)& $FF)	;POINT
-	STA	PRNTNM		;TO
-	STY	PRNTNM+1	;ZERO
-	LDA	#'0'		;SET HASH
-	STA	SYMHSH		;TO '0'
-	JSR	ENTER		;ENTER IT
-	LDA	#'0'		;NOW
-	JSR	EMITCN		;OUTPUT IT
-	LDA	#'$'		;DO $
+	LDA	#0		;constant 1
+	TAY			;is at fda position 0
+	JSR	SETRSV		;set
+	LDA	#CONST		;set type
+	JSR	SETTYP		;as constant
+	LDA	#<CONZER	;now
+	LDY	#>CONZER	;point
+	STA	PRNTNM		;to
+	STY	PRNTNM+1	;zero
+	LDA	#'0'		;set hash
+	STA	SYMHSH		;to '0'
+	JSR	ENTER		;enter it
+	LDA	#'0'		;now
+	JSR	EMITCN		;output it
+	LDA	#'$'		;do $
 	JSR	EMITCN
-	LDA	#1		;SET ADDRESS
+	LDA	#1		;set address
 	LDY	#0
 	JSR	SETRSV
-	LDA	#CONST		;AND TYPE = CONST
-	JMP	SETTYP		;THEN EXIT
-;CALCULATE VAR(A)+.VARC
-CALVRC	TAX			;MAKE INDEX
-	LDA	VAR,X		;GET VAR CONTENTS
-	CLC			;NOW ADD
-	ADC	#(VARC & $FF)		;VARC START
-	LDY	#((VARC	 / $100)& $FF)	;WITH CARRY
+	LDA	#CONST		;and type = const
+	JMP	SETTYP		;then exit
+;calculate var(a)+.varc
+CALVRC	TAX			;make index
+	LDA	VAR,X		;get var contents
+	CLC			;now add
+	ADC	#<VARC		;varc start
+	LDY	#>VARC		;with carry
 	BCC	*+3
 	INY
 	RTS
-;SETLOOKUP
-STLKUP	PHA			;SAVE PARAM
-	JSR	CALVRC		;CALCULATE VARC
-	STA	PRNTNM		;SAVE AS PRINTNAME
-	STY	PRNTNM+1	;POSITION
-	PLA			;GET PARAM
-	TAX			;MAKE INDEX
-	LDA	HASH,X		;GET ENTRY
-	STA	SYMHSH		;AND SET SYMBOLS
+;setlookup
+STLKUP	PHA			;save param
+	JSR	CALVRC		;calculate varc
+	STA	PRNTNM		;save as printname
+	STY	PRNTNM+1	;position
+	PLA			;get param
+	TAX			;make index
+	LDA	HASH,X		;get entry
+	STA	SYMHSH		;and set symbols
 	RTS
-;LOOKUP$ONLY
-LKONLY	JSR	STLKUP		;SET UP
-	JMP	SLOOKU		;TRY TO LOOKUP
-;NORMAL$LOOKUP
-NRMLKU	JSR	LKONLY		;CALL LOOKUP$ONLY
-	BEQ	*+3		;IF FALSE
-	RTS			;ELSE DONE
-	JSR	ENTER		;ENTER IN TABLE
-	LDA	#FALSE		;THEN DONE
+;lookup$only
+LKONLY	JSR	STLKUP		;set up
+	JMP	SLOOKU		;try to lookup
+;normal$lookup
+NRMLKU	JSR	LKONLY		;call lookup$only
+	BEQ	*+3		;if false
+	RTS			;else done
+	JSR	ENTER		;enter in table
+	LDA	#FALSE		;then done
 	RTS
-;COUNT SIZE OF THE PRT AND RETURN WITH COUNT IN AY
-CNTPRT	INC	PRTCT		;BUMP
+;count size of the prt and return with count in AY
+CNTPRT	INC	PRTCT		;bump
 	BNE	*+4
 	INC	PRTCT+1
-	LDA	PRTCT		;AND GET
+	LDA	PRTCT		;and get
 	LDY	PRTCT+1
 	RTS
-;SETIFNAME
-SETIFN	LDA	#(IFLBLN & $FF)	;POINT TO PRINTNAME
-	LDY	#((IFLBLN / $100)& $FF)
+;setifname
+SETIFN	LDA	#<IFLBLN	;point to printname
+	LDY	#>IFLBLN
 	STA	PRNTNM
 	STY	PRNTNM+1
-	LDA	IFLABL		;SET SYMHASH
+	LDA	IFLABL		;set symhash
 	AND	#HSHMSK
 	STA	SYMHSH
 	RTS
-;ENTER$COMPILER$LABEL(A)
-ENCMLB	BIT	PASS1		;TEST FOR PASS 1
-	BMI	*+3		;BRANCH IF IS
+;enter$compiler$label(a)
+ENCMLB	BIT	PASS1		;test for pass 1
+	BMI	*+3		;branch if is
 	RTS
-	PHA			;SAVE PARAMETER
-	JSR	SETIFN		;CALL SETIFNAME
-	JSR	ENTER		;CALL ENTER
-	PLA			;GET PARAM
-	CLC			;ADD TO CODESIZE
+	PHA			;save parameter
+	JSR	SETIFN		;call setifname
+	JSR	ENTER		;call enter
+	PLA			;get param
+	CLC			;add to codesize
 	ADC	CODESI
 	LDY	CODESI+1
 	BCC	*+3
-	INY			;WITH CARRY
-	JMP	SETRSV		;CALL SETADDR(CODESIZE+A)
-;SET$COMPILER$LABEL
-STCMLB	INC	IFLABL		;BUMP IFLABLE
-	JSR	SETIFN		;CALL SETIFNAME
-	JMP	SLOOKU		;CALL "S"LOOKUP
-;COMPILER$LABEL
-COMLBL	JSR	STCMLB		;CALL SET$COMPILER$LABEL
-	JSR	GETADR		
-	JMP	GENTWO		;CALL GEN$TWO(GETADDR)
-;CHECK FOR MP AND SP BOTH FLOATING POINT
-CHKTY1	LDA	STYPMP		;GET STYPEMP
-	CMP	#FLOTPT		;SEE IF = FLOATPT
-	BNE	DOC1MF		;ERROR IF NOT
-	LDA	STYPSP		;GET STYPESP
-	CMP	#FLOTPT		;SEE IF = FLOATPT
-	BNE	DOC1MF		;ERROR IF NOT
+	INY			;with carry
+	JMP	SETRSV		;call setaddr(codesize+a)
+;set$compiler$label
+STCMLB	INC	IFLABL		;bump iflable
+	JSR	SETIFN		;call setifname
+	JMP	SLOOKU		;call "s"lookup
+;compiler$label
+COMLBL	JSR	STCMLB		;call set$compiler$label
+	JSR	GETADR
+	JMP	GENTWO		;call gen$two(getaddr)
+;check for mp and sp both floating point
+CHKTY1	LDA	STYPMP		;get stypemp
+	CMP	#FLOTPT		;see if = floatpt
+	BNE	DOC1MF		;error if not
+	LDA	STYPSP		;get stypesp
+	CMP	#FLOTPT		;see if = floatpt
+	BNE	DOC1MF		;error if not
 	LDA	#TRUE
 	RTS
-DOC1MF	JSR	MFERR		;ERROR
+DOC1MF	JSR	MFERR		;error
 	LDA	#FALSE
 	RTS
-;CHECK MP AND SP BOTH SAME TYPE
-CHKTY2	LDA	STYPSP		;GET STYPESP
-	CMP	STYPMP		;SEE IF STYPEMP SAME
-	BNE	*+5		;ERROR IF NOT
+;check mp and sp both same type
+CHKTY2	LDA	STYPSP		;get stypesp
+	CMP	STYPMP		;see if stypemp same
+	BNE	*+5		;error if not
 	LDA	#TRUE
 	RTS
-	LDA	#13		;MIXED MODE ERROR
+	LDA	#13		;mixed mode error
 	JSR	ERROR
 	LDA	#FALSE
 	RTS
-;CHKTYP3
-CHKTY3	LDA	STYPSP		;GET STYPESP
-	JSR	STSTMP		;CALL SETSTYPEMP(STYPESP)
-	LDA	STYPSP		;GET STYPESP
-	CMP	#FLOTPT		;SEE IF FLOATING
-	BNE	*+5		;ERROR IF NOT
+;chktyp3
+CHKTY3	LDA	STYPSP		;get stypesp
+	JSR	STSTMP		;call setstypemp(stypesp)
+	LDA	STYPSP		;get stypesp
+	CMP	#FLOTPT		;see if floating
+	BNE	*+5		;error if not
 	LDA	#TRUE
 	RTS
-	JSR	MFERR		;MUST BE FLOATING ERROR
+	JSR	MFERR		;must be floating error
 	LDA	#FALSE
 	RTS
-;MUST BE FLOATING POINT ERROR
+;must be floating point error
 MFERR	LDA	#12
 	JMP	ERROR
-;CHKTYP4
-CHKTY4	LDA	STYPM1		;GET STYPEMP1
-	CMP	#STRING		;SEE IF STRING
-	BNE	*+5		;OK IF NOT
-	JSR	MFERR		;ELSE MUST BE FLOATING ERROR
+;chktyp4
+CHKTY4	LDA	STYPM1		;get stypemp1
+	CMP	#STRING		;see if string
+	BNE	*+5		;ok if not
+	JSR	MFERR		;else must be floating error
 	LDA	#RON
-	JMP	GENERT		;CALL GENERATE(RON)
-;CHKTYP5
-CHKTY5	JSR	CHKTY4		;CALL CHKTYP4
-	INC	TYPEMP		;BUMP TYPEMP
+	JMP	GENERT		;call generate(ron)
+;chktyp5
+CHKTY5	JSR	CHKTY4		;call chktyp4
+	INC	TYPEMP		;bump typemp
 	LDA	TYPEMP
-	JMP	STTYMP		;CALL SETTYPEMP(TYPEMP:=TYPEMP+1)
-;SUBCALC
-SUBCAL	LDA	TYPESP		;GET TYPE
-	JSR	SETSUB		;CALL SETSUBTYPE(TYPESP)
+	JMP	STTYMP		;call settypemp(typemp:=typemp+1)
+;subcalc
+SUBCAL	LDA	TYPESP		;get type
+	JSR	SETSUB		;call setsubtype(typesp)
 	LDA	#ROW
-	JSR	GENERT		;CALL GENERATE(ROW)
+	JSR	GENERT		;call generate(row)
 	LDA	TYPESP
-	JSR	GENERT		;CALL GENERATE(TYPESP)
+	JSR	GENERT		;call generate(typesp)
 	LDA	#STD
-	JMP	GENERT		;CALL GENERATE(STD)
-;GEN$STORE
-GENSTR	LDA	STYPM1		;GET STYPEMP1
-	CMP	#FLOTPT		;SEE IF FLOATING
-	BNE	*+7		;BRANCH IF NOT
+	JMP	GENERT		;call generate(std)
+;gen$store
+GENSTR	LDA	STYPM1		;get stypemp1
+	CMP	#FLOTPT		;see if floating
+	BNE	*+7		;branch if not
 	LDA	#STD
-	JMP	GENERT		;CALL GENERATE(STD)
+	JMP	GENERT		;call generate(std)
 	LDA	#STS
-	JMP	GENERT		;CALL GENERATE(STS)
-;SETUP$INPUT
+	JMP	GENERT		;call generate(sts)
+;setup$input
 SEINPU	LDA	#TRUE
-	STA	INPSTM		;INPUTSTMT=TRUE
+	STA	INPSTM		;inputstmt=true
 	LDA	#RCN
-	JMP	GENERT		;CALL GENERATE(RCN)
-;GEN$READ(A,Y)
-GENRDE	LDX	STYPSP		;GET STYPESP
-	CPX	#STRING		;SEE IF STRING
-	BNE	*+10		;BRANCH IF NOT
-	JSR	GENERT		;CALL GENERATE(I)
+	JMP	GENERT		;call generate(rcn)
+;gen$read(a,y)
+GENRDE	LDX	STYPSP		;get stypesp
+	CPX	#STRING		;see if string
+	BNE	*+10		;branch if not
+	JSR	GENERT		;call generate(i)
 	LDA	#STS
-	JMP	GENERT		;CALL GENERATE(STS)
+	JMP	GENERT		;call generate(sts)
 	TYA
-	JSR	GENERT		;CALL GENERATE(Y)
+	JSR	GENERT		;call generate(y)
 	LDA	#STD
-	JMP	GENERT		;CALL GENERATE(STD)
-;GET$FIELD
-GETFLD	LDA	TYPESP		;GET TYPESP
-	CMP	#SIMVAR		;SEE IF SIMPLE VARIABLE
-	BNE	*+9		;SKIP IF NOT
+	JMP	GENERT		;call generate(std)
+;get$field
+GETFLD	LDA	TYPESP		;get typesp
+	CMP	#SIMVAR		;see if simple variable
+	BNE	*+9		;skip if not
 	LDA	SYMLSP
 	LDY	SYMLSP+1
-	JSR	LITERL		;CALL LITERAL(SYMLOCSP)
-	BIT	INPSTM		;TEST INPUTSTMT
-	BPL	*+9		;BRANCH IF NOT
+	JSR	LITERL		;call literal(symlocsp)
+	BIT	INPSTM		;test inputstmt
+	BPL	*+9		;branch if not
 	LDA	#RES
 	LDY	#RDV
-	JMP	GENRDE		;CALL GEN$READ(RES,RDV)
-	BIT	FILEIO		;SEE IF FILE IO
-	BPL	*+9		;BRANCH IF NOT
+	JMP	GENRDE		;call gen$read(res,rdv)
+	BIT	FILEIO		;see if file io
+	BPL	*+9		;branch if not
 	LDA	#RDS
 	LDY	#RDN
-	JMP	GENRDE		;CALL GEN$READ(RDS,RDN)
+	JMP	GENRDE		;call gen$read(rds,rdn)
 	LDA	#DRS
 	LDY	#DRF
-	JMP	GENRDE		;CALL GEN$READ(DRS,DRF)
-;GEN$ON
+	JMP	GENRDE		;call gen$read(drs,drf)
+;gen$on
 GENON	LDA	#RON
-	JSR	GENERT		;CALL GENERATE(RON)
+	JSR	GENERT		;call generate(ron)
 	INC	ONSP
-	LDX	ONSP		;GET AS INDEX
-	LDA	ONSTAK,X	;GET ENTRY
-	LDY	#0		;HIGH ALWAYS CLEAR
-	JSR	LITERL		;CALL(ONSTACK(ONSP:=ONSP+1))
+	LDX	ONSP		;get as index
+	LDA	ONSTAK,X	;get entry
+	LDY	#0		;high always clear
+	JSR	LITERL		;call(onstack(onsp:=onsp+1))
 	LDA	#CKO
-	JSR	GENERT		;CALL GENERATE(CKO)
+	JSR	GENERT		;call generate(cko)
 	LDA	#BFN
-	JMP	GENERT		;CALL GENERATE(BFN)
-;GEN$ON$2
+	JMP	GENERT		;call generate(bfn)
+;gen$on$2
 GENON2	LDA	TYPESP
 	LDX	ONSP
 	STA	ONSTAK,X
 	RTS
-;GENNEXT
-GENNXT	DEC	FORCNT		;DROP FORCOUNT
-	LDA	FORCNT		;GET IT
-	CMP	#255		;SEE IF WRAP
-	BNE	*+9		;BRANCH IF OK
-	INC	FORCNT		;SET TO 0
-	LDA	#16		;NEXT W/O FOR ERROR
+;gennext
+GENNXT	DEC	FORCNT		;drop forcount
+	LDA	FORCNT		;get it
+	CMP	#255		;see if wrap
+	BNE	*+9		;branch if ok
+	INC	FORCNT		;set to 0
+	LDA	#16		;next w/o for error
 	JMP	ERROR
 	LDA	#BRS
-	JSR	GENERT		;CALL GENERATE(BRS)
-	LDY	#2*2		;WORD ADDRESSING
-	LDA	(NXSTPT),Y	;GET LOW
-	PHA			;SAVE
+	JSR	GENERT		;call generate(brs)
+	LDY	#2*2		;word addressing
+	LDA	(NXSTPT),Y	;get low
+	PHA			;save
 	INY
-	LDA	(NXSTPT),Y	;GET HIGH
-	TAY			;MOVE TO Y
-	PLA			;GET LOW
-	JSR	GENTWO		;CALL GEN$TWO(NEXTADDRESS(2))
-	LDY	#0*2		;STILL WORD ADDRESSING
+	LDA	(NXSTPT),Y	;get high
+	TAY			;move to Y
+	PLA			;get low
+	JSR	GENTWO		;call gen$two(nextaddress(2))
+	LDY	#0*2		;still word addressing
 	LDA	CODESI
-	STA	(NXSTPT),Y	;PUT
+	STA	(NXSTPT),Y	;put
 	INY
-	LDA	CODESI+1	;DO HIGH
-	ORA	#$80		;SET MSB
-	STA	(NXSTPT),Y	;INSERT
-GENNX0	LDY	#1		;SET INDEX TO 1
-	LDA	(NXSTPT),Y	;GET NEXTBYTEV(1)
-	BMI	*+3		;CONTINUE IF > 127
+	LDA	CODESI+1	;do high
+	ORA	#$80		;set msb
+	STA	(NXSTPT),Y	;insert
+GENNX0	LDY	#1		;set index to 1
+	LDA	(NXSTPT),Y	;get nextbytev(1)
+	BMI	*+3		;continue if > 127
 	RTS
-	CLC			;NOW ADD 8 TO NEXTSTMTPTR
+	CLC			;now add 8 to nextstmtptr
 	LDA	NXSTPT
 	ADC	#8
 	STA	NXSTPT
 	BCC	GENNX0
 	INC	NXSTPT+1
 	JMP	GENNX0
-;GEN$NEXT$WITH$IDENT
-GENWID	LDA	MPP1		;GET MPP1
+;gen$next$with$ident
+GENWID	LDA	MPP1		;get mpp1
 	JSR	LKONLY
-	BEQ	GENWIE		;BRANCH IF FALSE
-	LDY	#3*2		;WORD ADDRESSING
-	LDA	(NXSTPT),Y	;GET LOW
-	CMP	BASE		;COMPARE TO LOW BASE
-	BNE	GENWIE		;ERROR IF DIFFERENT
+	BEQ	GENWIE		;branch if false
+	LDY	#3*2		;word addressing
+	LDA	(NXSTPT),Y	;get low
+	CMP	BASE		;compare to low base
+	BNE	GENWIE		;error if different
 	INY
-	LDA	(NXSTPT),Y	;SAME FOR HIGH
+	LDA	(NXSTPT),Y	;same for high
 	CMP	BASE+1
 	BNE	GENWIE
-	JMP	GENNXT		;ELSE OK
-GENWIE	LDA	#14		;NEXT DOES NOT MATCH FOR
+	JMP	GENNXT		;else ok
+GENWIE	LDA	#14		;next does not match for
 	JMP	ERROR
-;CHECK$UL$ERROR
-CHKULE	BIT	ULERFL		;TEST FLAG
-	BPL	*+7		;BRANCH IF CLEAR
-	LDA	#20		;ELSE UNDEFINED LABEL
+;check$ul$error
+CHKULE	BIT	ULERFL		;test flag
+	BPL	*+7		;branch if clear
+	LDA	#20		;else undefined label
 	JSR	ERROR
-	LDA	#FALSE		;NOW CLEAR FLAG
+	LDA	#FALSE		;now clear flag
 	STA	ULERFL
 	RTS
-;FINDLABEL
-FNDLBL	LDA	SP		;GET SP
-	JSR	NRMLKU		;NORMAL$LOOKUP(SP)
-	BNE	*+3		;IF TRUE
+;findlabel
+FNDLBL	LDA	SP		;get sp
+	JSR	NRMLKU		;normal$lookup(sp)
+	BNE	*+3		;if true
 	RTS
-	BIT	PASS2		;IF PASS2
-	BMI	*+3		;THEN
+	BIT	PASS2		;if pass2
+	BMI	*+3		;then
 	RTS
-	JSR	GETRES		;IF NOT GETRES
-	BEQ	*+3		;THEN
+	JSR	GETRES		;if not getres
+	BEQ	*+3		;then
 	RTS
 	LDA	#TRUE
-	STA	ULERFL		;ULERRORFLAG=TRUE
+	STA	ULERFL		;ulerrorflag=true
 	RTS
-;RESOLVE$LABEL
-RESLBL	JSR	FNDLBL		;FINDLABEL
-	LDA	#PRO		;PRESET FOR TRUE
-	BIT	GSBSTM		;TEST GOSUBSTMT
-	BMI	*+4		;IF TRUE
-	LDA	#BRS		;ELSE
-	JSR	GENERT		;GENERATE( )
+;resolve$label
+RESLBL	JSR	FNDLBL		;findlabel
+	LDA	#PRO		;preset for true
+	BIT	GSBSTM		;test gosubstmt
+	BMI	*+4		;if true
+	LDA	#BRS		;else
+	JSR	GENERT		;generate( )
 	JSR	GETADR
-	JMP	GENTWO		;GEN$TWO(GETADDR)
-;PROCESS$SIMPLE$VARIABLE
-PSIMPV	JSR	NRMLKU		;NORMAL$LOOKUP
-	BEQ	PSIMP0		;IF FALSE THEN
-	JSR	GETTYP		;IF GETYPE
-	CMP	#SIMVAR		;= SIMVAR
-	BEQ	PSIMP1		;THEN
-	LDA	#11		;ARRAY NAME USED AS SIMPLE VARIABLE
+	JMP	GENTWO		;gen$two(getaddr)
+;process$simple$variable
+PSIMPV	JSR	NRMLKU		;normal$lookup
+	BEQ	PSIMP0		;if false then
+	JSR	GETTYP		;if getype
+	CMP	#SIMVAR		;= simvar
+	BEQ	PSIMP1		;then
+	LDA	#11		;array name used as simple variable
 	JSR	ERROR
-	JMP	PSIMP1		;CONTINUE
+	JMP	PSIMP1		;continue
 PSIMP0	JSR	CNTPRT
-	JSR	SETRSV		;SETADDR(COUNTPRT)
+	JSR	SETRSV		;setaddr(countprt)
 	LDA	#SIMVAR
-	JSR	SETTYP		;SETYPE(SIMVAR)
+	JSR	SETTYP		;setype(simvar)
 PSIMP1	JSR	GETADR
 	STA	SYMLSP
-	STY	SYMLSP+1	;SYMLOCSP=GETADDR
-	JSR	STSLSP		;SETSYMLOCSP( )
+	STY	SYMLSP+1	;symlocsp=getaddr
+	JSR	STSLSP		;setsymlocsp( )
 	LDA	#SIMVAR
-	JSR	STTYSP		;SETTYPESP(SIMVAR)
-	BIT	FORSTM		;IF FORSTMT
-	BMI	*+3		;THEN
+	JSR	STTYSP		;settypesp(simvar)
+	BIT	FORSTM		;if forstmt
+	BMI	*+3		;then
 	RTS
 	LDA	#FALSE
-	STA	FORSTM		;FORSTMT=FALSE
-	LDY	#3*2		;WORD ADDRESSING
+	STA	FORSTM		;forstmt=false
+	LDY	#3*2		;word addressing
 	LDA	BASE
 	STA	(SBTTOP),Y
 	INY
 	LDA	BASE+1
-	STA	(SBTTOP),Y	;FORADDRESS(3)=BASE
+	STA	(SBTTOP),Y	;foraddress(3)=base
 	RTS
-;GEN$ILS
+;gen$ils
 GENILS	STA	WHERE
-	STY	WHERE+1		;SAVE PARAMETER
+	STY	WHERE+1		;save parameter
 	LDA	#STRING
-	JSR	STSTSP		;SETSTYPESP(STRING)
+	JSR	STSTSP		;setstypesp(string)
 	LDA	#ILS
-	JSR	GENERT		;GENERATE(ILS)
+	JSR	GENERT		;generate(ils)
 GENIL0	LDA	#1
-	STA	STRPTR		;STRPTR=1
+	STA	STRPTR		;strptr=1
 GENIL1	LDY	#0
-	LDA	(WHERE),Y	;IF STRINGTOSPOOL(0)
-	CMP	STRPTR		;< STRPTR
-	BCC	GENIL2		;THEN
+	LDA	(WHERE),Y	;if stringtospool(0)
+	CMP	STRPTR		;< strptr
+	BCC	GENIL2		;then
 	LDY	STRPTR
-	LDA	(WHERE),Y	;STRINGTOSPOOL(STRPTR)
-	JSR	GENERT		;GENERATE
-	INC	STRPTR		;STRPTR=STRPTR+1
+	LDA	(WHERE),Y	;stringtospool(strptr)
+	JSR	GENERT		;generate
+	INC	STRPTR		;strptr=strptr+1
 	JMP	GENIL1
-GENIL2	BIT	CONT		;IF NOT CONT
-	BPL	*+8		;THEN
-	JSR	SCANNR		;SCANNER
+GENIL2	BIT	CONT		;if not cont
+	BPL	*+8		;then
+	JSR	SCANNR		;scanner
 	JMP	GENIL0
 	LDA	#0
-	JMP	GENERT		;GENERATE(0)
-;GENCON
+	JMP	GENERT		;generate(0)
+;gencon
 GENCON	LDA	#CON
-	JSR	GENERT		;GENERATE(CON)
+	JSR	GENERT		;generate(con)
 	LDA	#CONST
-	JSR	STTYSP		;SETTYPESP(CONST)
+	JSR	STTYSP		;settypesp(const)
 	LDA	#FLOTPT
-	JSR	STSTSP		;SETSTYPESP(FLOATPT)
+	JSR	STSTSP		;setstypesp(floatpt)
 	LDA	SP
-	JSR	LKONLY		;LOOKUP$ONLY(SP)
-	BEQ	GENCO0		;IF FALSE THEN
-	JSR	GETTYP		;IF GETYPE
-	CMP	#CONST		;<> CONST
-	BNE	GENCO0		;THEN
+	JSR	LKONLY		;lookup$only(sp)
+	BEQ	GENCO0		;if false then
+	JSR	GETTYP		;if getype
+	CMP	#CONST		;<> const
+	BNE	GENCO0		;then
 	JSR	GETADR
-	JMP	GENTWO		;GEN$TWO(GETADDR)
+	JMP	GENTWO		;gen$two(getaddr)
 GENCO0	LDA	#1
-	STA	IGEN		;IGEN=1
+	STA	IGEN		;igen=1
 GENCO1	LDA	ACCLEN
-	CMP	IGEN		;IF IGEN>ACCLEN
-	BCC	GENCO2		;THEN
+	CMP	IGEN		;if igen>acclen
+	BCC	GENCO2		;then
 	LDX	IGEN
 	LDA	ACCUM,X
-	JSR	EMITCN		;EMITCON(ACCUM(I))
-	INC	IGEN		;I=I+1
+	JSR	EMITCN		;emitcon(accum(i))
+	INC	IGEN		;i=i+1
 	JMP	GENCO1
 GENCO2	LDA	#'$'
-	JSR	EMITCN		;EMITCON('$')
+	JSR	EMITCN		;emitcon('$')
 	INC	FDACT
 	BNE	*+4
-	INC	FDACT+1		;FDACT=FDACT+1
+	INC	FDACT+1		;fdact=fdact+1
 	LDA	FDACT
 	LDY	FDACT+1
-	JMP	GENTWO		;GEN$TWO(FDACT)
-;PUT$FIELD
-PUTFLD	BIT	FILEIO		;IF NOT FILEIO
-	BPL	NTFLIO		;THEN
-	LDA	STYPSP		;IF STYPESP
-	CMP	#FLOTPT		;<> FLOATPT
-	BNE	*+7		;THEN
+	JMP	GENTWO		;gen$two(fdact)
+;put$field
+PUTFLD	BIT	FILEIO		;if not fileio
+	BPL	NTFLIO		;then
+	LDA	STYPSP		;if stypesp
+	CMP	#FLOTPT		;<> floatpt
+	BNE	*+7		;then
 	LDA	#WRN
-	JMP	GENERT		;GENERATE(WRN)
+	JMP	GENERT		;generate(wrn)
 	LDA	#WRS
-	JMP	GENERT		;GENERATE(WRS)
-NTFLIO	LDA	STYPSP		;IF STYPESP
-	CMP	#FLOTPT		;= FLOATPT
-	BEQ	*+7		;THEN
+	JMP	GENERT		;generate(wrs)
+NTFLIO	LDA	STYPSP		;if stypesp
+	CMP	#FLOTPT		;= floatpt
+	BEQ	*+7		;then
 	LDA	#WST
-	JMP	GENERT		;GENERATE(WST)
-	LDA	TYPESP		;IF TYPESP
-	CMP	#74		;NOT A TAB
-	BNE	*+3		;THEN
+	JMP	GENERT		;generate(wst)
+	LDA	TYPESP		;if typesp
+	CMP	#74		;not a tab
+	BNE	*+3		;then
 	RTS
 	LDA	#WRV
-	JMP	GENERT		;GENERATE(WRV)
-;GEN$PARM
+	JMP	GENERT		;generate(wrv)
+;gen$parm
 GENPRM	LDA	TYPEMP
-	CMP	#UNFUNC		;IF TYPEMP = UNFUNC
-	BEQ	*+3		;THEN
+	CMP	#UNFUNC		;if typemp = unfunc
+	BEQ	*+3		;then
 	RTS
 	LDA	SYMLMP
 	LDY	SYMLMP+1
 	STA	BASE
-	STY	BASE+1		;BASE=SYMLOCMP
-	JSR	NXTENT		;NEXTENTRY
+	STY	BASE+1		;base=symlocmp
+	JSR	NXTENT		;nextentry
 	LDA	BASE
 	LDY	BASE+1
-	JSR	STSLMP		;SETSYMLOCMP(BASE)
+	JSR	STSLMP		;setsymlocmp(base)
 	DEC	HASHMP
 	LDA	HASHMP
-	JSR	STHAMP		;SETHASHMP(HASHMP:=HASHMP-1)
+	JSR	STHAMP		;sethashmp(hashmp:=hashmp-1)
 	JSR	GETADR
-	JMP	LITERL		;LITERAL(GETADDR)
-;CHECKPARM
+	JMP	LITERL		;literal(getaddr)
+;checkparm
 CHKPRM	LDA	TYPEMP
-	CMP	#UNFUNC		;IF TYPEMP <> UNFUNC
-	BNE	NTUNFN		;THEN
+	CMP	#UNFUNC		;if typemp <> unfunc
+	BNE	NTUNFN		;then
 	LDA	SYMLMP
 	LDY	SYMLMP+1
 	STA	BASE
-	STY	BASE+1		;BASE=SYMLOCMP
-	JSR	GETSUB		;GETSUBTYPE
-	CMP	STYPM1		;IF = STYPEMP1
-	BEQ	*+7		;THEN
-	LDA	#5		;ELSE INVALID PARAMETER TYPE IN FUNCTION REF
+	STY	BASE+1		;base=symlocmp
+	JSR	GETSUB		;getsubtype
+	CMP	STYPM1		;if = stypemp1
+	BEQ	*+7		;then
+	LDA	#5		;else invalid parameter type in function ref
 	JSR	ERROR
-	JMP	GENSTR		;GEN$STORE
+	JMP	GENSTR		;gen$store
 NTUNFN	LDA	#1
-	LDY	STYPM1		;IF STYPEMP1
-	CPY	#FLOTPT		;<> FLOATPT
-	BNE	*+4		;THEN
+	LDY	STYPM1		;if stypemp1
+	CPY	#FLOTPT		;<> floatpt
+	BNE	*+4		;then
 	LDA	#FALSE
-	EOR	HASHMP		;XOR HASHMP
-	AND	#1		;TEST LSB ONLY
-	BEQ	*+7		;IF TRUE
-	LDA	#5		;INVALID TYPE IN FUNCTION PARAMETER LIST
+	EOR	HASHMP		;xor hashmp
+	AND	#1		;test lsb only
+	BEQ	*+7		;if true
+	LDA	#5		;invalid type in function parameter list
 	JSR	ERROR
 	LDA	HASHMP
-	LSR	A		;SHR(HASHMP,1)
-	JSR	STHAMP		;SETHASHMP
+	LSR	A		;shr(hashmp,1)
+	JSR	STHAMP		;sethashmp
 	DEC	STYPMP
 	LDA	STYPMP
-	JMP	STSTMP		;SETSTYPEMP(STYPEMP=STYPEMP-1)
-;FUNCGEN
+	JMP	STSTMP		;setstypemp(stypemp=stypemp-1)
+;funcgen
 FNCGEN	LDA	TYPEMP
-	CMP	#UNFUNC		;IF TYPEMP <> UNFUNC
-	BNE	NOFNGN		;THEN
-	LDA	HASHMP		;IF HASHMP=0
-	BEQ	*+7		;THEN
-	LDA	#4		;INCORRECT NUMBER PARAMETERS
+	CMP	#UNFUNC		;if typemp <> unfunc
+	BNE	NOFNGN		;then
+	LDA	HASHMP		;if hashmp=0
+	BEQ	*+7		;then
+	LDA	#4		;incorrect number parameters
 	JSR	ERROR
 	LDA	#PRO
-	JSR	GENERT		;GENERATE(PRO)
+	JSR	GENERT		;generate(pro)
 	LDA	SRLOSP
 	LDY	SRLOSP+1
 	STA	BASE
-	STY	BASE+1		;BASE=SRLOCSP
+	STY	BASE+1		;base=srlocsp
 	JSR	GETADR
-	JMP	GENTWO		;GEN$TWO(GETADDR)
+	JMP	GENTWO		;gen$two(getaddr)
 NOFNGN	LDA	STYPMP
-	AND	#3		;IF STYPEMP AND 3 = 0
-	BEQ	*+7		;THEN
-	LDA	#4		;INCORRECT NUMBER PARAMETERS
+	AND	#3		;if stypemp and 3 = 0
+	BEQ	*+7		;then
+	LDA	#4		;incorrect number parameters
 	JSR	ERROR
 	LDA	TYPEMP
-	JSR	GENERT		;GENERATE(TYPEMP)
+	JSR	GENERT		;generate(typemp)
 	LDA	STYPMP
-	AND	#%01000000	;IF NOT ROL(STYPEMP,2)
-	BEQ	*+7		;THEN
+	AND	#%01000000	;if not rol(stypemp,2)
+	BEQ	*+7		;then
 	LDA	#STRING
-	JMP	STSTMP		;SETSTYPEMP(STRING)
+	JMP	STSTMP		;setstypemp(string)
 	LDA	#FLOTPT
-	JMP	STSTMP		;SETSTYPEMP(FLOATPT)
-;ENTER$PARM
-ENTRPR	BIT	PASS1		;IF PASS 1
-	BMI	*+3		;THEN
+	JMP	STSTMP		;setstypemp(floatpt)
+;enter$parm
+ENTRPR	BIT	PASS1		;if pass 1
+	BMI	*+3		;then
 	RTS
 	LDA	MPP1
-	JSR	STLKUP		;SETLOOKUP(MPP1)
+	JSR	STLKUP		;setlookup(mpp1)
 	JSR	ENTER
 	JSR	CNTPRT
-	JSR	SETRSV		;SETADDR(COUNTPRT)
+	JSR	SETRSV		;setaddr(countprt)
 	LDA	STYPM1
-	JSR	SETSUB		;SETSUBTYPE(STYPEMP1)
+	JSR	SETSUB		;setsubtype(stypemp1)
 	LDA	#SIMVAR
-	JSR	SETTYP		;SETYPE(SIMVAR)
+	JSR	SETTYP		;setype(simvar)
 	LDX	TYPEMP
 	INX
 	TXA
-	JMP	STTYMP		;SETTYPEMP(TYPEMP+1)
-;SYNTHESIS
-;MAIN CODE GENERATION ROUTINE
-SYNTHE	STA	PRODCT		;SAVE PRODUCTION
-	LDA	PASS2		;IF NOT PASS 2
-	AND	LSTPRD		;AND LISTPROD
-	BEQ	NPPROD		;THEN
-	LDA	#(PRDMSG & $FF)
-	LDY	#((PRDMSG / $100)& $FF)
-	JSR	PRNMSG		;PRINT MESSAGE
+	JMP	STTYMP		;settypemp(typemp+1)
+;synthesis
+;main code generation routine
+SYNTHE	STA	PRODCT		;save production
+	LDA	PASS2		;if not pass 2
+	AND	LSTPRD		;and listprod
+	BEQ	NPPROD		;then
+	LDA	#<PRDMSG
+	LDY	#>PRDMSG
+	JSR	PRNMSG		;print message
 	LDA	PRODCT
 	LDY	#0
-	JSR	PRNDEC		;PRINT NUMBER
+	JSR	PRNDEC		;print number
 	JSR	CRLF
-NPPROD	JSR	SCOPY		;SET UP SIMPLE VARIABLES
-	LDA	PRODCT		;GET NUMBER
-	ASL	A		;MAKE WORD INDEX
-	TAX			;MAKE INDEX
-	BCS	GT127		;BRANCH IF > 127
+NPPROD	JSR	SCOPY		;set up simple variables
+	LDA	PRODCT		;get number
+	ASL	A		;make word index
+	TAX			;make index
+	BCS	GT127		;branch if > 127
 	LDA	PRODL,X
 	STA	JPROD+1
 	LDA	PRODL+1,X
-	STA	JPROD+2		;SET ADDRESS
-JPROD	JMP	$FFFF		;DO IT
+	STA	JPROD+2		;set address
+JPROD	JMP	$FFFF		;do it
 GT127	LDA	PRODH,X
 	STA	JPROD+1
 	LDA	PRODH+1,X
 	STA	JPROD+2
-	JMP	JPROD		;SAME FOR HIGH
-;PRODUCTION JUMP TABLE FOR 0 - 127
-PRODL	.WORD	PRN,PRN,PR2,PR3,CHKULE,CHKULE,PRN,PRN
-	.WORD	PRN,PRN,PRN,PRN,PRN,PRN,PRN,PRN
-	.WORD	PRN,PRN,PRN,PRN,PRN,PRN,PRN,PRN
-	.WORD	PRN,PRN,PRN,PRN,PRN,PRN,PR30,PR31
-	.WORD	PRN,PR33,PR34,PR35,PRN,PR37,PRN,PR39
-	.WORD	PRN,PR41,PRN,PR43,PR44,CHKTY3,PR46,PRN
-	.WORD	PR48,PR49,PRN,PR51,PR52,PRN,PRN,PR55
-	.WORD	PR56,PR57,PR58,CHKTY5,PR60,FNCGEN,GENPRM,PR63
-	.WORD	PR64,PR65,GENCON,PR67,PR68,PR69,PR69,PR71
-	.WORD	PR71,PR73,PR74,PR75,PR75,PR77,PR78,PR79
-	.WORD	PR80,PR81,PR82,PR82,PR84,PRN,RESLBL,PR87
-	.WORD	PR88,PR89,PR90,ENTRPR,PR92,PR92,ENTRPR,PRN
-	.WORD	PRN,PRN,PR98,CHKTY4,PR100,PRN,SUBCAL,SUBCAL
-	.WORD	PR104,PR105,CHKTY5,PRN,PR108,PR108,PR110,PRN
-	.WORD	PR112,PR113,SEINPU,GETFLD,GETFLD,PR117,PRN,PR119
-	.WORD	PUTFLD,PUTFLD,PRN,PUTFLD,PUTFLD,PRN,PR126,PR127
-;PRODUCTION JUMP TABLE FOR 128 - 255
-PRODH	.WORD	PR128,PRN,PR130,RESLBL,GENON2,PR133,GENON,PR135
-	.WORD	PR136,PR137,PR138,PRN,PRN,PRN,PRN,GENWID
-	.WORD	GENNXT,PRN,GENWID,PR147,PR148,PR149,PR150,PR151
-	.WORD	PR152
-;PRODUCTIONS NOT ALREADY DEFINED BY SINGLE NO-PARAMETER SUBROUTINES
-PRN	RTS			;DO NOTHING - USED A LOT !!!!
-;2	<LINE NUMBER>::=<NUMBER>
+	JMP	JPROD		;same for high
+;production jump table for 0 - 127
+PRODL	.word	PRN,PRN,PR2,PR3,CHKULE,CHKULE,PRN,PRN
+	.word	PRN,PRN,PRN,PRN,PRN,PRN,PRN,PRN
+	.word	PRN,PRN,PRN,PRN,PRN,PRN,PRN,PRN
+	.word	PRN,PRN,PRN,PRN,PRN,PRN,PR30,PR31
+	.word	PRN,PR33,PR34,PR35,PRN,PR37,PRN,PR39
+	.word	PRN,PR41,PRN,PR43,PR44,CHKTY3,PR46,PRN
+	.word	PR48,PR49,PRN,PR51,PR52,PRN,PRN,PR55
+	.word	PR56,PR57,PR58,CHKTY5,PR60,FNCGEN,GENPRM,PR63
+	.word	PR64,PR65,GENCON,PR67,PR68,PR69,PR69,PR71
+	.word	PR71,PR73,PR74,PR75,PR75,PR77,PR78,PR79
+	.word	PR80,PR81,PR82,PR82,PR84,PRN,RESLBL,PR87
+	.word	PR88,PR89,PR90,ENTRPR,PR92,PR92,ENTRPR,PRN
+	.word	PRN,PRN,PR98,CHKTY4,PR100,PRN,SUBCAL,SUBCAL
+	.word	PR104,PR105,CHKTY5,PRN,PR108,PR108,PR110,PRN
+	.word	PR112,PR113,SEINPU,GETFLD,GETFLD,PR117,PRN,PR119
+	.word	PUTFLD,PUTFLD,PRN,PUTFLD,PUTFLD,PRN,PR126,PR127
+;production jump table for 128 - 255
+PRODH	.word	PR128,PRN,PR130,RESLBL,GENON2,PR133,GENON,PR135
+	.word	PR136,PR137,PR138,PRN,PRN,PRN,PRN,GENWID
+	.word	GENNXT,PRN,GENWID,PR147,PR148,PR149,PR150,PR151
+	.word	PR152
+;productions not already defined by single no-parameter subroutines
+PRN	RTS			;do nothing - used a lot !!!!
+;2	<line number>::=<number>
 PR2	LDA	SP
-	JSR	LKONLY		;LOOKUP$ONLY(SP)
-	BEQ	PR2D		;IF FALSE
-	JSR	GETRES		;SEE IF RESOLVED
-	BEQ	PR2C		;IF NOT
-	JSR	GETADR		;GETADDR
-	CMP	CODESI		;TRY LOW
-	BNE	PR2A		;ERROR IF <>
+	JSR	LKONLY		;lookup$only(sp)
+	BEQ	PR2D		;if false
+	JSR	GETRES		;see if resolved
+	BEQ	PR2C		;if not
+	JSR	GETADR		;getaddr
+	CMP	CODESI		;try low
+	BNE	PR2A		;error if <>
 	CPY	CODESI+1
-	BEQ	*+7		;OK IF SAME
-PR2A	LDA	#0		;DUPLICATE LABELS
+	BEQ	*+7		;ok if same
+PR2A	LDA	#0		;duplicate labels
 	JSR	ERROR
 	JMP	LINENU
 PR2C	LDA	CODESI
 	LDY	CODESI+1
-	JSR	SETRSV		;SETADDR(CODESIZE)
+	JSR	SETRSV		;setaddr(codesize)
 	LDA	#LABLE
-	JSR	SETTYP		;SETYPE(LABLE)
+	JSR	SETTYP		;setype(lable)
 	JMP	LINENU
 PR2D	LDA	#'*'
-	STA	SEPRTR		;SEPARATOR=ASTRIK
+	STA	SEPRTR		;separator=astrik
 	JMP	LINENU
 ;3	|
-PR3	LDA	#':'		;SET SEPARATOR
+PR3	LDA	#':'		;set separator
 	STA	SEPRTR
-	JMP	LINENU		;THEN DO LINE NUMBER
-;30	<ASSIGNMEMT>::=<ASSIGN HEAD><EXPRESSION>
-PR30	JSR	CHKTY2		;IF NOT CHKTYP2
-	BEQ	*+5		;THEN
-	JMP	GENSTR		;ELSE GEN$STORE
+	JMP	LINENU		;then do line number
+;30	<assignmemt>::=<assign head><expression>
+PR30	JSR	CHKTY2		;if not chktyp2
+	BEQ	*+5		;then
+	JMP	GENSTR		;else gen$store
 	RTS
-;31	<ASSIGN HEAD>::=<VARIABLE>=
+;31	<assign head>::=<variable>=
 PR31	LDA	TYPEMP
-	CMP	#SIMVAR		;IF TYPEMP=SIMVAR
-	BEQ	*+3		;THEN
+	CMP	#SIMVAR		;if typemp=simvar
+	BEQ	*+3		;then
 	RTS
 	LDA	SYMLMP
 	LDY	SYMLMP+1
-	JMP	LITERL		;LITERAL(SYMLOCMP)
-;33	|<EXPRESSION><OR><LOGICAL FACTOR>
-PR33	JSR	CHKTY1		;IF CHKTYP1
-	BNE	*+3		;THEN
+	JMP	LITERL		;literal(symlocmp)
+;33	|<expression><or><logical factor>
+PR33	JSR	CHKTY1		;if chktyp1
+	BNE	*+3		;then
 	RTS
 	LDA	TYPEM1
-	JMP	GENERT		;GENERATE(TYPEMP1)
-;34	<OR>::=OR
+	JMP	GENERT		;generate(typemp1)
+;34	<or>::=or
 PR34	LDA	#BOR
-	JMP	STTYSP		;SETTYPESP(BOR)
-;35	|XOR
+	JMP	STTYSP		;settypesp(bor)
+;35	|xor
 PR35	LDA	#EXR
-	JMP	STTYSP		;STTYSP
-;37	<LOGICAL SECONDARY>
-PR37	JSR	CHKTY1		;IF CHKTYP1
-	BNE	*+3		;THEN
+	JMP	STTYSP		;sttysp
+;37	<logical secondary>
+PR37	JSR	CHKTY1		;if chktyp1
+	BNE	*+3		;then
 	RTS
 	LDA	#ANDO
-	JMP	GENERT		;GENERATE(ANDO)
-;39	|NOT <LOGICAL PRIMARY>
-PR39	JSR	CHKTY3		;IF CHKTYP3
-	BNE	*+3		;THEN
+	JMP	GENERT		;generate(ando)
+;39	|not <logical primary>
+PR39	JSR	CHKTY3		;if chktyp3
+	BNE	*+3		;then
 	RTS
 	LDA	#NOT
-	JMP	GENERT		;GENERATE(NOT)
-;41	<ARITHMETIC EXPRESSION>
-PR41	JSR	CHKTY2		;IF CHKTYP2
-	BNE	*+3		;THEN
+	JMP	GENERT		;generate(not)
+;41	<arithmetic expression>
+PR41	JSR	CHKTY2		;if chktyp2
+	BNE	*+3		;then
 	RTS
 	LDA	STYPSP
-	CMP	#FLOTPT		;IF STYPESP<>FLOATPT
-	BNE	PR41A		;THEN
+	CMP	#FLOTPT		;if stypesp<>floatpt
+	BNE	PR41A		;then
 	LDA	TYPEM1
-	JMP	GENERT		;GENERATE(TYPEMP1)
+	JMP	GENERT		;generate(typemp1)
 PR41A	CLC
 	LDA	TYPEM1
 	ADC	#16
-	JSR	GENERT		;GENERATE(TYPEMP1+16)
+	JSR	GENERT		;generate(typemp1+16)
 	LDA	#FLOTPT
-	JMP	STSTMP		;SETSTYPEMP(FLOATPT)
-;43	|<ARITHMETIC EXPRESSION>+<TERM>
-PR43	JSR	CHKTY2		;IF CHKTYP2
-	BNE	*+3		;THEN
+	JMP	STSTMP		;setstypemp(floatpt)
+;43	|<arithmetic expression>+<term>
+PR43	JSR	CHKTY2		;if chktyp2
+	BNE	*+3		;then
 	RTS
 	LDA	#FAD
 	LDY	STYPSP
-	CPY	#FLOTPT		;IF STYPESP=FLOATPT
-	BEQ	*+4		;THEN GENERATE(FAD)
+	CPY	#FLOTPT		;if stypesp=floatpt
+	BEQ	*+4		;then generate(fad)
 	LDA	#CAT
-	JMP	GENERT		;ELSE GENERATE(CAT)
-;44	|<ARITHMETIC EXPRESSION>-<TERM>
-PR44	JSR	CHKTY1		;IF CHKTYP1
-	BNE	*+3		;THEN
+	JMP	GENERT		;else generate(cat)
+;44	|<arithmetic expression>-<term>
+PR44	JSR	CHKTY1		;if chktyp1
+	BNE	*+3		;then
 	RTS
 	LDA	#FMI
-	JMP	GENERT		;GENERATE(FMI)
-;46	|-<TERM>
-PR46	JSR	CHKTY3		;IF CHKTYP3
-	BNE	*+3		;THEN
+	JMP	GENERT		;generate(fmi)
+;46	|-<term>
+PR46	JSR	CHKTY3		;if chktyp3
+	BNE	*+3		;then
 	RTS
 	LDA	#NEG
-	JMP	GENERT		;GENERATE(NEG)
-;48	|<TERM>*<PRIMARY>
-PR48	JSR	CHKTY1		;IF CHKTYP1
-	BNE	*+3		;THEN
+	JMP	GENERT		;generate(neg)
+;48	|<term>*<primary>
+PR48	JSR	CHKTY1		;if chktyp1
+	BNE	*+3		;then
 	RTS
 	LDA	#FMU
-	JMP	GENERT		;GENERATE(FMU)
-;49	|<TERM>/<PRIMARY>
-PR49	JSR	CHKTY1		;IF CHKTYP1
-	BNE	*+3		;THEN
+	JMP	GENERT		;generate(fmu)
+;49	|<term>/<primary>
+PR49	JSR	CHKTY1		;if chktyp1
+	BNE	*+3		;then
 	RTS
 	LDA	#FDI
-	JMP	GENERT		;GENERATE(FDI)
-;51	|<PRIMARY>**<ELEMENT>
-PR51	JSR	CHKTY1		;THE CHKTYP1
-	BNE	*+3		;THEN
+	JMP	GENERT		;generate(fdi)
+;51	|<primary>**<element>
+PR51	JSR	CHKTY1		;the chktyp1
+	BNE	*+3		;then
 	RTS
 	LDA	#EXP
-	JMP	GENERT		;GENERATE(EXP)
-;52	<ELEMENT>::=<VARIABLE>
-PR52	LDA	TYPESP		;IF TYPESP
-	CMP	#SIMVAR		;= SIMVAR
-	BEQ	*+7		;THEN
+	JMP	GENERT		;generate(exp)
+;52	<element>::=<variable>
+PR52	LDA	TYPESP		;if typesp
+	CMP	#SIMVAR		;= simvar
+	BEQ	*+7		;then
 	LDA	#LOD
-	JMP	GENERT		;ELSE GENERATE(LOD)
+	JMP	GENERT		;else generate(lod)
 	LDA	SYMLSP
 	LDY	SYMLSP+1
-	JMP	LITLOD		;LITLOAD(SYMLOCSP)
-;55	|(<EXPRESSION>)
+	JMP	LITLOD		;litload(symlocsp)
+;55	|(<expression>)
 PR55	LDA	STYPM1
-	JMP	STSTMP		;SETSTYPEMP(STYPEMP1)
-;56	<VARIABLE>::=<IDENTIFIER>
+	JMP	STSTMP		;setstypemp(stypemp1)
+;56	<variable>::=<identifier>
 PR56	LDA	SP
-	JMP	PSIMPV		;PROCESS$SIMPLE$VARIABLE(SP)
-;57	|<SUBSCRIPT HEAD><EXPRESSION>
-PR57	BIT	FORSTM		;IF NOT FORSTMT
-	BPL	*+7		;THEN
-	LDA	#3		;FOR INDEX NOT SIMPLE VARIABLE
+	JMP	PSIMPV		;process$simple$variable(sp)
+;57	|<subscript head><expression>
+PR57	BIT	FORSTM		;if not forstmt
+	BPL	*+7		;then
+	LDA	#3		;for index not simple variable
 	JSR	ERROR
-	JSR	CHKTY5		;CHKTYP5
+	JSR	CHKTY5		;chktyp5
 	LDA	SYMLMP
 	LDY	SYMLMP+1
 	STA	BASE
-	STY	BASE+1		;BASE=SYMLOCSP
-	JSR	GETSUB		;IF GETSUBTYPE
-	CMP	TYPEMP		;= TYPEMP
-	BEQ	*+7		;THEN
-	LDA	#17		;INCORRECT NUMBER SUBSCRIPTS
+	STY	BASE+1		;base=symlocsp
+	JSR	GETSUB		;if getsubtype
+	CMP	TYPEMP		;= typemp
+	BEQ	*+7		;then
+	LDA	#17		;incorrect number subscripts
 	JSR	ERROR
 	JSR	GETADR
-	JSR	LITLOD		;LITLOAD(GETADDR)
+	JSR	LITLOD		;litload(getaddr)
 	LDA	#SUB
-	JSR	GENERT		;GENERATE(SUBO)
+	JSR	GENERT		;generate(subo)
 	LDA	#SUBVAR
-	JMP	STTYMP		;SETTYPEMP(SUBVAR)
-;58	<SUBSCRIPT HEAD>::=<IDENTIFIER>(
+	JMP	STTYMP		;settypemp(subvar)
+;58	<subscript head>::=<identifier>(
 PR58	LDA	MP
-	JSR	LKONLY		;LOOKUP$ONLY(MP)
-	BEQ	PR58A		;IF NOT THEN ERROR
-	JSR	GETTYP		;IF GETYPE
-	CMP	#SUBVAR		;= SUBVAR
-	BEQ	*+7		;THEN OK
-PR58A	LDA	#10		;SUBSCRIPTED VARIABLE NOT DIMENSIONED
+	JSR	LKONLY		;lookup$only(mp)
+	BEQ	PR58A		;if not then error
+	JSR	GETTYP		;if getype
+	CMP	#SUBVAR		;= subvar
+	BEQ	*+7		;then ok
+PR58A	LDA	#10		;subscripted variable not dimensioned
 	JSR	ERROR
 	LDA	#0
-	JSR	STTYMP		;SETTYPEMP(0)
+	JSR	STTYMP		;settypemp(0)
 	LDA	BASE
 	LDY	BASE+1
-	JMP	STSLMP		;SETSYMLOCMP(BASE)
-;60	<FUNCTION CALL>::=<FUNCTION HEADING><EXPRESSION>
-PR60	JSR	CHKPRM		;CHECKPARM
+	JMP	STSLMP		;setsymlocmp(base)
+;60	<function call>::=<function heading><expression>
+PR60	JSR	CHKPRM		;checkparm
 	LDA	SRLOMP
 	LDY	SRLOMP+1
 	STA	SRLOSP
-	STY	SRLOSP+1	;SRLOCSP=SRLOCMP
-	JMP	FNCGEN		;FUNCGEN
-;63	|<FUNCTION HEADING><EXPRESSION>
-PR63	JSR	CHKPRM		;CHECK$PARM
-	JMP	GENPRM		;GEN$PARM
-;64	<FUNCTION NAME>::=<USER DEFINED NAME>
+	STY	SRLOSP+1	;srlocsp=srlocmp
+	JMP	FNCGEN		;funcgen
+;63	|<function heading><expression>
+PR63	JSR	CHKPRM		;check$parm
+	JMP	GENPRM		;gen$parm
+;64	<function name>::=<user defined name>
 PR64	LDA	SP
-	JSR	LKONLY		;IF LOOKUP$ONLY(SP)
-	BNE	*+7		;THEN
-	LDA	#6		;FUNCTION UNDEFINED
+	JSR	LKONLY		;if lookup$only(sp)
+	BNE	*+7		;then
+	LDA	#6		;function undefined
 	JMP	ERROR
 	LDA	BASE
 	LDY	BASE+1
-	JSR	STSRSP		;SETSRLOCSP(BASE)
+	JSR	STSRSP		;setsrlocsp(base)
 	LDA	BASE
 	LDY	BASE+1
-	JSR	STSLSP		;SETSYMLOCSP(BASE)
+	JSR	STSLSP		;setsymlocsp(base)
 	LDA	#UNFUNC
-	JSR	STTYSP		;SETTYPESP(UNFUNC)
+	JSR	STTYSP		;settypesp(unfunc)
 	JSR	GETTYP
-	JMP	STHASP		;SETHASHSP(GETYPE)
-;65	|<PREDEFINED NAME>
+	JMP	STHASP		;sethashsp(getype)
+;65	|<predefined name>
 PR65	LDA	FUNCOP
-	JSR	STTYSP		;SETTYPESP(FUNCOP)
+	JSR	STTYSP		;settypesp(funcop)
 	LDA	STYPSP
 	LSR	A
-	LSR	A		;SHR(STYPESP,2)
+	LSR	A		;shr(stypesp,2)
 	AND	#7
-	JMP	STHASP		;SETHASHSP( )
-;67	|<STRING>
-PR67	LDA	#(ACCUM & $FF)
-	LDY	#((ACCUM / $100)& $FF)
-	JMP	GENILS		;GEN$ILS(.ACCUM)
-;68	<RELATION>::= =
+	JMP	STHASP		;sethashsp( )
+;67	|<string>
+PR67	LDA	#<ACCUM
+	LDY	#>ACCUM
+	JMP	GENILS		;gen$ils(.accum)
+;68	<relation>::= =
 PR68	LDA	#7
-	JMP	STTYSP		;SETTYPESP(7)
+	JMP	STTYSP		;settypesp(7)
 ;69	| >= | GE
 PR69	LDA	#9
-	JMP	STTYMP		;SETTYPEMP(9)
+	JMP	STTYMP		;settypemp(9)
 ;71	| <= | LE
 PR71	LDA	#10
-	JMP	STTYMP		;SETTYPEMP(10)
+	JMP	STTYMP		;settypemp(10)
 ;73	| >
 PR73	LDA	#6
-	JMP	STTYSP		;SETTYPESP(6)
+	JMP	STTYSP		;settypesp(6)
 ;74	| <
 PR74	LDA	#5
-	JMP	STTYSP		;SETTYPESP(5)
+	JMP	STTYSP		;settypesp(5)
 ;75	| <> | NE
 PR75	LDA	#8
-	JMP	STTYMP		;SETTYPEMP(8)
-;77	<FOR STATEMENT>::=<FOR HEAD> TO <EXPRESSION> <STEP CLAUSE>
-PR77	LDY	#3*2		;WORD ADDRESSING
+	JMP	STTYMP		;settypemp(8)
+;77	<for statement>::=<for head> to <expression> <step clause>
+PR77	LDY	#3*2		;word addressing
 	LDA	(SBTTOP),Y
 	STA	BASE
 	INY
 	LDA	(SBTTOP),Y
-	STA	BASE+1		;BASE=FORADDRESS(3)
-	LDA	TYPESP		;IF NOT TYPESP
+	STA	BASE+1		;base=foraddress(3)
+	LDA	TYPESP		;if not typesp
 	LSR	A
-	BCC	*+7		;THEN
+	BCC	*+7		;then
 	LDA	#DUP
-	JSR	GENERT		;GENERATE(DUP)
+	JSR	GENERT		;generate(dup)
 	JSR	GETADR
-	JSR	LITLOD		;LITLOAD(GETADDR)
+	JSR	LITLOD		;litload(getaddr)
 	LDA	#FAD
-	JSR	GENERT		;GENERATE(FAD)
-	LDA	TYPESP		;IF NOT
-	LSR	A		;TYPESP
-	BCC	PR77A		;THEN
+	JSR	GENERT		;generate(fad)
+	LDA	TYPESP		;if not
+	LSR	A		;typesp
+	BCC	PR77A		;then
 	JSR	GETADR
-	JSR	LITERL		;LITERAL(GETADDR)
+	JSR	LITERL		;literal(getaddr)
 	LDA	#XCH
-	JSR	GENERT		;GENERATE(XCH)
+	JSR	GENERT		;generate(xch)
 PR77A	LDA	#STO
-	JSR	GENERT		;GENERATE(STO)
-	LDA	TYPESP		;IF NOT
-	LSR	A		;TYPESP
-	BCC	PR77B		;THEN
+	JSR	GENERT		;generate(sto)
+	LDA	TYPESP		;if not
+	LSR	A		;typesp
+	BCC	PR77B		;then
 	LDA	#XCH
-	JSR	GENERT		;GENERATE(XCH)
+	JSR	GENERT		;generate(xch)
 	LDA	#0
 	TAY
-	JSR	LITERL		;LITERAL(0)
+	JSR	LITERL		;literal(0)
 	LDA	#LSS
-	JSR	GENERT		;GENERATE(LSS)
+	JSR	GENERT		;generate(lss)
 	LDA	#5
 	LDY	#0
-	JSR	LITERL		;LITERAL(5)
+	JSR	LITERL		;literal(5)
 	LDA	#BFC
-	JSR	GENERT		;GENERATE(BFC)
+	JSR	GENERT		;generate(bfc)
 	LDA	#LEQ
-	JSR	GENERT		;GENERATE(LEQ)
+	JSR	GENERT		;generate(leq)
 	LDA	#2
 	LDY	#0
-	JSR	LITERL		;LITERAL(2)
+	JSR	LITERL		;literal(2)
 	LDA	#BFN
-	JSR	GENERT		;GENERATE(BFN)
+	JSR	GENERT		;generate(bfn)
 PR77B	LDA	#GEQ
-	JSR	GENERT		;GENERATE(BEQ)
+	JSR	GENERT		;generate(beq)
 	LDA	#BRC
-	JSR	GENERT		;GENERATE(BRC)
-	LDY	#0*2		;WORD ADDRESS
+	JSR	GENERT		;generate(brc)
+	LDY	#0*2		;word address
 	LDA	(SBTTOP),Y
 	PHA
 	INY
 	LDA	(SBTTOP),Y
 	TAY
 	PLA
-	JSR	GENTWO		;GEN$TWO(FORADDRESS(0))
-	LDY	#1*2		;WORD ADDRESSING
+	JSR	GENTWO		;gen$two(foraddress(0))
+	LDY	#1*2		;word addressing
 	LDA	CODESI
 	STA	(SBTTOP),Y
 	INY
 	LDA	CODESI+1
-	STA	(SBTTOP),Y	;FORADDRESS(1)=CODESIZE
+	STA	(SBTTOP),Y	;foraddress(1)=codesize
 	RTS
-;78	<FOR HEAD>::=<FOR><ASSIGNMENT>
+;78	<for head>::=<for><assignment>
 PR78	LDA	#BRS
-	JSR	GENERT		;GENERATE(BRS)
-	LDY	#1*2		;WORD ADDRESSING
+	JSR	GENERT		;generate(brs)
+	LDY	#1*2		;word addressing
 	LDA	(SBTTOP),Y
 	PHA
 	INY
 	LDA	(SBTTOP),Y
 	TAY
 	PLA
-	JSR	GENTWO		;GEN$TWO(FORADDRESS(1))
-	LDY	#2*2		;WORD ADDRESSING
+	JSR	GENTWO		;gen$two(foraddress(1))
+	LDY	#2*2		;word addressing
 	LDA	CODESI
 	STA	(SBTTOP),Y
 	INY
 	LDA	CODESI+1
-	STA	(SBTTOP),Y	;FORADDRESS(2)=CODESIZE
+	STA	(SBTTOP),Y	;foraddress(2)=codesize
 	RTS
-;79	<FOR>::= FOR
+;79	<for>::= for
 PR79	LDA	#TRUE
-	STA	FORSTM		;FORSTMT=TRUE
+	STA	FORSTM		;forstmt=true
 	SEC
 	LDA	SBTTOP
 	SBC	#8
@@ -2464,272 +2467,272 @@ PR79	LDA	#TRUE
 	BCS	*+3
 	DEY
 	STY	SBTTOP+1
-	STY	NXSTPT+1	;SBTBLTOP,NEXTSTMTPTR=SBTBLTOP-8
+	STY	NXSTPT+1	;sbtbltop,nextstmtptr=sbtbltop-8
 	LDY	#1
 	LDA	(NXSTPT),Y
 	AND	#$7F
-	STA	(NXSTPT),Y	;NEXTBYTEV(1)=NEXTBYTEV(1) AND $7F
+	STA	(NXSTPT),Y	;nextbytev(1)=nextbytev(1) and $7f
 	LDA	#0
-	JSR	LIMITS		;LIMITS(0)
-	INC	FORCNT		;FORCOUNT=FORCOUNT+1
+	JSR	LIMITS		;limits(0)
+	INC	FORCNT		;forcount=forcount+1
 	RTS
-;80	<STEP CLAUSE>::= STEP <EXPRESSION>
+;80	<step clause>::= step <expression>
 PR80	LDA	#1
-	JMP	STTYMP		;SETTYPEMP(TRUE)
+	JMP	STTYMP		;settypemp(true)
 ;81	|
-PR81	LDY	#3*2		;WORD ADDRESSING
+PR81	LDY	#3*2		;word addressing
 	LDA	(SBTTOP),Y
 	STA	BASE
 	INY
 	LDA	(SBTTOP),Y
-	STA	BASE+1		;BASE=FORADDRESS(3)
+	STA	BASE+1		;base=foraddress(3)
 	JSR	GETADR
-	JSR	LITERL		;LITERAL(GETADDR)
+	JSR	LITERL		;literal(getaddr)
 	LDA	#FALSE
-	JSR	STTYSP		;SETTYPESP(FALSE)
+	JSR	STTYSP		;settypesp(false)
 	LDA	#CON
-	JSR	GENERT		;GENERATE(CON)
+	JSR	GENERT		;generate(con)
 	LDA	#0
 	TAY
-	JMP	GENTWO		;GEN$TWO(0)
-;82	<IF STATEMENT>::=<IF GROUP>
+	JMP	GENTWO		;gen$two(0)
+;82	<if statement>::=<if group>
 PR82	LDA	#0
-	JMP	ENCMLB		;ENTER$COMPILER$LABEL(0)
-;84	| IF END # <EXPRESSION> THEN <NUMBER>
+	JMP	ENCMLB		;enter$compiler$label(0)
+;84	| if end # <expression> then <number>
 PR84	LDA	#RON
-	JSR	GENERT		;GENERATE(RON)
+	JSR	GENERT		;generate(ron)
 	LDA	#DEF
-	JSR	GENERT		;GENERATE(DEF)
-	JSR	FNDLBL		;FINDLABEL
+	JSR	GENERT		;generate(def)
+	JSR	FNDLBL		;findlabel
 	JSR	GETADR
-	JMP	GENTWO		;GEN$TWO(GETADDR)
-;87	<IF ELSE GROUP>::=<IF HEAD><STATEMENT LIST> ELSE
+	JMP	GENTWO		;gen$two(getaddr)
+;87	<if else group>::=<if head><statement list> else
 PR87	LDA	#3
-	JSR	ENCMLB		;EMTER$COMPILER$LABEL(3)
+	JSR	ENCMLB		;emter$compiler$label(3)
 	LDA	#BRS
-	JSR	GENERT		;GENERATE(BRS)
-	JMP	COMLBL		;COMPILER$LABEL
-;88	<IF HEAD>::=IF <EXPRESSION> THEN
-PR88	LDA	STYPM1		;IF STYPEMP1
-	CMP	#STRING		;<> STRING
-	BNE	*+7		;THEN
-	LDA	#8		;ELSE IF EXPRESSION IS NOT FLOATING POINT
+	JSR	GENERT		;generate(brs)
+	JMP	COMLBL		;compiler$label
+;88	<if head>::=if <expression> then
+PR88	LDA	STYPM1		;if stypemp1
+	CMP	#STRING		;<> string
+	BNE	*+7		;then
+	LDA	#8		;else if expression is not floating point
 	JSR	ERROR
 	LDA	#BRC
-	JSR	GENERT		;GENERATE(BRC)
-	JMP	COMLBL		;COMPILER$LABEL
-;89	<DUMMY ARGUMENT LIST>::=<EXPRESSSION>
-PR89	JSR	CHKTY2		;IF CHKTY2
-	BNE	*+3		;THE
+	JSR	GENERT		;generate(brc)
+	JMP	COMLBL		;compiler$label
+;89	<dummy argument list>::=<expresssion>
+PR89	JSR	CHKTY2		;if chkty2
+	BNE	*+3		;the
 	RTS
 	LDA	SYMLMP
 	LDY	SYMLMP+1
 	STA	BASE
 	STY	BASE+1
 	LDA	TYPEM1
-	JSR	SETTYP		;SETYPE(TYPEMP1)
+	JSR	SETTYP		;setype(typemp1)
 	JSR	UNLINK
 	LDA	#XCH
-	JSR	GENERT		;GENERATE(XCH)
+	JSR	GENERT		;generate(xch)
 	LDA	#RTN
-	JSR	GENERT		;GENERATE(RTN)
+	JSR	GENERT		;generate(rtn)
 	LDA	#0
-	JMP	ENCMLB		;ENTER$COMPILER$LABEL(0)
-;90	(UD FUNCTION NAME>::= DEF <USER DEFINED NAME>
+	JMP	ENCMLB		;enter$compiler$label(0)
+;90	(ud function name>::= def <user defined name>
 PR90	LDA	#BRS
-	JSR	GENERT		;GENERATE(BRS)
-	JSR	COMLBL		;COMPILER$LABEL
+	JSR	GENERT		;generate(brs)
+	JSR	COMLBL		;compiler$label
 	LDA	SP
-	JSR	NRMLKU		;NORMAL$LOOKUP(SP)
-	PHA			;SAVE RESULT
+	JSR	NRMLKU		;normal$lookup(sp)
+	PHA			;save result
 	LDA	STYPSP
-	JSR	STSTMP		;SETSTYPEMP(STYPESP)
+	JSR	STSTMP		;setstypemp(stypesp)
 	LDA	BASE
 	LDY	BASE+1
-	JSR	STSLMP		;SETSYMLOCMP(BASE)
-	BIT	PASS1		;IF PASS 1
-	BMI	*+6		;THEN
-	PLA			;CLEAR STACK
+	JSR	STSLMP		;setsymlocmp(base)
+	BIT	PASS1		;if pass 1
+	BMI	*+6		;then
+	PLA			;clear stack
 	JMP	RELINK
-	PLA			;IF NOT FLAG
-	BEQ	*+7		;THEN
-	LDA	#2		;ELSE FUNCTION NAME PREVIOUSLY DEFINED
+	PLA			;if not flag
+	BEQ	*+7		;then
+	LDA	#2		;else function name previously defined
 	JSR	ERROR
 	LDA	CODESI
 	LDY	CODESI+1
-	JMP	SETRSV		;SETADDR(CODESIZE)
+	JMP	SETRSV		;setaddr(codesize)
 ;92	|
 PR92	LDA	#0
-	JMP	STTYMP		;SETTYPEMP(0)
-;98	<FILE DECLERATION>::=<IDENTIFIER><FILE REC SIZE>
+	JMP	STTYMP		;settypemp(0)
+;98	<file decleration>::=<identifier><file rec size>
 PR98	LDA	MP
-	JSR	PSIMPV		;PROCESS$SIMPLE$VARIABLE(MP)
-	LDA	STYPMP		;IF STYPEMP
-	CMP	#FLOTPT		;<> FLOATPT
-	BNE	*+7		;THEN
-	LDA	#23		;INVALID TYPE IN FILE
+	JSR	PSIMPV		;process$simple$variable(mp)
+	LDA	STYPMP		;if stypemp
+	CMP	#FLOTPT		;<> floatpt
+	BNE	*+7		;then
+	LDA	#23		;invalid type in file
 	JSR	ERROR
 	LDA	SYMLSP
 	LDY	SYMLSP+1
-	JSR	LITLOD		;LITLOAD(SYMLOCSP)
+	JSR	LITLOD		;litload(symlocsp)
 	LDA	#OPN
-	JMP	GENERT		;GENERATE(OPN)
+	JMP	GENERT		;generate(opn)
 ;100	|
 PR100	LDA	#0
 	TAY
-	JMP	LITERL		;LITERAL(0)
-;104	<DIMENSION VARIABLE>::=<DIM VAR HEAD><EXPRESSION>
-PR104	JSR	CHKTY5		;CHKTYP5
+	JMP	LITERL		;literal(0)
+;104	<dimension variable>::=<dim var head><expression>
+PR104	JSR	CHKTY5		;chktyp5
 	LDA	SYMLMP
 	LDY	SYMLMP+1
 	STA	BASE
-	STY	BASE+1		;BASE=SYMLOCSP
+	STY	BASE+1		;base=symlocsp
 	RTS
-;105	<DIM VAR HEAD>::=<IDENTIFIER>(
+;105	<dim var head>::=<identifier>(
 PR105	LDA	MP
-	JSR	NRMLKU		;IF NOT NORMAL$LOOKUP(MP)
-	BEQ	PR105A		;THEN
-	BIT	PASS1		;IF NOT PASS 1
-	BPL	PR105A		;THEN
-	LDA	#1		;IDENTIFIER IN DIM PREVIOUSLY DEFINED
+	JSR	NRMLKU		;if not normal$lookup(mp)
+	BEQ	PR105A		;then
+	BIT	PASS1		;if not pass 1
+	BPL	PR105A		;then
+	LDA	#1		;identifier in dim previously defined
 	JSR	ERROR
 PR105A	LDA	#SUBVAR
-	JSR	SETTYP		;SETYPE(SUBVAR)
-	BIT	PASS1		;IF NOT PASS 1
-	BPL	*+8		;THEN
+	JSR	SETTYP		;setype(subvar)
+	BIT	PASS1		;if not pass 1
+	BPL	*+8		;then
 	JSR	CNTPRT
-	JSR	SETRSV		;SETADDR(COUNTPRT)
+	JSR	SETRSV		;setaddr(countprt)
 	JSR	GETADR
-	JSR	LITERL		;LITERAL(GETADDR)
+	JSR	LITERL		;literal(getaddr)
 	LDA	#0
-	JSR	STTYMP		;SETTYPEMP(0)
+	JSR	STTYMP		;settypemp(0)
 	LDA	BASE
 	LDY	BASE+1
-	JMP	STSLMP		;SETSYMLOCMP(BASE)
-;108	<CLOSE LIST>::=<EXPRESSION>
-PR108	LDA	STYPSP		;IF STYPESP
-	CMP	#STRING		;<> STRING
-	BNE	*+5		;THEN
-	JSR	MFERR		;MUST BE FLOATING
+	JMP	STSLMP		;setsymlocmp(base)
+;108	<close list>::=<expression>
+PR108	LDA	STYPSP		;if stypesp
+	CMP	#STRING		;<> string
+	BNE	*+5		;then
+	JSR	MFERR		;must be floating
 	LDA	#RON
-	JSR	GENERT		;GENERATE(RON)
+	JSR	GENERT		;generate(ron)
 	LDA	#CLS
-	JMP	GENERT		;GENERATE(CLS)
-;110	<READ STATEMENT>::= READ <FILE OPTION><READ LIST>
-PR110	BIT	FILEIO		;IF NOT FILEIO
-	BPL	PR110A		;THEN
+	JMP	GENERT		;generate(cls)
+;110	<read statement>::= read <file option><read list>
+PR110	BIT	FILEIO		;if not fileio
+	BPL	PR110A		;then
 	LDA	#EDR
-	JSR	GENERT		;GENERATE(EDR)
+	JSR	GENERT		;generate(edr)
 ;117	|
 PR117	LDA	#FALSE
-	STA	FILEIO		;FILEIO=FALSE
+	STA	FILEIO		;fileio=false
 PR110A	RTS
-;112	<INPUT STATEMENT>::=INPUT <PROMPT OPTION><READ LIST>
+;112	<input statement>::=input <prompt option><read list>
 PR112	LDA	#ECR
-	JSR	GENERT		;GENERATE(ECR)
+	JSR	GENERT		;generate(ecr)
 	LDA	#FALSE
-	STA	INPSTM		;INPUTSTMT=FALSE
+	STA	INPSTM		;inputstmt=false
 	RTS
-;113	<PROMPT OPTION>::=<CONSTANT>
-PR113	JSR	PUTFLD		;PUT$FIELD
-	JMP	SEINPU		;SETUP$INPUT
-;119	|PRINT <FILE OPTION><FILE LIST>
+;113	<prompt option>::=<constant>
+PR113	JSR	PUTFLD		;put$field
+	JMP	SEINPU		;setup$input
+;119	|print <file option><file list>
 PR119	LDA	#EDW
-	JSR	GENERT		;GENERATE(EDW)
+	JSR	GENERT		;generate(edw)
 	LDA	#FALSE
-	STA	FILEIO		;FILEIO=FALSE
+	STA	FILEIO		;fileio=false
 	RTS
 ;126	|
 PR126	LDA	#DBF
-	JMP	GENERT		;GENERATE(DBF)
-;127	<FILE OPTION>::= # <EXPRESSION>
+	JMP	GENERT		;generate(dbf)
+;127	<file option>::= # <expression>
 PR127	LDA	#TRUE
-	STA	FILEIO		;FILEIO=TRUE
+	STA	FILEIO		;fileio=true
 	LDA	#RON
-	JSR	GENERT		;GENERATE(RON)
+	JSR	GENERT		;generate(ron)
 	LDA	#RDB
-	JMP	GENERT		;GENERATE(RDB)
-;128	| # <EXPRESSION>,<EXPRESSION>;
+	JMP	GENERT		;generate(rdb)
+;128	| # <expression>,<expression>;
 PR128	LDA	#TRUE
-	STA	FILEIO		;FILEIO=TRUE
+	STA	FILEIO		;fileio=true
 	LDA	#RON
-	JSR	GENERT		;GENERATE(RON)
+	JSR	GENERT		;generate(ron)
 	LDA	#XCH
-	JSR	GENERT		;GENERATE(XCH)
+	JSR	GENERT		;generate(xch)
 	LDA	#RON
-	JSR	GENERT		;GENERATE(RON)
+	JSR	GENERT		;generate(ron)
 	LDA	#RDF
-	JMP	GENERT		;GENERATE(RDF)
+	JMP	GENERT		;generate(rdf)
 ;130	| ,
-PR130	BIT	FILEIO		;IF NOT FILEIO
-	BPL	*+3		;THEN
+PR130	BIT	FILEIO		;if not fileio
+	BPL	*+3		;then
 	RTS
 	LDA	#NSP
-	JMP	GENERT		;GENERATE(NSP)
-;133	|<ON GOSUB> <LABEL LIST>
-PR133	JSR	GENON2		;GEN$ON$2
+	JMP	GENERT		;generate(nsp)
+;133	|<on gosub> <label list>
+PR133	JSR	GENON2		;gen$on$2
 	LDA	#0
-	JMP	ENCMLB		;ENTER$COMPILER$LABEL(0)
-;135	<ON GOSUB>::= ON <EXPRESSION> <GOSUB>
-PR135	JSR	STCMLB		;SET$COMPILER$LABEL
+	JMP	ENCMLB		;enter$compiler$label(0)
+;135	<on gosub>::= on <expression> <gosub>
+PR135	JSR	STCMLB		;set$compiler$label
 	JSR	GETADR
-	JSR	LITERL		;LITERAL(GETADDR)
+	JSR	LITERL		;literal(getaddr)
 	LDA	#ADJ
-	JSR	GENERT		;GENERATE(ADJ)
+	JSR	GENERT		;generate(adj)
 	LDA	#XCH
-	JSR	GENERT		;GENERATE(XCH)
-	JMP	GENON		;GEN$ON
-;136	<LABEL LIST>::=<NUMBER>
-PR136	JSR	RESLBL		;RESOLVE$LABEL
+	JSR	GENERT		;generate(xch)
+	JMP	GENON		;gen$on
+;136	<label list>::=<number>
+PR136	JSR	RESLBL		;resolve$label
 	LDA	#1
-	JMP	STTYSP		;SETTYPESP(1)
-;137	|<LABEL LIST>,<NUMBER>
-PR137	JSR	RESLBL		;RESOLVE$LABEL
+	JMP	STTYSP		;settypesp(1)
+;137	|<label list>,<number>
+PR137	JSR	RESLBL		;resolve$label
 	LDX	TYPEMP
 	INX
 	TXA
-	JMP	STTYMP		;SETTYPEMP(TYPEMP+1)
-;138	<GOSUB STATEMENT>::=<GOSUB><NUMBER>
+	JMP	STTYMP		;settypemp(typemp+1)
+;138	<gosub statement>::=<gosub><number>
 PR138	LDA	#TRUE
-	STA	GSBSTM		;GOSUBSTMT=TRUE
-	JSR	RESLBL		;RESOLVE$LABEL
+	STA	GSBSTM		;gosubstmt=true
+	JSR	RESLBL		;resolve$label
 	LDA	#FALSE
-	STA	GSBSTM		;GOSUBSTMT=FALSE
+	STA	GSBSTM		;gosubstmt=false
 	RTS
-;147	<OUT STATEMENT>::= OUT <EXPRESSION>,<EXPRESSION>
-PR147	LDA	#FLOTPT		;IF STYPEMP1
-	CMP	STYPM1		;<> FLOATPT
-	BNE	*+6		;THEN
-	CMP	STYPSP		;IF STYPESP = FLOATPT
-	BEQ	*+5		;THEN OK
-	JMP	MFERR		;MUST BE FLOATING ERROR
+;147	<out statement>::= out <expression>,<expression>
+PR147	LDA	#FLOTPT		;if stypemp1
+	CMP	STYPM1		;<> floatpt
+	BNE	*+6		;then
+	CMP	STYPSP		;if stypesp = floatpt
+	BEQ	*+5		;then ok
+	JMP	MFERR		;must be floating error
 	LDA	#RON
-	JSR	GENERT		;GENERATE(RON)
+	JSR	GENERT		;generate(ron)
 	LDA	#XCH
-	JSR	GENERT		;GENERATE(XCH)
+	JSR	GENERT		;generate(xch)
 	LDA	#RON
-	JSR	GENERT		;GENERATE(RON)
+	JSR	GENERT		;generate(ron)
 	LDA	#POT
-	JMP	GENERT		;GENERATE(POT)
-;148	<RETURN STATEMENT>::= RETURN
+	JMP	GENERT		;generate(pot)
+;148	<return statement>::= return
 PR148	LDA	#RTN
-	JMP	GENERT		;GENERATE(RTN)
-;149	<STOP STATEMENT>::= STOP
+	JMP	GENERT		;generate(rtn)
+;149	<stop statement>::= stop
 PR149	LDA	#XIT
-	JMP	GENERT		;GENERATE(XIT)
-;150	<END STATEMENT>::= END
-PR150	BIT	PASS1		;IF NOT PASS 1
-	BPL	PR150B		;THEN
+	JMP	GENERT		;generate(xit)
+;150	<end statement>::= end
+PR150	BIT	PASS1		;if not pass 1
+	BPL	PR150B		;then
 	LDA	#FALSE
-	STA	PASS1		;PASS1=FALSE
-	LDA	FORCNT		;IF FORCOUNT
-	BEQ	PR150A		;= ZERO THEN OK
-	LDA	#24		;ELSE FOR WITHOUT NEXT ERROR
+	STA	PASS1		;pass1=false
+	LDA	FORCNT		;if forcount
+	BEQ	PR150A		;= zero then ok
+	LDA	#24		;else for without next error
 	JSR	ERROR
 	LDA	#0
-	STA	FORCNT		;FORCOUNT=0
+	STA	FORCNT		;forcount=0
 PR150A	LDA	#'*'
-	JSR	GENERT		;GENERATE('*')
+	JSR	GENERT		;generate('*')
 	CLC
 	LDA	CODESI
 	LDY	CODESI+1
@@ -2737,40 +2740,40 @@ PR150A	LDA	#'*'
 	BCC	*+3
 	INY
 	AND	#$FC
-	JSR	GENTWO		;GEN$TWO((CODESIZE+3) AND $FFFC)
+	JSR	GENTWO		;gen$two((codesize+3) and $fffc)
 	LDA	DATACT
 	LDY	DATACT+1
-	JSR	GENTWO		;GEN$TWO(DATACT)
+	JSR	GENTWO		;gen$two(datact)
 	JSR	CNTPRT
-	JMP	GENTWO		;GEN$TWO(COUNTPRT)
+	JMP	GENTWO		;gen$two(countprt)
 PR150B	LDA	NXTCHR
 	CMP	#CR
 	BEQ	*+8
 	JSR	GETCHR
-	JMP	PR150B		;WHILE NOT EOL
+	JMP	PR150B		;while not eol
 	LDA	#XIT
-	JSR	GENERT		;GENERATE(XIT)
+	JSR	GENERT		;generate(xit)
 	LDA	#$7F
-	JSR	GENERT		;GENERATE($7F)
-	JSR	WRTINT		;WRITE$INT$FILE
-	JSR	CLSINT		;CLOSE$INT$FILE
+	JSR	GENERT		;generate($7f)
+	JSR	WRTINT		;write$int$file
+	JSR	CLSINT		;close$int$file
 	LDA	ERRCNT
 	LDY	ERRCNT+1
-	JSR	PRNDEC		;PRINTDEC(ERRORCOUNT)
-	LDA	#(ERDMSG & $FF)
-	LDY	#((ERDMSG / $100)& $FF)
-	JSR	PRNMSG		;PRINT('ERRORS DETECTED')
+	JSR	PRNDEC		;printdec(errorcount)
+	LDA	#<ERDMSG
+	LDY	#>ERDMSG
+	JSR	PRNMSG		;print('errors detected')
 	JSR	CRLF
 	JMP	BOOT
-;151	<RESTORE STATEMENT>::= RESTORE
+;151	<restore statement>::= restore
 PR151	LDA	#RST
-	JMP	GENERT		;GENERATE(RST)
-;152	<RANDOMIZE STATEMENT>::= RANDOMIZE
+	JMP	GENERT		;generate(rst)
+;152	<randomize statement>::= randomize
 PR152	LDA	#IRN
-	JMP	GENERT		;GENERATE(IRN)
-;GETIN1  (DOES AY=INDEX1(STATE))
+	JMP	GENERT		;generate(irn)
+;getin1  (does ay=index1(state))
 GETIN1	LDA	STATE
-	LDY	STATE+1		;GET STATE
+	LDY	STATE+1		;get state
 	ASL	A
 	TAX
 	TYA
@@ -2778,123 +2781,123 @@ GETIN1	LDA	STATE
 	TAY
 	CLC
 	TXA
-	ADC	#(INDEX1 & $FF)	;ADD STATE*2 SINCE IS WORD ADDRESSING
+	ADC	#<INDEX1	;add state*2 since is word addressing
 	STA	GT+1
 	TYA
-	ADC	#((INDEX1 / $100)& $FF)
+	ADC	#>INDEX1
 	STA	GT+2
 	LDX	#0
-	JSR	GT		;GET LOW
+	JSR	GT		;get low
 	PHA
 	INX
-	JSR	GT		;GET HIGH
+	JSR	GT		;get high
 	TAY
 	PLA
 	RTS
-;GENERAL PURPOSE LDA ABS,X ROUTINE
+;general purpose lda abs,x routine
 GT	LDA	$FFFF,X
 	RTS
-;GETIN2 (DOES AY=INDEX2(STATE))
+;getin2 (does ay=index2(state))
 GETIN2	LDA	STATE
 	LDY	STATE+1
 	CLC
-	ADC	#(INDEX2 & $FF)
+	ADC	#<INDEX2
 	STA	G2+1
 	TYA
-	ADC	#((INDEX2 / $100)& $FF)
+	ADC	#>INDEX2
 	STA	G2+2
 G2	LDA	$FFFF
-	LDY	#0		;Y ALWAYS ZERO
+	LDY	#0		;y always zero
 	RTS
-;INCSP
+;incsp
 INCSP	INC	SP
-	LDA	SP		;BUMP AND GET
-	CMP	#PSTKSZ		;COMPARE TO MAX
-	BEQ	*+3		;IF = THEN
-	RTS			;ELSE OK
-	LDA	#18		;STACK OVERFLOW ERROR
+	LDA	SP		;bump and get
+	CMP	#PSTKSZ		;compare to max
+	BEQ	*+3		;if = then
+	RTS			;else ok
+	LDA	#18		;stack overflow error
 	JMP	ERROR
-;LOOKAHEAD
-LAHEAD	BIT	NOLOOK		;IF NOT NOLOOK
-	BPL	LAHEAX		;THEN DONE
-	JSR	SCANNR		;SCANNER
+;lookahead
+LAHEAD	BIT	NOLOOK		;if not nolook
+	BPL	LAHEAX		;then done
+	JSR	SCANNR		;scanner
 	LDA	#FALSE
-	STA	NOLOOK		;NOLOOK=FALSE
+	STA	NOLOOK		;nolook=false
 LAHEAX	RTS
-;SET$VARC$I ---- SET VARC AND INCREMENT VARINDEX
+;set$varc$i ---- set varc and increment varindex
 STVRCI	LDX	VARIND
-	STA	VARC,X		;SAVE
+	STA	VARC,X		;save
 	INX
-	STX	VARIND		;BUMP INDEX
-	CPX	#VARCSZ+1	;IF TOO BIG
-	BCS	*+3		;THEN ERROR
+	STX	VARIND		;bump index
+	CPX	#VARCSZ+1	;if too big
+	BCS	*+3		;then error
 	RTS
-	LDA	#21		;VARC OVERFLOW
+	LDA	#21		;varc overflow
 	JMP	ERROR
-;INITIALIZE ALL OF SYSTEM
-INTLZ	JSR	INSYMT		;IN$SYMTBL
-	JSR	INSYN		;IN$SYN
+;initialize all of system
+INTLZ	JSR	INSYMT		;in$symtbl
+	JSR	INSYN		;in$syn
 	JMP	INSCAN
 ;MAIN PROGRAM
-MAIN	LDX	#2		;CLEAR PAGE ZERO
+MAIN	LDX	#2		;clear page zero
 	LDA	#0
 PZC	STA	0,X
 	INX
 	CPX	#LZ
 	BNE	PZC
-	LDA	#TRUE		;INITIALIZE ONCE
+	LDA	#TRUE		;initialize once
 	STA	PASS1
 	STA	LWRUPR
 	LDA	#':'
 	STA	SEPRTR
 	LDA	#SRCRSZ
 	STA	SRCIND
-	LDA	#(OPNMSG & $FF)
-	LDY	#((OPNMSG / $100)& $FF)
-	JSR	PRNMSG		;PRINT OPENING MESSAGE
+	LDA	#<OPNMSG
+	LDY	#>OPNMSG
+	JSR	PRNMSG		;print opening message
 	JSR	CRLF
-	JSR	INTLZ		;INITIALIZE ALL
-;DO FOREVER
-;DO WHILE (PASS1 OR PASS2)
-M10	BIT	PASS1		;IF PASS 1
-	BMI	M12		;THEN GO
-	BIT	PASS2		;OR IF
-	BMI	M12		;PASS2 GO
-	JMP	EWP1P2		;ELSE END OF DO WHILE PASS1 OR PASS2
+	JSR	INTLZ		;initialize all
+;do forever
+;do while (pass1 or pass2)
+M10	BIT	PASS1		;if pass 1
+	BMI	M12		;then go
+	BIT	PASS2		;or if
+	BMI	M12		;pass2 go
+	JMP	EWP1P2		;else end of do while pass1 or pass2
 M12	LDA	#TRUE
-	STA	NOLOOK		;NOLOOK=TRUE
-	STA	CMPLNG		;COMPILING=TRUE
-	LDA	#(STARTS & $FF)
-	LDY	#((STARTS / $100)& $FF)
+	STA	NOLOOK		;nolook=true
+	STA	CMPLNG		;compiling=true
+	LDA	#<STARTS
+	LDY	#>STARTS
 	STA	STATE
-	STY	STATE+1		;STATE=STARTSTATE
+	STY	STATE+1		;state=startstate
 	LDA	#255
-	STA	SP		;SP=255
+	STA	SP		;sp=255
 	LDA	#0
-	STA	VARIND		;VARIND=0
+	STA	VARIND		;varind=0
 	STA	VAR
-;DO WHILE COMPILING
-M14	BIT	CMPLNG		;TEST FOR COMPILING
-	BPL	M10		;BRANCH IF NOT
-	LDA	#(MAXRNO & $FF)
+;do while compiling
+M14	BIT	CMPLNG		;test for compiling
+	BPL	M10		;branch if not
+	LDA	#<MAXRNO
 	CMP	STATE
-	LDA	#((MAXRNO / $100)& $FF)
-	SBC	STATE+1		;IF STATE>MAXRNO
-	BCS	*+5		;CONTINUE IF OK
-	JMP	M30		;ELSE TRY NEXT
+	LDA	#>MAXRNO
+	SBC	STATE+1		;if state>maxrno
+	BCS	*+5		;continue if ok
+	JMP	M30		;else try next
 	JSR	INCSP
 	LDA	SP
-	ASL	A		;WORD ADDRESSING
+	ASL	A		;word addressing
 	TAX
 	LDA	STATE
 	STA	STSTAK,X
 	LDA	STATE+1
-	STA	STSTAK+1,X	;STATESTACK(SP)=STATE
+	STA	STSTAK+1,X	;statestack(sp)=state
 	JSR	GETIN1
 	STA	I
-	STY	I+1		;I=GETIN1
-	JSR	LAHEAD		;LOOKAHEAD
-	JSR	GETIN2		;INDEX2(STATE)
+	STY	I+1		;i=getin1
+	JSR	LAHEAD		;lookahead
+	JSR	GETIN2		;index2(state)
 	CLC
 	ADC	I
 	STA	J
@@ -2904,130 +2907,130 @@ M14	BIT	CMPLNG		;TEST FOR COMPILING
 	LDA	J
 	BNE	*+4
 	DEC	J+1
-	DEC	J		;J=I-1+GETIN2
+	DEC	J		;j=i-1+getin2
 M20	LDA	J
 	CMP	I
 	LDA	J+1
-	SBC	I+1		;IF I>J
-	BCC	M14		;GO TO WHILE COMPILING
+	SBC	I+1		;if i>j
+	BCC	M14		;go to while compiling
 	CLC
 	LDA	I
-	ADC	#(READ1 & $FF)
+	ADC	#<READ1
 	STA	I2
 	LDA	I+1
-	ADC	#((READ1 / $100)& $FF)
+	ADC	#>READ1
 	STA	I2+1
 	LDY	#0
-	LDA	(I2),Y		;A=READ(I)
-	CMP	TOKEN		;IF NOT TOKEN
-	BNE	M23		;THEN
-	LDA	VARIND		;GET VARINDEX
+	LDA	(I2),Y		;a=read(i)
+	CMP	TOKEN		;if not token
+	BNE	M23		;then
+	LDA	VARIND		;get varindex
 	LDX	SP
-	STA	VAR,X		;SET VAR(SP)
+	STA	VAR,X		;set var(sp)
 	LDX	#0
-	STX	INDEX		;INDEX=0
-M22	LDA	ACCUM,X		;ACCUM(INDEX)
+	STX	INDEX		;index=0
+M22	LDA	ACCUM,X		;accum(index)
 	JSR	STVRCI
-	INC	INDEX		;INDEX=INDEX+1
+	INC	INDEX		;index=index+1
 	LDX	INDEX
-	CPX	ACCLEN		;IF < LENGTH
-	BCC	M22		;THEN LOOP
-	BEQ	M22		;LOOP ALSO IF EQUAL
+	CPX	ACCLEN		;if < length
+	BCC	M22		;then loop
+	BEQ	M22		;loop also if equal
 	LDX	SP
 	LDA	HSHCDE
-	STA	HASH,X		;HASH(SP)=HASHCODE
+	STA	HASH,X		;hash(sp)=hashcode
 	LDA	SUBTYP
-	STA	STYPE,X		;STYPE(SP)=SUBTYPE
+	STA	STYPE,X		;stype(sp)=subtype
 	LDA	I
 	ASL	A
 	STA	I2
 	LDA	I+1
 	ROL	A
-	STA	I2+1		;I2=I*2
+	STA	I2+1		;i2=i*2
 	CLC
 	LDA	I2
-	ADC	#(READ2 & $FF)
+	ADC	#<READ2
 	STA	I2
 	LDA	I2+1
-	ADC	#((READ2 / $100)& $FF)
-	STA	I2+1		;READ2(I)
+	ADC	#>READ2
+	STA	I2+1		;read2(i)
 	LDY	#0
-	LDA	(I2),Y		;LOW
+	LDA	(I2),Y		;low
 	STA	STATE
 	INY
 	LDA	(I2),Y
-	STA	STATE+1		;STATE=READ2(I)
+	STA	STATE+1		;state=read2(i)
 	LDA	#TRUE
-	STA	NOLOOK		;NOLOOK=TRUE
+	STA	NOLOOK		;nolook=true
 	LDA	J
 	LDY	J+1
 	STA	I
 	STY	I+1
 	JMP	M24
 M23	LDA	I
-	CMP	J		;OK IF DIFFERENT
+	CMP	J		;ok if different
 	BNE	M24
 	LDA	I+1
 	CMP	J+1
-	BNE	M24		;OK IF DIFFERENT
-	LDA	#15		;NO LEGAL PRODUCTION
+	BNE	M24		;ok if different
+	LDA	#15		;no legal production
 	JSR	ERROR
-M24	INC	I		;BUMP I AND LOOP
+M24	INC	I		;bump i and loop
 	BNE	*+4
 	INC	I+1
 	JMP	M20
-M30	LDA	#(MAXPNO & $FF)	;IF STATE <= MAXPNO
+M30	LDA	#<MAXPNO	;if state <= maxpno
 	CMP	STATE
-	LDA	#((MAXPNO / $100)& $FF)
+	LDA	#>MAXPNO
 	SBC	STATE+1
 	BCC	*+5
 	JMP	M40
-	JSR	GETIN2		;INDEX2(STATE)
-	STA	I		;IGNORE HIGH
+	JSR	GETIN2		;index2(state)
+	STA	I		;ignore high
 	SEC
 	LDA	SP
 	SBC	I
-	STA	MP		;MP=SP-GETIN2
+	STA	MP		;mp=sp-getin2
 	TAY
 	INY
-	STY	MPP1		;MPP1=MP+1
+	STY	MPP1		;mpp1=mp+1
 	SEC
 	LDA	STATE
-	SBC	#(MAXPNO & $FF)	;PARAMETER=STATE-MAXPNO
-	JSR	SYNTHE		;SYNTHESIZE(STATE-MAXPNO)
-	BIT	CMPLNG		;IF COMPILING
-	BMI	*+5		;THEN GO
-	JMP	M10		;ELSE GO TO DO WHILE PASS 1 OR PASS 2
+	SBC	#<MAXPNO	;parameter=state-maxpno
+	JSR	SYNTHE		;synthesize(state-maxpno)
+	BIT	CMPLNG		;if compiling
+	BMI	*+5		;then go
+	JMP	M10		;else go to do while pass 1 or pass 2
 	LDA	MP
-	STA	SP		;SP=MP
+	STA	SP		;sp=mp
 	JSR	GETIN1
 	STA	I
-	STY	I+1		;I=GETIN1
+	STY	I+1		;i=getin1
 	LDX	SP
 	LDA	VAR,X
-	STA	VARIND		;VARINDEX=VAR(SP)
+	STA	VARIND		;varindex=var(sp)
 	TXA
 	ASL	A
-	TAX			;WORD ADDRESSING
+	TAX			;word addressing
 	LDA	STSTAK,X
 	STA	J
 	LDA	STSTAK+1,X
-	STA	J+1		;J=STATESTACK(SP)
+	STA	J+1		;j=statestack(sp)
 M31	LDX	#0
-	STX	K+1		;HIGH MUST BE ZERO
+	STX	K+1		;high must be zero
 	LDX	I
 	LDA	APPLY1,X
 	STA	K
-	BEQ	M33		;EXIT IF K=0
+	BEQ	M33		;exit if k=0
 	CMP	J
-	BNE	M32		;OK IF LOW K <> LOW J
+	BNE	M32		;ok if low k <> low j
 	LDA	J+1
-	BEQ	M33		;IF =0 THEN J=K
+	BEQ	M33		;if =0 then j=k
 M32	INC	I
-	BNE	M31		;LOOP
+	BNE	M31		;loop
 	INC	I+1
 	JMP	M31
-M33	LDA	I		;IGNORE HIGH I
+M33	LDA	I		;ignore high i
 	ASL	A
 	STA	I2
 	LDA	I+1
@@ -3035,65 +3038,65 @@ M33	LDA	I		;IGNORE HIGH I
 	STA	I2+1
 	CLC
 	LDA	I2
-	ADC	#(APPLY2 & $FF)
+	ADC	#<APPLY2
 	STA	I2
 	LDA	I2+1
-	ADC	#((APPLY2 / $100)& $FF)
+	ADC	#>APPLY2
 	STA	I2+1
 	LDY	#0
 	LDA	(I2),Y
 	STA	STATE
 	INY
 	LDA	(I2),Y
-	STA	STATE+1		;STATE=APPLY2(I)
+	STA	STATE+1		;state=apply2(i)
 	ORA	STATE
-	BNE	*+7		;IF NOT ZERO THEN
+	BNE	*+7		;if not zero then
 	LDA	#FALSE
-	STA	CMPLNG		;COMPILING=FALSE
+	STA	CMPLNG		;compiling=false
 	JMP	M14
-M40	LDA	#(MAXLNO & $FF)	;IF STATE
+M40	LDA	#<MAXLNO	;if state
 	CMP	STATE
-	LDA	#((MAXLNO / $100)& $FF)
-	SBC	STATE+1		;> MAXLNO
-	BCC	M50		;THEN GO TO NEXT
+	LDA	#>MAXLNO
+	SBC	STATE+1		;> maxlno
+	BCC	M50		;then go to next
 	JSR	GETIN1
 	STA	I
-	STY	I+1		;I=GETIN1
-	JSR	LAHEAD		;LOOKAHEAD
+	STY	I+1		;i=getin1
+	JSR	LAHEAD		;lookahead
 M41	LDX	#0
 	STX	K+1
 	CLC
 	LDA	I
-	ADC	#(LOOK1 & $FF)
+	ADC	#<LOOK1
 	STA	I2
 	LDA	I+1
-	ADC	#((LOOK1 / $100)& $FF)
+	ADC	#>LOOK1
 	STA	I2+1
 	LDY	#0
-	LDA	(I2),Y		;A=LOOK1(I)
+	LDA	(I2),Y		;a=look1(i)
 	STA	K
-	BEQ	M42		;EXIT IF K=0
+	BEQ	M42		;exit if k=0
 	CMP	TOKEN
-	BEQ	M42		;OR IF =TOKEN
-	INC	I		;BUMP AND LOOP
+	BEQ	M42		;or if =token
+	INC	I		;bump and loop
 	BNE	M41
 	INC	I+1
 	JMP	M41
-M42	LDA	I		;WORD ADDRESSING
+M42	LDA	I		;word addressing
 	ASL	A
 	STA	I2
 	LDA	I+1
 	ROL	A
 	STA	I2+1
 	CLC
-	LDA	I2		;ADD START
-	ADC	#(LOOK2 & $FF)
+	LDA	I2		;add start
+	ADC	#<LOOK2
 	STA	I2
 	LDA	I2+1
-	ADC	#((LOOK2 / $100)& $FF)
+	ADC	#>LOOK2
 	STA	I2+1
 	LDY	#0
-	LDA	(I2),Y		;LOW
+	LDA	(I2),Y		;low
 	STA	STATE
 	INY
 	LDA	(I2),Y
@@ -3101,279 +3104,265 @@ M42	LDA	I		;WORD ADDRESSING
 	JMP	M14
 M50	JSR	INCSP
 	JSR	GETIN2
-	PHA			;SAVE LOW
+	PHA			;save low
 	LDA	SP
-	ASL	A		;WORD ADDRESSING
+	ASL	A		;word addressing
 	TAX
 	PLA
-	STA	STSTAK,X	;STATESTACK(SP)=GETIN2
+	STA	STSTAK,X	;statestack(sp)=getin2
 	TYA
 	STA	STSTAK+1,X
 	JSR	GETIN1
 	STA	STATE
-	STY	STATE+1		;STATE=GETIN1
+	STY	STATE+1		;state=getin1
 	JMP	M14
-;END OF DO WHILE PASS 1 OR PASS 2
+;end of do while pass 1 or pass 2
 EWP1P2	LDA	#TRUE
-	STA	LSTSRC		;LISTSOURCE=TRUE
-	JSR	INTLZ		;INITIALIZE
+	STA	LSTSRC		;listsource=true
+	JSR	INTLZ		;initialize
 	LDA	#TRUE
-	STA	PASS2		;PASS2=TRUE
-	JMP	M10		;DO FOREVER
-;PARSER STATE TABLES
-READ1	.BYTE	0,49,10,13,2,49,50,52,53,54,49,13,22,32,2,3,7,27,30,49,50,52,53
-	.BYTE	54,2,3,7,30,49,50,52,53,54,54,52,12,52,2,3,7,49,50,52,53,54,12
-	.BYTE	52,49,49,50,2,3,7,12,30,49,50,52,53,54,2,2,2,9,5,9,49,4,8,49,16
-	.BYTE	20,28,29,31,35,36,37,38,40,42,43,44,45,46,48,49,51,52,49,14,6
-	.BYTE	22,13,52,9,52,9,23,9,21,33,41,16,21,33,36,43,9,21,33,5,9,21,33
-	.BYTE	5,21,33,5,9,21,33,5,9,21,33,6,9,21,33,21,33,39,21,33,41,5,21,33
-	.BYTE	6,21,33,9,6,9,16,17,20,25,26,27,28,29,31,35,36,37,38,40,42,43
-	.BYTE	44,45,46,48,51,52,2,16,20,28,29,31,35,36,37,38,40,42,43,44,45
-	.BYTE	46,48,51,52,52,13,24,11,34,9,2,1,3,7,10,13,15,18,19,3,7,9,0
-LOOK1	.BYTE	0,49,0,10,13,0,13,0,11,23,34,0,52,0,12,52,0,49,50,0,6,9,11,23
-	.BYTE	34,0,2,0,2,0,9,0,4,8,0,4,8,0,4,8,0,4,8,0,4,8,0,11,23,34,0,14,0
-	.BYTE	14,0,14,0,9,0,9,0,9,0,9,0,9,0,21,33,0,21,33,0,21,33,0,21,33,0
-	.BYTE	21,33,39,0,21,33,0,21,33,0,21,33,0,23,0,21,33,0,21,33,0,9,0,9
-	.BYTE	0,6,9,0,52,0,11,23,0,11,23,34,0,2,0,11,23,0,52,0,24,0,24,0,11
-	.BYTE	0,23,0,11,0,9,0,2,0,1,3,7,10,13,15,18,19,0,3,7,0,9,0
-APPLY1	.BYTE	0,0,0,0,55,105,0,19,0,0,32,47,0,0,3,4,12,14,16,17,20,21,22,26
-	.BYTE	27,34,36,38,40,98,100,102,103,114,116,0,0,46,0,28,0,33,0,63,0,5
-	.BYTE	6,8,9,0,7,10,0,23,0,13,19,32,35,47,55,99,101,105,106,0,0,0,0,0
-	.BYTE	39,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,99
-	.BYTE	106,0,0,0,0,0,40,0,0,0,0,0,0,62,0,0,74,0,74,0,0,0,0,0,0,0,0,0
-READ2	.WORD	0,191,264,260,3,255,256,129,254,253,326,258,329,331,3,5,8,31
-	.WORD	33,255,256,129,254,253,3,5,8,33,255,256,129,254,253,279,42,21
-	.WORD	129,3,5,8,255,256,129,254,253,20,129,273,255,256,3,5,8,20,33
-	.WORD	255,256,129,254,253,247,294,4,335,280,283,320,7,10,327,24,26
-	.WORD	268,32,34,285,328,125,126,338,38,330,127,128,337,340,275,341
-	.WORD	129,325,23,302,27,220,130,17,131,13,190,14,223,224,277,24,223
-	.WORD	224,328,330,12,223,224,246,248,223,224,244,223,224,249,252,223
-	.WORD	224,293,295,223,224,316,16,223,224,223,224,36,223,224,37,288
-	.WORD	223,224,317,223,224,15,318,319,24,25,26,29,30,339,268,32,34,285
-	.WORD	328,125,126,338,38,330,127,128,337,340,341,129,251,24,26,268,32
-	.WORD	34,285,328,125,126,338,38,330,127,128,337,340,341,129,45,22,28
-	.WORD	124,276,286,282,122,6,9,123,257,259,261,265,6,9,11,0
-LOOK2	.WORD	0,1,176,2,2,263,18,262,177,177,177,19,334,333,35,35,178,39,39
-	.WORD	179,180,180,180,180,180,40,41,245,43,181,44,332,49,49,231,50,50
-	.WORD	234,51,51,235,52,52,232,53,53,233,182,182,182,55,57,236,58,237
-	.WORD	59,238,66,308,68,300,69,299,70,301,72,296,76,76,297,77,77,309
-	.WORD	78,78,219,84,84,312,85,85,85,183,87,87,336,88,88,298,89,89,310
-	.WORD	278,91,93,93,313,94,94,269,95,321,96,322,97,97,184,99,185,186
-	.WORD	186,101,314,314,314,102,104,250,187,187,105,106,188,109,221,110
-	.WORD	222,111,193,274,112,113,272,115,284,117,189,118,118,118,118,118
-	.WORD	118,118,118,229,119,119,230,120,290
-APPLY2	.WORD	0,0,161,71,169,170,168,199,198,200,218,267,201,98,80,90,151,152
-	.WORD	92,155,83,86,154,74,150,75,156,146,147,148,149,153,82,79,81,73
-	.WORD	46,167,166,226,225,228,227,174,173,133,135,134,136,132,139,140
-	.WORD	138,240,239,305,64,64,304,64,64,304,64,64,304,241,114,243,116
-	.WORD	163,60,242,63,202,61,47,266,194,271,164,137,197,172,108,107,204
-	.WORD	65,171,287,196,175,292,291,103,205,145,206,210,165,143,144,142
-	.WORD	207,159,141,307,100,160,162,208,213,56,62,158,157,209,323,48
-	.WORD	324,54,203,67,216,212,211,195,214,215
-INDEX1	.WORD	0,1,2,24,24,4,4,4,4,4,4,34,24,36,24,10,24,24,11,168,24,24,24,4
-	.WORD	12,14,24,24,24,33,34,35,36,37,24,45,24,47,24,48,50,60,61,62,63
-	.WORD	64,24,36,66,67,67,67,67,67,69,70,89,90,90,90,91,92,89,37,93,94
-	.WORD	95,96,97,97,97,98,99,100,103,108,100,100,100,111,115,118,122
-	.WORD	126,100,130,133,100,100,100,136,100,139,100,100,142,142,143,24
-	.WORD	36,24,145,24,24,167,168,36,186,187,188,188,189,189,189,24,191
-	.WORD	24,192,193,201,203,1,3,6,8,12,14,17,20,26,28,30,32,35,38,41,44
-	.WORD	47,51,53,55,57,59,61,63,65,67,70,73,76,79,83,86,89,92,94,97,100
-	.WORD	102,104,107,109,112,116,118,121,123,125,127,129,131,133,135,137
-	.WORD	146,149,192,217,306,303,311,289,217,270,315,306,217,217,306,281
-	.WORD	1,2,2,3,3,3,3,3,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,9,10,13
-	.WORD	14,14,36,36,37,37,39,39,41,41,43,43,43,43,43,45,45,45,50,50,53
-	.WORD	53,53,53,55,55,66,66,67,67,68,68,69,69,70,70,72,72,72,72,72,72
-	.WORD	72,72,72,73,74,75,76,76,77,77,77,78,78,79,80,81,82,83,83,84,84
-	.WORD	85,86,86,87,88,88,89,90,90,91,93,93,94,95,95,96,96,97,98,98,99
-	.WORD	99,99,102,102,103,103,103,104,104,105,105,106,106,108,108,109
-	.WORD	110,110,111,112,113,113,115,116,116,118,118,120,120,121,121,122
-	.WORD	123,124,125,126,127
-INDEX2	.BYTE	0,1,2,9,9,6,6,6,6,6,6,1,9,1,9,1
-	.BYTE	9,9,1,18,9,9,9,6,2,10,9,9,9,1,1
-	.BYTE	1,1,8,9,2,9,1,9,2,10,1,1,1,1,2
-	.BYTE	9,1,1,2,2,2,2,2,1,19,1,1,1,1,1,1
-	.BYTE	1,8,1,1,1,1,1,1,1,1,1,3,5,3,2,2
-	.BYTE	2,4,3,4,4,4,2,3,3,2,2,2,3,2,3,2
-	.BYTE	2,1,1,2,9,1,9,22,9,9,1,18,1,1,1
-	.BYTE	1,1,1,2,1,9,1,9,1,8,2,1,2,3,2,4
-	.BYTE	2,3,3,6,2,2,2,3,3,3,3,3,4,2,2,2
-	.BYTE	2,2,2,2,2,3,3,3,3,4,3,3,3,2,3,3
-	.BYTE	2,2,3,2,3,4,2,3,2,2,2,2,2,2,2,2
-	.BYTE	9,3,2,1,19,35,39,40,43,55,85,97
-	.BYTE	99,101,105,106,117,2,0,0,0,0,0,0
-	.BYTE	0,0,2,0,0,0,0,0,0,0,0,0,0,0,0
-	.BYTE	0,0,0,0,0,0,1,1,1,0,2,0,0,0,2,0
-	.BYTE	1,0,2,0,2,2,1,1,0,2,2,0,2,0,0,0
-	.BYTE	2,0,2,1,2,2,0,1,2,0,0,0,0,0,1,0
-	.BYTE	1,0,0,0,1,0,3,1,0,1,0,0,1,5,1,1
-	.BYTE	2,2,3,1,2,0,0,2,1,0,2,1,2,0,1,0
-	.BYTE	2,2,1,2,1,0,2,2,1,2,1,0,0,2,0,2
-	.BYTE	2,0,2,0,0,2,0,0,2,4,0,0,1,1,1,2
-	.BYTE	2,0,2,1,0,1,0,1,1,0,0,2,3,0,0,0
-	.BYTE	0,0
-;RESERVED WORD TABLES
-;LENGTH=1
-LNG1	.BYTE	CR,"<(+*)-,=/",SEMICO,">:#^"
-;LENGTH=2
-LNG2	.BYTE	"IFTOGOONOREQLTGTLEGENE"
-;LENGTH=3
-LNG3	.BYTE	"FORLETREMDIMDEFNOTAND"
-	.BYTE	"TANSINCOSSQRTABLOGLEN"
-	.BYTE	"FREATNABSEXPINTEND"
-	.BYTE	"POSRNDSGNASCVALXORSUB"
-;LENGTH=4
-LNG4	.BYTE	"PEEKPOKE"
-	.BYTE	"THENREADGOTOELSENEXTSTOPDATA"
-	.BYTE	"FILECHR$MID$STEPSTR$CALLSINH"
-;LENGTH=5
-LNG5	.BYTE	"PRINTINPUTGOSUBCLOSELEFT$"
-;LENGTH=6
-LNG6	.BYTE	"RETURNRIGHT$REMARK"
-;LENGTH=7
-LNG7	.BYTE	"RESTORE"
-;LENGTH=9
-LNG9	.BYTE	"RANDOMIZE"
-;TOKEN TABLE
-;THIS TABLE MUST BE ORDERED IN THE SAME ORDER AS THE RESERVED WORD TABLE.  THE
-;FIRST ENTRY DOES NOT CORRESPOND TO ANY VALID TOKEN.
-TK	.BYTE	0
-;LENGTH=1
-	.BYTE	TCR,LESST,LPARN,TPLUS,ASTRK,RPARN,TMINUS,COMMA,EQUAL,SLASH
-	.BYTE	SCOLN,GTRT,TCOLIN,POUND,EXPON
-;LENGTH=2
-	.BYTE	TIF,TTO,TGO,TON,TOR,EQUAL,LESST,GTRT,TLEQ,TGEQ,TNE
-;LENGTH=3
-	.BYTE	TFOR,TLET,TREM,TDIM,TDEF,TNOT,TAND,72,69,70,73,74,78,84,76,71
-	.BYTE	65,75,66,TEND,79,67,68,81,88,TXOR,TSUB
-;LENGTH=4
-	.BYTE	80,TOUT
-	.BYTE	TTHEN,TREAD,TGOTO,TELSE,TNEXT,TSTOP,TDATA,TFILE,82,85,TSTEP
-	.BYTE	87,89,90
-;LENGTH=5
-	.BYTE	TPRNT,TINPT,TGOSB,TCLOS,83
-;LENGTH=6
-	.BYTE	TRETN,86,TREM
-;LENGTH=7
-	.BYTE	TREST
-;LENGTH=9
-	.BYTE	TIRN
-;TOKEN OFFSET TABLE
-OFFSET	.BYTE	0,0,15,37,118,182,207,225,232,232
-;RESERVED WORD COUNT TABLE
-;EACH ENTRY IS THE NUMBER OF RESERVED WORDS OF THE ASSOCIATED LENGTH (0 AND UP)
-COUNT	.BYTE	0,15,11,27,16,5,3,1,0,1
-;EACH ENTRY IS THE INDEX INTO THE TOKEN TABLE FOR THE FIRST TOKEN OF THE
-;ASSOCIATED LENGTH (0 AND UP)
-TKOS	.BYTE	0,0,15,26,53,69,74,77,78,78
+	STA	PASS2		;pass2=true
+	JMP	M10		;do forever
+;parser state tables
+READ1	.byte	0,49,10,13,2,49,50,52,53,54,49,13,22,32,2,3,7,27,30,49,50,52,53
+	.byte	54,2,3,7,30,49,50,52,53,54,54,52,12,52,2,3,7,49,50,52,53,54,12
+	.byte	52,49,49,50,2,3,7,12,30,49,50,52,53,54,2,2,2,9,5,9,49,4,8,49,16
+	.byte	20,28,29,31,35,36,37,38,40,42,43,44,45,46,48,49,51,52,49,14,6
+	.byte	22,13,52,9,52,9,23,9,21,33,41,16,21,33,36,43,9,21,33,5,9,21,33
+	.byte	5,21,33,5,9,21,33,5,9,21,33,6,9,21,33,21,33,39,21,33,41,5,21,33
+	.byte	6,21,33,9,6,9,16,17,20,25,26,27,28,29,31,35,36,37,38,40,42,43
+	.byte	44,45,46,48,51,52,2,16,20,28,29,31,35,36,37,38,40,42,43,44,45
+	.byte	46,48,51,52,52,13,24,11,34,9,2,1,3,7,10,13,15,18,19,3,7,9,0
+LOOK1	.byte	0,49,0,10,13,0,13,0,11,23,34,0,52,0,12,52,0,49,50,0,6,9,11,23
+	.byte	34,0,2,0,2,0,9,0,4,8,0,4,8,0,4,8,0,4,8,0,4,8,0,11,23,34,0,14,0
+	.byte	14,0,14,0,9,0,9,0,9,0,9,0,9,0,21,33,0,21,33,0,21,33,0,21,33,0
+	.byte	21,33,39,0,21,33,0,21,33,0,21,33,0,23,0,21,33,0,21,33,0,9,0,9
+	.byte	0,6,9,0,52,0,11,23,0,11,23,34,0,2,0,11,23,0,52,0,24,0,24,0,11
+	.byte	0,23,0,11,0,9,0,2,0,1,3,7,10,13,15,18,19,0,3,7,0,9,0
+APPLY1	.byte	0,0,0,0,55,105,0,19,0,0,32,47,0,0,3,4,12,14,16,17,20,21,22,26
+	.byte	27,34,36,38,40,98,100,102,103,114,116,0,0,46,0,28,0,33,0,63,0,5
+	.byte	6,8,9,0,7,10,0,23,0,13,19,32,35,47,55,99,101,105,106,0,0,0,0,0
+	.byte	39,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,0,0,0,0,0,0,0,99
+	.byte	106,0,0,0,0,0,40,0,0,0,0,0,0,62,0,0,74,0,74,0,0,0,0,0,0,0,0,0
+READ2	.word	0,191,264,260,3,255,256,129,254,253,326,258,329,331,3,5,8,31
+	.word	33,255,256,129,254,253,3,5,8,33,255,256,129,254,253,279,42,21
+	.word	129,3,5,8,255,256,129,254,253,20,129,273,255,256,3,5,8,20,33
+	.word	255,256,129,254,253,247,294,4,335,280,283,320,7,10,327,24,26
+	.word	268,32,34,285,328,125,126,338,38,330,127,128,337,340,275,341
+	.word	129,325,23,302,27,220,130,17,131,13,190,14,223,224,277,24,223
+	.word	224,328,330,12,223,224,246,248,223,224,244,223,224,249,252,223
+	.word	224,293,295,223,224,316,16,223,224,223,224,36,223,224,37,288
+	.word	223,224,317,223,224,15,318,319,24,25,26,29,30,339,268,32,34,285
+	.word	328,125,126,338,38,330,127,128,337,340,341,129,251,24,26,268,32
+	.word	34,285,328,125,126,338,38,330,127,128,337,340,341,129,45,22,28
+	.word	124,276,286,282,122,6,9,123,257,259,261,265,6,9,11,0
+LOOK2	.word	0,1,176,2,2,263,18,262,177,177,177,19,334,333,35,35,178,39,39
+	.word	179,180,180,180,180,180,40,41,245,43,181,44,332,49,49,231,50,50
+	.word	234,51,51,235,52,52,232,53,53,233,182,182,182,55,57,236,58,237
+	.word	59,238,66,308,68,300,69,299,70,301,72,296,76,76,297,77,77,309
+	.word	78,78,219,84,84,312,85,85,85,183,87,87,336,88,88,298,89,89,310
+	.word	278,91,93,93,313,94,94,269,95,321,96,322,97,97,184,99,185,186
+	.word	186,101,314,314,314,102,104,250,187,187,105,106,188,109,221,110
+	.word	222,111,193,274,112,113,272,115,284,117,189,118,118,118,118,118
+	.word	118,118,118,229,119,119,230,120,290
+APPLY2	.word	0,0,161,71,169,170,168,199,198,200,218,267,201,98,80,90,151,152
+	.word	92,155,83,86,154,74,150,75,156,146,147,148,149,153,82,79,81,73
+	.word	46,167,166,226,225,228,227,174,173,133,135,134,136,132,139,140
+	.word	138,240,239,305,64,64,304,64,64,304,64,64,304,241,114,243,116
+	.word	163,60,242,63,202,61,47,266,194,271,164,137,197,172,108,107,204
+	.word	65,171,287,196,175,292,291,103,205,145,206,210,165,143,144,142
+	.word	207,159,141,307,100,160,162,208,213,56,62,158,157,209,323,48
+	.word	324,54,203,67,216,212,211,195,214,215
+INDEX1	.word	0,1,2,24,24,4,4,4,4,4,4,34,24,36,24,10,24,24,11,168,24,24,24,4
+	.word	12,14,24,24,24,33,34,35,36,37,24,45,24,47,24,48,50,60,61,62,63
+	.word	64,24,36,66,67,67,67,67,67,69,70,89,90,90,90,91,92,89,37,93,94
+	.word	95,96,97,97,97,98,99,100,103,108,100,100,100,111,115,118,122
+	.word	126,100,130,133,100,100,100,136,100,139,100,100,142,142,143,24
+	.word	36,24,145,24,24,167,168,36,186,187,188,188,189,189,189,24,191
+	.word	24,192,193,201,203,1,3,6,8,12,14,17,20,26,28,30,32,35,38,41,44
+	.word	47,51,53,55,57,59,61,63,65,67,70,73,76,79,83,86,89,92,94,97,100
+	.word	102,104,107,109,112,116,118,121,123,125,127,129,131,133,135,137
+	.word	146,149,192,217,306,303,311,289,217,270,315,306,217,217,306,281
+	.word	1,2,2,3,3,3,3,3,4,4,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,9,10,13
+	.word	14,14,36,36,37,37,39,39,41,41,43,43,43,43,43,45,45,45,50,50,53
+	.word	53,53,53,55,55,66,66,67,67,68,68,69,69,70,70,72,72,72,72,72,72
+	.word	72,72,72,73,74,75,76,76,77,77,77,78,78,79,80,81,82,83,83,84,84
+	.word	85,86,86,87,88,88,89,90,90,91,93,93,94,95,95,96,96,97,98,98,99
+	.word	99,99,102,102,103,103,103,104,104,105,105,106,106,108,108,109
+	.word	110,110,111,112,113,113,115,116,116,118,118,120,120,121,121,122
+	.word	123,124,125,126,127
+INDEX2	.byte	0,1,2,9,9,6,6,6,6,6,6,1,9,1,9,1
+	.byte	9,9,1,18,9,9,9,6,2,10,9,9,9,1,1
+	.byte	1,1,8,9,2,9,1,9,2,10,1,1,1,1,2
+	.byte	9,1,1,2,2,2,2,2,1,19,1,1,1,1,1,1
+	.byte	1,8,1,1,1,1,1,1,1,1,1,3,5,3,2,2
+	.byte	2,4,3,4,4,4,2,3,3,2,2,2,3,2,3,2
+	.byte	2,1,1,2,9,1,9,22,9,9,1,18,1,1,1
+	.byte	1,1,1,2,1,9,1,9,1,8,2,1,2,3,2,4
+	.byte	2,3,3,6,2,2,2,3,3,3,3,3,4,2,2,2
+	.byte	2,2,2,2,2,3,3,3,3,4,3,3,3,2,3,3
+	.byte	2,2,3,2,3,4,2,3,2,2,2,2,2,2,2,2
+	.byte	9,3,2,1,19,35,39,40,43,55,85,97
+	.byte	99,101,105,106,117,2,0,0,0,0,0,0
+	.byte	0,0,2,0,0,0,0,0,0,0,0,0,0,0,0
+	.byte	0,0,0,0,0,0,1,1,1,0,2,0,0,0,2,0
+	.byte	1,0,2,0,2,2,1,1,0,2,2,0,2,0,0,0
+	.byte	2,0,2,1,2,2,0,1,2,0,0,0,0,0,1,0
+	.byte	1,0,0,0,1,0,3,1,0,1,0,0,1,5,1,1
+	.byte	2,2,3,1,2,0,0,2,1,0,2,1,2,0,1,0
+	.byte	2,2,1,2,1,0,2,2,1,2,1,0,0,2,0,2
+	.byte	2,0,2,0,0,2,0,0,2,4,0,0,1,1,1,2
+	.byte	2,0,2,1,0,1,0,1,1,0,0,2,3,0,0,0
+	.byte	0,0
+;reserved word tables
+;length=1
+LNG1	.byte	CR,"<(+*)-,=/",semico,">:#^"
+;length=2
+LNG2	.byte	"IFTOGOONOREQLTGTLEGENE"
+;length=3
+LNG3	.byte	"FORLETREMDIMDEFNOTAND"
+	.byte	"TANSINCOSSQRTABLOGLEN"
+	.byte	"FREATNABSEXPINTEND"
+	.byte	"POSRNDSGNASCVALXORSUB"
+;length=4
+LNG4	.byte	"PEEKPOKE"
+	.byte	"THENREADGOTOELSENEXTSTOPDATA"
+	.byte	"FILECHR$MID$STEPSTR$CALLSINH"
+;length=5
+LNG5	.byte	"PRINTINPUTGOSUBCLOSELEFT$"
+;length=6
+LNG6	.byte	"RETURNRIGHT$REMARK"
+;length=7
+LNG7	.byte	"RESTORE"
+;length=9
+LNG9	.byte	"RANDOMIZE"
+;token table
+;this table must be ordered in the same order as the reserved word table.  the
+;first entry does not correspond to any valid token.
+TK	.byte	0
+;length=1
+	.byte	TCR,LESST,LPARN,TPLUS,ASTRK,RPARN,TMINUS,COMMA,EQUAL,SLASH
+	.byte	SCOLN,GTRT,TCOLIN,POUND,EXPON
+;length=2
+	.byte	TIF,TTO,TGO,TON,TOR,EQUAL,LESST,GTRT,TLEQ,TGEQ,TNE
+;length=3
+	.byte	TFOR,TLET,TREM,TDIM,TDEF,TNOT,TAND,72,69,70,73,74,78,84,76,71
+	.byte	65,75,66,TEND,79,67,68,81,88,TXOR,TSUB
+;length=4
+	.byte	80,TOUT
+	.byte	TTHEN,TREAD,TGOTO,TELSE,TNEXT,TSTOP,TDATA,TFILE,82,85,TSTEP
+	.byte	87,89,90
+;length=5
+	.byte	TPRNT,TINPT,TGOSB,TCLOS,83
+;length=6
+	.byte	TRETN,86,TREM
+;length=7
+	.byte	TREST
+;length=9
+	.byte	TIRN
+;token offset table
+OFFSET	.byte	0,0,15,37,118,182,207,225,232,232
+;reserved word count table
+;each entry is the number of reserved words of the associated length (0 and up)
+COUNT	.byte	0,15,11,27,16,5,3,1,0,1
+;each entry is the index into the token table for the first token of the
+;associated length (0 and up)
+TKOS	.byte	0,0,15,26,53,69,74,77,78,78
 ;
-ST	.BYTE	1,1,0,1,1,1,1,1,1,1,1,0,0,1,0,1,5,65,70,5,71,70,65,5,1,1
-;ERROR MESSAGES
-ERM0	.BYTE	"DUPLICATE LABELS OR "
-	.BYTE	"SYNCHRONIZATION ERROR$"
-ERM1	.BYTE	"IDENTIFIER IN DIM "
-	.BYTE	"PREVIOUSLY DEFINED$"
-ERM2	.BYTE	"PREDEFINED FUNCTION "
-	.BYTE	"NAME PREVIOUSLY DEFINED$"
-ERM3	.BYTE	"FOR LOOP INDEX NOT SIMPLE"
-	.BYTE	" FLOATING POINT VARIABLE$"
-ERM4	.BYTE	"INCORRECT NUMBER OF PARAMETERS"
-	.BYTE	" IN FUNCTION REFERENCE$"
-ERM5	.BYTE	"INVALID PARAMETER TYPE IN "
-	.BYTE	"FUNCTION REFERENCE$"
-ERM6	.BYTE	"UNDEFINED FUNCTION$"
-ERM7	.BYTE	"INVALID CHARACTER$"
-ERM8	.BYTE	"EXPRESSION IN IF STATEMENT"
-	.BYTE	" NOT FLOATING POINT$"
-ERM9	.BYTE	"ILLEGAL FLOATING POINT FORMAT$"
-ERM10	.BYTE	"SUBSCRIPTED VARIABLE NOT "
-	.BYTE	"PREVIOUSLY DIMENSIONED$"
-ERM11	.BYTE	"ARRAY NAME USED AS SIMPLE"
-	.BYTE	" VARAIBLE$"
-ERM12	.BYTE	"STRING EXPRESSION NOT ALLOWED$"
-ERM13	.BYTE	"MIXED MODE (STRING - FLOATING)"
-	.BYTE	" EXPRESSION$"
-ERM14	.BYTE	"NEXT VARIABLE DOES NOT "
-	.BYTE	"MATCH FOR$"
-ERM15	.BYTE	"NO PRODUCTION EXISTS$"
-ERM16	.BYTE	"NEXT STATEMENT WITHOUT "
-	.BYTE	"MATCHING FOR$"
-ERM17	.BYTE	"INCORRECT NUMBER OF "
-	.BYTE	"SUBSCRIPTS$"
-ERM18	.BYTE	"COMPILER STACK OVERFLOW$"
-ERM19	.BYTE	"SYMBOL TABLE OVERFLOW$"
-ERM20	.BYTE	"UNDEFINED LABEL$"
-ERM21	.BYTE	"VARC TABLE OVERFLOW$"
-ERM22	.BYTE	"UNTERMINATED STRING$"
-ERM23	.BYTE	"INVALID TYPE IN FILE"
-	.BYTE	" IDENTIFIER$"
-ERM24	.BYTE	"FOR WITHOUT MATCHING NEXT$"
-;ERROR MESSAGE TABLE
-ERMTBL	.WORD	ERM0,ERM1,ERM2,ERM3,ERM4,ERM5,ERM6,ERM7
-	.WORD	ERM8,ERM9,ERM10,ERM11,ERM12,ERM13,ERM14,ERM15
-	.WORD	ERM16,ERM17,ERM18,ERM19,ERM20,ERM21,ERM22,ERM23
-	.WORD	ERM24
-;MESSAGES AND STRINGS
-PRDMSG	.BYTE	"PROD $"
-ERDMSG	.BYTE	" ERRORS DETECTED$"
-DEMSG	.BYTE	"DISK ERROR - ABORTING $"
-BASSTR	.BYTE	"BAS"
-NSMSG	.BYTE	"NO SOURCE - ABORTING $"
-ADDEND	.BYTE	"END",CR,LF
-OPNMSG	.BYTE	"BASIC-E/65 COMPILER - "
-	.BYTE	"VERSION 2.03-A$"
-;VARIABLES - THIS AREA HOLDS DATA MOVED FROM PAGE ZERO TO SAVE PAGE ZERO SPACE
-PASS1	.BYTE	0		;PASS 1 IF TRUE I=TRUE
-PASS2	.BYTE	0		;PASS 2 IF TRUE
-LSTPRD	.BYTE	0		;LIST PRODUCTION IF TRUE (LISTPROD)
-LSTSRC	.BYTE	0		;LIST SOURCE IF TRUE (LISTSOURCE)
-DEBUGL	.BYTE	0		;DEBUG LINE NUMBERS IF TRUE (DEBUGLN)
-LWRUPR	.BYTE	0		;CONVERT IF TRUE I=TRUE (LOWERTOUPPER)
-NINTFL	.BYTE	0		;NO .INT FILE IF TRUE (NOINTFILE)
-LSTFLG	.BYTE	0		;LIST DEVICE IF FALSE (LSTFLAG)
-EOLSTS	.BYTE	0		;FLAG THAT EOL (CR) READ BY SCAN
-CMPLNG	.BYTE	0		;COMPILING IF TRUE (COMPILING)
-FORSTM	.BYTE	0		;FOR STATEMENT FLAG (FORSTMT)
-FILEIO	.BYTE	0		;FILE I/O FLAG
-;NEXT VARIABLE IS NEVER READ OR TESTED - NEED TO CHECK NEED
-RNDFLE	.BYTE	0		;RANDOM FILE FLAG (RANDOMFILE)
-;FCBS AND SIMILAR
-WFCB
-	*=	*+9
-	.BYTE	"INT"
-	*=	*+21
-PRMLST	.BYTE	"         "
-;PARSER DATA TABLES
-IFLBLN	.BYTE	2
-IFLAB2	.BYTE	23
-IFLABL	.BYTE	0
-HSHTBL
-	*=	HSHTSZ*2+*
-HASH
-	*=	*+PSTKSZ
-VAR
-	*=	*+PSTKSZ
-TYPE
-	*=	*+PSTKSZ
-STYPE
-	*=	*+PSTKSZ
-SRLOC
-	*=	PSTKSZ*2+*
-SYMLOC
-	*=	PSTKSZ*2+*
-STSTAK				;(STATESTACK)
-	*=	PSTKSZ*2+*
-VARC
-	*=	*+VARCSZ
-ONSTAK
-	*=	*+MAXOCT
+ST	.byte	1,1,0,1,1,1,1,1,1,1,1,0,0,1,0,1,5,65,70,5,71,70,65,5,1,1
+;error messages
+ERM0	.byte	"DUPLICATE LABELS OR "
+	.byte	"SYNCHRONIZATION ERROR$"
+ERM1	.byte	"IDENTIFIER IN DIM "
+	.byte	"PREVIOUSLY DEFINED$"
+ERM2	.byte	"PREDEFINED FUNCTION "
+	.byte	"NAME PREVIOUSLY DEFINED$"
+ERM3	.byte	"FOR LOOP INDEX NOT SIMPLE"
+	.byte	" FLOATING POINT VARIABLE$"
+ERM4	.byte	"INCORRECT NUMBER OF PARAMETERS"
+	.byte	" IN FUNCTION REFERENCE$"
+ERM5	.byte	"INVALID PARAMETER TYPE IN "
+	.byte	"FUNCTION REFERENCE$"
+ERM6	.byte	"UNDEFINED FUNCTION$"
+ERM7	.byte	"INVALID CHARACTER$"
+ERM8	.byte	"EXPRESSION IN IF STATEMENT"
+	.byte	" NOT FLOATING POINT$"
+ERM9	.byte	"ILLEGAL FLOATING POINT FORMAT$"
+ERM10	.byte	"SUBSCRIPTED VARIABLE NOT "
+	.byte	"PREVIOUSLY DIMENSIONED$"
+ERM11	.byte	"ARRAY NAME USED AS SIMPLE"
+	.byte	" VARAIBLE$"
+ERM12	.byte	"STRING EXPRESSION NOT ALLOWED$"
+ERM13	.byte	"MIXED MODE (STRING - FLOATING)"
+	.byte	" EXPRESSION$"
+ERM14	.byte	"NEXT VARIABLE DOES NOT "
+	.byte	"MATCH FOR$"
+ERM15	.byte	"NO PRODUCTION EXISTS$"
+ERM16	.byte	"NEXT STATEMENT WITHOUT "
+	.byte	"MATCHING FOR$"
+ERM17	.byte	"INCORRECT NUMBER OF "
+	.byte	"SUBSCRIPTS$"
+ERM18	.byte	"COMPILER STACK OVERFLOW$"
+ERM19	.byte	"SYMBOL TABLE OVERFLOW$"
+ERM20	.byte	"UNDEFINED LABEL$"
+ERM21	.byte	"VARC TABLE OVERFLOW$"
+ERM22	.byte	"UNTERMINATED STRING$"
+ERM23	.byte	"INVALID TYPE IN FILE"
+	.byte	" IDENTIFIER$"
+ERM24	.byte	"FOR WITHOUT MATCHING NEXT$"
+;error message table
+ERMTBL	.word	ERM0,ERM1,ERM2,ERM3,ERM4,ERM5,ERM6,ERM7
+	.word	ERM8,ERM9,ERM10,ERM11,ERM12,ERM13,ERM14,ERM15
+	.word	ERM16,ERM17,ERM18,ERM19,ERM20,ERM21,ERM22,ERM23
+	.word	ERM24
+;messages and strings
+PRDMSG	.byte	"PROD $"
+ERDMSG	.byte	" ERRORS DETECTED$"
+DEMSG	.byte	"DISK ERROR - ABORTING $"
+BASSTR	.byte	"BAS"
+NSMSG	.byte	"NO SOURCE - ABORTING $"
+ADDEND	.byte	"END",CR,LF
+OPNMSG	.byte	"BASIC-E/65 COMPILER - "
+	.byte	"VERSION 2.03-A$"
+;variables - this area holds data moved from page zero to save page zero space
+PASS1	.byte	0		;pass 1 if true i=TRUE
+PASS2	.byte	0		;pass 2 if true
+LSTPRD	.byte	0		;list production if true (listprod)
+LSTSRC	.byte	0		;list source if true (listsource)
+DEBUGL	.byte	0		;debug line numbers if true (debugln)
+LWRUPR	.byte	0		;convert if true i=TRUE (lowertoupper)
+NINTFL	.byte	0		;no .INT file if true (nointfile)
+LSTFLG	.byte	0		;list device if false (lstflag)
+EOLSTS	.byte	0		;flag that eol (cr) read by scan
+CMPLNG	.byte	0		;compiling if true (compiling)
+FORSTM	.byte	0		;for statement flag (forstmt)
+FILEIO	.byte	0		;file i/o flag
+;next variable is never read or tested - need to check need
+RNDFLE	.byte	0		;random file flag (randomfile)
+;fcbs and similar
+WFCB	.res	9
+	.byte	"INT"
+	.res	21
+PRMLST	.byte	"         "
+;parser data tables
+IFLBLN	.byte	2
+IFLAB2	.byte	23
+IFLABL	.byte	0
+HSHTBL	.res	HSHTSZ*2
+HASH	.res	PSTKSZ
+VAR	.res	PSTKSZ
+TYPE	.res	PSTKSZ
+STYPE	.res	PSTKSZ
+SRLOC	.res	PSTKSZ*2
+SYMLOC	.res	PSTKSZ*2
+STSTAK	.res	PSTKSZ*2
+VARC	.res	VARCSZ
+ONSTAK	.res	MAXOCT
 ONSP	=	ONSTAK
-;BUFFERS
-INPBUF				;INPUT
-	*=	*+SRCRSZ
-OUTBUF				;OUTPUT
-	*=	*+INTRSZ
-CONBUF				;CONSOLE
-	*=	*+CBUFSZ+2
-;START OF FREE MEMORY
+;buffers
+INPBUF	.res	SRCRSZ
+OUTBUF	.res	INTRSZ
+CONBUF	.res	CBUFSZ+2
+;start of free memory
 MEMORY
 	.END

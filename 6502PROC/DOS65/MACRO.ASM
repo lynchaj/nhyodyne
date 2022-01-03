@@ -110,10 +110,17 @@ PRINT_DIGIT_OUT:					;
                JMP conwrt              		; PRINT OUT CHAR
 
 NEWLINE:
+                pha
+                PHX
+                phy
                 LDA #$0D
                 JSR conwrt
                 LDA #$0A
-                JMP conwrt
+                Jsr conwrt
+                ply
+                plx
+                pla
+                rts
 
 PRTDEC:
                 phy
