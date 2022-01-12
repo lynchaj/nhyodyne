@@ -1,5 +1,7 @@
 # Dual Parallel IO board for Z80 Modular Backplane Computer
 
+# CAUTION: Initial build and test revealed problems with this board handling IM2 interrupts.  Likely will need a PCB respin for corrections.
+
 Add a pair of PIOs with external connectors, 32 GPIO pins plus 4 strobe pins, 4 ready pins, and power pins 
 
 External interrupts with Zilog compatible interrupt priority modes
