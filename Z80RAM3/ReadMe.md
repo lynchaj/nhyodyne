@@ -20,7 +20,7 @@ Default IO port $7C
 
 # Jumpers
 
-JP1 is Boot RAM Option. Pins 1-2 closed (default) for Boot enable assuming single ROM board present in system. Will cause lower 32KB ROM page to be present at power on or after reset. Only one ROM board per system can be boot enabled. Multiple ROM boards can be present but only one can be boot enabled and rest must have JP1 open or bus contention.
+JP1 is Boot RAM Option. Pins 1-2 closed (default) for Boot enable assuming single RAM board present in system. Will cause upper 32KB RAM page to be present at power on or after reset. Only one RAM board per system can be boot enabled. Multiple RAM boards can be present but only one can be boot enabled and rest must have JP1 open or bus contention.
 
 K2 is RAM size option. Pins 1-2 closed for 128KB RAMs (both RAM0 and RAM1) (default). Pins 2-3 closed for 512KB RAMs.
 
