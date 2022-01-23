@@ -606,7 +606,7 @@ dcbb:	.word	191		;max block number
 	.word	ckmp		;checksum map
 dcbc:	.word	2047		;max block number
 	.word	64		;sectors per track
-	.word	130		;number system tracks
+	.word	16		;number system tracks
 	.byte	2		;block size = 4096
 	.word	511		;max directory number
 	.word	almpc		;address of map for C
@@ -614,7 +614,7 @@ dcbc:	.word	2047		;max block number
 	.word	ckmp		;checksum map
 dcbd:	.word	2047		;max block number
 	.word	64		;sectors per track
-	.word	130		;number system tracks
+	.word	16		;number system tracks
 	.byte	2		;block size = 4096
 	.word	511		;max directory number
 	.word	almpd		;address of map for d
@@ -622,7 +622,7 @@ dcbd:	.word	2047		;max block number
 	.word	ckmp		;checksum map
 dcbe:	.word	2047		;max block number
 	.word	64		;sectors per track
-	.word	130		;number system tracks
+	.word	16		;number system tracks
 	.byte	2		;block size = 4096
 	.word	511		;max directory number
 	.word	almpe		;address of map for e
@@ -630,7 +630,7 @@ dcbe:	.word	2047		;max block number
 	.word	ckmp		;checksum map
 dcbf:	.word	2047		;max block number
 	.word	64		;sectors per track
-	.word	130		;number system tracks
+	.word	16		;number system tracks
 	.byte	2		;block size = 4096
 	.word	511		;max directory number
 	.word	almpf		;address of map for f
@@ -638,7 +638,7 @@ dcbf:	.word	2047		;max block number
 	.word	ckmp		;checksum map
 dcbg:	.word	2047		;max block number
 	.word	64		;sectors per track
-	.word	130		;number system tracks
+	.word	16		;number system tracks
 	.byte	2		;block size = 4096
 	.word	511		;max directory number
 	.word	almpg		;address of map for g
@@ -646,7 +646,7 @@ dcbg:	.word	2047		;max block number
 	.word	ckmp		;checksum map
 dcbh:	.word	2047		;max block number
 	.word	64		;sectors per track
-	.word	130		;number system tracks
+	.word	16		;number system tracks
 	.byte	2		;block size = 4096
 	.word	511		;max directory number
 	.word	almph		;address of map for h
