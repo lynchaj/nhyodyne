@@ -1,0 +1,26 @@
+Modules list:
+-------------
+run205.o:
+    TEA               Offs=000000  Size=002A90  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+TEA                   000800  00328F  002A90  00001
+
+
+Exports list by name:
+---------------------
+
+
+
+Exports list by value:
+----------------------
+
+
+
+Imports list:
+-------------
+
