@@ -95,6 +95,7 @@ opnmsg1:
 
 ;cold entry from loader
 boot:
+	SEI 			; DISABLE INTERRUPTS
 	ldx	#$ff		;set stack
 	txs			;pointer
 	cld			;set binary mode
@@ -181,6 +182,7 @@ inttbl:	.byte	$4c,<wboote,>wboote,$4c,<pem,>pem
 
 
 wboot:
+	SEI 			; DISABLE INTERRUPTS
 	ldx	#$ff		;set stack
 	txs			;pointer
 	cld			;set binary mode
