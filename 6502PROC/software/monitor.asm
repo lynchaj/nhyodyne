@@ -94,11 +94,16 @@ UART7	       	=    	$036F           ; SCRATCH REG.
 ;
 ;_______________________________________________________________
 COLD_START:
+		SEI 				; DISABLE INTERRUPTS
          	CLD				;  VERIFY DECIMAL MODE IS OFF
                	LDX   #$FF              	;
                	TXS                     	; CLEAR STACK
 		txa
-		SEI 				; DISABLE INTERRUPTS
+
+		LDA <IRQROUTINE
+		STA IRQVECTOR
+		LDA >IRQROUTINE
+		STA IRQVECTOR+1
 
 	  	LDA #<STARTUP			; OUTPUT STARTUP STRING
                 STA STRPTR			;
@@ -117,7 +122,7 @@ COLD_START:
 ;
 ;_______________________________________________________________
 BRKROUTINE:
-		CLI				; MONITOR'S BREAK HANDLER
+						; MONITOR'S BREAK HANDLER
 		CLC
                	PLA  				;
                	TAX           		        ; LOW BYTE OF PC
@@ -138,6 +143,16 @@ BRK2:
                	TXS                     	; CLEAR STACK
                	CLI                     	; ENABLE INTERRUPTS AGAIN
                	JMP   COMMAND_PROCESSOR 	; START THE MONITOR
+
+
+;__IRQROUTINE___________________________________________________
+;
+; HANDLE INTERRUPT PROCESING
+;
+;_______________________________________________________________
+IRQROUTINE:
+               	CLI                     	; ENABLE INTERRUPTS AGAIN
+		RTI
 
 ;__PRINT_REG____________________________________________________
 ;
@@ -197,6 +212,7 @@ DO_PRINT_REG:
 ;
 ;_______________________________________________________________
 INTERRUPT:
+		SEI 				; DISABLE INTERRUPTS
 		STY	YREG			; SAVE Y
                	STX	XREG    		; SAVE X
 		STA	ACC       		; SAVE A

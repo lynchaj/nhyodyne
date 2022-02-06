@@ -2,7 +2,7 @@ Modules list:
 -------------
 monitor.o:
     LOADER            Offs=000000  Size=000013  Align=00001  Fill=0000
-    TROM              Offs=000000  Size=000A90  Align=00001  Fill=0000
+    TROM              Offs=000000  Size=000A9A  Align=00001  Fill=0000
     VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
 
 
@@ -11,7 +11,7 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 LOADER                00EFE0  00EFF2  000013  00001
-TROM                  00F000  00FA8F  000A90  00001
+TROM                  00F000  00FA99  000A9A  00001
 VECTORS               00FFFA  00FFFF  000006  00001
 
 
