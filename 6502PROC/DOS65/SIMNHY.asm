@@ -228,7 +228,7 @@ dskcfg:
 	.byte $30,$02		;  disk E: unit,slice
 	.byte $30,$03		;  disk F: unit,slice
 	.byte $30,$04		;  disk G: unit,slice
-	.byte $30,$05		;  disk H: unit,slice
+	.byte $30,$06		;  disk H: unit,slice
 
 ;__HOME__________________________________________________________________________________________________
 ;
