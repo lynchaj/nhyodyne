@@ -27,6 +27,6 @@ J1 0-7 WAIT states for memory read
 J2 0-7 WAIT states for memory write
 J3 1-8 WAIT states for IO reads
 J4 1-8 WAIT states for IO writes
-note: Z80 processor has 1 WAIT state for IO reads/writes by default.  J3 & J4 IO WAIT states are not additive but represent total number.
+note: Z80 processor has 1 WAIT state for IO reads/writes by default.  J3 & J4 IO WAIT states are additive.  Not installing JP2 will result in 1 WS for IO and 0 WS for memory.
 
 JP5 Interrupt Mode 2 enable.  1-2 open (default) disables IM2 mode interrupts. 1-2 closed enables IM2 mode interrupts.  Note software must be configured for IM2 for this to work due to vector ISRs.

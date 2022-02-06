@@ -1,4 +1,4 @@
-update=12/18/2021 4:35:44 PM
+update=1/14/2022 8:21:48 AM
 version=1
 last_client=kicad
 [cvpcb]
@@ -14,7 +14,7 @@ LibDir=
 [pcbnew]
 version=1
 PageLayoutDescrFile=
-LastNetListRead=Z80SERIAL3.net
+LastNetListRead=Z80CTCDART2.net
 CopperLayerCount=2
 BoardThickness=1.6
 AllowMicroVias=0

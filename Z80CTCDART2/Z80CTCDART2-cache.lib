@@ -1,11 +1,127 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# 74LS04-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# 74xx_74LS20
 #
-DEF 74LS04-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 6 F N
+DEF 74xx_74LS20 U 0 40 Y Y 3 L N
+F0 "U" 0 50 50 H V C CNN
+F1 "74xx_74LS20" 0 -50 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+ALIAS 74LS22 74LS40
+$FPLIST
+ DIP?12*
+$ENDFPLIST
+DRAW
+A -25 0 175 -899 899 1 1 10 f -25 -175 -25 175
+A -25 0 175 -899 899 2 1 10 f -25 -175 -25 175
+A -445 0 343 306 -306 1 2 10 N -150 175 -150 -175
+A -81 -56 238 137 768 1 2 10 f 150 0 -24 175
+A -81 56 238 -137 -768 1 2 10 f 150 0 -24 -175
+A -445 0 343 306 -306 2 2 10 N -150 175 -150 -175
+A -81 -56 238 137 768 2 2 10 f 150 0 -24 175
+A -81 56 238 -137 -768 2 2 10 f 150 0 -24 -175
+S -200 300 200 -300 3 1 10 f
+P 4 1 1 10 -25 175 -150 175 -150 -175 -25 -175 f
+P 4 2 1 10 -25 175 -150 175 -150 -175 -25 -175 f
+P 2 1 2 10 -150 -175 -25 -175 f
+P 2 1 2 10 -150 175 -25 175 f
+P 13 1 2 -1000 -25 175 -150 175 -150 175 -143 161 -122 115 -109 66 -103 17 -104 -34 -113 -83 -128 -131 -150 -175 -150 -175 -25 -175 f
+P 2 2 2 10 -150 -175 -25 -175 f
+P 2 2 2 10 -150 175 -25 175 f
+P 13 2 2 -1000 -25 175 -150 175 -150 175 -143 161 -122 115 -109 66 -103 17 -104 -34 -113 -83 -128 -131 -150 -175 -150 -175 -25 -175 f
+X VCC 14 0 500 200 D 50 50 3 0 W
+X GND 7 0 -500 200 U 50 50 3 0 W
+X ~ 1 -300 150 150 R 50 50 1 1 I
+X ~ 2 -300 50 150 R 50 50 1 1 I
+X ~ 4 -300 -50 150 R 50 50 1 1 I
+X ~ 5 -300 -150 150 R 50 50 1 1 I
+X ~ 6 300 0 150 L 50 50 1 1 O I
+X ~ 10 -300 50 150 R 50 50 2 1 I
+X ~ 12 -300 -50 150 R 50 50 2 1 I
+X ~ 13 -300 -150 150 R 50 50 2 1 I
+X ~ 8 300 0 150 L 50 50 2 1 O I
+X ~ 9 -300 150 150 R 50 50 2 1 I
+X ~ 1 -300 150 150 R 50 50 1 2 I I
+X ~ 2 -300 50 190 R 50 50 1 2 I I
+X ~ 4 -300 -50 190 R 50 50 1 2 I I
+X ~ 5 -300 -150 150 R 50 50 1 2 I I
+X ~ 6 300 0 150 L 50 50 1 2 O
+X ~ 10 -300 50 190 R 50 50 2 2 I I
+X ~ 12 -300 -50 190 R 50 50 2 2 I I
+X ~ 13 -300 -150 150 R 50 50 2 2 I I
+X ~ 8 300 0 150 L 50 50 2 2 O
+X ~ 9 -300 150 150 R 50 50 2 2 I I
+ENDDRAW
+ENDDEF
+#
+# Connector_Generic_Conn_02x02_Odd_Even
+#
+DEF Connector_Generic_Conn_02x02_Odd_Even J 0 40 Y N 1 F N
+F0 "J" 50 100 50 H V C CNN
+F1 "Connector_Generic_Conn_02x02_Odd_Even" 50 -200 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ Connector*:*_2x??_*
+$ENDFPLIST
+DRAW
+S -50 -95 0 -105 1 1 6 N
+S -50 5 0 -5 1 1 6 N
+S -50 50 150 -150 1 1 10 f
+S 150 -95 100 -105 1 1 6 N
+S 150 5 100 -5 1 1 6 N
+X Pin_1 1 -200 0 150 R 50 50 1 1 P
+X Pin_2 2 300 0 150 L 50 50 1 1 P
+X Pin_3 3 -200 -100 150 R 50 50 1 1 P
+X Pin_4 4 300 -100 150 L 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# Connector_Generic_Conn_02x06_Odd_Even
+#
+DEF Connector_Generic_Conn_02x06_Odd_Even J 0 40 Y N 1 F N
+F0 "J" 50 300 50 H V C CNN
+F1 "Connector_Generic_Conn_02x06_Odd_Even" 50 -400 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ Connector*:*_2x??_*
+$ENDFPLIST
+DRAW
+S -50 -295 0 -305 1 1 6 N
+S -50 -195 0 -205 1 1 6 N
+S -50 -95 0 -105 1 1 6 N
+S -50 5 0 -5 1 1 6 N
+S -50 105 0 95 1 1 6 N
+S -50 205 0 195 1 1 6 N
+S -50 250 150 -350 1 1 10 f
+S 150 -295 100 -305 1 1 6 N
+S 150 -195 100 -205 1 1 6 N
+S 150 -95 100 -105 1 1 6 N
+S 150 5 100 -5 1 1 6 N
+S 150 105 100 95 1 1 6 N
+S 150 205 100 195 1 1 6 N
+X Pin_1 1 -200 200 150 R 50 50 1 1 P
+X Pin_10 10 300 -200 150 L 50 50 1 1 P
+X Pin_11 11 -200 -300 150 R 50 50 1 1 P
+X Pin_12 12 300 -300 150 L 50 50 1 1 P
+X Pin_2 2 300 200 150 L 50 50 1 1 P
+X Pin_3 3 -200 100 150 R 50 50 1 1 P
+X Pin_4 4 300 100 150 L 50 50 1 1 P
+X Pin_5 5 -200 0 150 R 50 50 1 1 P
+X Pin_6 6 300 0 150 L 50 50 1 1 P
+X Pin_7 7 -200 -100 150 R 50 50 1 1 P
+X Pin_8 8 300 -100 150 L 50 50 1 1 P
+X Pin_9 9 -200 -200 150 R 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# Z80CTCDART2-rescue_74LS04-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+#
+DEF Z80CTCDART2-rescue_74LS04-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 6 F N
 F0 "U" 195 115 60 H V C CNN
-F1 "74LS04-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 190 -125 60 H V C CNN
+F1 "Z80CTCDART2-rescue_74LS04-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 190 -125 60 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -39,49 +155,11 @@ X ~ 13 -450 0 300 R 60 60 6 2 I I
 ENDDRAW
 ENDDEF
 #
-# 74LS06-00JRCsch-Z80SERIAL3-rescue-Z80DARTCTC-rescue
+# Z80CTCDART2-rescue_74LS08-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
 #
-DEF 74LS06-00JRCsch-Z80SERIAL3-rescue-Z80DARTCTC-rescue U 0 30 Y Y 6 F N
-F0 "U" 195 115 60 H V C CNN
-F1 "74LS06-00JRCsch-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 190 -125 60 H V C CNN
-F2 "" 0 0 60 H V C CNN
-F3 "" 0 0 60 H V C CNN
-DRAW
-P 4 0 0 0 -150 150 -150 -150 150 0 -150 150 N
-X VCC 14 -50 100 0 U 40 40 0 0 W N
-X GND 7 -50 -100 0 U 40 40 0 0 W N
-X ~ 1 -450 0 300 R 60 60 1 1 I
-X ~ 2 450 0 300 L 60 60 1 1 C I
-X ~ 3 -450 0 300 R 60 60 2 1 I
-X ~ 4 450 0 300 L 60 60 2 1 C I
-X ~ 5 -450 0 300 R 60 60 3 1 I
-X ~ 6 450 0 300 L 60 60 3 1 C I
-X ~ 8 450 0 300 L 60 60 4 1 C I
-X ~ 9 -450 0 300 R 60 60 4 1 I
-X ~ 10 450 0 300 L 60 60 5 1 C I
-X ~ 11 -450 0 300 R 60 60 5 1 I
-X ~ 12 450 0 300 L 60 60 6 1 C I
-X ~ 13 -450 0 300 R 60 60 6 1 I
-X ~ 1 -450 0 300 R 60 60 1 2 I I
-X ~ 2 450 0 300 L 60 60 1 2 C
-X ~ 3 -450 0 300 R 60 60 2 2 I I
-X ~ 4 450 0 300 L 60 60 2 2 C
-X ~ 5 -450 0 300 R 60 60 3 2 I I
-X ~ 6 450 0 300 L 60 60 3 2 C
-X ~ 8 450 0 300 L 60 60 4 2 C
-X ~ 9 -450 0 300 R 60 60 4 2 I I
-X ~ 10 450 0 300 L 60 60 5 2 C
-X ~ 11 -450 0 300 R 60 60 5 2 I I
-X ~ 12 450 0 300 L 60 60 6 2 C
-X ~ 13 -450 0 300 R 60 60 6 2 I I
-ENDDRAW
-ENDDEF
-#
-# 74LS08-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
-#
-DEF 74LS08-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 4 F N
+DEF Z80CTCDART2-rescue_74LS08-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 4 F N
 F0 "U" 0 50 60 H V C CNN
-F1 "74LS08-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -50 60 H V C CNN
+F1 "Z80CTCDART2-rescue_74LS08-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -50 60 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -121,11 +199,11 @@ X ~ 13 -600 -100 370 R 60 60 4 2 I I
 ENDDRAW
 ENDDEF
 #
-# 74LS09-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_74LS09-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
 #
-DEF 74LS09-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 4 F N
+DEF Z80CTCDART2-rescue_74LS09-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 4 F N
 F0 "U" 0 50 60 H V C CNN
-F1 "74LS09-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -50 60 H V C CNN
+F1 "Z80CTCDART2-rescue_74LS09-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -50 60 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -165,11 +243,11 @@ X ~ 13 -600 -100 370 R 60 60 4 2 I I
 ENDDRAW
 ENDDEF
 #
-# 74LS138-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_74LS138-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
 #
-DEF 74LS138-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 40 Y Y 1 F N
+DEF Z80CTCDART2-rescue_74LS138-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 40 Y Y 1 F N
 F0 "U" 100 500 60 H V C CNN
-F1 "74LS138-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 150 -549 60 H V C CNN
+F1 "Z80CTCDART2-rescue_74LS138-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 150 -549 60 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -193,11 +271,11 @@ X O6 9 600 -250 300 L 60 60 1 1 O V
 ENDDRAW
 ENDDEF
 #
-# 74LS14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_74LS14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
 #
-DEF 74LS14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 6 F N
+DEF Z80CTCDART2-rescue_74LS14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 6 F N
 F0 "U" 150 100 40 H V C CNN
-F1 "74LS14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 200 -100 40 H V C CNN
+F1 "Z80CTCDART2-rescue_74LS14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 200 -100 40 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -231,53 +309,11 @@ X ~ 13 -450 0 300 R 60 60 6 2 I I
 ENDDRAW
 ENDDEF
 #
-# 74LS20-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_74LS241-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
 #
-DEF 74LS20-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 2 F N
-F0 "U" 0 100 60 H V C CNN
-F1 "74LS20-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -100 60 H V C CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-DRAW
-A 100 0 200 896 -896 0 1 0 N 101 200 101 -199
-A -470 0 262 495 -495 0 2 0 N -300 199 -300 -198
-A -2 126 326 -897 -225 0 2 0 N 0 -199 299 2
-A 4 -120 320 906 221 0 2 0 N 2 200 300 0
-P 4 0 1 0 100 200 -300 200 -300 -200 100 -200 N
-P 2 0 2 0 -300 -200 0 -200 N
-P 2 0 2 0 -300 200 0 200 N
-X VCC 14 -200 200 0 U 60 60 0 0 W N
-X GND 7 -200 -200 0 U 60 60 0 0 W N
-X ~ 1 -600 150 300 R 60 60 1 1 I
-X ~ 2 -600 50 300 R 60 60 1 1 I
-X NC 3-UA -100 200 0 R 50 50 1 1 N N
-X ~ 4 -600 -50 300 R 60 60 1 1 I
-X ~ 5 -600 -150 300 R 60 60 1 1 I
-X ~ 6 600 0 300 L 60 60 1 1 O I
-X ~ 10 -600 50 300 R 60 60 2 1 I
-X NC 11 -100 200 0 R 50 50 2 1 N N
-X ~ 12 -600 -50 300 R 60 60 2 1 I
-X ~ 13 -600 -150 300 R 60 60 2 1 I
-X ~ 8 600 0 300 L 60 60 2 1 O I
-X ~ 9 -600 150 300 R 60 60 2 1 I
-X ~ 1 -600 150 335 R 60 60 1 2 I I
-X ~ 2 -600 50 385 R 60 60 1 2 I I
-X ~ 4 -600 -50 385 R 60 60 1 2 O I
-X ~ 5 -600 -150 335 R 60 60 1 2 I I
-X ~ 6 600 0 300 L 60 60 1 2 O
-X ~ 10 -600 -150 335 R 60 60 2 2 I I
-X ~ 12 -600 50 385 R 60 60 2 2 I I
-X ~ 13 -600 -50 385 R 60 60 2 2 I I
-X ~ 8 600 0 300 L 60 60 2 2 O
-X ~ 9 -600 150 335 R 60 60 2 2 I I
-ENDDRAW
-ENDDEF
-#
-# 74LS241-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
-#
-DEF 74LS241-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 10 Y Y 1 F N
+DEF Z80CTCDART2-rescue_74LS241-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 10 Y Y 1 F N
 F0 "U" 50 -200 60 H V C CNN
-F1 "74LS241-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 100 -400 60 H V C CNN
+F1 "Z80CTCDART2-rescue_74LS241-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 100 -400 60 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -307,79 +343,11 @@ X O0b 9 700 100 300 L 60 60 1 1 T
 ENDDRAW
 ENDDEF
 #
-# 74LS244-RESCUE-Z80PROC-Z80CLOCK-rescue-Z80GENERIC_IO-rescue-Z80PPIDE-rescue-Z80SERIAL-rescue-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue
+# Z80CTCDART2-rescue_74LS245-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
 #
-DEF 74LS244-RESCUE-Z80PROC-Z80CLOCK-rescue-Z80GENERIC_IO-rescue-Z80PPIDE-rescue-Z80SERIAL-rescue-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue U 0 10 Y Y 1 F N
-F0 "U" 50 -200 60 H V C CNN
-F1 "74LS244-RESCUE-Z80PROC-Z80CLOCK-rescue-Z80GENERIC_IO-rescue-Z80PPIDE-rescue-Z80SERIAL-rescue-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 100 -400 60 H V C CNN
-F2 "" 0 0 60 H I C CNN
-F3 "" 0 0 60 H I C CNN
-DRAW
-S -400 550 400 -550 0 1 0 N
-P 3 0 1 0 50 100 0 -100 -100 -100 N
-P 4 0 1 0 100 100 -50 100 -100 -100 -150 -100 N
-X GND 10 -300 -550 0 U 60 60 0 0 W N
-X VCC 20 -300 550 0 U 60 60 0 0 W N
-X OEa 1 -700 -400 300 R 60 60 1 1 I I
-X I0b 11 -700 100 300 R 60 60 1 1 I
-X O3a 12 700 200 300 L 60 60 1 1 T
-X I1b 13 -700 0 300 R 60 60 1 1 I
-X O2a 14 700 300 300 L 60 60 1 1 T
-X I2b 15 -700 -100 300 R 60 60 1 1 I
-X O1a 16 700 400 300 L 60 60 1 1 T
-X I3b 17 -700 -200 300 R 60 60 1 1 I
-X O0a 18 700 500 300 L 60 60 1 1 T
-X OEb 19 -700 -500 300 R 60 60 1 1 I I
-X I0a 2 -700 500 300 R 60 60 1 1 I
-X O3b 3 700 -200 300 L 60 60 1 1 T
-X I1a 4 -700 400 300 R 60 60 1 1 I
-X O2b 5 700 -100 300 L 60 60 1 1 T
-X I2a 6 -700 300 300 R 60 60 1 1 I
-X O1b 7 700 0 300 L 60 60 1 1 T
-X I3a 8 -700 200 300 R 60 60 1 1 I
-X O0b 9 700 100 300 L 60 60 1 1 T
-ENDDRAW
-ENDDEF
-#
-# 74LS245-RESCUE-Z80PROC-Z80CLOCK-rescue-Z80GENERIC_IO-rescue-Z80PPIDE-rescue-Z80SERIAL-rescue-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue
-#
-DEF 74LS245-RESCUE-Z80PROC-Z80CLOCK-rescue-Z80GENERIC_IO-rescue-Z80PPIDE-rescue-Z80SERIAL-rescue-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue U 0 10 Y Y 1 F N
+DEF Z80CTCDART2-rescue_74LS245-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 10 Y Y 1 F N
 F0 "U" 100 575 60 H V L BNN
-F1 "74LS245-RESCUE-Z80PROC-Z80CLOCK-rescue-Z80GENERIC_IO-rescue-Z80PPIDE-rescue-Z80SERIAL-rescue-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 50 -575 60 H V L TNN
-F2 "" 0 0 60 H I C CNN
-F3 "" 0 0 60 H I C CNN
-DRAW
-S -400 550 400 -550 0 1 0 N
-P 3 0 1 0 50 100 0 -100 -100 -100 N
-P 4 0 1 0 100 100 -50 100 -100 -100 -150 -100 N
-X GND 10 0 -550 0 U 60 60 0 0 W N
-X VCC 20 0 550 0 D 60 60 0 0 W N
-X A->B 1 -700 -400 300 R 60 60 1 1 I
-X B7 11 700 -200 300 L 60 60 1 1 T
-X B6 12 700 -100 300 L 60 60 1 1 T
-X B5 13 700 0 300 L 60 60 1 1 T
-X B4 14 700 100 300 L 60 60 1 1 T
-X B3 15 700 200 300 L 60 60 1 1 T
-X B2 16 700 300 300 L 60 60 1 1 T
-X B1 17 700 400 300 L 60 60 1 1 T
-X B0 18 700 500 300 L 60 60 1 1 T
-X CE 19 -700 -500 300 R 60 60 1 1 I I
-X A0 2 -700 500 300 R 60 60 1 1 T
-X A1 3 -700 400 300 R 60 60 1 1 T
-X A2 4 -700 300 300 R 60 60 1 1 T
-X A3 5 -700 200 300 R 60 60 1 1 T
-X A4 6 -700 100 300 R 60 60 1 1 T
-X A5 7 -700 0 300 R 60 60 1 1 T
-X A6 8 -700 -100 300 R 60 60 1 1 T
-X A7 9 -700 -200 300 R 60 60 1 1 T
-ENDDRAW
-ENDDEF
-#
-# 74LS245-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
-#
-DEF 74LS245-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 10 Y Y 1 F N
-F0 "U" 100 575 60 H V L BNN
-F1 "74LS245-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 50 -575 60 H V L TNN
+F1 "Z80CTCDART2-rescue_74LS245-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 50 -575 60 H V L TNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -409,11 +377,11 @@ X A7 9 -700 -200 300 R 60 60 1 1 T
 ENDDRAW
 ENDDEF
 #
-# 74LS32-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_74LS32-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
 #
-DEF 74LS32-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 4 F N
+DEF Z80CTCDART2-rescue_74LS32-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 4 F N
 F0 "U" 0 50 60 H V C CNN
-F1 "74LS32-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -50 60 H V C CNN
+F1 "Z80CTCDART2-rescue_74LS32-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -50 60 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -453,11 +421,11 @@ X ~ 13 -600 -100 300 R 60 60 4 2 I I
 ENDDRAW
 ENDDEF
 #
-# 74LS393-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_74LS393-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue
 #
-DEF 74LS393-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 40 Y Y 2 F N
+DEF Z80CTCDART2-rescue_74LS393-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue U 0 40 Y Y 2 F N
 F0 "U" 150 250 60 H V C CNN
-F1 "74LS393-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 200 -250 60 H V C CNN
+F1 "Z80CTCDART2-rescue_74LS393-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue" 200 -250 60 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -479,31 +447,11 @@ X Q2 9 700 -50 300 L 60 60 2 1 O
 ENDDRAW
 ENDDEF
 #
-# C-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_C-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue
 #
-DEF C-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue C 0 10 N Y 1 F N
+DEF Z80CTCDART2-rescue_C-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue C 0 10 N Y 1 F N
 F0 "C" 50 100 50 H V L CNN
-F1 "C-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 50 -100 50 H V L CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-$FPLIST
- SM*
- C?
- C1-1
-$ENDFPLIST
-DRAW
-P 2 0 1 20 -100 -30 100 -30 N
-P 2 0 1 20 -100 30 100 30 N
-X ~ 1 0 200 170 D 40 40 1 1 P
-X ~ 2 0 -200 170 U 40 40 1 1 P
-ENDDRAW
-ENDDEF
-#
-# C-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue
-#
-DEF C-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue C 0 10 N Y 1 F N
-F0 "C" 50 100 50 H V L CNN
-F1 "C-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 50 -100 50 H V L CNN
+F1 "Z80CTCDART2-rescue_C-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue" 50 -100 50 H V L CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 $FPLIST
@@ -519,119 +467,11 @@ X ~ 2 0 -200 170 U 40 40 1 1 P
 ENDDRAW
 ENDDEF
 #
-# C96ABC-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_CONN_10-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue
 #
-DEF C96ABC-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 40 Y Y 1 F N
-F0 "U" 0 4900 70 H V C CNN
-F1 "C96ABC-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 250 0 70 V V C CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-DRAW
-S -200 -4850 200 4850 0 1 0 N
-X 1A A1 -500 4750 300 R 60 60 1 1 P
-X 10A A10 -500 2050 300 R 60 60 1 1 P
-X 11A A11 -500 1750 300 R 60 60 1 1 P
-X 12A A12 -500 1450 300 R 60 60 1 1 P
-X 13A A13 -500 1150 300 R 60 60 1 1 P
-X 14A A14 -500 850 300 R 60 60 1 1 P
-X 15A A15 -500 550 300 R 60 60 1 1 P
-X 16A A16 -500 250 300 R 60 60 1 1 P
-X 17A A17 -500 -50 300 R 60 60 1 1 P
-X 18A A18 -500 -350 300 R 60 60 1 1 P
-X 19A A19 -500 -650 300 R 60 60 1 1 P
-X 2A A2 -500 4450 300 R 60 60 1 1 P
-X 20A A20 -500 -950 300 R 60 60 1 1 P
-X 21A A21 -500 -1250 300 R 60 60 1 1 T
-X 22A A22 -500 -1550 300 R 60 60 1 1 P
-X 23A A23 -500 -1850 300 R 60 60 1 1 P
-X 24A A24 -500 -2150 300 R 60 60 1 1 P
-X 25A A25 -500 -2450 300 R 60 60 1 1 P
-X 26A A26 -500 -2750 300 R 60 60 1 1 P
-X 27A A27 -500 -3050 300 R 60 60 1 1 P
-X 28A A28 -500 -3350 300 R 60 60 1 1 P
-X 29A A29 -500 -3650 300 R 60 60 1 1 P
-X 3A A3 -500 4150 300 R 60 60 1 1 P
-X 30A A30 -500 -3950 300 R 60 60 1 1 P
-X 31A A31 -500 -4250 300 R 60 60 1 1 P
-X 32A A32 -500 -4550 300 R 60 60 1 1 P
-X 4A A4 -500 3850 300 R 60 60 1 1 P
-X 5A A5 -500 3550 300 R 60 60 1 1 P
-X 6A A6 -500 3250 300 R 60 60 1 1 P
-X 7A A7 -500 2950 300 R 60 60 1 1 P
-X 8A A8 -500 2650 300 R 60 60 1 1 P
-X 9A A9 -500 2350 300 R 60 60 1 1 P
-X 1B B1 -500 4650 300 R 60 60 1 1 P
-X 10B B10 -500 1950 300 R 60 60 1 1 P
-X 11B B11 -500 1650 300 R 60 60 1 1 P
-X 12B B12 -500 1350 300 R 60 60 1 1 P
-X 13B B13 -500 1050 300 R 60 60 1 1 P
-X 14B B14 -500 750 300 R 60 60 1 1 P
-X 15B B15 -500 450 300 R 60 60 1 1 P
-X 16B B16 -500 150 300 R 60 60 1 1 P
-X 17B B17 -500 -150 300 R 60 60 1 1 P
-X 18B B18 -500 -450 300 R 60 60 1 1 P
-X 19B B19 -500 -750 300 R 60 60 1 1 P
-X 2B B2 -500 4350 300 R 60 60 1 1 P
-X 20B B20 -500 -1050 300 R 60 60 1 1 P
-X 21B B21 -500 -1350 300 R 60 60 1 1 P
-X 22B B22 -500 -1650 300 R 60 60 1 1 P
-X 23B B23 -500 -1950 300 R 60 60 1 1 P
-X 24B B24 -500 -2250 300 R 60 60 1 1 P
-X 25B B25 -500 -2550 300 R 60 60 1 1 P
-X 26B B26 -500 -2850 300 R 60 60 1 1 P
-X 27B B27 -500 -3150 300 R 60 60 1 1 P
-X 28B B28 -500 -3450 300 R 60 60 1 1 P
-X 29B B29 -500 -3750 300 R 60 60 1 1 P
-X 3B B3 -500 4050 300 R 60 60 1 1 P
-X 30B B30 -500 -4050 300 R 60 60 1 1 P
-X 31B B31 -500 -4350 300 R 60 60 1 1 P
-X 32B B32 -500 -4650 300 R 60 60 1 1 P
-X 4B B4 -500 3750 300 R 60 60 1 1 P
-X 5B B5 -500 3450 300 R 60 60 1 1 P
-X 6B B6 -500 3150 300 R 60 60 1 1 P
-X 7B B7 -500 2850 300 R 60 60 1 1 P
-X 8B B8 -500 2550 300 R 60 60 1 1 P
-X 9B B9 -500 2250 300 R 60 60 1 1 P
-X 1C C1 -500 4550 300 R 60 60 1 1 P
-X 10C C10 -500 1850 300 R 60 60 1 1 P
-X 11C C11 -500 1550 300 R 60 60 1 1 P
-X 12C C12 -500 1250 300 R 60 60 1 1 P
-X 13C C13 -500 950 300 R 60 60 1 1 P
-X 14C C14 -500 650 300 R 60 60 1 1 P
-X 15C C15 -500 350 300 R 60 60 1 1 P
-X 16C C16 -500 50 300 R 60 60 1 1 P
-X 17C C17 -500 -250 300 R 60 60 1 1 P
-X 18C C18 -500 -550 300 R 60 60 1 1 P
-X 19C C19 -500 -850 300 R 60 60 1 1 P
-X 2C C2 -500 4250 300 R 60 60 1 1 P
-X 20C C20 -500 -1150 300 R 60 60 1 1 P
-X 21C C21 -500 -1450 300 R 60 60 1 1 P
-X 22C C22 -500 -1750 300 R 60 60 1 1 P
-X 23C C23 -500 -2050 300 R 60 60 1 1 P
-X 24C C24 -500 -2350 300 R 60 60 1 1 P
-X 25C C25 -500 -2650 300 R 60 60 1 1 P
-X 26C C26 -500 -2950 300 R 60 60 1 1 P
-X 27C C27 -500 -3250 300 R 60 60 1 1 P
-X 28C C28 -500 -3550 300 R 60 60 1 1 P
-X 29C C29 -500 -3850 300 R 60 60 1 1 P
-X 3C C3 -500 3950 300 R 60 60 1 1 P
-X 30C C30 -500 -4150 300 R 60 60 1 1 P
-X 31C C31 -500 -4450 300 R 60 60 1 1 P
-X 32C C32 -500 -4750 300 R 60 60 1 1 P
-X 4C C4 -500 3650 300 R 60 60 1 1 P
-X 5C C5 -500 3350 300 R 60 60 1 1 P
-X 6C C6 -500 3050 300 R 60 60 1 1 P
-X 7C C7 -500 2750 300 R 60 60 1 1 P
-X 8C C8 -500 2450 300 R 60 60 1 1 P
-X 9C C9 -500 2150 300 R 60 60 1 1 P
-ENDDRAW
-ENDDEF
-#
-# CONN_10-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue
-#
-DEF CONN_10-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue P 0 40 Y N 1 F N
+DEF Z80CTCDART2-rescue_CONN_10-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue P 0 40 Y N 1 F N
 F0 "P" -50 0 60 V V C CNN
-F1 "CONN_10-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 50 0 60 V V C CNN
+F1 "Z80CTCDART2-rescue_CONN_10-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue" 50 0 60 V V C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 DRAW
@@ -649,11 +489,11 @@ X P9 9 -350 -350 250 R 50 50 1 1 P I
 ENDDRAW
 ENDDEF
 #
-# CONN_13X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_CONN_13X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue
 #
-DEF CONN_13X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue P 0 10 Y N 1 F N
+DEF Z80CTCDART2-rescue_CONN_13X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue P 0 10 Y N 1 F N
 F0 "P" 0 700 60 H V C CNN
-F1 "CONN_13X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 0 50 V V C CNN
+F1 "Z80CTCDART2-rescue_CONN_13X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue" 0 0 50 V V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -687,11 +527,11 @@ X P9 9 -400 200 300 R 40 30 1 1 P I
 ENDDRAW
 ENDDEF
 #
-# CONN_25X2-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue
+# Z80CTCDART2-rescue_CONN_25X2-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue
 #
-DEF CONN_25X2-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue P 0 10 Y N 1 F N
+DEF Z80CTCDART2-rescue_CONN_25X2-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue P 0 10 Y N 1 F N
 F0 "P" 0 1300 60 H V C CNN
-F1 "CONN_25X2-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 0 0 50 V V C CNN
+F1 "Z80CTCDART2-rescue_CONN_25X2-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue" 0 0 50 V V C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 DRAW
@@ -749,11 +589,11 @@ X P9 9 -400 800 300 R 60 30 1 1 P I
 ENDDRAW
 ENDDEF
 #
-# CONN_4-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue
+# Z80CTCDART2-rescue_CONN_4-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue
 #
-DEF CONN_4-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue P 0 40 Y N 1 F N
+DEF Z80CTCDART2-rescue_CONN_4-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue P 0 40 Y N 1 F N
 F0 "P" -50 0 50 V V C CNN
-F1 "CONN_4-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 50 0 50 V V C CNN
+F1 "Z80CTCDART2-rescue_CONN_4-conn-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue" 50 0 50 V V C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 DRAW
@@ -765,11 +605,11 @@ X P4 4 -350 -150 250 R 50 50 1 1 P I
 ENDDRAW
 ENDDEF
 #
-# CONN_5X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_CONN_5X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue
 #
-DEF CONN_5X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue P 0 40 Y Y 1 F N
+DEF Z80CTCDART2-rescue_CONN_5X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue P 0 40 Y Y 1 F N
 F0 "P" 0 300 60 H V C CNN
-F1 "CONN_5X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 0 50 V V C CNN
+F1 "Z80CTCDART2-rescue_CONN_5X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue" 0 0 50 V V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -787,11 +627,11 @@ X ~ 9 -400 -200 300 R 60 60 1 1 P I
 ENDDRAW
 ENDDEF
 #
-# CONN_8X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_CONN_8X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue
 #
-DEF CONN_8X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue P 0 40 Y Y 1 F N
+DEF Z80CTCDART2-rescue_CONN_8X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue P 0 40 Y Y 1 F N
 F0 "P" 0 450 60 H V C CNN
-F1 "CONN_8X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 0 50 V V C CNN
+F1 "Z80CTCDART2-rescue_CONN_8X2-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue" 0 0 50 V V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -815,30 +655,11 @@ X ~ 9 -400 -50 300 R 60 60 1 1 P I
 ENDDRAW
 ENDDEF
 #
-# CP-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_CP-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue
 #
-DEF CP-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue C 0 10 N N 1 F N
+DEF Z80CTCDART2-rescue_CP-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue C 0 10 N N 1 F N
 F0 "C" 50 100 50 H V L CNN
-F1 "CP-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 50 -100 50 H V L CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-$FPLIST
- CP*
- SM*
-$ENDFPLIST
-DRAW
-P 4 0 1 8 -100 50 -100 -50 100 -50 100 50 N
-P 4 0 1 0 -50 50 -50 -20 50 -20 50 50 F
-X ~ 1 0 200 150 D 40 40 1 1 P
-X ~ 2 0 -200 150 U 40 40 1 1 P
-ENDDRAW
-ENDDEF
-#
-# CP-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue
-#
-DEF CP-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue C 0 10 N N 1 F N
-F0 "C" 50 100 50 H V L CNN
-F1 "CP-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 50 -100 50 H V L CNN
+F1 "Z80CTCDART2-rescue_CP-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue" 50 -100 50 H V L CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 $FPLIST
@@ -853,11 +674,11 @@ X ~ 2 0 -200 150 U 40 40 1 1 P
 ENDDRAW
 ENDDEF
 #
-# DIL14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_DIL14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue
 #
-DEF DIL14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue P 0 40 Y N 1 F N
+DEF Z80CTCDART2-rescue_DIL14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue P 0 40 Y N 1 F N
 F0 "P" 0 400 60 H V C CNN
-F1 "DIL14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 0 50 V V C CNN
+F1 "Z80CTCDART2-rescue_DIL14-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue" 0 0 50 V V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -879,11 +700,11 @@ X 9 9 350 -200 300 L 60 60 1 1 P I
 ENDDRAW
 ENDDEF
 #
-# GND-00JRCsch-Z80SERIAL3-rescue-Z80DARTCTC-rescue
+# Z80CTCDART2-rescue_GND-00JRCsch-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue
 #
-DEF GND-00JRCsch-Z80SERIAL3-rescue-Z80DARTCTC-rescue #PWR 0 0 Y Y 1 F P
+DEF Z80CTCDART2-rescue_GND-00JRCsch-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 0 30 H I C CNN
-F1 "GND-00JRCsch-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 0 -70 30 H I C CNN
+F1 "Z80CTCDART2-rescue_GND-00JRCsch-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue" 0 -70 30 H I C CNN
 F2 "" 0 0 60 H V C CNN
 F3 "" 0 0 60 H V C CNN
 DRAW
@@ -892,11 +713,11 @@ X GND 1 0 0 0 U 30 30 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# GND-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_GND-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue
 #
-DEF GND-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue #PWR 0 0 Y Y 1 F P
+DEF Z80CTCDART2-rescue_GND-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 0 30 H I C CNN
-F1 "GND-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -70 30 H I C CNN
+F1 "Z80CTCDART2-rescue_GND-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue" 0 -70 30 H I C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -905,11 +726,11 @@ X GND 1 0 0 0 U 30 30 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# GND-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue
+# Z80CTCDART2-rescue_GND-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue
 #
-DEF GND-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue #PWR 0 0 Y Y 1 F P
+DEF Z80CTCDART2-rescue_GND-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 0 30 H I C CNN
-F1 "GND-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 0 -70 30 H I C CNN
+F1 "Z80CTCDART2-rescue_GND-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue" 0 -70 30 H I C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 DRAW
@@ -918,11 +739,11 @@ X GND 1 0 0 0 U 30 30 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# MAX232-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_MAX232-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue
 #
-DEF MAX232-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 40 Y Y 1 F N
+DEF Z80CTCDART2-rescue_MAX232-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue U 0 40 Y Y 1 F N
 F0 "U" 0 850 70 H V C CNN
-F1 "MAX232-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -850 70 H V C CNN
+F1 "Z80CTCDART2-rescue_MAX232-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue" 0 -850 70 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -950,11 +771,11 @@ X R2OUT 9 -800 -700 300 R 60 50 1 1 O
 ENDDRAW
 ENDDEF
 #
-# R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue
 #
-DEF R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue R 0 0 N Y 1 F N
+DEF Z80CTCDART2-rescue_R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue R 0 0 N Y 1 F N
 F0 "R" 80 0 50 V V C CNN
-F1 "R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 0 50 V V C CNN
+F1 "Z80CTCDART2-rescue_R-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue" 0 0 50 V V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -971,11 +792,11 @@ X ~ 2 0 -250 100 U 60 60 1 1 P
 ENDDRAW
 ENDDEF
 #
-# R-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue
+# Z80CTCDART2-rescue_R-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue
 #
-DEF R-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue R 0 0 N Y 1 F N
+DEF Z80CTCDART2-rescue_R-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue R 0 0 N Y 1 F N
 F0 "R" 80 0 50 V V C CNN
-F1 "R-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 0 0 50 V V C CNN
+F1 "Z80CTCDART2-rescue_R-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue" 0 0 50 V V C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 $FPLIST
@@ -992,32 +813,11 @@ X ~ 2 0 -250 100 U 60 60 1 1 P
 ENDDRAW
 ENDDEF
 #
-# RR8-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue
+# Z80CTCDART2-rescue_SWITCH_INV-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
 #
-DEF RR8-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue RR 0 40 Y N 1 F N
-F0 "RR" 50 550 70 H V C CNN
-F1 "RR8-device-Z80SERIAL-rescue-Z80SERIAL2-rescue-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 30 0 70 V V C CNN
-F2 "" 0 0 60 H I C CNN
-F3 "" 0 0 60 H I C CNN
-DRAW
-P 6 0 1 0 -50 -400 -50 500 50 500 100 450 100 -400 -50 -400 N
-X COM 1 -350 450 300 R 60 60 1 1 P I
-X 2 2 -350 350 300 R 60 60 1 1 P I
-X 3 3 -350 250 300 R 60 60 1 1 P I
-X 4 4 -350 150 300 R 60 60 1 1 P I
-X 5 5 -350 50 300 R 60 60 1 1 P I
-X 6 6 -350 -50 300 R 60 60 1 1 P I
-X 7 7 -350 -150 300 R 60 60 1 1 P I
-X 8 8 -350 -250 300 R 60 60 1 1 P I
-X 9 9 -350 -350 300 R 60 60 1 1 P I
-ENDDRAW
-ENDDEF
-#
-# SWITCH_INV-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
-#
-DEF SWITCH_INV-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue SW 0 0 N Y 1 F N
+DEF Z80CTCDART2-rescue_SWITCH_INV-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue SW 0 0 N Y 1 F N
 F0 "SW" -200 150 50 H V C CNN
-F1 "SWITCH_INV-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" -150 -150 50 H V C CNN
+F1 "Z80CTCDART2-rescue_SWITCH_INV-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" -150 -150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -1031,11 +831,11 @@ X 3 3 500 -100 300 L 60 60 1 1 P
 ENDDRAW
 ENDDEF
 #
-# VCC-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue
+# Z80CTCDART2-rescue_VCC-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue
 #
-DEF VCC-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue #PWR 0 0 Y Y 1 F P
+DEF Z80CTCDART2-rescue_VCC-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 100 30 H I C CNN
-F1 "VCC-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue" 0 100 30 H V C CNN
+F1 "Z80CTCDART2-rescue_VCC-power-Z80SERIAL3-rescue-Z80DARTCTC-rescue-Z80CTCDART-rescue" 0 100 30 H V C CNN
 F2 "" 0 0 60 H I C CNN
 F3 "" 0 0 60 H I C CNN
 DRAW
@@ -1045,11 +845,11 @@ X VCC 1 0 0 0 U 20 20 0 0 W N
 ENDDRAW
 ENDDEF
 #
-# Z80-CTC-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_Z80-CTC-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue
 #
-DEF Z80-CTC-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 1 F N
+DEF Z80CTCDART2-rescue_Z80-CTC-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue U 0 30 Y Y 1 F N
 F0 "U" 0 1100 60 H V C CNN
-F1 "Z80-CTC-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -1100 60 H V C CNN
+F1 "Z80CTCDART2-rescue_Z80-CTC-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue" 0 -1100 60 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -1085,11 +885,11 @@ X ZC/TO2 9 900 -150 300 L 60 60 1 1 O
 ENDDRAW
 ENDDEF
 #
-# Z80-DART-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# Z80CTCDART2-rescue_Z80-DART-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue
 #
-DEF Z80-DART-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 1 F N
+DEF Z80CTCDART2-rescue_Z80-DART-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue U 0 30 Y Y 1 F N
 F0 "U" 0 1200 60 H V C CNN
-F1 "Z80-DART-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -1200 60 H V C CNN
+F1 "Z80CTCDART2-rescue_Z80-DART-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue-Z80CTCDART-rescue" 0 -1200 60 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -1102,15 +902,15 @@ X RXCA 13 900 950 300 L 60 60 1 1 I I
 X TXCA 14 900 750 300 L 60 60 1 1 I I
 X TXDA 15 900 850 300 L 60 60 1 1 O
 X DTRA 16 900 150 300 L 60 60 1 1 O I
-X RSTA 17 900 350 300 L 60 60 1 1 O I
-X CSTA 18 900 250 300 L 60 60 1 1 I I
+X RTSA 17 900 350 300 L 60 60 1 1 O I
+X CTSA 18 900 250 300 L 60 60 1 1 I I
 X DCDA 19 900 50 300 L 60 60 1 1 I I
 X D3 2 -900 750 300 R 60 60 1 1 B
 X CLK 20 -900 -1050 300 R 60 60 1 1 I C
 X RESET 21 -900 50 300 R 60 60 1 1 I I
 X DCDB 22 900 -1050 300 L 60 60 1 1 I I
 X CTSB 23 900 -850 300 L 60 60 1 1 I I
-X RSTB 24 900 -750 300 L 60 60 1 1 O I
+X RTSB 24 900 -750 300 L 60 60 1 1 O I
 X DTRB 25 900 -950 300 L 60 60 1 1 O I
 X TXDB 26 900 -250 300 L 60 60 1 1 O
 X RXTXCB 27 900 -350 300 L 60 60 1 1 I I
@@ -1137,55 +937,116 @@ X +5V 9 -600 1150 0 D 60 60 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# Z80-PIO-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue
+# conn_CONN_01X02
 #
-DEF Z80-PIO-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue U 0 30 Y Y 1 F N
-F0 "U" 0 1150 60 H V C CNN
-F1 "Z80-PIO-Zilog-Peripherals-rescue-Zilog-Peripherals-rescue" 0 -1150 60 H V C CNN
+DEF conn_CONN_01X02 J 0 40 Y N 1 F N
+F0 "J" 0 150 50 H V C CNN
+F1 "conn_CONN_01X02" 100 0 50 V V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ Pin_Header_Straight_1X*
+ Pin_Header_Angled_1X*
+ Socket_Strip_Straight_1X*
+ Socket_Strip_Angled_1X*
+$ENDFPLIST
+DRAW
+S -50 -45 10 -55 0 1 0 N
+S -50 55 10 45 0 1 0 N
+S -50 100 50 -100 0 1 0 N
+X P1 1 -200 50 150 R 50 50 1 1 P
+X P2 2 -200 -50 150 R 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# conn_CONN_01X03
+#
+DEF conn_CONN_01X03 J 0 40 Y N 1 F N
+F0 "J" 0 200 50 H V C CNN
+F1 "conn_CONN_01X03" 100 0 50 V V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ Pin_Header_Straight_1X*
+ Pin_Header_Angled_1X*
+ Socket_Strip_Straight_1X*
+ Socket_Strip_Angled_1X*
+$ENDFPLIST
+DRAW
+S -50 -95 10 -105 0 1 0 N
+S -50 5 10 -5 0 1 0 N
+S -50 105 10 95 0 1 0 N
+S -50 150 50 -150 0 1 0 N
+X P1 1 -200 100 150 R 50 50 1 1 P
+X P2 2 -200 0 150 R 50 50 1 1 P
+X P3 3 -200 -100 150 R 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# device_LED
+#
+DEF device_LED D 0 40 N N 1 F N
+F0 "D" 0 100 50 H V C CNN
+F1 "device_LED" 0 -100 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ LED*
+ LED_SMD:*
+ LED_THT:*
+$ENDFPLIST
+DRAW
+P 2 0 1 10 -50 -50 -50 50 N
+P 2 0 1 0 -50 0 50 0 N
+P 4 0 1 10 50 -50 50 50 -50 0 50 -50 N
+P 5 0 1 0 -120 -30 -180 -90 -150 -90 -180 -90 -180 -60 N
+P 5 0 1 0 -70 -30 -130 -90 -100 -90 -130 -90 -130 -60 N
+X K 1 -150 0 100 R 50 50 1 1 P
+X A 2 150 0 100 L 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# mechanical_MountingHole_Pad
+#
+DEF mechanical_MountingHole_Pad H 0 40 N N 1 F N
+F0 "H" 0 250 50 H V C CNN
+F1 "mechanical_MountingHole_Pad" 0 175 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ MountingHole*Pad*
+$ENDFPLIST
+DRAW
+C 0 50 50 0 1 50 N
+X 1 1 0 -100 100 U 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+# power_PWR_FLAG
+#
+DEF power_PWR_FLAG #FLG 0 0 N N 1 F P
+F0 "#FLG" 0 75 50 H I C CNN
+F1 "power_PWR_FLAG" 0 150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
-S -650 -1100 650 1100 0 1 0 N
-X D2 1 -950 800 300 R 60 60 1 1 B
-X PA4 10 950 600 300 L 60 60 1 1 B
-X GND 11 -650 -1100 0 U 60 60 1 1 W N
-X PA3 12 950 700 300 L 60 60 1 1 B
-X PA2 13 950 800 300 L 60 60 1 1 B
-X PA1 14 950 900 300 L 60 60 1 1 B
-X PA0 15 950 1000 300 L 60 60 1 1 B
-X ASTB 16 950 0 300 L 60 60 1 1 I I
-X BSTB 17 950 -1000 300 L 60 60 1 1 I I
-X ARDY 18 950 200 300 L 60 60 1 1 O
-X D0 19 -950 1000 300 R 60 60 1 1 B
-X D7 2 -950 300 300 R 60 60 1 1 B
-X D1 20 -950 900 300 R 60 60 1 1 B
-X BRDY 21 950 -900 300 L 60 60 1 1 O
-X IEO 22 -950 -100 300 R 60 60 1 1 O
-X INT 23 -950 100 300 R 60 60 1 1 C I
-X IEI 24 -950 0 300 R 60 60 1 1 I
-X CLK 25 -950 -1000 300 R 60 60 1 1 I C
-X VCC 26 -650 1100 0 D 60 60 1 1 W N
-X PB0 27 950 -100 300 L 60 60 1 1 B
-X PB1 28 950 -200 300 L 60 60 1 1 B
-X PB2 29 950 -300 300 L 60 60 1 1 B
-X D6 3 -950 400 300 R 60 60 1 1 B
-X PB3 30 950 -400 300 L 60 60 1 1 B
-X PB4 31 950 -500 300 L 60 60 1 1 B
-X PB5 32 950 -600 300 L 60 60 1 1 B
-X PB6 33 950 -700 300 L 60 60 1 1 B
-X PB7 34 950 -800 300 L 60 60 1 1 B
-X RD 35 -950 -400 300 R 60 60 1 1 I I
-X IORQ 36 -950 -500 300 R 60 60 1 1 I I
-X M1 37 -950 -600 300 R 60 60 1 1 I I
-X D5 38 -950 500 300 R 60 60 1 1 B
-X D4 39 -950 600 300 R 60 60 1 1 B
-X CE 4 -950 -300 300 R 60 60 1 1 I I
-X D3 40 -950 700 300 R 60 60 1 1 B
-X C/D 5 -950 -700 300 R 60 60 1 1 I
-X B/A 6 -950 -800 300 R 60 60 1 1 I
-X PA7 7 950 300 300 L 60 60 1 1 B
-X PA6 8 950 400 300 L 60 60 1 1 B
-X PA5 9 950 500 300 L 60 60 1 1 B
+P 6 0 1 0 0 0 0 50 -40 75 0 100 40 75 0 50 N
+X pwr 1 0 0 0 U 50 50 0 0 w
+ENDDRAW
+ENDDEF
+#
+# power_VCC
+#
+DEF power_VCC #PWR 0 0 Y Y 1 F P
+F0 "#PWR" 0 -150 50 H I C CNN
+F1 "power_VCC" 0 150 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+P 2 0 1 0 -30 50 0 100 N
+P 2 0 1 0 0 0 0 100 N
+P 2 0 1 0 0 100 30 50 N
+X VCC 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
