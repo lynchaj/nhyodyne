@@ -582,6 +582,11 @@ IDE_CONVERT_SECTOR:
 	ROR	slicetmp
 	ROR 	slicetmp+1
 	ROR	slicetmp
+
+	LDA 	dskcfg,X 		; GET SLICE#
+	clc
+	adc 	slicetmp
+	sta 	slicetmpk
 					; ADD SLICE OFFSET TO TRACK #
 	clc				; clear carry
 	lda slicetmp
@@ -590,6 +595,8 @@ IDE_CONVERT_SECTOR:
 	lda slicetmp+1
 	adc debcylm			; add the MSBs using carry from
 	sta debcylm			; the previous calculation
+
+
 
 
   .IF USEDSKY=1 || USEDSKYNG=1
