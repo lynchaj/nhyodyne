@@ -4,9 +4,9 @@ Here is a list of the current circuit boards:
 Z80 backplane V1
 Z80 backplane V2
 Z80 clock V2
-Z80 CTCDART V1 (in development)
+Z80 CTCDART V2
 Z80 DMA V2
-Z80 DUALPIO V1 (in development)
+Z80 DUALPIO V2
 Z80 DUART (PLCC-44)
 Z80 FDC V1
 Z80 KBDMSE V1
@@ -23,7 +23,9 @@ Z80 VDC V1
 Upcoming boards to be released:
 
 Z80 PRINT V1
-Z80 SOUND V1
+Z80 PSG V1
 Z80 SPI
 Z80 USD-SD V1
-Z80 VIDEO V1
+Z80 VDP V1
+Z80 ADCDAC V1
+Z80 BusTerm V1
