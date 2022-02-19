@@ -586,7 +586,7 @@ IDE_CONVERT_SECTOR:
 	LDA 	dskcfg,X 		; GET SLICE#
 	clc
 	adc 	slicetmp
-	sta 	slicetmpk
+	sta 	slicetmp
 					; ADD SLICE OFFSET TO TRACK #
 	clc				; clear carry
 	lda slicetmp
