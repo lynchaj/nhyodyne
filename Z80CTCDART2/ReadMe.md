@@ -28,3 +28,18 @@ Note: can connect J1 pin 2 via flying lead to Z80 processor IM2 connector
 J2 TTL Level Serial Ports Power, connect 1-2 for Port A Power, connect 3-4 for Port B Power, default is none
 
 P10 connect 1-2 for system timer, none for no system timer, default is 1-2
+
+# Notes
+
+There is a problem with the bus transceiver logic and there is a patch to fix it.  The IO port decoder/data_dir design does not share a common 16 byte IO address space as planned.  The fix has been tested on Z80 CTCDART V2 and Z80 DUALPIO V2 boards and works just as intended using only 8 IO port addresses with no interference.  Both CTCDART and DUALPIO boards have this problem.
+
+It is an easy patch to make.  No trace cuts and just one jumper on copper side and another on the component side.  The fix is optional because the board works fine unmodified but requires an entire 16 byte block to not interfere with another board.  For example, $B0-$BF or $A0-AF unmodified or $B0-B7 or $A8-AF modified.
+
+Placing the CTCDART at $B0-$B7 and DUALPIO at $B8-$BF and they coexist peaceably. TIMER/C runs no problem as does 2PIOTST generates the right responses. No more annoying interference between the two boards.
+
+The patch is the same for both boards:
+
+U17, pin 2 (74LS138) to U5, pin 13 (74LS14); jumper on copper side
+U5, pin 12 (74LS14) to U1A, pin 5 (74LS20); lift pins & jumper on component side
+
+The board is close enough now for some extended testing to shake out any other possible bugs. These problems will be fixed in the next PCB respin.
