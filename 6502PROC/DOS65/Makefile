@@ -4,7 +4,7 @@ all:  	dos65.s19 dos65.hex dos65.com cpm.co6 assign.co6 alloc.co6 asm.co6 \
 	dbasic.co6
 
 
-dos65.out: dos65.asm ccmnhy.asm pem215.asm simnhy.asm macro.asm dosmd.asm doside.asm dosdskyn.asm
+dos65.out: dos65.asm ccmnhy.asm pemnhy.asm simnhy.asm macro.asm dosmd.asm doside.asm dosdskyn.asm
 	ca65 dos65.asm -l dos65.lst
 	ld65 dos65.o -m dos65.map -C dos65.cfg -o dos65.out
 
@@ -146,7 +146,7 @@ sedit.co6: sedit.out
 	srec_cat  sedit.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  sedit.s19  -data-only
 	srec_cat  sedit.s19  -offset -0x0800  -o  seditA.s  -data-only
 	srec_cat  seditA.s -o sedit.co6  -BINARY
-	@rm -f editA.s
+	@rm -f seditA.s
 	cp sedit.co6 bin/
 
 cpm.co6: cpm.out
