@@ -128,7 +128,7 @@ DEBUG	=	0		; assemble with debug information on
                 .segment "OS"
 		.ORG $B800
 		.include "ccmnhy.asm"
-		.include "pem215.asm"
+		.include "pemnhy.asm"
 		.include "simnhy.asm"
 
 	.end

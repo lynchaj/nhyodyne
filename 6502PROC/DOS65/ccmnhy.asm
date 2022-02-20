@@ -5,6 +5,8 @@
 ;  DWERNER 12/20/2021 	ported to Nhyodyne
 ;  DWERNER 12/30/2021   changed .COM files to .CO6 files to reduce confusion when
 ;                       sharing CP/M file system images
+;  DWERNER 02/19/2022   Strip off Most significant bit of file name in dir to
+;			make filesystem compatible with ROMWBW
 ;________________________________________________________________________________________________________________________________
 
 ;ccm unique definitions
@@ -148,6 +150,7 @@ dirl:	jsr	hdr		;do header
 	iny			;and bump
 	ldx	#1		;set counter
 nmelpe:	lda	dflbuf,y	;get name
+	AND 	#$7F		;mask out read only bit
 	jsr	cotsxy		;else send to console
 noname:	iny			;bump index
 	inx			;and count
