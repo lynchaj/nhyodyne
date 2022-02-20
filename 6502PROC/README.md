@@ -226,7 +226,8 @@ Monitor Supports the following Commands:
 
         The CP/M program DOS65.com will load DOS/65 and transition control from Z80 CP/M to 65c02 DOS/65.
 
-        DOS/65 will recognize Old style ROMWBW slices and CP/M images.
+        DOS/65 will read and write from HD_512 style ROMWBW slices and CP/M images. HD_1024 images are not supported.
+
         Rather than running .COM files, DOS/65 will run .CO6 files.
 
         currently DOS/65 supports PPIDE, serial, and DSKYNG devices
