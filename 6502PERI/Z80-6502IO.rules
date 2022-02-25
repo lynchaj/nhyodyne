@@ -1,0 +1,111 @@
+
+(rules PCB Z80-6502IO
+  (snap_angle 
+    fortyfive_degree
+  )
+  (autoroute_settings
+    (fanout on)
+    (autoroute on)
+    (postroute on)
+    (vias on)
+    (via_costs 50)
+    (plane_via_costs 5)
+    (start_ripup_costs 100)
+    (start_pass_no 12239)
+    (layer_rule F.Cu
+      (active on)
+      (preferred_direction horizontal)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 2.0)
+    )
+    (layer_rule B.Cu
+      (active on)
+      (preferred_direction vertical)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 2.0)
+    )
+  )
+  (rule
+    (width 250.0)
+    (clear 200.2)
+    (clear 0.0 (type smd_to_turn_gap))
+    (clear 50.0 (type smd_smd))
+  )
+  (padstack "Via[0-1]_600:400_um"
+    (shape
+      (circle F.Cu 600.0 0.0 0.0)
+    )
+    (shape
+      (circle B.Cu 600.0 0.0 0.0)
+    )
+    (attach off)
+  )
+  (via 
+    "Via[0-1]_600:400_um" "Via[0-1]_600:400_um" default
+  )
+  (via 
+    "Via[0-1]_600:400_um-kicad_default" "Via[0-1]_600:400_um" "kicad_default"
+  )
+  (via 
+    "Via[0-1]_600:400_um-Power" "Via[0-1]_600:400_um" Power
+  )
+  (via_rule
+    default "Via[0-1]_600:400_um"
+  )
+  (via_rule
+    "kicad_default" "Via[0-1]_600:400_um-kicad_default"
+  )
+  (via_rule
+    Power "Via[0-1]_600:400_um-Power"
+  )
+  (class default
+    (clearance_class default)
+    (via_rule default)
+    (rule
+      (width 250.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class "kicad_default"
+    "Net-(RR1-Pad2)" "Net-(RR1-Pad3)" "Net-(RR1-Pad4)" "Net-(RR1-Pad5)" "Net-(RR1-Pad6)" "Net-(RR1-Pad7)" "Net-(RR1-Pad8)" "Net-(RR1-Pad9)"
+    "Net-(D1-Pad2)" "Net-(D2-Pad2)" /688SEL# "Net-(C12-Pad2)" "Net-(C12-Pad1)" "Net-(C13-Pad2)" "Net-(C13-Pad1)" +12V
+    "Net-(C15-Pad2)" "Net-(C15-Pad1)" "Net-(C16-Pad2)" "Net-(C16-Pad1)" "Net-(C18-Pad2)" "Net-(C18-Pad1)" "Net-(D1-Pad1)" NMI#
+    IRQV# INT# IRQA# DSR "Net-(K3-Pad2)" CTS SPARE8 SPARE7
+    SPARE6 SPARE5 SPARE4 SPARE3 SPARE2 SPARE1 SPARE0 "SLAVE_CLK"
+    IORQ# RD# MREQ# WR# HALT# BUSACK# WAIT# BUSRQ#
+    D1 RESET# D0 M1# D7 RFSH# D2 A0
+    D6 A1 D5 A2 D3 A3 D4 A4
+    CLK A5 A15 A6 A14 A7 A13 A8
+    A12 A9 A11 A10 "Net-(P5-Pad24)" "Net-(P5-Pad23)" "Net-(P5-Pad22)" "Net-(P5-Pad21)"
+    CB2 CA2 CB1 CA1 PB7 PA7 PB6 PA6
+    PB5 PA5 PB4 PA4 PB3 PA3 PB2 PA2
+    PB1 PA1 PB0 PA0 "Net-(R3-Pad2)" "Net-(SW1-Pad14)" "Net-(SW1-Pad13)" "Net-(SW1-Pad12)"
+    "Net-(SW1-Pad11)" "Net-(SW1-Pad10)" "Net-(SW1-Pad9)" bA4 bA0 bA5 bA1 bA2
+    bA3 "BOARD_CS#" bD0 bD1 bD2 bD3 bD4 bD5
+    bD6 bD7 bRESET# "Net-(U3-Pad8)" "Net-(U3-Pad6)" bWR# "Net-(U3-Pad14)" bRD#
+    "Net-(U3-Pad12)" "Net-(U8-Pad6)" bA6 bA7 bM1# TxD RxD "Net-(P3-Pad3)"
+    RTS "Net-(U4-Pad2)" bRW# "CS_SID#" "CS_ACIA1#" "Net-(U6-Pad5)" "CS_VIA1#" "Net-(U8-Pad11)"
+    "Net-(U8-Pad7)" "Net-(U8-Pad5)" "Net-(U8-Pad16)" "Net-(U10-Pad26)" "Net-(U10-Pad24)" "Net-(U10-Pad23)" SPARE9
+    (clearance_class "kicad_default")
+    (via_rule kicad_default)
+    (rule
+      (width 250.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class Power
+    VCC GND
+    (clearance_class Power)
+    (via_rule Power)
+    (rule
+      (width 1000.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+)

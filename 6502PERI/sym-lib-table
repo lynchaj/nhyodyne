@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name Z80PPIDE2-rescue)(type Legacy)(uri ${KIPRJMOD}/Z80PPIDE2-rescue.lib)(options "")(descr ""))
+  (lib (name Maxim)(type Legacy)(uri "/Users/racini/Documents/KiCad Custom Libraries/Maxim/MAX662ACPA_.lib")(options "")(descr ""))
+)
