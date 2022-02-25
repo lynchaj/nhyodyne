@@ -4,7 +4,7 @@ Provides GI AY-3-8910 Programmable Sound Generator with three channel FM synthes
 
 Atari or MSX compatible joysticks or paddles
 
-Power and chip select LEDs
+Power, chip select, and status LEDs
 
 IO ports $E8-$EB
 
