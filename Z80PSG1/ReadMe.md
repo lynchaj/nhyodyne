@@ -25,3 +25,7 @@ J1 POT/VCC pins 1-2-3, default is none
 J2 JOYBG/VCC pins 1-2-3, default is none
 
 need to select Atari or MSX compatible joystick, use J1 and J2 to enable one or the other or leave empty for neither
+
+# Notes
+
+Found an error in the schematic, the audio oscillator should be 3.5795 MHz not 3.57595 MHz.  Updated the tech data to reflect change however PCB will have 3.57595 MHz on silkscreen.  Just ignore it and use the proper frequency oscillator.  It will become obvious once you try to purchase a oscillator that the 3.57595 MHz does not exist.  Will update on the next revision of the PCB but not worth a respin on this alone.
