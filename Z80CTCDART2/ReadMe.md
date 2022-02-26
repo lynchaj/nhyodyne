@@ -38,6 +38,10 @@ P10 connect 1-2 for system timer 3, none for no system timer, default is 1-2
 
 # Notes
 
+There is a problem with the Z80 CTCDART V2 serial port channel B but there is an easy fix. The DCDB pin needs to be grounded for the serial port channel B to receive data. Just add a short jumper between DCDB U9, pin 22 (DART or SIO) and Ground U9, pin 31 (or any other close by ground pin) on the copper side of the PCB.
+
+Serial port channel B transmits data just fine but due to a peculiar initialization of the DART or SIO pins DCDB has to be grounded for it to receive data. This change will be added to the upcoming PCB respin for Z80 CTCDART V3 when it comes out.
+
 There is a problem with the bus transceiver logic and a patch to fix it.  The IO port decoder/data_dir design for CTCDART & DUALPIO does not share a common 16 byte IO address space as planned.  The fix has been tested on Z80 CTCDART V2 and Z80 DUALPIO V2 boards and works as intended using only 8 IO port addresses with no interference.  Both CTCDART and DUALPIO boards have this problem and need the patch.
 
 It is an easy patch to make.  No trace cuts and just one jumper on copper side and another on the component side.  The fix is optional because the board works fine unmodified but requires an entire 16 byte block to not interfere with another board.  For example, $B0-$BF & $A0-AF unmodified or $B0-B7 & $B8-BF modified.
