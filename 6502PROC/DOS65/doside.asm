@@ -143,6 +143,51 @@ PPIDE_PROBE_FAIL:
 PPIDE_PROBE_SUCCESS:
 	RTS				; DONE, NOTE THAT A=0 AND Z IS SET
 
+
+;___IDE_IDENTIFY_TYPE____________________________________________________________________________________
+;
+; 	READ THE DISK TYPE AND DETERMINE IF IT IS USABLE BY DOS/65
+; 	A=IDE DEVICE (0=MST,1=SLV)
+;________________________________________________________________________________________________________
+
+IDE_IDENTIFY_TYPE:
+	PHA
+	JSR	IDE_WAIT_NOT_BUSY	;MAKE SURE DRIVE IS READY
+	BCS 	IDE_IDENTIFY_TYPE_ERROR	; IF TIMEOUT, REPORT ERROR
+	LDA 	#$00
+	STA	debsehd
+	STA	debcyll			; STORE IN TRACK (lsb)
+	STA	debcylm			; STORE IN TRACK (msb)
+	PLA				; GET DRIVE TYPE
+	JSR 	IDE_READ_SECTOR_DIRTY1
+	CMP 	#$FF			; IS THERE A READ ERROR?
+	BEQ 	IDE_IDENTIFY_TYPE_ERROR
+	LDA 	hstbuf+$01FE
+	CMP 	#$55
+	BNE 	IDE_IDENTIFY_TYPE_OK
+	LDA 	hstbuf+$01FF
+	CMP 	#$AA
+	BNE 	IDE_IDENTIFY_TYPE_OK
+	LDA 	hstbuf+$01C2
+	CMP 	#$00
+	BNE 	IDE_IDENTIFY_TYPE_ERROR
+	LDA 	hstbuf+$01D2
+	CMP 	#$00
+	BNE 	IDE_IDENTIFY_TYPE_ERROR
+	LDA 	hstbuf+$01E2
+	CMP 	#$00
+	BNE 	IDE_IDENTIFY_TYPE_ERROR
+	LDA 	hstbuf+$01F2
+	CMP 	#$00
+	BNE 	IDE_IDENTIFY_TYPE_ERROR
+IDE_IDENTIFY_TYPE_OK:
+	LDA 	#$00			; EVERYTHING IS AWESOME
+	RTS
+IDE_IDENTIFY_TYPE_ERROR:
+	LDA 	#$FF			; SIGNIFY ERROR
+	RTS
+
+
 ;*__IDE_READ_INFO___________________________________________________________________________________
 ;*
 ;*  READ IDE INFORMATION
@@ -151,7 +196,8 @@ PPIDE_PROBE_SUCCESS:
 ;*____________________________________________________________________________________________________
 IDE_READ_INFO:
 		PRTDBG "IDE Read INFORMATION$"
-
+		PHA
+		PHA
 		; SET DRIVE BIT
 		AND 	#$01			; ONLY WANT THE 1 BIT (MST/SLV)
 		asl	a			; SHIFT 4
@@ -182,15 +228,57 @@ IDE_READ_INFO:
 		JSR 	PRTHEXBYTE
 		LDA 	hstbuf+120
 		JSR 	PRTHEXBYTE
-		JSR	NEWLINE
-		CLC
-		RTS
+		PLA
+		JSR 	IDE_IDENTIFY_TYPE
+		CMP 	#$00
+		BNE 	IDE_READ_INFO_BADFS
+		JMP 	IDE_READ_INFO_OK
 IDE_READ_INFO_ABORT:
+		PLA
 		PRTS    "NOT PRESENT$"		; NOT PRESENT
 		JSR	NEWLINE
+		PLA
+		JSR 	IDE_REMOVE_DRIVE_ASSIGNMENTS
 		SEC
 		RTS				;
+IDE_READ_INFO_BADFS:
+		PRTS    " BAD FILESYSTEM$"	; NOT PRESENT
+		JSR	NEWLINE
+		PLA
+		JSR 	IDE_REMOVE_DRIVE_ASSIGNMENTS
+		SEC
+		RTS				;
+IDE_READ_INFO_OK:
+		PRTS    " FILE SYSTEM COMPATIBLE$" ; NOT PRESENT
+		JSR	NEWLINE
+		PLA
+		CLC
+		RTS
 
+IDE_REMOVE_DRIVE_ASSIGNMENTS:
+		CLC
+		ADC	#$30
+		LDX 	#$00
+@1:
+		CMP 	dskcfg,X 		; GET device
+		BEQ 	@2
+		INX
+		INX
+		CPX 	#16
+		bne 	@1
+		jmp 	@3
+@2:
+		PHA
+		LDA 	#$00
+		STA 	dskcfg,X 		; SET device
+		INX
+		STA 	dskcfg,X 		; SET device
+		pla
+		INX
+		CPX 	#16
+		bne 	@1
+@3:
+		rts
 
 ;__IDE_PPIDETECT____________________________________________________________________________________
 ;
@@ -246,6 +334,8 @@ IDE_READ_SECTOR_DIRTY:
 		PRTDBG "IDE Read Sector Buffer Dirty$"
 		JSR	IDE_WAIT_NOT_BUSY	;MAKE SURE DRIVE IS READY
 		BCS 	IDE_READ_SECTOR_DIRTY_ERROR	; IF TIMEOUT, REPORT NO IDE PRESENT
+		JSR 	GET_DRIVE_DEVICE
+IDE_READ_SECTOR_DIRTY1:
 		JSR	IDE_SETUP_LBA		;TELL IT WHICH SECTOR WE WANT
 		LDA	#PPIDE_COMMAND		;SELECT IDE REGISTER
 		LDX	#PPIDE_CMD_READ
@@ -277,7 +367,7 @@ IDE_WRITE_SECTOR:
 	  	JSR	BLKSECR512		; block sector for writing
 		JSR	IDE_WAIT_NOT_BUSY	;MAKE SURE DRIVE IS READY
 		BCS 	IDE_WRITE_SECTOR_ERROR	; IF TIMEOUT, REPORT NO IDE PRESENT
-
+		JSR 	GET_DRIVE_DEVICE
 		JSR	IDE_SETUP_LBA		;TELL IT WHICH SECTOR WE WANT
 		LDA	#PPIDE_COMMAND
 		LDX	#PPIDE_CMD_WRITE
@@ -479,11 +569,10 @@ IDEBUFWT1:
 ;*__IDE_SETUP_LBA_____________________________________________________________________________________
 ;*
 ;*  SETUP LBA DATA
-;*
+;*  A= DRIVE DEVICE
 ;*____________________________________________________________________________________________________
 IDE_SETUP_LBA:
 		PRTDBG "PPIDE SETUP LBA$"
-		JSR 	GET_DRIVE_DEVICE
 		and 	#$01			; only want drive cfg
 		asl	a			; SHIFT 4
 		asl	a			;
