@@ -2387,7 +2387,7 @@ AR Path="/23CBC44B93F507" Ref="P?"  Part="1"
 AR Path="/23CCC84B93F507" Ref="P?"  Part="1" 
 AR Path="/FFFFFFF04B93F507" Ref="P?"  Part="1" 
 F 0 "U11" H 13950 2700 60  0000 C CNN
-F 1 "3.57595 MHz" V 13950 2300 50  0000 C CNN
+F 1 "3.5795 MHz" V 13950 2300 50  0000 C CNN
 F 2 "Package_DIP:DIP-14_W7.62mm" H 13950 2300 60  0001 C CNN
 F 3 "" H 13950 2300 60  0001 C CNN
 	1    13950 2300
@@ -3198,9 +3198,9 @@ Wire Wire Line
 Wire Wire Line
 	17350 6450 17500 6450
 Text Notes 13300 1700 0    60   ~ 0
-NOTE: AY-3-8910 CLOCK IS MSX\nCOMPATIBLE 3.57595 MHz / 2\nMAXIMUM CLOCK IS 2.0000 MHz
+NOTE: AY-3-8910 CLOCK IS MSX\nCOMPATIBLE 3.5795 MHz / 2\nMAXIMUM CLOCK IS 2.0000 MHz
 Text Notes 15450 2850 0    60   ~ 0
-J5: Sound Config\n\n  1-2: All channels merged onto channel C\n  3-4: All channels merged onto channel A\n\nThe sound chip drives a total of three audio\nchannels (A-C). The center channel (B) is \nhard-wired to mix it's output into channels \nA & C (left & right). If you want to bridge all \nthree channels to produce monophonic \noutput, you can short pins 1-2 and/or 3-4.\n\n* 5-7:  Audio Oscillator / 2\n  7-9:  Audio Oscillator / 8\n  6-8:  Audio Oscillator / 1\n  8-10: Audio Oscillator / 4\n\nYou must short one (and only one) set of pins above. \nThese pins allow scaling the audio chip oscillator input. \nThe default configuration is 1/2 scaling with an oscillator \nfrequency of 3.57595 MHz which is the MSX compatible\nfrequency.  The maximum frequency allowed by the \nAY-3-8910 chip is 2.0000 MHz.  Incorrect setting of the \noscillator frequency will result in distorted sound output.
+J5: Sound Config\n\n  1-2: All channels merged onto channel C\n  3-4: All channels merged onto channel A\n\nThe sound chip drives a total of three audio\nchannels (A-C). The center channel (B) is \nhard-wired to mix it's output into channels \nA & C (left & right). If you want to bridge all \nthree channels to produce monophonic \noutput, you can short pins 1-2 and/or 3-4.\n\n* 5-7:  Audio Oscillator / 2\n  7-9:  Audio Oscillator / 8\n  6-8:  Audio Oscillator / 1\n  8-10: Audio Oscillator / 4\n\nYou must short one (and only one) set of pins above. \nThese pins allow scaling the audio chip oscillator input. \nThe default configuration is 1/2 scaling with an oscillator \nfrequency of 3.5795 MHz which is the MSX compatible\nfrequency.  The maximum frequency allowed by the \nAY-3-8910 chip is 2.0000 MHz.  Incorrect setting of the \noscillator frequency will result in distorted sound output.
 Wire Wire Line
 	16050 11500 15650 11500
 Wire Wire Line

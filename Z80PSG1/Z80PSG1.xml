@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <export version="D">
   <design>
-    <source>C:\Users\Andrew\Desktop\System CD Updates\data\Z80MBC\!future\Z80PSG1\Z80PSG1.sch</source>
-    <date>2/20/2022 11:30:49 AM</date>
+    <source>C:\Users\Andrew\Desktop\System CD Updates\data\Z80MBC\Z80PSG1\Z80PSG1.sch</source>
+    <date>2/26/2022 2:01:50 PM</date>
     <tool>Eeschema (5.1.10)-1</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -358,7 +358,7 @@
       <tstamp>4B93F748</tstamp>
     </comp>
     <comp ref="U11">
-      <value>3.57595 MHz</value>
+      <value>3.5795 MHz</value>
       <footprint>Package_DIP:DIP-14_W7.62mm</footprint>
       <libsource lib="Z80PSG1-rescue" part="DIL14-conn1" description=""/>
       <sheetpath names="/" tstamps="/"/>
@@ -1119,7 +1119,7 @@
       <uri>C:\Program Files\KiCad\share\kicad\library/Switch.lib</uri>
     </library>
     <library logical="Z80PSG1-rescue">
-      <uri>C:\Users\Andrew\Desktop\System CD Updates\data\Z80MBC\!future\Z80PSG1/Z80PSG1-rescue.lib</uri>
+      <uri>C:\Users\Andrew\Desktop\System CD Updates\data\Z80MBC\Z80PSG1/Z80PSG1-rescue.lib</uri>
     </library>
     <library logical="conn">
       <uri>C:\Program Files\KiCad\share\kicad\library/conn.lib</uri>
