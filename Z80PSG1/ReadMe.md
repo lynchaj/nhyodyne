@@ -19,7 +19,7 @@ pins 7-9 audio oscillator /8
 pins 6-8 audio oscillator /1
 pins 8-10 audio oscillator /4
 
-default is pins 5-7 closed assuming a 3.57595 MHz audio oscillator
+default is pins 5-7 closed assuming a 3.5795 MHz audio oscillator
 
 J1 POT/VCC pins 1-2-3, default is none
 J2 JOYBG/VCC pins 1-2-3, default is none
