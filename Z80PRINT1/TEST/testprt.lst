@@ -1,0 +1,84 @@
+0001   0000             ;__TESTPRT________________________________________________________________________________________
+0002   0000             ;
+0003   0000             ;	TESTPRT         Test Nhyodyne Printer
+0004   0000             ;
+0005   0000             ;	WRITTEN BY: DAN WERNER -- 03/20/2022
+0006   0000             ;_________________________________________________________________________________________________
+0007   0000             ;
+0008   0000             
+0009   0000             ; DATA CONSTANTS
+0010   0000             ;__________________________________________________________________________________________________
+0011   0000             ;IDE REGISTER		IO PORT		; FUNCTION
+0012   0000             PRINT0   	.EQU	$E8
+0013   0000             PRINT1   	.EQU	$E9
+0014   0000             PRINT2  	.EQU	$EA
+0015   0000             
+0016   0000             
+0017   0000             
+0018   0100             	.ORG	$0100
+0019   0100             ;__________________________________________________________________________________________________
+0020   0100             ; MAIN PROGRAM BEGINS HERE
+0021   0100             ;__________________________________________________________________________________________________
+0022   0100 CD 30 01        	CALL	PR_INITIALIZE
+0023   0103             
+0024   0103 3E 20              ld      A,32
+0025   0105             LOOP1:
+0026   0105 3C                  INC     A
+0027   0106 CD 14 01            call    PR_OUTCHAR
+0028   0109 FE 80               CP	128
+0029   010B C2 05 01    	JP	NZ,LOOP1
+0030   010E             
+0031   010E             
+0032   010E 0E 00       	LD	C,00H			; CP/M SYSTEM RESET CALL
+0033   0110 CD 05 00    	CALL	0005H			; RETURN TO PROMPT
+0034   0113 C9          	RET
+0035   0114             
+0036   0114             
+0037   0114             
+0038   0114             
+0039   0114             
+0040   0114             
+0041   0114             ;__PR_OUTCHAR______________________________________________________________________________________
+0042   0114             ;
+0043   0114             ; 	PR_OUTCHAR- OUTPUT CHAR TO PRINTER PORT
+0044   0114             ;	A: CHAR TO OUTPUT
+0045   0114             ;__________________________________________________________________________________________________
+0046   0114             PR_OUTCHAR:
+0047   0114 F5          	PUSH	AF			; STORE AF
+0048   0115 F5                  PUSH	AF			; STORE AF
+0049   0116             PR_OUTCHAR_LOOP:
+0050   0116 DB EA        	IN	A,(PRINT2)		; GET STATUS INFO
+0051   0118 E6 80           	AND	10000000B		; ONLY INTERESTED IN BUSY FLAG
+0052   011A C2 16 01     	JP	NZ,PR_OUTCHAR_LOOP	; LOOP IF BUSY
+0053   011D F1            	POP	AF			; RESTORE AF
+0054   011E D3 E8        	OUT	(PRINT0),A		; OUTPUT DATA TO PORT
+0055   0120 CD 3C 01     	call 	DELAY   		; ignore anything back after a reset
+0056   0123 3E 09               ld      A,00001001B             ; select & strobe
+0057   0125 D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
+0058   0127 CD 3C 01      	call 	DELAY   		; ignore anything back after a reset
+0059   012A 3E 08               ld      A,00001000B             ; select
+0060   012C D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
+0061   012E F1                  POP	AF			; RESTORE AF
+0062   012F C9                	ret
+0063   0130             
+0064   0130             ;__PR_INITIALIZE___________________________________________________________________________________
+0065   0130             ;
+0066   0130             ; 	initialise - SET UP PORT FOR PRINTING
+0067   0130             ;__________________________________________________________________________________________________
+0068   0130             PR_INITIALIZE:
+0069   0130 3E 0C               ld      A,00001100B             ; Reset strobe
+0070   0132 D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
+0071   0134 CD 3C 01            call    DELAY
+0072   0137 3E 08               ld      A,00001000B             ; select
+0073   0139 D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
+0074   013B C9                  ret
+0075   013C             
+0076   013C             DELAY:
+0077   013C F5          	PUSH	AF			; STORE AF
+0078   013D 3E 00               ld      A,0
+0079   013F             DELAY1:
+0080   013F 3C                  INC     A
+0081   0140 FE 32               CP	50
+0082   0142 CA 3F 01    	JP	Z,DELAY1
+0083   0145 F1                  POP	AF			; RESTORE AF
+0084   0146 C9                  ret

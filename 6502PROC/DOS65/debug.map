@@ -1,0 +1,26 @@
+Modules list:
+-------------
+debug202.o:
+    TEA               Offs=000000  Size=000D01  Align=00100  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+TEA                   000800  001500  000D01  00100
+
+
+Exports list by name:
+---------------------
+
+
+
+Exports list by value:
+----------------------
+
+
+
+Imports list:
+-------------
+

@@ -1,0 +1,28 @@
+Modules list:
+-------------
+cpm.o:
+    TEA               Offs=000000  Size=0000DC  Align=00001  Fill=0000
+    CPMDATA           Offs=000000  Size=000028  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+TEA                   000800  0008DB  0000DC  00001
+CPMDATA               002000  002027  000028  00001
+
+
+Exports list by name:
+---------------------
+
+
+
+Exports list by value:
+----------------------
+
+
+
+Imports list:
+-------------
+
