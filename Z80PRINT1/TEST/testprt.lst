@@ -14,71 +14,198 @@
 0014   0000             PRINT2  	.EQU	$EA
 0015   0000             
 0016   0000             
-0017   0000             
-0018   0100             	.ORG	$0100
-0019   0100             ;__________________________________________________________________________________________________
-0020   0100             ; MAIN PROGRAM BEGINS HERE
-0021   0100             ;__________________________________________________________________________________________________
-0022   0100 CD 30 01        	CALL	PR_INITIALIZE
-0023   0103             
-0024   0103 3E 20              ld      A,32
-0025   0105             LOOP1:
-0026   0105 3C                  INC     A
-0027   0106 CD 14 01            call    PR_OUTCHAR
-0028   0109 FE 80               CP	128
-0029   010B C2 05 01    	JP	NZ,LOOP1
-0030   010E             
-0031   010E             
-0032   010E 0E 00       	LD	C,00H			; CP/M SYSTEM RESET CALL
-0033   0110 CD 05 00    	CALL	0005H			; RETURN TO PROMPT
-0034   0113 C9          	RET
-0035   0114             
-0036   0114             
-0037   0114             
-0038   0114             
-0039   0114             
-0040   0114             
-0041   0114             ;__PR_OUTCHAR______________________________________________________________________________________
-0042   0114             ;
-0043   0114             ; 	PR_OUTCHAR- OUTPUT CHAR TO PRINTER PORT
-0044   0114             ;	A: CHAR TO OUTPUT
-0045   0114             ;__________________________________________________________________________________________________
-0046   0114             PR_OUTCHAR:
-0047   0114 F5          	PUSH	AF			; STORE AF
-0048   0115 F5                  PUSH	AF			; STORE AF
-0049   0116             PR_OUTCHAR_LOOP:
-0050   0116 DB EA        	IN	A,(PRINT2)		; GET STATUS INFO
-0051   0118 E6 80           	AND	10000000B		; ONLY INTERESTED IN BUSY FLAG
-0052   011A C2 16 01     	JP	NZ,PR_OUTCHAR_LOOP	; LOOP IF BUSY
-0053   011D F1            	POP	AF			; RESTORE AF
-0054   011E D3 E8        	OUT	(PRINT0),A		; OUTPUT DATA TO PORT
-0055   0120 CD 3C 01     	call 	DELAY   		; ignore anything back after a reset
-0056   0123 3E 09               ld      A,00001001B             ; select & strobe
-0057   0125 D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
-0058   0127 CD 3C 01      	call 	DELAY   		; ignore anything back after a reset
-0059   012A 3E 08               ld      A,00001000B             ; select
-0060   012C D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
-0061   012E F1                  POP	AF			; RESTORE AF
-0062   012F C9                	ret
-0063   0130             
-0064   0130             ;__PR_INITIALIZE___________________________________________________________________________________
-0065   0130             ;
-0066   0130             ; 	initialise - SET UP PORT FOR PRINTING
-0067   0130             ;__________________________________________________________________________________________________
-0068   0130             PR_INITIALIZE:
-0069   0130 3E 0C               ld      A,00001100B             ; Reset strobe
-0070   0132 D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
-0071   0134 CD 3C 01            call    DELAY
-0072   0137 3E 08               ld      A,00001000B             ; select
-0073   0139 D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
-0074   013B C9                  ret
-0075   013C             
-0076   013C             DELAY:
-0077   013C F5          	PUSH	AF			; STORE AF
-0078   013D 3E 00               ld      A,0
-0079   013F             DELAY1:
-0080   013F 3C                  INC     A
-0081   0140 FE 32               CP	50
-0082   0142 CA 3F 01    	JP	Z,DELAY1
-0083   0145 F1                  POP	AF			; RESTORE AF
-0084   0146 C9                  ret
+0017   0000             ESC		.EQU	1BH
+0018   0000             CR		.EQU	0DH
+0019   0000             LF		.EQU	0AH
+0020   0000             TAB		.EQU	09H
+0021   0000             BELL		.EQU	07H
+0022   0000             
+0023   0100             	.ORG	$0100
+0024   0100             ;__________________________________________________________________________________________________
+0025   0100             ; MAIN PROGRAM BEGINS HERE
+0026   0100             ;__________________________________________________________________________________________________
+0027   0100 21 9B 01            LD	HL,SIGNON
+0028   0103 CD 83 01    	CALL	PRINT_STRING
+0029   0106             
+0030   0106 CD 46 01        	CALL	PR_INITIALIZE
+0031   0109             
+0032   0109 21 E3 01            LD	HL,INIT
+0033   010C CD 83 01    	CALL	PRINT_STRING
+0034   010F             
+0035   010F 3E 20              ld      A,32
+0036   0111             LOOP1:
+0037   0111 3C                  INC     A
+0038   0112 CD 26 01            call    PR_OUTCHAR
+0039   0115 FE 80               CP	128
+0040   0117 C2 11 01    	JP	NZ,LOOP1
+0041   011A 21 07 02            LD	HL,DONE
+0042   011D CD 83 01    	CALL	PRINT_STRING
+0043   0120             
+0044   0120 0E 00       	LD	C,00H			; CP/M SYSTEM RESET CALL
+0045   0122 CD 05 00    	CALL	0005H			; RETURN TO PROMPT
+0046   0125 C9          	RET
+0047   0126             
+0048   0126             
+0049   0126             
+0050   0126             
+0051   0126             
+0052   0126             
+0053   0126             ;__PR_OUTCHAR______________________________________________________________________________________
+0054   0126             ;
+0055   0126             ; 	PR_OUTCHAR- OUTPUT CHAR TO PRINTER PORT
+0056   0126             ;	A: CHAR TO OUTPUT
+0057   0126             ;__________________________________________________________________________________________________
+0058   0126             PR_OUTCHAR:
+0059   0126 F5          	PUSH	AF			; STORE AF
+0060   0127 F5                  PUSH	AF			; STORE AF
+0061   0128             
+0062   0128 3E 8C               ld      A,10001100B             ; select
+0063   012A D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
+0064   012C             
+0065   012C             PR_OUTCHAR_LOOP:
+0066   012C DB E9        	IN	A,(PRINT1)		; GET STATUS INFO
+0067   012E E6 80           	AND	10000000B		; ONLY INTERESTED IN BUSY FLAG
+0068   0130 CA 2C 01     	JP	Z,PR_OUTCHAR_LOOP	; LOOP IF BUSY
+0069   0133 F1            	POP	AF			; RESTORE AF
+0070   0134 D3 E8        	OUT	(PRINT0),A		; OUTPUT DATA TO PORT
+0071   0136 CD 52 01     	call 	DELAY   		; ignore anything back after a reset
+0072   0139 3E 0D               ld      A,00001101B             ; select & strobe
+0073   013B D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
+0074   013D CD 52 01      	call 	DELAY   		; ignore anything back after a reset
+0075   0140 3E 4C               ld      A,01001100B             ; select
+0076   0142 D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
+0077   0144 F1                  POP	AF			; RESTORE AF
+0078   0145 C9                	ret
+0079   0146             
+0080   0146             ;__PR_INITIALIZE___________________________________________________________________________________
+0081   0146             ;
+0082   0146             ; 	initialise - SET UP PORT FOR PRINTING
+0083   0146             ;__________________________________________________________________________________________________
+0084   0146             PR_INITIALIZE:
+0085   0146 3E C8               ld      A,11001000B             ; Reset strobe
+0086   0148 D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
+0087   014A CD 52 01            call    DELAY
+0088   014D 3E 4C               ld      A,01001100B             ; select
+0089   014F D3 EA               OUT	(PRINT2),A		; OUTPUT DATA TO PORT
+0090   0151 C9                  ret
+0091   0152             
+0092   0152             DELAY:
+0093   0152 F5          	PUSH	AF			; STORE AF
+0094   0153 3E 00               ld      A,0
+0095   0155             DELAY1:
+0096   0155 3C                  INC     A
+0097   0156 FE 96               CP	150
+0098   0158 C2 55 01    	JP	NZ,DELAY1
+0099   015B F1                  POP	AF			; RESTORE AF
+0100   015C C9                  ret
+0101   015D             
+0102   015D             
+0103   015D             
+0104   015D             ;---------------------------------------------------------------------------------------------------
+0105   015D             ;---------------------------------------------------------------------------------------------------
+0106   015D             ;---------------------------------------------------------------------------------------------------
+0107   015D             ; Main console I/O routines
+0108   015D             ;
+0109   015D             ;---------------------------------------------------------------------------------------------------
+0110   015D             ;---------------------------------------------------------------------------------------------------
+0111   015D             ;---------------------------------------------------------------------------------------------------
+0112   015D             
+0113   015D             ZCO:
+0114   015D E5          	PUSH HL
+0115   015E 59          	LD E,C
+0116   015F 0E 02       	LD C,02H			;BDOS Function 2 Write Console Byte
+0117   0161 CD 05 00    	CALL 0005H			;Call BDOS
+0118   0164 E1          	POP HL
+0119   0165 C9          	RET
+0120   0166             
+0121   0166             ZCI:
+0122   0166 0E 0B       	LD C,0BH			;BDOS Function 11 Read Console Status
+0123   0168 CD 05 00    	CALL 0005H			;Call BDOS
+0124   016B CA 66 01    	JP Z,ZCI
+0125   016E 0E 01       	LD C,01H			;BDOS Function 1 Read Console Byte
+0126   0170 CD 05 00    	CALL 0005H			;Call BDOS
+0127   0173 C9          	RET
+0128   0174             ;
+0129   0174             ; Send CR/LF to Console
+0130   0174             ;
+0131   0174             ZCRLF:
+0132   0174 F5          	PUSH	AF
+0133   0175 C5          	PUSH	BC
+0134   0176 0E 0D       	LD	C,CR
+0135   0178 CD 5D 01    	CALL	ZCO
+0136   017B 0E 0A       	LD	C,LF
+0137   017D CD 5D 01    	CALL	ZCO
+0138   0180 C1          	POP	BC
+0139   0181 F1          	POP	AF
+0140   0182 C9          	RET
+0141   0183             
+0142   0183             
+0143   0183             PRINT_STRING:
+0144   0183 F5          	PUSH	AF
+0145   0184 C5          	push	BC
+0146   0185             print1:
+0147   0185 7E          	LD	a,(HL)			;Point to start of string
+0148   0186 23          	inc	HL			;By using the CS over-ride we will always have
+0149   0187 FE 24       	CP	'$'			;a valid pointer to messages at the end of this monitor
+0150   0189 CA 98 01    	JP	z,print2
+0151   018C FE 00       	CP	0			;Also terminate with 0's
+0152   018E CA 98 01    	JP	Z,print2
+0153   0191 4F          	LD	C,A
+0154   0192 CD 5D 01    	call	ZCO
+0155   0195 C3 85 01    	jp	print1
+0156   0198             print2:
+0157   0198 C1          	pop	BC
+0158   0199 F1          	POP	AF
+0159   019A C9          	ret
+0160   019B             
+0161   019B             ;---------------------------------------------------------------------------------------------------
+0162   019B             ; Black: ESC,[30m
+0163   019B             ; Red: ESC,[31m
+0164   019B             ; Green: ESC,[32m
+0165   019B             ; Yellow: ESC,[33m
+0166   019B             ; Blue: ESC,[34m
+0167   019B             ; Magenta: ESC,[35m
+0168   019B             ; Cyan: ESC,[36m
+0169   019B             ; White: ESC,[37m
+0170   019B             ; Reset: ESC,[0m
+0171   019B             
+0172   019B             SIGNON:
+0173   019B 0D 0A 0A    		.DB	CR,LF,LF
+0174   019E 1B 5B 33 33 		.DB	ESC,"[33m","Test Nhyodyne Centronics Parallel Print interface (Z80PRINT)."	; Yellow
+0174   01A2 6D 54 65 73 
+0174   01A6 74 20 4E 68 
+0174   01AA 79 6F 64 79 
+0174   01AE 6E 65 20 43 
+0174   01B2 65 6E 74 72 
+0174   01B6 6F 6E 69 63 
+0174   01BA 73 20 50 61 
+0174   01BE 72 61 6C 6C 
+0174   01C2 65 6C 20 50 
+0174   01C6 72 69 6E 74 
+0174   01CA 20 69 6E 74 
+0174   01CE 65 72 66 61 
+0174   01D2 63 65 20 28 
+0174   01D6 5A 38 30 50 
+0174   01DA 52 49 4E 54 
+0174   01DE 29 2E 
+0175   01E0 0D 0A 24    		.DB	CR,LF,"$"
+0176   01E3             INIT:
+0177   01E3 0D 0A 07    		.DB	CR,LF,BELL
+0178   01E6 1B 5B 33 36 		.DB	ESC,"[36m","Initialization Completed."
+0178   01EA 6D 49 6E 69 
+0178   01EE 74 69 61 6C 
+0178   01F2 69 7A 61 74 
+0178   01F6 69 6F 6E 20 
+0178   01FA 43 6F 6D 70 
+0178   01FE 6C 65 74 65 
+0178   0202 64 2E 
+0179   0204 0D 0A 24    		.DB	CR,LF,"$"
+0180   0207             
+0181   0207             DONE:
+0182   0207 0D 0A 07    		.DB	CR,LF,BELL
+0183   020A 1B 5B 33 32 		.DB	ESC,"[32m","Test Completed."
+0183   020E 6D 54 65 73 
+0183   0212 74 20 43 6F 
+0183   0216 6D 70 6C 65 
+0183   021A 74 65 64 2E 
+0184   021E 0D 0A 24    		.DB	CR,LF,"$"
