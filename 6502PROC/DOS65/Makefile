@@ -55,7 +55,7 @@ run.out: run205.asm
 	ld65 run205.o  -m run.map -C dos65.cfg -o run.out
 
 sedit.out: sedit.asm
-	ca65 --cpu 65sc02 sedit.asm -l sedit.lst
+	ca65 --cpu 65sc02 sedit.asm -lsedit.lst
 	ld65 sedit.o  -m sedit.map -C dos65.cfg -o sedit.out
 
 
