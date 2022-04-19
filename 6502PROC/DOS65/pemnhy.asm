@@ -849,10 +849,11 @@ notaex:	cmp	#'?'		;if a ? then
 	ora	subrec		;offset to
 	tay			;make pointer
 	pla			;get char back
-        sta     savex
-        lda	(bufadd),y	;if not same
-        and     #$7F            ; strip off high bit for ROMWBW Read only filesystem
-	cmp	savex	        ;if not same
+;        sta     savex
+;        lda	(bufadd),y	;if not same
+;        and     #$7F            ; strip off high bit for ROMWBW Read only filesystem
+;	cmp	savex	        ;if not same
+        cmp	(bufadd),y	;if not same
 	bne	newtry		;try next directory
 trynxt:	dex			;else count number down
 	bne	mremch		;and loop if more
