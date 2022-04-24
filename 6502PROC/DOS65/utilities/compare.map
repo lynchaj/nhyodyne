@@ -1,0 +1,26 @@
+Modules list:
+-------------
+compr202.o:
+    TEA               Offs=000000  Size=000B4D  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+TEA                   000800  00134C  000B4D  00001
+
+
+Exports list by name:
+---------------------
+
+
+
+Exports list by value:
+----------------------
+
+
+
+Imports list:
+-------------
+

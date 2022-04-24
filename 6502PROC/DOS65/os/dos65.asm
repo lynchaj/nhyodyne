@@ -107,6 +107,12 @@ numcmd	=	36		;number commands
 
 DEBUG	=	0		; assemble with debug information on
 
+; for Nhyodyne:
+; RAM BANK $0C is RAM area for Drivers
+; RAM BANK $0D is RAM area for Drivers
+; RAM BANK $0E is operating bank for DOS/65 $8000-$FFFF
+; RAM BANK $0F is fixed bank $0000-$7FFF
+; ROM BANKS $00 and $0C-$0F are reserved for ROMWBW code
 
  		.segment "LOADER"
 		.ORG $b7E0
