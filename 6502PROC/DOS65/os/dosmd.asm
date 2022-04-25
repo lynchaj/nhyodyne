@@ -15,7 +15,6 @@ MD_PAGEBU       =       $0400           ; PAGE BUFFER ADDRESS
 MD_PAGESE       =       pointr          ; PAGE SECTOR STORAGE
 
 ; RAM BANK $0C is RAM area for Drivers
-; RAM BANK $0D is RAM area for Drivers
 ; RAM BANK $0E is operating bank for DOS/65 $8000-$FFFF
 ; RAM BANK $0F is fixed bank $0000-$7FFF
 ;
@@ -48,15 +47,21 @@ MD_PAGESE       =       pointr          ; PAGE SECTOR STORAGE
 ;	:-----------------0 = LOWER PAGE RAM SELECT (0=NOTHING, 1=RAM) DEFAULT IS 0;
 
 
+;__MD_SHOW___________________________________________________________________________________________
+;
+;  Display info on MD devices
+;____________________________________________________________________________________________________
+;
+MD_SHOW:
+        PRTDBG "MD INIT:$"
+        PRTS "MD: UNITS=2 RAMDISK=256KB ROMDISK=384KB$"
+       	JSR	NEWLINE
+        rts
 ;__MD_INIT___________________________________________________________________________________________
 ;
 ;  INIT -- Copy code into $0200-$02FF for controling banking and copying
 ;____________________________________________________________________________________________________
-;
 MD_INIT:
-        PRTDBG "MD INIT:$"
-        PRTS "MD: UNITS=2 RAMDISK=256KB ROMDISK=384KB$"
-       	JSR	NEWLINE
 MD_REINIT:
         LDX     #$00
 :
@@ -139,7 +144,19 @@ MD_PAGE_WRITE:
         STA     MPCL_RAM
         RTS
 md_pagecodeend:
-
+farcall:
+        PHA
+        LDA     #$8C
+        STA     MPCL_RAM
+        nop
+        nop
+        PLA
+        JSR     BANKED_DRIVER_DISPATCHER
+        pha
+        LDA     #$8E
+        STA     MPCL_RAM
+        pla
+        RTS
 
 ;*__MD_READ_SECTOR____________________________________________________________________________________
 ;*

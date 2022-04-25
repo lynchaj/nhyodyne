@@ -1,9 +1,20 @@
 
-all:  	dos65.s19 dos65.hex dos65.com
+all:  	zloader.bin dos65.s19 dos65.hex dos65.com dos65drv.sys
 
-dos65.out: dos65.asm ccmnhy.asm pemnhy.asm simnhy.asm macro.asm dosmd.asm doside.asm dosdskyn.asm
+zloader.bin: zloader.asm
+	z80asm -b -l -m zloader.asm  2> zloader.err
+	cat zloader_addr0100.bin zloader_addr8000.bin > zloader.bin
+	@rm zloader_addr0100.bin
+	@rm zloader_addr8000.bin
+	@rm zloader.o
+
+dos65.out: dos65.asm ccmnhy.asm pemnhy.asm simnhy.asm macro.asm dosmd.asm doside.asm dosdskyn.asm dosdefn.asm
 	ca65 dos65.asm -l dos65.lst
 	ld65 dos65.o -m dos65.map -C dos65.cfg -o dos65.out
+
+dos65drv.out: dos65drv.asm dosser.asm dosdefn.asm macro.asm
+	ca65 dos65drv.asm -l dos65drv.lst
+	ld65 dos65drv.o -m dos65drv.map -C dos65.cfg -o dos65drv.out
 
 
 dos65.s19: dos65.out
@@ -18,18 +29,27 @@ dos65.hex: dos65.out
 	@rm -f dos651.s
 	cp dos65.hex ../bin/
 
-dos65.com: dos65.out
-	srec_cat  dos65.out -binary -offset 0x0100 -exclude 0x0000 0xB7E0 -o  dos65A.s  -data-only
-	srec_cat  dos65A.s  -offset -0xB7E0  -o  dos652.s  -data-only
-	srec_cat  dos652.s -o dos65.com  -BINARY
-	@rm -f dos65A.s
-	@rm -f dos652.s
+dos65.com: dos65.out zloader.bin
+	srec_cat  DOS65.out -binary -offset 0x0100 -exclude 0x0000 0xB800 -o  dos65.s -data-only
+	srec_cat  dos65.s  -offset -0xB800  -o  dos651.s  -data-only
+	srec_cat  dos651.s -o dos65.bin  -BINARY
+	cat 	zloader.bin dos65.bin> dos65.com
+	@rm -f dos651.s
+	@rm -f dos65.bin
 	cp dos65.com ../bin/
 
-
+dos65drv.sys: dos65drv.out
+	srec_cat  dos65drv.out -binary -offset 0x0100 -exclude 0x0000 0x8800 -o  dos65drv.s19  -data-only
+	srec_cat  dos65drv.s19  -offset -0x8800  -o  dos65drvA.s  -data-only
+	srec_cat  dos65drvA.s -o dos65drv.sys  -BINARY
+	@rm -f dos65drvA.s
+	cp dos65drv.sys ../bin/
 
 clean:
 	@rm -f *.o
+	@rm -f *.bin
+	@rm -f *.lis
+	@rm -f *.err
 	@rm -f *.out
 	@rm -f *.com
 	@rm -f *.co6
@@ -37,7 +57,8 @@ clean:
 	@rm -f *.lst
 	@rm -f *.hex
 	@rm -f *.s19
-	@rm -f assign.s
+	@rm -f *.sys
+	@rm -f *.s
 
 cleandust:
 	@rm -f *.o

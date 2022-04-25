@@ -23,6 +23,8 @@ FLPB35		=	0	; set to 1 if floppy a is B 3.5" 80 track drive (0= 5.25" 40 track d
 
 DSKYOSC         =	100000
 
+DO_FARCALL =    farcall-md_pagecode+$0200
+
 ;dos/65 system interface module (sim)
 ;version 3.00
 ;this version is designed to work with the N8VEM Host Processor
@@ -100,6 +102,8 @@ boot:
 	txs			;pointer
 	cld			;set binary mode
 
+	JSR	MD_INIT		;setup paging for device drivers
+
 	PRTDBG "OS Starting$"
 
  	lda	#<opnmsg	;point to message
@@ -117,7 +121,7 @@ boot:
 ;	JSR	SETUPDRIVE
   .ENDIF
 
-	JSR	MD_INIT
+	JSR	MD_SHOW
 
     .IF USEIDEC=1
     	JSR	PPIDE_INIT
@@ -356,21 +360,30 @@ setdma:
 ; 	GET DOS/65 CONSOLE STATUS
 ;________________________________________________________________________________________________________
 consts:
-	jmp	SERIALSTATUS
+	lda 	#$03
+	sta 	farfunct
+	jmp 	DO_FARCALL
 
 ;__CONRDE________________________________________________________________________________________________
 ;
 ; 	PERFORM DOS/65 CONSOLE READ
 ;________________________________________________________________________________________________________
 conrde:
-	jmp 	RDSER1W
+	lda 	#$02
+	sta 	farfunct
+	jmp 	DO_FARCALL
+
 
 ;__CONWRT________________________________________________________________________________________________
 ;
 ; 	PERFORM DOS/65 CONSOLE WRITE
 ;________________________________________________________________________________________________________
 conwrt:
-	jmp 	WRSER1
+	pha
+	lda 	#$00
+	sta 	farfunct
+	pla
+	jmp 	DO_FARCALL
 
 prnwrt:
 	rts			;printer
@@ -566,9 +579,6 @@ prtdevice_done:
 	RTS
 
 
-	.IF USESERIAL=1
-		.INCLUDE "dosser.asm"
-	.ENDIF
 	.IF USEIDEC=1
 		.INCLUDE "doside.asm"
 	.ENDIF
@@ -584,7 +594,10 @@ prtdevice_done:
 	.IF USEDSKYNG=1
 		.INCLUDE "dosdskyn.asm"
 	.ENDIF
-	.INCLUDE "dosmd.asm"
+
+	.INCLUDE "dosmd.asm"	; DOSMD MUST ALWAYS BE INCLUDED AND IS REQUIRED TO BE IN
+				; THE MAIN BANK AS IT CONTAINS CODE TO DO
+				; BANK SWITCHING FOR "FAR CALL" DRIVERS
 
 ;------------------------------------------------------------------------------------
 
