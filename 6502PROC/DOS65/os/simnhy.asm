@@ -102,6 +102,8 @@ boot:
 	txs			;pointer
 	cld			;set binary mode
 
+	JSR	MD_INIT		;setup paging for device drivers
+
 	PRTDBG "OS Starting$"
 
  	lda	#<opnmsg	;point to message
@@ -119,7 +121,7 @@ boot:
 ;	JSR	SETUPDRIVE
   .ENDIF
 
-	JSR	MD_INIT
+	JSR	MD_SHOW
 
     .IF USEIDEC=1
     	JSR	PPIDE_INIT
@@ -358,21 +360,30 @@ setdma:
 ; 	GET DOS/65 CONSOLE STATUS
 ;________________________________________________________________________________________________________
 consts:
-	jmp	SERIALSTATUS
+	lda 	#$03
+	sta 	farfunct
+	jmp 	DO_FARCALL
 
 ;__CONRDE________________________________________________________________________________________________
 ;
 ; 	PERFORM DOS/65 CONSOLE READ
 ;________________________________________________________________________________________________________
 conrde:
-	jmp 	RDSER1W
+	lda 	#$02
+	sta 	farfunct
+	jmp 	DO_FARCALL
+
 
 ;__CONWRT________________________________________________________________________________________________
 ;
 ; 	PERFORM DOS/65 CONSOLE WRITE
 ;________________________________________________________________________________________________________
 conwrt:
-	jmp 	WRSER1
+	pha
+	lda 	#$00
+	sta 	farfunct
+	pla
+	jmp 	DO_FARCALL
 
 prnwrt:
 	rts			;printer
@@ -568,9 +579,6 @@ prtdevice_done:
 	RTS
 
 
-	.IF USESERIAL=1
-		.INCLUDE "dosser.asm"
-	.ENDIF
 	.IF USEIDEC=1
 		.INCLUDE "doside.asm"
 	.ENDIF

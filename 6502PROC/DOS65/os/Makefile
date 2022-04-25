@@ -34,8 +34,8 @@ dos65.com: dos65.out zloader.bin
 	srec_cat  dos65.s  -offset -0xB800  -o  dos651.s  -data-only
 	srec_cat  dos651.s -o dos65.bin  -BINARY
 	cat 	zloader.bin dos65.bin> dos65.com
-	@rm -f xxdos651.s
-	@rm -f xxdos65.bin
+	@rm -f dos651.s
+	@rm -f dos65.bin
 	cp dos65.com ../bin/
 
 dos65drv.sys: dos65drv.out
@@ -58,7 +58,7 @@ clean:
 	@rm -f *.hex
 	@rm -f *.s19
 	@rm -f *.sys
-	@rm -f assign.s
+	@rm -f *.s
 
 cleandust:
 	@rm -f *.o
