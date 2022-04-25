@@ -15,7 +15,6 @@ MD_PAGEBU       =       $0400           ; PAGE BUFFER ADDRESS
 MD_PAGESE       =       pointr          ; PAGE SECTOR STORAGE
 
 ; RAM BANK $0C is RAM area for Drivers
-; RAM BANK $0D is RAM area for Drivers
 ; RAM BANK $0E is operating bank for DOS/65 $8000-$FFFF
 ; RAM BANK $0F is fixed bank $0000-$7FFF
 ;
@@ -139,7 +138,15 @@ MD_PAGE_WRITE:
         STA     MPCL_RAM
         RTS
 md_pagecodeend:
-
+farcall:
+        PHA
+        LDA     #$8C
+        STA     MPCL_RAM
+        JSR     BANKED_DRIVER_DISPATCHER
+        LDA     #$8E
+        STA     MPCL_RAM
+        PLA
+        RTS
 
 ;*__MD_READ_SECTOR____________________________________________________________________________________
 ;*

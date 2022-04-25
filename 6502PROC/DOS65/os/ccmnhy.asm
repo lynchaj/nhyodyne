@@ -13,7 +13,7 @@
 nbuilt	=	7		;number built in commands
 ;main program
 				; warm boot vector
-		JMP wboot
+		JMP boot
 ccm:	cld			;set binary mode
 	pha			;save drive number
 	jsr	rstdsk		;initialize system

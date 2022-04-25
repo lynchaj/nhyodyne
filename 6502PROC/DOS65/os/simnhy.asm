@@ -23,6 +23,8 @@ FLPB35		=	0	; set to 1 if floppy a is B 3.5" 80 track drive (0= 5.25" 40 track d
 
 DSKYOSC         =	100000
 
+DO_FARCALL =    farcall-md_pagecode+$0200
+
 ;dos/65 system interface module (sim)
 ;version 3.00
 ;this version is designed to work with the N8VEM Host Processor
@@ -584,7 +586,10 @@ prtdevice_done:
 	.IF USEDSKYNG=1
 		.INCLUDE "dosdskyn.asm"
 	.ENDIF
-	.INCLUDE "dosmd.asm"
+
+	.INCLUDE "dosmd.asm"	; DOSMD MUST ALWAYS BE INCLUDED AND IS REQUIRED TO BE IN
+				; THE MAIN BANK AS IT CONTAINS CODE TO DO
+				; BANK SWITCHING FOR "FAR CALL" DRIVERS
 
 ;------------------------------------------------------------------------------------
 
