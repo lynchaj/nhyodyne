@@ -544,53 +544,26 @@ DSKY_GETBYTE:
 ;
 ;__DSKY_PUTLED____________________________________________________________________________________
 ;
-;	This function is intended to update the LEDs.  It expects 8 bytes
-;	following the call, and	updates the entire matrix.
-;
-;  EXAMPLE:
-;	JSR 	DSKY_PUTLED
-;	.BYTE 	$00,$00,$00,$00,$00,$00,$00,$00
+;	This function is intended to update the LEDs.
+;	VALUES SHOULD BE IN DSKY_BUF
 ;_________________________________________________________________________________________________
 ;
 DSKY_PUTLED:
-        STX     DSKY_TEMP_VAL           ; STORE X
-        TSX                             ; STORE STACK POINTER
-        PLA                             ; GET ADDRESS OF BYTES
-        STA     pointr                  ; STORE ADDRESS IN POINTR
-        PLA
-        STA     pointr+1
-        TXS                             ; RESTORE STACK
-        LDX     DSKY_TEMP_VAL           ; RESTORE X
-        PHX                             ; STASH REGISTERS
-        PHY
-        PHA
-        CLC                             ; REMEMBER ADDRESS IN STACK IS BEFORE STRING
-        INC     pointr                  ; SO, INC 16BIT POINTER BY 1
-        BCC     @1
-        INC     pointr+1
-@1:	LDY 	#$00
+	PHX
+	PHY
+	PHA
+	LDY 	#$00
+	LDX 	#$00
 DSKY_PUTLED_1:
-        LDA     (pointr),Y              ; GET BYTE
+        LDA     DSKY_BUF,X              ; GET BYTE
 	JSR	DSKY_PUTBYTE            ; SEND IT TO DSKY
         INY                             ; LOOP TIL DONE
+	INX
         CPY     #8
         BNE     DSKY_PUTLED_1
         PLA                             ; RESTORE REGISTERS
         PLY
         PLX
-        STA     DSKY_TEMP_VAL           ; STASH A
-        CLC                             ; INC RETURN ADDRESS BY 8
-        PLA
-        ADC     #8
-        STA     pointr
-        BCC     DSKY_PUTLED_2
-        PLA
-        INC     A
-        PHA
-DSKY_PUTLED_2:
-        LDA     pointr
-        PHA
-        LDA     DSKY_TEMP_VAL           ; RESTORE A
 	RTS
 ;
 ;__DSKY_BEEP______________________________________________________________________________________
@@ -775,10 +748,3 @@ DSKY_HEXMAP:
 DSKY_TEMP_VAL:	.BYTE	0
 DSKY_PPIX_VAL:	.BYTE	0
 DSKY_PRESENT:	.BYTE	0
-;
-; SEG DISPLAY WORKING STORAGE
-;
-DSKY_BUF:	.BYTE	0,0,0,0,0,0,0,0
-DSKY_BUFLEN	=	* - DSKY_BUF
-DSKY_HEXBUF:	.BYTE	0,0,0,0
-DSKY_HEXBUFLEN	=	* - DSKY_HEXBUF

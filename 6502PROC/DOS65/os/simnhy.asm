@@ -5,24 +5,12 @@
 ;  DWERNER 12/20/2021 	ported to Nhyodyne
 ;________________________________________________________________________________________________________________________________
 
+
+**** YO . . . FIX DMA to go through MD buffer
+
+
+
 		.include "macro.asm"
-
-USESERIAL 	= 	1	; SET TO ONE SERIAL CONSOLE IO
-USEFLOPPYA 	= 	0	; SET TO ONE FOR FLOPPY = "A"
-USEFLOPPYB 	= 	0	; SET TO ONE FOR FLOPPY = "B"
-USEIDEC 	= 	1	; SET TO ONE FOR IDE HDD="C"
-USEDSKY 	= 	0	; SEND INFO TO DSKY
-USEDSKYNG 	= 	1	; SEND INFO TO DSKYNG
-DSKY_KBD	=	1	; USE DSKY KEYBOARD?
-DEFDRV  	=	2	; SET TO DEFAULT DRIVE LETTER
-USEDISKIOV1     = 	0	; Floppy and IDE card is  DISK IO V1
-USEDISKIOV3     = 	0	; Floppy and IDE card is  DISK IO V3
-
-FLPA35		=	0	; set to 1 if floppy a is A 3.5" 80 track drive (0= 5.25" 40 track drive)
-FLPB35		=	0	; set to 1 if floppy a is B 3.5" 80 track drive (0= 5.25" 40 track drive)
-
-DSKYOSC         =	100000
-
 DO_FARCALL =    farcall-md_pagecode+$0200
 
 ;dos/65 system interface module (sim)
@@ -33,18 +21,6 @@ DO_FARCALL =    farcall-md_pagecode+$0200
 simstart:
 
 ;my system i/o routines in rom
-
-;pem constants on entry to write
-wrall	=	0		;write to allocated
-wrdir	=	1		;write to directory
-wrual	=	2		;write to unallocated
-;page zero and system ram assignments
-dmaadr	=	$f4		;pointer for r/w
-mvepnt	=	$f2		;host buffer location
-OUTMSG_W =	$F0		;pointer for OutMsg
-SRC	 =	$EE		;pointer for OutMsg
-DEST	 =	$EC		;pointer for OutMsg
-
 nsects	=	(simstart-ccm)/128	;number sectors
 
 ;main program
@@ -102,7 +78,7 @@ boot:
 	txs			;pointer
 	cld			;set binary mode
 
-	JSR	MD_INIT		;setup paging for device drivers
+	JSR	PAGER_INIT		;setup paging for device drivers
 
 	PRTDBG "OS Starting$"
 
@@ -114,6 +90,17 @@ boot:
 	jsr	outmsg		;send it
 
 	JSR 	NEWLINE
+
+; 	setup diskconfig table
+	ldx 	#0
+@2:
+	lda 	dftdskcfg,x
+	sta 	dskcfg,x
+	inx
+	cpx 	#$10
+	bne 	@2
+
+
   .IF USEFLOPPYA=1
 ;  	PRTDBG "Init floppy A$"
 ;  	lda	#0			;set zero
@@ -121,23 +108,37 @@ boot:
 ;	JSR	SETUPDRIVE
   .ENDIF
 
-	JSR	MD_SHOW
+	lda 	#22            		;MD_SHOW
+	sta 	farfunct
+	jmp 	DO_FARCALL
+
 
     .IF USEIDEC=1
-    	JSR	PPIDE_INIT
+    	lda 	#04            ;PPIDE_INIT
+	sta 	farfunct
+	JSR 	DO_FARCALL
   .ENDIF
 
-  .IF USEDSKY=1
- 	PRTDBG "Init DSKY$"
-  	JSR	DSKYINIT
-  	JSR	SEGDISPLAY
-  .ENDIF
 
-   .IF USEDSKYNG=1
-  	JSR	DSKY_INIT
-  	JSR	DSKY_PUTLED
-	.BYTE 	$54,$6E,$5C,$5E,$6E,$54,$79,$40
-	JSR 	DSKY_BEEP
+   .IF USEDSKYNG=1 || USEDSKY=1
+	lda 	#08            ;DSKY_INIT
+	sta 	farfunct
+	JSR 	DO_FARCALL
+
+	LDX 	#$00
+@1:
+	LDA 	DOS65DSKYINIT,X
+	STA	DSKY_BUF,X
+	INX
+	CPX 	#8
+	BNE	@1
+	lda 	#18            ;DSKY_PUTLED
+	sta 	farfunct
+	JSR 	DO_FARCALL
+
+	lda 	#13            ;DSKY_BEEP
+	sta 	farfunct
+	JSR 	DO_FARCALL
   .ENDIF
 
 
@@ -157,7 +158,7 @@ boot:
 
 				;set up jumps into dos/65 in page one
 setup:
-	JSR	MD_REINIT
+	JSR	PAGER_INIT
 	ldx	#0		;clear index
 				;first clear key dba variables
 	stx	hstact		;host buffer inactive
@@ -223,17 +224,6 @@ dcbtbl:	.word	dcba		; A
 	.word	dcbg		; G
 	.word	dcbh		; H
 
-; disk configuration table
-dskcfg:
-	.byte $00,$00		;  disk A: unit,slice  (invalid for floppy and RAM disks)
-	.byte $01,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
-	.byte $30,$00		;  disk C: unit,slice
-	.byte $30,$01		;  disk D: unit,slice
-	.byte $30,$02		;  disk E: unit,slice
-	.byte $30,$03		;  disk F: unit,slice
-	.byte $30,$04		;  disk G: unit,slice
-	.byte $30,$06		;  disk H: unit,slice
-
 ;__HOME__________________________________________________________________________________________________
 ;
 ; 	PERFORM DOS/65 HEAD HOME
@@ -277,7 +267,10 @@ read:
 	CMP 	#$00
 	BNE 	:+			; not MD drive
 	;RAM
-	JSR 	MD_READ_SECTOR
+	lda 	#20            		;MD_READ_SECTOR
+	sta 	farfunct
+	jmp 	DO_FARCALL
+
 	RTS				;
 :
 	CMP 	#$20
@@ -294,7 +287,9 @@ read:
 	BNE 	:+			; invalid drive
 	;PPIDE
   	.IF USEIDEC=1
-	JMP	IDE_READ_SECTOR		;
+	lda 	#05            		;IDE_READ_SECTOR
+	sta 	farfunct
+	jmp 	DO_FARCALL
   	.ENDIF
 :
 	LDA	#$FF			; signal error
@@ -312,7 +307,10 @@ write:
 	CMP 	#$00
 	BNE 	:+			; not MD Drive
 	;MD
-	JSR 	MD_WRITE_SECTOR
+	lda 	#21            		;MD_WRITE_SECTOR
+	sta 	farfunct
+	jmp 	DO_FARCALL
+
 
 	RTS				;
 :
@@ -331,8 +329,9 @@ write:
 	BNE 	writex			; not ppide
 	;PPIDE
   	.IF USEIDEC=1
-	JSR	IDE_WRITE_SECTOR
-	RTS				;
+	lda 	#06            		;IDE_WRITE_SECTOR
+	sta 	farfunct
+	jmp 	DO_FARCALL
   	.else
   	LDA	#$FF			;
 	RTS				;
@@ -360,7 +359,7 @@ setdma:
 ; 	GET DOS/65 CONSOLE STATUS
 ;________________________________________________________________________________________________________
 consts:
-	lda 	#$03
+	lda 	#03
 	sta 	farfunct
 	jmp 	DO_FARCALL
 
@@ -369,7 +368,7 @@ consts:
 ; 	PERFORM DOS/65 CONSOLE READ
 ;________________________________________________________________________________________________________
 conrde:
-	lda 	#$02
+	lda 	#02
 	sta 	farfunct
 	jmp 	DO_FARCALL
 
@@ -380,7 +379,7 @@ conrde:
 ;________________________________________________________________________________________________________
 conwrt:
 	pha
-	lda 	#$00
+	lda 	#00
 	sta 	farfunct
 	pla
 	jmp 	DO_FARCALL
@@ -418,64 +417,6 @@ OUTSTRLP:
 ENDOUTSTR:
        	RTS			; RETURN
 
-
-;___DEBSECR512________________________________________________________________________________________
-;
-;	DEBLOCK 512 BYTE SECTOR FOR DOS/65
-;
-;________________________________________________________________________________________________________
-DEBSECR512:
-	PHA
-	LDA	seksec			;
-	AND	#$03			; GET SECTOR INDEX
-	CLC				;
-	ROL	A			;
-	TAX				;
-	LDA	DEBTAB,X		;
-	STA     SRC
-	INX
-	LDA	DEBTAB,X		;
-	STA	SRC+1			;
-	LDA	dmaadr			;
-	STA	DEST			;
-	LDA	dmaadr+1		;
-	STA	DEST+1			;
-	JSR	COPY_DOS_SECTOR		;
-	PLA
-	RTS
-
-DEBTAB:
-	.word	hstbuf			;
-	.word	hstbuf+128		;
-	.word	hstbuf+256		;
-	.word	hstbuf+384		;
-
-
-;___BLKSECR512___________________________________________________________________________________________
-;
-;	BLOCK 512 SECTOR FOR DOS/65
-;
-;________________________________________________________________________________________________________
-BLKSECR512:
-	PHA
-	LDA	seksec			;
-	AND	#$03			; GET SECTOR INDEX
-	CLC				;
-	ROL	A			;
-	TAX				;
-	LDA	DEBTAB,X		;
-	STA     DEST
-	INX
-	LDA	DEBTAB,X		;
-	STA	DEST+1			;
-	LDA	dmaadr			;
-	STA	SRC			;
-	LDA	dmaadr+1		;
-	STA	SRC+1			;
-	JSR	COPY_DOS_SECTOR		;
-	PLA
-	RTS
-
 ;___GET_DRIVE_DEVICE_____________________________________________________________________________________
 ;
 ;	GET SELECTED DEVICE TYPE AND UNIT, RETURN IN "A"
@@ -489,25 +430,6 @@ GET_DRIVE_DEVICE:
 	TAX 				; MOVE TO X REGISTER
 	LDA 	dskcfg,X 		; GET device
 	PLX
-	RTS
-
-
-;___COPY_DOS_SECTOR______________________________________________________________________________________
-;
-;	COPY 128 BYTE SECTOR FOR DOS/65
-;
-;________________________________________________________________________________________________________
-COPY_DOS_SECTOR:
-	PHY
-	LDY	#$00			;
-COPY_DOS_SECTOR1:
-	LDA	(SRC),Y			;
-	STA	(DEST),Y		;
-	INY				;
-	TYA				;
-	CMP	#$80			;
-	BNE	COPY_DOS_SECTOR1	;
-	PLY
 	RTS
 
 ;___DSPL_DSK_CFG_________________________________________________________________________________________
@@ -578,29 +500,11 @@ prtdevice_done:
 	JSR 	PRTDEC
 	RTS
 
-
-	.IF USEIDEC=1
-		.INCLUDE "doside.asm"
-	.ENDIF
-
-	.IF USEFLOPPYA=1 | USEFLOPPYB=1
-		.INCLUDE "DOS65\\DOSFLPV3.ASM"
-	.ENDIF
-
-	.IF USEDSKY=1
-		.INCLUDE "DOSDSKY.ASM"
-	.ENDIF
-
-	.IF USEDSKYNG=1
-		.INCLUDE "dosdskyn.asm"
-	.ENDIF
-
-	.INCLUDE "dosmd.asm"	; DOSMD MUST ALWAYS BE INCLUDED AND IS REQUIRED TO BE IN
-				; THE MAIN BANK AS IT CONTAINS CODE TO DO
-				; BANK SWITCHING FOR "FAR CALL" DRIVERS
-
+	.INCLUDE "dospager.asm"
 ;------------------------------------------------------------------------------------
 
+DOS65DSKYINIT:
+	.BYTE 	$54,$6E,$5C,$5E,$6E,$54,$79,$40
 
 ;disk control blocks
 dcba:	.word	127		;max block number
@@ -670,28 +574,11 @@ dcbh:	.word	2047		;max block number
 
 ;data area
 
-
-sekdsk:	.byte	2		;seek disk number
-hstwrt:	.byte	0		;0=written,1=pending host write
-
-;allocate the following data areas to unused ram space
-LASTCHAR: 	.byte 0		;save sector for warm boot
-savsec:		.byte 0		;save sector for warm boot
-count:		.byte 0		;counter in warm boot
-temp:		.byte 0		;save hstdsk for warm boot
+hstwrt:		.byte	0	;0=written,1=pending host write
+debtmp:		.word 0		; DEBLOCK TEMP VAR
 hstact:		.byte 0		;host active flag
 unacnt:		.byte 0		;unalloc rec cnt
-sektrk:		.word 0		;seek track number
-seksec:		.word 0		;seek sector number
-debcyll:	.byte 0		; DEBLOCKED CYLINDER LSB
-debcylm:	.byte 0		; DEBLOCKED CYLINDER MSB
-debsehd:	.byte 0		; DEBLOCKED SECTOR AND HEAD (HS)
-debtmp:		.word 0		; DEBLOCK TEMP VAR
-Cdebcyll:	.byte 0		; DEBLOCKED CYLINDER LSB
-Cdebcylm:	.byte 0		; DEBLOCKED CYLINDER MSB
-Cdebsehd:	.byte 0		; DEBLOCKED SECTOR AND HEAD (HS)
-DEBDIRTY:	.byte 0		; DIRTY FLAG
-slicetmp:	.word 0		; USED TO CALCULATE SLICE OFFSET
+
 
 ;allocation maps
 almpa:		.res	254
@@ -702,10 +589,15 @@ almpe:		.res	254
 almpf:		.res	254
 almpg:		.res	254
 almph:		.res	254
-;checksum maps
-
-;not used
+;checksum maps - not used
 ckmp:		.res	128
 
-;deblocking buffer for dba
-hstbuf:		.res	512		;256 or 512 byte sectors
+dftdskcfg:
+	.byte $00,$00		;  disk A: unit,slice  (invalid for floppy and RAM disks)
+	.byte $01,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
+	.byte $30,$00		;  disk C: unit,slice
+	.byte $30,$01		;  disk D: unit,slice
+	.byte $30,$02		;  disk E: unit,slice
+	.byte $30,$03		;  disk F: unit,slice
+	.byte $30,$04		;  disk G: unit,slice
+	.byte $30,$06		;  disk H: unit,slice

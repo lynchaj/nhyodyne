@@ -8,11 +8,11 @@ zloader.bin: zloader.asm
 	@rm zloader_addr8000.bin
 	@rm zloader.o
 
-dos65.out: dos65.asm ccmnhy.asm pemnhy.asm simnhy.asm macro.asm dosmd.asm doside.asm dosdskyn.asm dosdefn.asm
+dos65.out: dos65.asm ccmnhy.asm pemnhy.asm simnhy.asm macro.asm dosdefn.asm dospager.asm
 	ca65 dos65.asm -l dos65.lst
 	ld65 dos65.o -m dos65.map -C dos65.cfg -o dos65.out
 
-dos65drv.out: dos65drv.asm dosser.asm dosdefn.asm macro.asm
+dos65drv.out: dos65drv.asm dosser.asm dosdefn.asm doside.asm dosmd.asm dosdskyn.asm drvmacro.asm
 	ca65 dos65drv.asm -l dos65drv.lst
 	ld65 dos65drv.o -m dos65drv.map -C dos65.cfg -o dos65drv.out
 
