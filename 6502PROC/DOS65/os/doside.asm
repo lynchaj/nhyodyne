@@ -780,3 +780,15 @@ SET_PPI_WR:
 	STA	PPIDEPPIC				;CONFIG 8255 CHIP, WRITE MODE
 	PLA
 	RTS
+
+
+;allocate the following data areas to unused ram space
+LASTCHAR: 	.byte 0		;save sector for warm boot
+savsec:		.byte 0		;save sector for warm boot
+count:		.byte 0		;counter in warm boot
+temp:		.byte 0		;save hstdsk for warm boot
+Cdebcyll:	.byte 0		; DEBLOCKED CYLINDER LSB
+Cdebcylm:	.byte 0		; DEBLOCKED CYLINDER MSB
+Cdebsehd:	.byte 0		; DEBLOCKED SECTOR AND HEAD (HS)
+DEBDIRTY:	.byte 0		; DIRTY FLAG
+slicetmp:	.word 0		; USED TO CALCULATE SLICE OFFSET

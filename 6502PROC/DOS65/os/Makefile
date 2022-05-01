@@ -8,21 +8,21 @@ zloader.bin: zloader.asm
 	@rm zloader_addr8000.bin
 	@rm zloader.o
 
-dos65.out: dos65.asm ccmnhy.asm pemnhy.asm simnhy.asm macro.asm dosmd.asm doside.asm dosdskyn.asm dosdefn.asm
+dos65.out: dos65.asm ccmnhy.asm pemnhy.asm simnhy.asm macro.asm dosdefn.asm dospager.asm
 	ca65 dos65.asm -l dos65.lst
 	ld65 dos65.o -m dos65.map -C dos65.cfg -o dos65.out
 
-dos65drv.out: dos65drv.asm dosser.asm dosdefn.asm macro.asm
+dos65drv.out: dos65drv.asm dosser.asm dosdefn.asm doside.asm dosmd.asm dosdskyn.asm drvmacro.asm
 	ca65 dos65drv.asm -l dos65drv.lst
 	ld65 dos65drv.o -m dos65drv.map -C dos65.cfg -o dos65drv.out
 
 
 dos65.s19: dos65.out
-	srec_cat  dos65.out -binary -offset 0x0100 -exclude 0x0000 0xB7F3 -exclude 0xE500 0xFFFF -o  dos65.s19  -data-only
+	srec_cat  dos65.out -binary -offset 0x0100 -exclude 0x0000 0xCFF3 -o  dos65.s19  -data-only
 	cp dos65.s19 ../bin/
 
 dos65.hex: dos65.out
-	srec_cat  DOS65.out -binary -offset 0x0100 -exclude 0x0000 0xB800 -o  dos65.s -data-only
+	srec_cat  DOS65.out -binary -offset 0x0100 -exclude 0x0000 0xD000 -o  dos65.s -data-only
 	srec_cat  dos65.s  -offset -0x8000  -o  dos651.s  -data-only
 	srec_cat  dos651.s -exclude 0x6000 0x7EE0  -o dos65.hex  -intel -address-length=2
 	@rm -f dos65.s
@@ -30,8 +30,8 @@ dos65.hex: dos65.out
 	cp dos65.hex ../bin/
 
 dos65.com: dos65.out zloader.bin
-	srec_cat  DOS65.out -binary -offset 0x0100 -exclude 0x0000 0xB800 -o  dos65.s -data-only
-	srec_cat  dos65.s  -offset -0xB800  -o  dos651.s  -data-only
+	srec_cat  DOS65.out -binary -offset 0x0100 -exclude 0x0000 0xD000 -o  dos65.s -data-only
+	srec_cat  dos65.s  -offset -0xD000  -o  dos651.s  -data-only
 	srec_cat  dos651.s -o dos65.bin  -BINARY
 	cat 	zloader.bin dos65.bin> dos65.com
 	@rm -f dos651.s
