@@ -58,12 +58,6 @@ MD_SHOW:
 ;*
 ;*____________________________________________________________________________________________________
 MD_READ_SECTOR:
-                JSR MD_READ_RAW_SECTOR
-                JSR DEBSECR256
-                LDA #$00                        ; SHOULD ALWAYS SUCCEED
-                RTS
-
-MD_READ_RAW_SECTOR:
 		PRTDBG "MD Read Sector$"
                 JSR     GET_DRIVE_DEVICE
 		and 	#$01			; only want drive cfg
@@ -73,10 +67,20 @@ MD_READ_RAW_SECTOR:
    		asl	a			;
 		asl	a			;
 		asl	a			;
-		AND 	#%01111111              ; TOGGLE READ
+		AND 	#%01011111              ; TOGGLE READ
                 TAX                             ; STASH CONTROL WORD
+                LDA	seksec			;
+        	AND	#$01			; GET SECTOR INDEX
+                CMP     #$00
+                BEQ     @1
+                TXA
+                ORA 	#%10000000              ; TOGGLE TOP HALF OF PAGE
+                TAX
+@1:
                 JSR     MD_CONVERT_SECTOR
-                cpx     #$00                    ; read if ram
+                txa
+                and     #%01000000
+                cmp     #$00                    ; read if ram
                 BEQ     :+
                 inc     debcyll                 ; if rom, inc bank by 4 ()
                 inc     debcyll
@@ -85,9 +89,10 @@ MD_READ_RAW_SECTOR:
 :
   	        LDA    	debcyll			; GET BANK
 		LDY    	debsehd			; GET PAGE
-                PRTDBG "DO PAGER$"
+                PRTDBG "DO PAGER RD$"
                 JSR     MD_PAGERA
                 PRTDBG "PAGER RETURN$"
+                LDA     #$00
 		RTS
 
 
@@ -105,13 +110,17 @@ MD_WRITE_SECTOR:
                 LDA     #$FF
                 RTS
 MD_WRITE_SECTOR_RAM:
-                JSR     MD_READ_RAW_SECTOR
                 JSR     MD_CONVERT_SECTOR
-                JSR     BLKSECR256
+		LDX 	#%00100000              ; TOGGLE WRITE RAM (LO)
+                LDA	seksec			;
+        	AND	#$01			; GET SECTOR INDEX
+                CMP     #$00
+                BEQ     @1
+		LDX 	#%10100000              ; TOGGLE WRITE RAM (HI)
+@1:
  	        LDA    	debcyll			; GET BANK
 		LDY    	debsehd			; GET PAGE
-		LDX 	#$80                    ; TOGGLE WRITE RAM
-                PRTDBG "DO PAGER$"
+                PRTDBG "DO PAGER WR$"
                 JSR     MD_PAGERA
                 PRTDBG "PAGER RETURN$"
                 LDA     #$00
@@ -161,59 +170,3 @@ MD_CONVERT_SECTOR:
   .ENDIF
         plx
 	RTS
-
-;___DEBSECR256________________________________________________________________________________________
-;
-;	DEBLOCK 256 BYTE SECTOR FOR DOS/65
-;
-;________________________________________________________________________________________________________
-DEBSECR256:
-	PHA
-	LDA	seksec			;
-	AND	#$01			; GET SECTOR INDEX
-        CMP     #$00
-        BNE     DEBSECR256_H
-	LDA	#$00                     ;
-	STA     SRC
-        JMP     DEBSECR256_GO
-DEBSECR256_H:
-	LDA	#$80                     ;
-	STA     SRC
-DEBSECR256_GO:
-	LDA	#>MD_PAGEBU             ;
-	STA	SRC+1			;
-	LDA	dmaadr	XX		;
-	STA	DEST			;
-	LDA	dmaadr+1XX		;
-	STA	DEST+1			;
-	JSR	COPY_DOS_SECTOR		;
-	PLA
-        RTS
-
-;___BLKSECR256________________________________________________________________________________________
-;
-;	BLOCK 256 BYTE SECTOR FOR DOS/65
-;
-;________________________________________________________________________________________________________
-BLKSECR256:
-	PHA
-	LDA	seksec			;
-	AND	#$01			; GET SECTOR INDEX
-        CMP     #$00
-        BNE     BLKSECR256_H
-	LDA	#$00                     ;
-	STA     DEST
-        JMP     BLKSECR256_GO
-BLKSECR256_H:
-	LDA	#$80                     ;
-	STA     DEST
-BLKSECR256_GO:
-	LDA	#>MD_PAGEBU             ;
-	STA	DEST+1			;
-	LDA	dmaadr		XX	;
-	STA	SRC			;
-	LDA	dmaadr+1	XX	;
-	STA	SRC+1			;
-	JSR	COPY_DOS_SECTOR		;
-	PLA
-        RTS

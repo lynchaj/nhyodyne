@@ -56,19 +56,22 @@ PAGER_INIT:
 ;       X=Control Word
 ;	7 6 5 4  3 2 1 0
 ;	^ ^ ^ ^  ^ ^ ^ ^
-;       : : X X  X X X X    = UNUSED
+;       : : : X  X X X X    = UNUSED
+;	: : :-------------0 = Read=0, Write=1
 ;	: :---------------0 = RAM=0, ROM=1
-;	:-----------------0 = Read=0, Write=1
+;	:-----------------0 = LOW=0, HIGH=1
 ;       A= bank
 ;       Y= page
 ;
 md_pagecode:
         PHA
         STY     MD_PAGESE+1     ; setup copy from pointer
-        LDY     #$00
+        TXA
+        AND     #$80
+        TAY
         STY     MD_PAGESE
         TXA
-        AND     #%10000000
+        AND     #%00100000
         CMP     #$00
         BNE     MD_PAGE_WRITE
 ; PERFORM READ HERE
@@ -82,7 +85,7 @@ md_pagecode:
         PLA
         ORA     #$80
         STA     MPCL_RAM
-        BNE     MD_PAGE_COPYFRM
+        BRA     MD_PAGE_COPYFRM
 MD_PAGE_ROREAD:
         LDA     #$00
         STA     MPCL_RAM
@@ -92,18 +95,22 @@ MD_PAGE_ROREAD:
 MD_PAGE_COPYFRM:
 ; DO THE COPY
         LDX     #$00
+        LDY     #$00
 :
-        PHX
-        PLY
         LDA     (MD_PAGESE),Y
         STA     MD_PAGEBU,X
         INX
-        CPX     #$00
+        INY
+        CPX     #$80
         BNE     :-
         LDA     #$80
         STA     MPCL_ROM
-        LDA     #$8E
+        NOP
+        NOP
+        LDA     #$8C
         STA     MPCL_RAM
+        nop
+        nop
         RTS
 MD_PAGE_WRITE:
         PLA
@@ -111,18 +118,18 @@ MD_PAGE_WRITE:
         STA     MPCL_RAM
 ; DO THE COPY
         LDX     #$00
+        LDY     #$00
 :
-        PHX
-        PLY
         LDA     MD_PAGEBU,X
         STA     (MD_PAGESE),Y
         INX
-        CPX     #$00
+        INY
+        CPX     #$80
         BNE     :-
-        LDA     #$80
-        STA     MPCL_ROM
-        LDA     #$8E
+        LDA     #$8C
         STA     MPCL_RAM
+        nop
+        nop
         RTS
 md_pagecodeend:
 farcall:

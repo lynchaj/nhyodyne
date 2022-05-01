@@ -6,9 +6,9 @@
 ;  DWERNER 04/24/2022 	Initial
 ;________________________________________________________________________________________________________________________________
 		.PC02
+                .segment "DRIVERS"
+		.ORG $8800
 .include "dosdefn.asm" 		; base addresses and definitions
-.include "drvmacro.asm" 		; base addresses and definitions
-
 
 ; for Nhyodyne:
 ; RAM BANK $0C is RAM area for Drivers
@@ -19,19 +19,12 @@
 ;       Area from $0D:8000 to $0D:8800 reserved for work RAM for drivers
 ;
 
-
-
-                .segment "DRIVERS"
-		.ORG $8800
-
-
 ;__DISPATCHER________________________________________________________________________________________
 ;
 ;  Function dispatcher
 ;  function to call is located in "farfunct"
 ;____________________________________________________________________________________________________
 ;
-
 		PHA
 		PHX
 		LDA     farfunct
@@ -41,6 +34,7 @@
 		STA	farpointer
 		LDA 	DISPATCHTABLE+1,X
 		STA	farpointer+1
+
 		PLX
 		PLA
 		JMP (farpointer)
@@ -77,20 +71,34 @@ DISPATCHTABLE:
 
 ;__DRIVERS___________________________________________________________________________________________
 ;
+		.include "drvmacro.asm"
 		.INCLUDE "dosser.asm"
 		.INCLUDE "doside.asm"
 		.INCLUDE "dosdskyn.asm"
 		.INCLUDE "dosmd.asm"
+		.INCLUDE "dosdblk.asm"
 
 ;//	.IF USEFLOPPYA=1 | USEFLOPPYB=1
 ;//		.INCLUDE "DOS65\\DOSFLPV3.ASM"
 ;//	.ENDIF
 
-CONSOLE_OUT:
 ;// TODO: this should be dependent on "active console. . ." and should be a driver call
-		JMP WRSER1
+CONSOLE_OUT:
+		JSR WRSER1
+		RTS
+
 ;// TODO: CONSOLE_IN
 
 
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
 
 	.end

@@ -6,33 +6,36 @@
 ;________________________________________________________________________________________________________________________________
 
 ;base addresses and definitions
-btejmp	=	$100		;warm boot jump
-pemjmp	=	$103		;jump to pem
-iostat	=	$106		;i/o status
-dflfcb	=	$107		;default fcb
-dflbuf	=	$128		;default buffer
-memmovr =	$200		;subr to move data from ram/rom disks
+btejmp	        =	$0100		;warm boot jump
+pemjmp	        =	$0103		;jump to pem
+iostat	        =	$0106		;i/o status
+dflfcb	        =	$0107		;default fcb
+dflbuf	        =	$0128		;default buffer
+memmovr         =	$0200		; 0200-02ff subr to move data from ram/rom disks
+MD_PAGERA       =       $0200           ; PAGE DRIVER ADDRESS
+
+IO              =       $0300           ; 0300-03FF Memory mapped IO
+MPCL_ROM	=	$037C		; ROM MAPPER
+MPCL_RAM	=	$0378		; RAM MAPPER
+
+MD_PAGEBU       =       $0400           ; 0400-04FF PAGE BUFFER ADDRESS
+MD_PAGESE       =       pointr          ; PAGE SECTOR STORAGE
 
 ;
 ; DSKY DISPLAY WORKING STORAGE
 ;
-DSKY_BUF        =       $0300	        ; Eight Bytes DSKY display buffer
+DSKY_BUF        =       $0500	        ; Eight Bytes DSKY display buffer
 DSKY_BUFLEN	=       8               ;
-DSKY_HEXBUF     =       $0308           ; Four Bytes DSKY hex buffer
+DSKY_HEXBUF     =       $0508           ; Four Bytes DSKY hex buffer
 DSKY_HEXBUFLEN	=       4               ;
-sektrk          =       $030C		;seek track number
-seksec          =       $030E		;seek sector number
-debcyll         =       $0310	        ; DEBLOCKED CYLINDER LSB
-debcylm         =	$0311           ; DEBLOCKED CYLINDER MSB
-debsehd         =	$0312           ; DEBLOCKED SECTOR AND HEAD (HS)
-sekdsk          =       $0313           ;seek disk number
-dskcfg          =       $0314           ; 16 bytes disk configuration table
+sektrk          =       $050C		; seek track number
+seksec          =       $050E		; seek sector number
+debcyll         =       $0510	        ; DEBLOCKED CYLINDER LSB
+debcylm         =	$0511           ; DEBLOCKED CYLINDER MSB
+debsehd         =	$0512           ; DEBLOCKED SECTOR AND HEAD (HS)
+sekdsk          =       $0513           ; seek disk number
+dskcfg          =       $0514           ; 16 bytes disk configuration table
 
-MPCL_ROM	=	$037C		; ROM MAPPER
-MPCL_RAM	=	$0378		; RAM MAPPER
-MD_PAGERA       =       $0200           ; PAGE DRIVER ADDRESS
-MD_PAGEBU       =       $0400           ; PAGE BUFFER ADDRESS
-MD_PAGESE       =       pointr          ; PAGE SECTOR STORAGE
 
 
 tea	=	$800		;tea start

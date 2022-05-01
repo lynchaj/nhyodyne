@@ -5,11 +5,6 @@
 ;  DWERNER 12/20/2021 	ported to Nhyodyne
 ;________________________________________________________________________________________________________________________________
 
-
-**** YO . . . FIX DMA to go through MD buffer
-
-
-
 		.include "macro.asm"
 DO_FARCALL =    farcall-md_pagecode+$0200
 
@@ -100,6 +95,11 @@ boot:
 	cpx 	#$10
 	bne 	@2
 
+	PRTDBG "DISK CFG TABLE COPIED$"
+
+	lda 	#22            		;MD_SHOW
+	sta 	farfunct
+	JSR 	DO_FARCALL
 
   .IF USEFLOPPYA=1
 ;  	PRTDBG "Init floppy A$"
@@ -107,11 +107,6 @@ boot:
 ;	jsr	seldsk		;and select drive zero
 ;	JSR	SETUPDRIVE
   .ENDIF
-
-	lda 	#22            		;MD_SHOW
-	sta 	farfunct
-	jmp 	DO_FARCALL
-
 
     .IF USEIDEC=1
     	lda 	#04            ;PPIDE_INIT
@@ -269,9 +264,8 @@ read:
 	;RAM
 	lda 	#20            		;MD_READ_SECTOR
 	sta 	farfunct
-	jmp 	DO_FARCALL
-
-	RTS				;
+	JSR 	DO_FARCALL
+	JMP 	MOVEBUFTODMA
 :
 	CMP 	#$20
 	BNE 	:+			; not floppy drive
@@ -289,7 +283,8 @@ read:
   	.IF USEIDEC=1
 	lda 	#05            		;IDE_READ_SECTOR
 	sta 	farfunct
-	jmp 	DO_FARCALL
+	JSR 	DO_FARCALL
+	JMP 	MOVEBUFTODMA
   	.ENDIF
 :
 	LDA	#$FF			; signal error
@@ -302,6 +297,8 @@ read:
 ;________________________________________________________________________________________________________
 write:
 	JSR 	GET_DRIVE_DEVICE	;
+	JSR 	MOVEDMATOBUF
+
 	and 	#$F0			; only want first nybble
 
 	CMP 	#$00
@@ -310,9 +307,6 @@ write:
 	lda 	#21            		;MD_WRITE_SECTOR
 	sta 	farfunct
 	jmp 	DO_FARCALL
-
-
-	RTS				;
 :
 	CMP 	#$20
 	BNE 	:+			; not floppy drive
@@ -502,6 +496,63 @@ prtdevice_done:
 
 	.INCLUDE "dospager.asm"
 ;------------------------------------------------------------------------------------
+;___MOVEBUFTODMA_________________________________________________________________________________________
+;
+;	MOVE BUFFER TO DMA
+;
+;________________________________________________________________________________________________________
+MOVEBUFTODMA:
+	PHA
+	LDA	#$00                    ;
+	STA     SRC
+	LDA	#>MD_PAGEBU             ;
+	STA	SRC+1			;
+	LDA	dmaadr			;
+	STA	DEST			;
+	LDA	dmaadr+1		;
+	STA	DEST+1			;
+	JSR	COPY_DOS_SECTOR		;
+	PLA
+        RTS
+
+;___MOVEDMATOBUF_________________________________________________________________________________________
+;
+;	MOVE DMA TO BUFFER
+;
+;________________________________________________________________________________________________________
+MOVEDMATOBUF:
+	PHA
+	LDA	#$00                     ;
+	STA     DEST
+	LDA	#>MD_PAGEBU             ;
+	STA	DEST+1			;
+	LDA	dmaadr			;
+	STA	SRC			;
+	LDA	dmaadr+1		;
+	STA	SRC+1			;
+	JSR	COPY_DOS_SECTOR		;
+	PLA
+        RTS
+
+
+
+;___COPY_DOS_SECTOR______________________________________________________________________________________
+;
+;	COPY 128 BYTE SECTOR FOR DOS/65
+;
+;________________________________________________________________________________________________________
+COPY_DOS_SECTOR:
+	PHY
+	LDY	#$00			;
+COPY_DOS_SECTOR1:
+	LDA	(SRC),Y			;
+	STA	(DEST),Y		;
+	INY				;
+	TYA				;
+	CMP	#$80			;
+	BNE	COPY_DOS_SECTOR1	;
+	PLY
+	RTS
 
 DOS65DSKYINIT:
 	.BYTE 	$54,$6E,$5C,$5E,$6E,$54,$79,$40

@@ -63,33 +63,36 @@ Current file: dos65.asm
 000000r 2               ;________________________________________________________________________________________________________________________________
 000000r 2               
 000000r 2               ;base addresses and definitions
-000000r 2               btejmp	=	$100		;warm boot jump
-000000r 2               pemjmp	=	$103		;jump to pem
-000000r 2               iostat	=	$106		;i/o status
-000000r 2               dflfcb	=	$107		;default fcb
-000000r 2               dflbuf	=	$128		;default buffer
-000000r 2               memmovr =	$200		;subr to move data from ram/rom disks
+000000r 2               btejmp	        =	$0100		;warm boot jump
+000000r 2               pemjmp	        =	$0103		;jump to pem
+000000r 2               iostat	        =	$0106		;i/o status
+000000r 2               dflfcb	        =	$0107		;default fcb
+000000r 2               dflbuf	        =	$0128		;default buffer
+000000r 2               memmovr         =	$0200		; 0200-02ff subr to move data from ram/rom disks
+000000r 2               MD_PAGERA       =       $0200           ; PAGE DRIVER ADDRESS
+000000r 2               
+000000r 2               IO              =       $0300           ; 0300-03FF Memory mapped IO
+000000r 2               MPCL_ROM	=	$037C		; ROM MAPPER
+000000r 2               MPCL_RAM	=	$0378		; RAM MAPPER
+000000r 2               
+000000r 2               MD_PAGEBU       =       $0400           ; 0400-04FF PAGE BUFFER ADDRESS
+000000r 2               MD_PAGESE       =       pointr          ; PAGE SECTOR STORAGE
 000000r 2               
 000000r 2               ;
 000000r 2               ; DSKY DISPLAY WORKING STORAGE
 000000r 2               ;
-000000r 2               DSKY_BUF        =       $0300	        ; Eight Bytes DSKY display buffer
+000000r 2               DSKY_BUF        =       $0500	        ; Eight Bytes DSKY display buffer
 000000r 2               DSKY_BUFLEN	=       8               ;
-000000r 2               DSKY_HEXBUF     =       $0308           ; Four Bytes DSKY hex buffer
+000000r 2               DSKY_HEXBUF     =       $0508           ; Four Bytes DSKY hex buffer
 000000r 2               DSKY_HEXBUFLEN	=       4               ;
-000000r 2               sektrk          =       $030C		;seek track number
-000000r 2               seksec          =       $030E		;seek sector number
-000000r 2               debcyll         =       $0310	        ; DEBLOCKED CYLINDER LSB
-000000r 2               debcylm         =	$0311           ; DEBLOCKED CYLINDER MSB
-000000r 2               debsehd         =	$0312           ; DEBLOCKED SECTOR AND HEAD (HS)
-000000r 2               sekdsk          =       $0313           ;seek disk number
-000000r 2               dskcfg          =       $0314           ; 16 bytes disk configuration table
+000000r 2               sektrk          =       $050C		; seek track number
+000000r 2               seksec          =       $050E		; seek sector number
+000000r 2               debcyll         =       $0510	        ; DEBLOCKED CYLINDER LSB
+000000r 2               debcylm         =	$0511           ; DEBLOCKED CYLINDER MSB
+000000r 2               debsehd         =	$0512           ; DEBLOCKED SECTOR AND HEAD (HS)
+000000r 2               sekdsk          =       $0513           ; seek disk number
+000000r 2               dskcfg          =       $0514           ; 16 bytes disk configuration table
 000000r 2               
-000000r 2               MPCL_ROM	=	$037C		; ROM MAPPER
-000000r 2               MPCL_RAM	=	$0378		; RAM MAPPER
-000000r 2               MD_PAGERA       =       $0200           ; PAGE DRIVER ADDRESS
-000000r 2               MD_PAGEBU       =       $0400           ; PAGE BUFFER ADDRESS
-000000r 2               MD_PAGESE       =       pointr          ; PAGE SECTOR STORAGE
 000000r 2               
 000000r 2               
 000000r 2               tea	=	$800		;tea start
@@ -2863,16 +2866,16 @@ Current file: dos65.asm
 00CBFA  3  18                          CLC				; CLEAR CARRY
 00CBFB  3  69 07                       ADC #$07				; ADD ON FOR LETTER VALUES
 00CBFD  3               PRINT_DIGIT_OUT:					;
-00CBFD  3  4C DF CE                    JMP conwrt              		; PRINT OUT CHAR
+00CBFD  3  4C E6 CE                    JMP conwrt              		; PRINT OUT CHAR
 00CC00  3               
 00CC00  3               NEWLINE:
 00CC00  3  48                           pha
 00CC01  3  DA                           PHX
 00CC02  3  5A                           phy
 00CC03  3  A9 0D                        LDA #$0D
-00CC05  3  20 DF CE                     JSR conwrt
+00CC05  3  20 E6 CE                     JSR conwrt
 00CC08  3  A9 0A                        LDA #$0A
-00CC0A  3  20 DF CE                     Jsr conwrt
+00CC0A  3  20 E6 CE                     Jsr conwrt
 00CC0D  3  7A                           ply
 00CC0E  3  FA                           plx
 00CC0F  3  68                           pla
@@ -2918,7 +2921,7 @@ Current file: dos65.asm
 00CC48  3               PrDecDigit1:
 00CC48  3  8A                           TXA                     ;Save A, pass digit to A
 00CC49  3  09 30                        ORA #'0'
-00CC4B  3  20 DF CE                     JSR  conwrt             ;Convert to character and print it
+00CC4B  3  20 E6 CE                     JSR  conwrt             ;Convert to character and print it
 00CC4E  3               PrDecDigit2:
 00CC4E  3  68                           PLA
 00CC4F  3  60                           RTS                     ;Restore A and return
@@ -2939,23 +2942,23 @@ Current file: dos65.asm
 00CC50  2               ;jump vector used by pem
 00CC50  2  4C A8 CD     sim:	jmp	boot		;from cold start
 00CC53  2  4C 44 CE     wboote:	jmp	wboot		;from warm boot
-00CC56  2  4C D1 CE     	jmp	consts		;check for input
-00CC59  2  4C D8 CE     	jmp	conrde		;get input
-00CC5C  2  4C DF CE     	jmp	conwrt		;send to terminal
-00CC5F  2  4C E8 CE     	jmp	prnwrt		;printer output
-00CC62  2  4C E9 CE     	jmp	punwrt		;punch output
-00CC65  2  4C EA CE     	jmp	rdrinp		;reader input
+00CC56  2  4C D8 CE     	jmp	consts		;check for input
+00CC59  2  4C DF CE     	jmp	conrde		;get input
+00CC5C  2  4C E6 CE     	jmp	conwrt		;send to terminal
+00CC5F  2  4C EF CE     	jmp	prnwrt		;printer output
+00CC62  2  4C F0 CE     	jmp	punwrt		;punch output
+00CC65  2  4C F1 CE     	jmp	rdrinp		;reader input
 00CC68  2  4C 6D CE     	jmp	home		;home drive
 00CC6B  2  4C 4C CE     	jmp	seldsk		;select disk
 00CC6E  2  4C 71 CE     	jmp	seltrk		;set track
 00CC71  2  4C 79 CE     	jmp	selsec		;set sector
-00CC74  2  4C CC CE     	jmp	setdma		;set buffer address
+00CC74  2  4C D3 CE     	jmp	setdma		;set buffer address
 00CC77  2  4C 80 CE     	jmp	read		;read sector
-00CC7A  2  4C A6 CE     	jmp	write		;write sector
+00CC7A  2  4C AB CE     	jmp	write		;write sector
 00CC7D  2  A9 01        	lda	#1		;printer always ready
 00CC7F  2  60           	rts
-00CC80  2  4C EB CE     	jmp	rdtime		;clock entry
-00CC83  2  4C EC CE     	jmp	xlate		;translate
+00CC80  2  4C F2 CE     	jmp	rdtime		;clock entry
+00CC83  2  4C F3 CE     	jmp	xlate		;translate
 00CC86  2               
 00CC86  2               ;console definition block
 00CC86  2               sysdef:
@@ -3004,67 +3007,67 @@ Current file: dos65.asm
 00CDAB  2  9A           	txs			;pointer
 00CDAC  2  D8           	cld			;set binary mode
 00CDAD  2               
-00CDAD  2  20 45 D0     	JSR	PAGER_INIT		;setup paging for device drivers
+00CDAD  2  20 4C D0     	JSR	PAGER_INIT		;setup paging for device drivers
 00CDB0  2               
 00CDB0  2               	PRTDBG "OS Starting$"
 00CDB0  2               
 00CDB0  2  A9 90         	lda	#<opnmsg	;point to message
 00CDB2  2  A0 CC        	ldy	#>opnmsg
-00CDB4  2  20 ED CE     	jsr	outmsg		;send it
+00CDB4  2  20 F4 CE     	jsr	outmsg		;send it
 00CDB7  2  A9 36         	lda	#<opnmsg1
 00CDB9  2  A0 CD        	ldy	#>opnmsg1
-00CDBB  2  20 ED CE     	jsr	outmsg		;send it
+00CDBB  2  20 F4 CE     	jsr	outmsg		;send it
 00CDBE  2               
 00CDBE  2  20 00 CC     	JSR 	NEWLINE
 00CDC1  2               
 00CDC1  2               ; 	setup diskconfig table
 00CDC1  2  A2 00        	ldx 	#0
 00CDC3  2               @2:
-00CDC3  2  BD B9 D9     	lda 	dftdskcfg,x
-00CDC6  2  9D 14 03     	sta 	dskcfg,x
+00CDC3  2  BD 00 DA     	lda 	dftdskcfg,x
+00CDC6  2  9D 14 05     	sta 	dskcfg,x
 00CDC9  2  E8           	inx
 00CDCA  2  E0 10        	cpx 	#$10
 00CDCC  2  D0 F5        	bne 	@2
 00CDCE  2               
-00CDCE  2               
-00CDCE  2                 .IF USEFLOPPYA=1
-00CDCE  2               ;  	PRTDBG "Init floppy A$"
-00CDCE  2               ;  	lda	#0			;set zero
-00CDCE  2               ;	jsr	seldsk		;and select drive zero
-00CDCE  2               ;	JSR	SETUPDRIVE
-00CDCE  2                 .ENDIF
+00CDCE  2               	PRTDBG "DISK CFG TABLE COPIED$"
 00CDCE  2               
 00CDCE  2  A9 16        	lda 	#22            		;MD_SHOW
 00CDD0  2  85 32        	sta 	farfunct
-00CDD2  2  4C 65 02     	jmp 	DO_FARCALL
+00CDD2  2  20 6A 02     	JSR 	DO_FARCALL
 00CDD5  2               
+00CDD5  2                 .IF USEFLOPPYA=1
+00CDD5  2               ;  	PRTDBG "Init floppy A$"
+00CDD5  2               ;  	lda	#0			;set zero
+00CDD5  2               ;	jsr	seldsk		;and select drive zero
+00CDD5  2               ;	JSR	SETUPDRIVE
+00CDD5  2                 .ENDIF
 00CDD5  2               
 00CDD5  2                   .IF USEIDEC=1
 00CDD5  2  A9 04            	lda 	#04            ;PPIDE_INIT
 00CDD7  2  85 32        	sta 	farfunct
-00CDD9  2  20 65 02     	JSR 	DO_FARCALL
+00CDD9  2  20 6A 02     	JSR 	DO_FARCALL
 00CDDC  2                 .ENDIF
 00CDDC  2               
 00CDDC  2               
 00CDDC  2                  .IF USEDSKYNG=1 || USEDSKY=1
 00CDDC  2  A9 08        	lda 	#08            ;DSKY_INIT
 00CDDE  2  85 32        	sta 	farfunct
-00CDE0  2  20 65 02     	JSR 	DO_FARCALL
+00CDE0  2  20 6A 02     	JSR 	DO_FARCALL
 00CDE3  2               
 00CDE3  2  A2 00        	LDX 	#$00
 00CDE5  2               @1:
-00CDE5  2  BD CC D0     	LDA 	DOS65DSKYINIT,X
-00CDE8  2  9D 00 03     	STA	DSKY_BUF,X
+00CDE5  2  BD 13 D1     	LDA 	DOS65DSKYINIT,X
+00CDE8  2  9D 00 05     	STA	DSKY_BUF,X
 00CDEB  2  E8           	INX
 00CDEC  2  E0 08        	CPX 	#8
 00CDEE  2  D0 F5        	BNE	@1
 00CDF0  2  A9 12        	lda 	#18            ;DSKY_PUTLED
 00CDF2  2  85 32        	sta 	farfunct
-00CDF4  2  20 65 02     	JSR 	DO_FARCALL
+00CDF4  2  20 6A 02     	JSR 	DO_FARCALL
 00CDF7  2               
 00CDF7  2  A9 0D        	lda 	#13            ;DSKY_BEEP
 00CDF9  2  85 32        	sta 	farfunct
-00CDFB  2  20 65 02     	JSR 	DO_FARCALL
+00CDFB  2  20 6A 02     	JSR 	DO_FARCALL
 00CDFE  2                 .ENDIF
 00CDFE  2               
 00CDFE  2               
@@ -3077,18 +3080,18 @@ Current file: dos65.asm
 00CE06  2               
 00CE06  2  A9 14        	LDA 	#<dskcfg	; STORE POINTER TO DISK CONFIG TABLE FOR APPS
 00CE08  2  85 2E        	STA 	dskcfpc
-00CE0A  2  A9 03        	LDA 	#>dskcfg
+00CE0A  2  A9 05        	LDA 	#>dskcfg
 00CE0C  2  85 2F        	STA 	dskcfpc+1
-00CE0E  2  20 0E CF     	JSR 	DSPL_DSK_CFG	; DISPLAY DISK CONFIG TO USERS
+00CE0E  2  20 15 CF     	JSR 	DSPL_DSK_CFG	; DISPLAY DISK CONFIG TO USERS
 00CE11  2               
 00CE11  2               
 00CE11  2               				;set up jumps into dos/65 in page one
 00CE11  2               setup:
-00CE11  2  20 45 D0     	JSR	PAGER_INIT
+00CE11  2  20 4C D0     	JSR	PAGER_INIT
 00CE14  2  A2 00        	ldx	#0		;clear index
 00CE16  2               				;first clear key dba variables
-00CE16  2  8E 47 D1     	stx	hstact		;host buffer inactive
-00CE19  2  8E 48 D1     	stx	unacnt		;clear unalloc count
+00CE16  2  8E 8E D1     	stx	hstact		;host buffer inactive
+00CE19  2  8E 8F D1     	stx	unacnt		;clear unalloc count
 00CE1C  2  BD 3E CE     setupl:	lda	inttbl,x	;get byte
 00CE1F  2  9D 00 01     	sta	$100,x		;insert at start
 00CE22  2  E8           	inx
@@ -3096,8 +3099,8 @@ Current file: dos65.asm
 00CE25  2  D0 F5        	bne	setupl		;loop until done
 00CE27  2  A9 28        	lda	#<dflbuf	;get low buffer
 00CE29  2  A0 01        	ldy	#>dflbuf	;and high
-00CE2B  2  20 CC CE     	jsr	setdma		;and set
-00CE2E  2  AD 13 03     	lda	sekdsk		;get disk
+00CE2B  2  20 D3 CE     	jsr	setdma		;and set
+00CE2E  2  AD 13 05     	lda	sekdsk		;get disk
 00CE31  2               
 00CE31  2  A9 02        	lda	#DEFDRV		;set zero
 00CE33  2  20 4C CE     	jsr	seldsk		;and select drive zero
@@ -3130,11 +3133,11 @@ Current file: dos65.asm
 00CE4C  2               ;select disk
 00CE4C  2               seldsk:
 00CE4C  2  29 07        	and	#7		;three lsbs only
-00CE4E  2  8D 13 03     	sta	sekdsk		;save for later
+00CE4E  2  8D 13 05     	sta	sekdsk		;save for later
 00CE51  2                .IF (USEFLOPPYA=1 | USEFLOPPYB=1)
 00CE51  2               	jsr	MOTOROFF	; TURN OFF ALL FLOPPY MOTORS
 00CE51  2                .ENDIF
-00CE51  2  AD 13 03     	LDA	sekdsk		;save for later
+00CE51  2  AD 13 05     	LDA	sekdsk		;save for later
 00CE54  2  0A           	asl	a		;multiply by two
 00CE55  2  AA           	tax			;make an Index
 00CE56  2  BD 5D CE     	lda	dcbtbl,x	;get address
@@ -3142,14 +3145,14 @@ Current file: dos65.asm
 00CE5C  2  60           	rts
 00CE5D  2               
 00CE5D  2               ;table of dcb addresses
-00CE5D  2  D4 D0        dcbtbl:	.word	dcba		; A
-00CE5F  2  E2 D0        	.word	dcbb		; B
-00CE61  2  F0 D0        	.word	dcbc		; C
-00CE63  2  FE D0        	.word	dcbd		; D
-00CE65  2  0C D1        	.word	dcbe		; E
-00CE67  2  1A D1        	.word	dcbf		; F
-00CE69  2  28 D1        	.word	dcbg		; G
-00CE6B  2  36 D1        	.word	dcbh		; H
+00CE5D  2  1B D1        dcbtbl:	.word	dcba		; A
+00CE5F  2  29 D1        	.word	dcbb		; B
+00CE61  2  37 D1        	.word	dcbc		; C
+00CE63  2  45 D1        	.word	dcbd		; D
+00CE65  2  53 D1        	.word	dcbe		; E
+00CE67  2  61 D1        	.word	dcbf		; F
+00CE69  2  6F D1        	.word	dcbg		; G
+00CE6B  2  7D D1        	.word	dcbh		; H
 00CE6D  2               
 00CE6D  2               ;__HOME__________________________________________________________________________________________________
 00CE6D  2               ;
@@ -3168,8 +3171,8 @@ Current file: dos65.asm
 00CE71  2               ;________________________________________________________________________________________________________
 00CE71  2               seltrk:
 00CE71  2  18           	CLC
-00CE72  2  8D 0C 03     	sta	sektrk		;save number
-00CE75  2  8C 0D 03     	sty	sektrk+1
+00CE72  2  8D 0C 05     	sta	sektrk		;save number
+00CE75  2  8C 0D 05     	sty	sektrk+1
 00CE78  2  60           	rts
 00CE79  2               
 00CE79  2               ;__SELSEC________________________________________________________________________________________________
@@ -3180,8 +3183,8 @@ Current file: dos65.asm
 00CE79  2               ;	Y=SECTOR HIGH BYTE
 00CE79  2               ;________________________________________________________________________________________________________
 00CE79  2               selsec:
-00CE79  2  8D 0E 03     	sta	seksec		;save low and high
-00CE7C  2  8C 0F 03     	sty	seksec+1
+00CE79  2  8D 0E 05     	sta	seksec		;save low and high
+00CE7C  2  8C 0F 05     	sty	seksec+1
 00CE7F  2  60           	rts
 00CE80  2               
 00CE80  2               ;__READ__________________________________________________________________________________________________
@@ -3189,519 +3192,582 @@ Current file: dos65.asm
 00CE80  2               ; 	PERFORM DOS/65 SECTOR READ
 00CE80  2               ;________________________________________________________________________________________________________
 00CE80  2               read:
-00CE80  2  20 01 CF     	JSR 	GET_DRIVE_DEVICE	;
+00CE80  2  20 08 CF     	JSR 	GET_DRIVE_DEVICE	;
 00CE83  2  29 F0        	and 	#$F0			; only want first nybble
 00CE85  2  C9 00        	CMP 	#$00
-00CE87  2  D0 08        	BNE 	:+			; not MD drive
+00CE87  2  D0 0A        	BNE 	:+			; not MD drive
 00CE89  2               	;RAM
 00CE89  2  A9 14        	lda 	#20            		;MD_READ_SECTOR
 00CE8B  2  85 32        	sta 	farfunct
-00CE8D  2  4C 65 02     	jmp 	DO_FARCALL
-00CE90  2               
-00CE90  2  60           	RTS				;
-00CE91  2               :
-00CE91  2  C9 20        	CMP 	#$20
-00CE93  2  D0 03        	BNE 	:+			; not floppy drive
-00CE95  2               	;FD
-00CE95  2                 	.IF USEFLOPPYA=1 || USEFLOPPYB=1
-00CE95  2                 	JMP	READFL			;
-00CE95  2                 	.else
-00CE95  2  A9 FF          	LDA	#$FF			;
-00CE97  2  60           	RTS				;
-00CE98  2                 	.ENDIF
-00CE98  2               :
-00CE98  2  C9 30        	CMP 	#$30
-00CE9A  2  D0 07        	BNE 	:+			; invalid drive
-00CE9C  2               	;PPIDE
-00CE9C  2                 	.IF USEIDEC=1
-00CE9C  2  A9 05        	lda 	#05            		;IDE_READ_SECTOR
-00CE9E  2  85 32        	sta 	farfunct
-00CEA0  2  4C 65 02     	jmp 	DO_FARCALL
-00CEA3  2                 	.ENDIF
-00CEA3  2               :
-00CEA3  2  A9 FF        	LDA	#$FF			; signal error
-00CEA5  2  60           	RTS				;
-00CEA6  2               
-00CEA6  2               
-00CEA6  2               ;__WRITE_________________________________________________________________________________________________
-00CEA6  2               ;
-00CEA6  2               ; 	PERFORM DOS/65 SECTOR WRITE
-00CEA6  2               ;________________________________________________________________________________________________________
-00CEA6  2               write:
-00CEA6  2  20 01 CF     	JSR 	GET_DRIVE_DEVICE	;
-00CEA9  2  29 F0        	and 	#$F0			; only want first nybble
+00CE8D  2  20 6A 02     	JSR 	DO_FARCALL
+00CE90  2  4C D8 D0     	JMP 	MOVEBUFTODMA
+00CE93  2               :
+00CE93  2  C9 20        	CMP 	#$20
+00CE95  2  D0 03        	BNE 	:+			; not floppy drive
+00CE97  2               	;FD
+00CE97  2                 	.IF USEFLOPPYA=1 || USEFLOPPYB=1
+00CE97  2                 	JMP	READFL			;
+00CE97  2                 	.else
+00CE97  2  A9 FF          	LDA	#$FF			;
+00CE99  2  60           	RTS				;
+00CE9A  2                 	.ENDIF
+00CE9A  2               :
+00CE9A  2  C9 30        	CMP 	#$30
+00CE9C  2  D0 0A        	BNE 	:+			; invalid drive
+00CE9E  2               	;PPIDE
+00CE9E  2                 	.IF USEIDEC=1
+00CE9E  2  A9 05        	lda 	#05            		;IDE_READ_SECTOR
+00CEA0  2  85 32        	sta 	farfunct
+00CEA2  2  20 6A 02     	JSR 	DO_FARCALL
+00CEA5  2  4C D8 D0     	JMP 	MOVEBUFTODMA
+00CEA8  2                 	.ENDIF
+00CEA8  2               :
+00CEA8  2  A9 FF        	LDA	#$FF			; signal error
+00CEAA  2  60           	RTS				;
 00CEAB  2               
-00CEAB  2  C9 00        	CMP 	#$00
-00CEAD  2  D0 08        	BNE 	:+			; not MD Drive
-00CEAF  2               	;MD
-00CEAF  2  A9 15        	lda 	#21            		;MD_WRITE_SECTOR
-00CEB1  2  85 32        	sta 	farfunct
-00CEB3  2  4C 65 02     	jmp 	DO_FARCALL
-00CEB6  2               
-00CEB6  2               
-00CEB6  2  60           	RTS				;
-00CEB7  2               :
-00CEB7  2  C9 20        	CMP 	#$20
-00CEB9  2  D0 03        	BNE 	:+			; not floppy drive
-00CEBB  2               	;FD
-00CEBB  2                 	.IF USEFLOPPYA=1 || USEFLOPPYB=1
-00CEBB  2                 	Jsr	WRITEFL			;
-00CEBB  2               	RTS				;
-00CEBB  2                 	.else
-00CEBB  2  A9 FF          	LDA	#$FF			;
-00CEBD  2  60           	RTS				;
-00CEBE  2                 	.ENDIF
+00CEAB  2               
+00CEAB  2               ;__WRITE_________________________________________________________________________________________________
+00CEAB  2               ;
+00CEAB  2               ; 	PERFORM DOS/65 SECTOR WRITE
+00CEAB  2               ;________________________________________________________________________________________________________
+00CEAB  2               write:
+00CEAB  2  20 08 CF     	JSR 	GET_DRIVE_DEVICE	;
+00CEAE  2  20 EE D0     	JSR 	MOVEDMATOBUF
+00CEB1  2               
+00CEB1  2  29 F0        	and 	#$F0			; only want first nybble
+00CEB3  2               
+00CEB3  2  C9 00        	CMP 	#$00
+00CEB5  2  D0 07        	BNE 	:+			; not MD Drive
+00CEB7  2               	;MD
+00CEB7  2  A9 15        	lda 	#21            		;MD_WRITE_SECTOR
+00CEB9  2  85 32        	sta 	farfunct
+00CEBB  2  4C 6A 02     	jmp 	DO_FARCALL
 00CEBE  2               :
-00CEBE  2  C9 30        	CMP 	#$30
-00CEC0  2  D0 07        	BNE 	writex			; not ppide
-00CEC2  2               	;PPIDE
-00CEC2  2                 	.IF USEIDEC=1
-00CEC2  2  A9 06        	lda 	#06            		;IDE_WRITE_SECTOR
-00CEC4  2  85 32        	sta 	farfunct
-00CEC6  2  4C 65 02     	jmp 	DO_FARCALL
-00CEC9  2                 	.else
-00CEC9  2                 	LDA	#$FF			;
-00CEC9  2               	RTS				;
-00CEC9  2                 	.ENDIF
-00CEC9  2               writex:
-00CEC9  2  A9 FF        	LDA	#$FF			; signal error
-00CECB  2  60           	RTS				;
-00CECC  2               
-00CECC  2               
-00CECC  2               ;__SETDMA________________________________________________________________________________________________
-00CECC  2               ;
-00CECC  2               ; 	PERFORM DOS/65 BUFFER ADDRESS SELECTION
-00CECC  2               ;
-00CECC  2               ;	A=BUFFER LOW BYTE
-00CECC  2               ;	Y=BUFFER HIGH BYTE
-00CECC  2               ;________________________________________________________________________________________________________
-00CECC  2               setdma:
-00CECC  2  85 F4        	sta	dmaadr		;store low
-00CECE  2  84 F5        	sty	dmaadr+1	;and high
-00CED0  2  60           	rts
-00CED1  2               
-00CED1  2               
-00CED1  2               ;__CONSTS________________________________________________________________________________________________
-00CED1  2               ;
-00CED1  2               ; 	GET DOS/65 CONSOLE STATUS
-00CED1  2               ;________________________________________________________________________________________________________
-00CED1  2               consts:
-00CED1  2  A9 03        	lda 	#03
-00CED3  2  85 32        	sta 	farfunct
-00CED5  2  4C 65 02     	jmp 	DO_FARCALL
+00CEBE  2  C9 20        	CMP 	#$20
+00CEC0  2  D0 03        	BNE 	:+			; not floppy drive
+00CEC2  2               	;FD
+00CEC2  2                 	.IF USEFLOPPYA=1 || USEFLOPPYB=1
+00CEC2  2                 	Jsr	WRITEFL			;
+00CEC2  2               	RTS				;
+00CEC2  2                 	.else
+00CEC2  2  A9 FF          	LDA	#$FF			;
+00CEC4  2  60           	RTS				;
+00CEC5  2                 	.ENDIF
+00CEC5  2               :
+00CEC5  2  C9 30        	CMP 	#$30
+00CEC7  2  D0 07        	BNE 	writex			; not ppide
+00CEC9  2               	;PPIDE
+00CEC9  2                 	.IF USEIDEC=1
+00CEC9  2  A9 06        	lda 	#06            		;IDE_WRITE_SECTOR
+00CECB  2  85 32        	sta 	farfunct
+00CECD  2  4C 6A 02     	jmp 	DO_FARCALL
+00CED0  2                 	.else
+00CED0  2                 	LDA	#$FF			;
+00CED0  2               	RTS				;
+00CED0  2                 	.ENDIF
+00CED0  2               writex:
+00CED0  2  A9 FF        	LDA	#$FF			; signal error
+00CED2  2  60           	RTS				;
+00CED3  2               
+00CED3  2               
+00CED3  2               ;__SETDMA________________________________________________________________________________________________
+00CED3  2               ;
+00CED3  2               ; 	PERFORM DOS/65 BUFFER ADDRESS SELECTION
+00CED3  2               ;
+00CED3  2               ;	A=BUFFER LOW BYTE
+00CED3  2               ;	Y=BUFFER HIGH BYTE
+00CED3  2               ;________________________________________________________________________________________________________
+00CED3  2               setdma:
+00CED3  2  85 F4        	sta	dmaadr		;store low
+00CED5  2  84 F5        	sty	dmaadr+1	;and high
+00CED7  2  60           	rts
 00CED8  2               
-00CED8  2               ;__CONRDE________________________________________________________________________________________________
+00CED8  2               
+00CED8  2               ;__CONSTS________________________________________________________________________________________________
 00CED8  2               ;
-00CED8  2               ; 	PERFORM DOS/65 CONSOLE READ
+00CED8  2               ; 	GET DOS/65 CONSOLE STATUS
 00CED8  2               ;________________________________________________________________________________________________________
-00CED8  2               conrde:
-00CED8  2  A9 02        	lda 	#02
+00CED8  2               consts:
+00CED8  2  A9 03        	lda 	#03
 00CEDA  2  85 32        	sta 	farfunct
-00CEDC  2  4C 65 02     	jmp 	DO_FARCALL
+00CEDC  2  4C 6A 02     	jmp 	DO_FARCALL
 00CEDF  2               
-00CEDF  2               
-00CEDF  2               ;__CONWRT________________________________________________________________________________________________
+00CEDF  2               ;__CONRDE________________________________________________________________________________________________
 00CEDF  2               ;
-00CEDF  2               ; 	PERFORM DOS/65 CONSOLE WRITE
+00CEDF  2               ; 	PERFORM DOS/65 CONSOLE READ
 00CEDF  2               ;________________________________________________________________________________________________________
-00CEDF  2               conwrt:
-00CEDF  2  48           	pha
-00CEE0  2  A9 00        	lda 	#00
-00CEE2  2  85 32        	sta 	farfunct
-00CEE4  2  68           	pla
-00CEE5  2  4C 65 02     	jmp 	DO_FARCALL
-00CEE8  2               
-00CEE8  2               prnwrt:
-00CEE8  2  60           	rts			;printer
-00CEE9  2               punwrt:
-00CEE9  2  60           	rts			;punch output
-00CEEA  2               rdrinp:
-00CEEA  2  60           	rts			;reader input
-00CEEB  2               rdtime:
-00CEEB  2  60           	rts			;read clock
-00CEEC  2               xlate:
-00CEEC  2  60           	rts			;sector translate
-00CEED  2               
-00CEED  2               
-00CEED  2               ;__OUTMSG________________________________________________________________________________________________
-00CEED  2               ;
-00CEED  2               ; 	WRITE A NULL TERMINATED STRING TO THE CONSOLE
-00CEED  2               ;
-00CEED  2               ;	A=POINTER LOW BYTE
-00CEED  2               ;	Y=POINTER HIGH BYTE
-00CEED  2               ;________________________________________________________________________________________________________
-00CEED  2               outmsg:				;output message
-00CEED  2  85 F0        	STA OUTMSG_W
-00CEEF  2  84 F1        	STY OUTMSG_W+1
-00CEF1  2  A0 00        	LDY #$00
-00CEF3  2               OUTSTRLP:
-00CEF3  2  B1 F0               	LDA (OUTMSG_W),Y 	; LOAD NEXT CHAR FROM STRING INTO ACC
-00CEF5  2  C9 00               	CMP #$00		; IS NULL?
-00CEF7  2  F0 07               	BEQ ENDOUTSTR		; YES, END PRINT OUT
-00CEF9  2  20 DF CE            	JSR conwrt  		; PRINT CHAR IN ACC
-00CEFC  2  C8                  	INY      		; Y=Y+1 (BUMP INDEX)
-00CEFD  2  4C F3 CE            	JMP OUTSTRLP		; DO NEXT CHAR
-00CF00  2               ENDOUTSTR:
-00CF00  2  60                  	RTS			; RETURN
-00CF01  2               
-00CF01  2               ;___GET_DRIVE_DEVICE_____________________________________________________________________________________
-00CF01  2               ;
-00CF01  2               ;	GET SELECTED DEVICE TYPE AND UNIT, RETURN IN "A"
-00CF01  2               ;
-00CF01  2               ;________________________________________________________________________________________________________
-00CF01  2               GET_DRIVE_DEVICE:
-00CF01  2  DA           	PHX
-00CF02  2  AD 13 03     	LDA	sekdsk			; GET DRIVE
-00CF05  2  29 07        	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
-00CF07  2  0A           	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
-00CF08  2  AA           	TAX 				; MOVE TO X REGISTER
-00CF09  2  BD 14 03     	LDA 	dskcfg,X 		; GET device
-00CF0C  2  FA           	PLX
-00CF0D  2  60           	RTS
-00CF0E  2               
-00CF0E  2               ;___DSPL_DSK_CFG_________________________________________________________________________________________
-00CF0E  2               ;
-00CF0E  2               ;	DISPLAY THE DISK CONFIGURATION FOR THE USER
-00CF0E  2               ;
-00CF0E  2               ;________________________________________________________________________________________________________
-00CF0E  2               DSPL_DSK_CFG:
-00CF0E  2  20 00 CC     	JSR 	NEWLINE
-00CF11  2  48 DA 5A A2  	PRTS "Disk Configuration:$"
-00CF15  2  00 BD 2A CF  
-00CF19  2  E8 C9 24 F0  
-00CF3E  2  20 00 CC     	JSR 	NEWLINE
-00CF41  2  A2 00        	ldx 	#0
-00CF43  2               DSPL_DSK_CFG_1:
-00CF43  2  48 DA 5A A2  	PRTS "    $"		; MAKE IT PRETTY :)
-00CF47  2  00 BD 5C CF  
-00CF4B  2  E8 C9 24 F0  
-00CF61  2  8A           	TXA
-00CF62  2  4A           	LSR	A
-00CF63  2  18           	CLC
-00CF64  2  69 41        	ADC 	#'A'
-00CF66  2  20 DF CE     	JSR 	conwrt
-00CF69  2  A9 3A        	LDA 	#':'
-00CF6B  2  20 DF CE     	JSR 	conwrt
-00CF6E  2  A9 3D        	LDA 	#'='
-00CF70  2  20 DF CE     	JSR 	conwrt
-00CF73  2  20 8B CF     	JSR 	prtdevice	; PRINT DEVICE NAME FROM TABLE (X)
-00CF76  2  A9 3A        	LDA 	#':'
-00CF78  2  20 DF CE     	JSR 	conwrt
-00CF7B  2  E8           	INX				; WANT SECOND BYTE OF ENTRY
-00CF7C  2  BD 14 03     	LDA 	dskcfg,x 		; GET SLICE
-00CF7F  2  20 11 CC     	JSR 	PRTDEC 			; PRINT SLICE IN DECIMAL (A)
-00CF82  2  E8           	INX
-00CF83  2  20 00 CC     	JSR 	NEWLINE
-00CF86  2  E0 10        	CPX 	#16
-00CF88  2  D0 B9        	BNE 	DSPL_DSK_CFG_1
-00CF8A  2  60           	RTS
-00CF8B  2               
-00CF8B  2               ; 	DEVICE TABLE:
-00CF8B  2               ;	$00	MD
-00CF8B  2               ;	$2x	FLOPPY
-00CF8B  2               ;	$3x	IDE
-00CF8B  2               prtdevice:
-00CF8B  2  BD 14 03     	LDA 	dskcfg,X 		; GET DEVICE TYPE
-00CF8E  2  48           	PHA
-00CF8F  2  29 F0        	AND 	#$F0 			; FILTER OUT UNIT
-00CF91  2  C9 00        	CMP 	#$00
-00CF93  2  D0 1F        	BNE 	prtdevice1
-00CF95  2  48 DA 5A A2  	PRTS "MD$"
-00CF99  2  00 BD AE CF  
-00CF9D  2  E8 C9 24 F0  
-00CFB1  2  4C 3E D0     	jmp 	prtdevice_done
-00CFB4  2               prtdevice1:
-00CFB4  2  C9 10        	CMP 	#$10
-00CFB6  2  D0 20        	BNE 	prtdevice2
-00CFB8  2  48 DA 5A A2  	PRTS "UNK$"
-00CFBC  2  00 BD D1 CF  
-00CFC0  2  E8 C9 24 F0  
-00CFD5  2  4C 3E D0     	jmp 	prtdevice_done
-00CFD8  2               prtdevice2:
-00CFD8  2  C9 20        	CMP 	#$20
-00CFDA  2  D0 1F        	BNE 	prtdevice3
-00CFDC  2  48 DA 5A A2  	PRTS "FD$"
-00CFE0  2  00 BD F5 CF  
-00CFE4  2  E8 C9 24 F0  
-00CFF8  2  4C 3E D0     	jmp 	prtdevice_done
-00CFFB  2               prtdevice3:
-00CFFB  2  C9 30        	CMP 	#$30
-00CFFD  2  D0 22        	BNE 	prtdevicex
-00CFFF  2  48 DA 5A A2  	PRTS "PPIDE$"
-00D003  2  00 BD 18 D0  
-00D007  2  E8 C9 24 F0  
-00D01E  2  4C 3E D0     	jmp 	prtdevice_done
-00D021  2               prtdevicex:
-00D021  2  48 DA 5A A2  	PRTS "UNK$"
-00D025  2  00 BD 3A D0  
-00D029  2  E8 C9 24 F0  
-00D03E  2               prtdevice_done:
-00D03E  2  68           	PLA
-00D03F  2  29 0F        	AND 	#$0F 			; FILTER OUT DEVICE
-00D041  2  20 11 CC     	JSR 	PRTDEC
-00D044  2  60           	RTS
-00D045  2               
-00D045  2               	.INCLUDE "dospager.asm"
-00D045  3               ;__pager_________________________________________________________________________________________________________________________
-00D045  3               ;
-00D045  3               ; 	Nhyodyne Memory page management code
-00D045  3               ;
-00D045  3               ;	Entry points:
-00D045  3               ;		PAGER_INIT          - called during OS init
-00D045  3               ;________________________________________________________________________________________________________________________________
-00D045  3               ;
-00D045  3               ; RAM BANK $0C is RAM area for Drivers
-00D045  3               ; RAM BANK $0E is operating bank for DOS/65 $8000-$FFFF
-00D045  3               ; RAM BANK $0F is fixed bank $0000-$7FFF
-00D045  3               ;
-00D045  3               ; ROM BANKS $00 and $0C-$0F are reserved for ROMWBW code
-00D045  3               ;
-00D045  3               ; ROM MEMORY PAGE CONFIGURATION LATCH CONTROL PORT
-00D045  3               ;       A15 IS INVERTED FOR THE NYHODYNE 65C02 CPU . . .
-00D045  3               ;	7 6 5 4  3 2 1 0      APPLICABLE TO THE UPPER MEMORY PAGE $8000-$FFFF
-00D045  3               ;	^ ^ ^ ^  ^ ^ ^ ^
-00D045  3               ;	: : : :  : : : :--0 = A15 ROM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: : : :  : : :----0 = A16 ROM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: : : :  : :------0 = A17 ROM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: : : :  :--------0 = A18 ROM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: : : :-----------0 = A19 ROM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: : :-------------0 = A20 ROM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: :---------------0 = ROM BOOT OVERRIDE DEFAULT IS 0
-00D045  3               ;	:-----------------0 = LOWER PAGE ROM SELECT (0=ROM, 1=NOTHING) DEFAULT IS 0
-00D045  3               ;
-00D045  3               ; RAM PAGE CONFIGURATION LATCH CONTROL PORT
-00D045  3               ;
-00D045  3               ;	7 6 5 4  3 2 1 0      APPLICABLE TO THE UPPER MEMORY PAGE $8000-$FFFF
-00D045  3               ;	^ ^ ^ ^  ^ ^ ^ ^
-00D045  3               ;	: : : :  : : : :--0 = A15 RAM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: : : :  : : :----0 = A16 RAM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: : : :  : :------0 = A17 RAM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: : : :  :--------0 = A18 RAM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: : : :-----------0 = A19 RAM ONLY ADDRESS LINE DEFAULT IS 0
-00D045  3               ;	: : :-------------0 = UNDEFINED DEFAULT IS 0
-00D045  3               ;	: :---------------0 = RAM BOOT OVERRIDE DEFAULT IS 0
-00D045  3               ;	:-----------------0 = LOWER PAGE RAM SELECT (0=NOTHING, 1=RAM) DEFAULT IS 0;
-00D045  3               
-00D045  3               
-00D045  3               ;__PAGER_INIT___________________________________________________________________________________________
-00D045  3               ;
-00D045  3               ;  INIT -- Copy code into $0200-$02FF for controling banking and copying
-00D045  3               ;____________________________________________________________________________________________________
-00D045  3               PAGER_INIT:
-00D045  3  A2 00                LDX     #$00
-00D047  3               :
-00D047  3  BD 53 D0             LDA     md_pagecode,X
-00D04A  3  9D 00 02             STA     MD_PAGERA,X
-00D04D  3  E8                   INX
-00D04E  3  E0 00                CPX     #$00
-00D050  3  D0 F5                BNE     :-
-00D052  3  60                   RTS
-00D053  3               
-00D053  3               ;       X=Control Word
-00D053  3               ;	7 6 5 4  3 2 1 0
-00D053  3               ;	^ ^ ^ ^  ^ ^ ^ ^
-00D053  3               ;       : : X X  X X X X    = UNUSED
-00D053  3               ;	: :---------------0 = RAM=0, ROM=1
-00D053  3               ;	:-----------------0 = Read=0, Write=1
-00D053  3               ;       A= bank
-00D053  3               ;       Y= page
-00D053  3               ;
-00D053  3               md_pagecode:
-00D053  3  48                   PHA
-00D054  3  84 15                STY     MD_PAGESE+1     ; setup copy from pointer
-00D056  3  A0 00                LDY     #$00
-00D058  3  84 14                STY     MD_PAGESE
-00D05A  3  8A                   TXA
-00D05B  3  29 80                AND     #%10000000
-00D05D  3  C9 00                CMP     #$00
-00D05F  3  D0 38                BNE     MD_PAGE_WRITE
-00D061  3               ; PERFORM READ HERE
-00D061  3  8A                   TXA
-00D062  3  29 40                AND     #%01000000
-00D064  3  C9 00                CMP     #$00
-00D066  3  D0 0D                BNE     MD_PAGE_ROREAD
-00D068  3               ; DO RAM READ
-00D068  3  A9 80                LDA     #$80
-00D06A  3  8D 7C 03             STA     MPCL_ROM
-00D06D  3  68                   PLA
-00D06E  3  09 80                ORA     #$80
-00D070  3  8D 78 03             STA     MPCL_RAM
-00D073  3  D0 0B                BNE     MD_PAGE_COPYFRM
-00D075  3               MD_PAGE_ROREAD:
-00D075  3  A9 00                LDA     #$00
-00D077  3  8D 78 03             STA     MPCL_RAM
-00D07A  3  68                   PLA
-00D07B  3  29 7F                AND     #$7F
-00D07D  3  8D 7C 03             STA     MPCL_ROM
-00D080  3               MD_PAGE_COPYFRM:
-00D080  3               ; DO THE COPY
-00D080  3  A2 00                LDX     #$00
-00D082  3               :
-00D082  3  DA                   PHX
-00D083  3  7A                   PLY
-00D084  3  B1 14                LDA     (MD_PAGESE),Y
-00D086  3  9D 00 04             STA     MD_PAGEBU,X
-00D089  3  E8                   INX
-00D08A  3  E0 00                CPX     #$00
-00D08C  3  D0 F4                BNE     :-
-00D08E  3  A9 80                LDA     #$80
-00D090  3  8D 7C 03             STA     MPCL_ROM
-00D093  3  A9 8E                LDA     #$8E
-00D095  3  8D 78 03             STA     MPCL_RAM
-00D098  3  60                   RTS
-00D099  3               MD_PAGE_WRITE:
-00D099  3  68                   PLA
-00D09A  3  09 80                ORA     #%10000000
-00D09C  3  8D 78 03             STA     MPCL_RAM
-00D09F  3               ; DO THE COPY
-00D09F  3  A2 00                LDX     #$00
-00D0A1  3               :
-00D0A1  3  DA                   PHX
-00D0A2  3  7A                   PLY
-00D0A3  3  BD 00 04             LDA     MD_PAGEBU,X
-00D0A6  3  91 14                STA     (MD_PAGESE),Y
-00D0A8  3  E8                   INX
-00D0A9  3  E0 00                CPX     #$00
-00D0AB  3  D0 F4                BNE     :-
-00D0AD  3  A9 80                LDA     #$80
-00D0AF  3  8D 7C 03             STA     MPCL_ROM
-00D0B2  3  A9 8E                LDA     #$8E
-00D0B4  3  8D 78 03             STA     MPCL_RAM
-00D0B7  3  60                   RTS
-00D0B8  3               md_pagecodeend:
-00D0B8  3               farcall:
-00D0B8  3  48                   PHA
-00D0B9  3  A9 8C                LDA     #$8C
-00D0BB  3  8D 78 03             STA     MPCL_RAM
-00D0BE  3  EA                   nop
-00D0BF  3  EA                   nop
-00D0C0  3  68                   PLA
-00D0C1  3  20 00 88             JSR     BANKED_DRIVER_DISPATCHER
-00D0C4  3  48                   pha
-00D0C5  3  A9 8E                LDA     #$8E
+00CEDF  2               conrde:
+00CEDF  2  A9 02        	lda 	#02
+00CEE1  2  85 32        	sta 	farfunct
+00CEE3  2  4C 6A 02     	jmp 	DO_FARCALL
+00CEE6  2               
+00CEE6  2               
+00CEE6  2               ;__CONWRT________________________________________________________________________________________________
+00CEE6  2               ;
+00CEE6  2               ; 	PERFORM DOS/65 CONSOLE WRITE
+00CEE6  2               ;________________________________________________________________________________________________________
+00CEE6  2               conwrt:
+00CEE6  2  48           	pha
+00CEE7  2  A9 00        	lda 	#00
+00CEE9  2  85 32        	sta 	farfunct
+00CEEB  2  68           	pla
+00CEEC  2  4C 6A 02     	jmp 	DO_FARCALL
+00CEEF  2               
+00CEEF  2               prnwrt:
+00CEEF  2  60           	rts			;printer
+00CEF0  2               punwrt:
+00CEF0  2  60           	rts			;punch output
+00CEF1  2               rdrinp:
+00CEF1  2  60           	rts			;reader input
+00CEF2  2               rdtime:
+00CEF2  2  60           	rts			;read clock
+00CEF3  2               xlate:
+00CEF3  2  60           	rts			;sector translate
+00CEF4  2               
+00CEF4  2               
+00CEF4  2               ;__OUTMSG________________________________________________________________________________________________
+00CEF4  2               ;
+00CEF4  2               ; 	WRITE A NULL TERMINATED STRING TO THE CONSOLE
+00CEF4  2               ;
+00CEF4  2               ;	A=POINTER LOW BYTE
+00CEF4  2               ;	Y=POINTER HIGH BYTE
+00CEF4  2               ;________________________________________________________________________________________________________
+00CEF4  2               outmsg:				;output message
+00CEF4  2  85 F0        	STA OUTMSG_W
+00CEF6  2  84 F1        	STY OUTMSG_W+1
+00CEF8  2  A0 00        	LDY #$00
+00CEFA  2               OUTSTRLP:
+00CEFA  2  B1 F0               	LDA (OUTMSG_W),Y 	; LOAD NEXT CHAR FROM STRING INTO ACC
+00CEFC  2  C9 00               	CMP #$00		; IS NULL?
+00CEFE  2  F0 07               	BEQ ENDOUTSTR		; YES, END PRINT OUT
+00CF00  2  20 E6 CE            	JSR conwrt  		; PRINT CHAR IN ACC
+00CF03  2  C8                  	INY      		; Y=Y+1 (BUMP INDEX)
+00CF04  2  4C FA CE            	JMP OUTSTRLP		; DO NEXT CHAR
+00CF07  2               ENDOUTSTR:
+00CF07  2  60                  	RTS			; RETURN
+00CF08  2               
+00CF08  2               ;___GET_DRIVE_DEVICE_____________________________________________________________________________________
+00CF08  2               ;
+00CF08  2               ;	GET SELECTED DEVICE TYPE AND UNIT, RETURN IN "A"
+00CF08  2               ;
+00CF08  2               ;________________________________________________________________________________________________________
+00CF08  2               GET_DRIVE_DEVICE:
+00CF08  2  DA           	PHX
+00CF09  2  AD 13 05     	LDA	sekdsk			; GET DRIVE
+00CF0C  2  29 07        	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
+00CF0E  2  0A           	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
+00CF0F  2  AA           	TAX 				; MOVE TO X REGISTER
+00CF10  2  BD 14 05     	LDA 	dskcfg,X 		; GET device
+00CF13  2  FA           	PLX
+00CF14  2  60           	RTS
+00CF15  2               
+00CF15  2               ;___DSPL_DSK_CFG_________________________________________________________________________________________
+00CF15  2               ;
+00CF15  2               ;	DISPLAY THE DISK CONFIGURATION FOR THE USER
+00CF15  2               ;
+00CF15  2               ;________________________________________________________________________________________________________
+00CF15  2               DSPL_DSK_CFG:
+00CF15  2  20 00 CC     	JSR 	NEWLINE
+00CF18  2  48 DA 5A A2  	PRTS "Disk Configuration:$"
+00CF1C  2  00 BD 31 CF  
+00CF20  2  E8 C9 24 F0  
+00CF45  2  20 00 CC     	JSR 	NEWLINE
+00CF48  2  A2 00        	ldx 	#0
+00CF4A  2               DSPL_DSK_CFG_1:
+00CF4A  2  48 DA 5A A2  	PRTS "    $"		; MAKE IT PRETTY :)
+00CF4E  2  00 BD 63 CF  
+00CF52  2  E8 C9 24 F0  
+00CF68  2  8A           	TXA
+00CF69  2  4A           	LSR	A
+00CF6A  2  18           	CLC
+00CF6B  2  69 41        	ADC 	#'A'
+00CF6D  2  20 E6 CE     	JSR 	conwrt
+00CF70  2  A9 3A        	LDA 	#':'
+00CF72  2  20 E6 CE     	JSR 	conwrt
+00CF75  2  A9 3D        	LDA 	#'='
+00CF77  2  20 E6 CE     	JSR 	conwrt
+00CF7A  2  20 92 CF     	JSR 	prtdevice	; PRINT DEVICE NAME FROM TABLE (X)
+00CF7D  2  A9 3A        	LDA 	#':'
+00CF7F  2  20 E6 CE     	JSR 	conwrt
+00CF82  2  E8           	INX				; WANT SECOND BYTE OF ENTRY
+00CF83  2  BD 14 05     	LDA 	dskcfg,x 		; GET SLICE
+00CF86  2  20 11 CC     	JSR 	PRTDEC 			; PRINT SLICE IN DECIMAL (A)
+00CF89  2  E8           	INX
+00CF8A  2  20 00 CC     	JSR 	NEWLINE
+00CF8D  2  E0 10        	CPX 	#16
+00CF8F  2  D0 B9        	BNE 	DSPL_DSK_CFG_1
+00CF91  2  60           	RTS
+00CF92  2               
+00CF92  2               ; 	DEVICE TABLE:
+00CF92  2               ;	$00	MD
+00CF92  2               ;	$2x	FLOPPY
+00CF92  2               ;	$3x	IDE
+00CF92  2               prtdevice:
+00CF92  2  BD 14 05     	LDA 	dskcfg,X 		; GET DEVICE TYPE
+00CF95  2  48           	PHA
+00CF96  2  29 F0        	AND 	#$F0 			; FILTER OUT UNIT
+00CF98  2  C9 00        	CMP 	#$00
+00CF9A  2  D0 1F        	BNE 	prtdevice1
+00CF9C  2  48 DA 5A A2  	PRTS "MD$"
+00CFA0  2  00 BD B5 CF  
+00CFA4  2  E8 C9 24 F0  
+00CFB8  2  4C 45 D0     	jmp 	prtdevice_done
+00CFBB  2               prtdevice1:
+00CFBB  2  C9 10        	CMP 	#$10
+00CFBD  2  D0 20        	BNE 	prtdevice2
+00CFBF  2  48 DA 5A A2  	PRTS "UNK$"
+00CFC3  2  00 BD D8 CF  
+00CFC7  2  E8 C9 24 F0  
+00CFDC  2  4C 45 D0     	jmp 	prtdevice_done
+00CFDF  2               prtdevice2:
+00CFDF  2  C9 20        	CMP 	#$20
+00CFE1  2  D0 1F        	BNE 	prtdevice3
+00CFE3  2  48 DA 5A A2  	PRTS "FD$"
+00CFE7  2  00 BD FC CF  
+00CFEB  2  E8 C9 24 F0  
+00CFFF  2  4C 45 D0     	jmp 	prtdevice_done
+00D002  2               prtdevice3:
+00D002  2  C9 30        	CMP 	#$30
+00D004  2  D0 22        	BNE 	prtdevicex
+00D006  2  48 DA 5A A2  	PRTS "PPIDE$"
+00D00A  2  00 BD 1F D0  
+00D00E  2  E8 C9 24 F0  
+00D025  2  4C 45 D0     	jmp 	prtdevice_done
+00D028  2               prtdevicex:
+00D028  2  48 DA 5A A2  	PRTS "UNK$"
+00D02C  2  00 BD 41 D0  
+00D030  2  E8 C9 24 F0  
+00D045  2               prtdevice_done:
+00D045  2  68           	PLA
+00D046  2  29 0F        	AND 	#$0F 			; FILTER OUT DEVICE
+00D048  2  20 11 CC     	JSR 	PRTDEC
+00D04B  2  60           	RTS
+00D04C  2               
+00D04C  2               	.INCLUDE "dospager.asm"
+00D04C  3               ;__pager_________________________________________________________________________________________________________________________
+00D04C  3               ;
+00D04C  3               ; 	Nhyodyne Memory page management code
+00D04C  3               ;
+00D04C  3               ;	Entry points:
+00D04C  3               ;		PAGER_INIT          - called during OS init
+00D04C  3               ;________________________________________________________________________________________________________________________________
+00D04C  3               ;
+00D04C  3               ; RAM BANK $0C is RAM area for Drivers
+00D04C  3               ; RAM BANK $0E is operating bank for DOS/65 $8000-$FFFF
+00D04C  3               ; RAM BANK $0F is fixed bank $0000-$7FFF
+00D04C  3               ;
+00D04C  3               ; ROM BANKS $00 and $0C-$0F are reserved for ROMWBW code
+00D04C  3               ;
+00D04C  3               ; ROM MEMORY PAGE CONFIGURATION LATCH CONTROL PORT
+00D04C  3               ;       A15 IS INVERTED FOR THE NYHODYNE 65C02 CPU . . .
+00D04C  3               ;	7 6 5 4  3 2 1 0      APPLICABLE TO THE UPPER MEMORY PAGE $8000-$FFFF
+00D04C  3               ;	^ ^ ^ ^  ^ ^ ^ ^
+00D04C  3               ;	: : : :  : : : :--0 = A15 ROM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: : : :  : : :----0 = A16 ROM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: : : :  : :------0 = A17 ROM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: : : :  :--------0 = A18 ROM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: : : :-----------0 = A19 ROM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: : :-------------0 = A20 ROM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: :---------------0 = ROM BOOT OVERRIDE DEFAULT IS 0
+00D04C  3               ;	:-----------------0 = LOWER PAGE ROM SELECT (0=ROM, 1=NOTHING) DEFAULT IS 0
+00D04C  3               ;
+00D04C  3               ; RAM PAGE CONFIGURATION LATCH CONTROL PORT
+00D04C  3               ;
+00D04C  3               ;	7 6 5 4  3 2 1 0      APPLICABLE TO THE UPPER MEMORY PAGE $8000-$FFFF
+00D04C  3               ;	^ ^ ^ ^  ^ ^ ^ ^
+00D04C  3               ;	: : : :  : : : :--0 = A15 RAM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: : : :  : : :----0 = A16 RAM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: : : :  : :------0 = A17 RAM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: : : :  :--------0 = A18 RAM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: : : :-----------0 = A19 RAM ONLY ADDRESS LINE DEFAULT IS 0
+00D04C  3               ;	: : :-------------0 = UNDEFINED DEFAULT IS 0
+00D04C  3               ;	: :---------------0 = RAM BOOT OVERRIDE DEFAULT IS 0
+00D04C  3               ;	:-----------------0 = LOWER PAGE RAM SELECT (0=NOTHING, 1=RAM) DEFAULT IS 0;
+00D04C  3               
+00D04C  3               
+00D04C  3               ;__PAGER_INIT___________________________________________________________________________________________
+00D04C  3               ;
+00D04C  3               ;  INIT -- Copy code into $0200-$02FF for controling banking and copying
+00D04C  3               ;____________________________________________________________________________________________________
+00D04C  3               PAGER_INIT:
+00D04C  3  A2 00                LDX     #$00
+00D04E  3               :
+00D04E  3  BD 5A D0             LDA     md_pagecode,X
+00D051  3  9D 00 02             STA     MD_PAGERA,X
+00D054  3  E8                   INX
+00D055  3  E0 00                CPX     #$00
+00D057  3  D0 F5                BNE     :-
+00D059  3  60                   RTS
+00D05A  3               
+00D05A  3               ;       X=Control Word
+00D05A  3               ;	7 6 5 4  3 2 1 0
+00D05A  3               ;	^ ^ ^ ^  ^ ^ ^ ^
+00D05A  3               ;       : : : X  X X X X    = UNUSED
+00D05A  3               ;	: : :-------------0 = Read=0, Write=1
+00D05A  3               ;	: :---------------0 = RAM=0, ROM=1
+00D05A  3               ;	:-----------------0 = LOW=0, HIGH=1
+00D05A  3               ;       A= bank
+00D05A  3               ;       Y= page
+00D05A  3               ;
+00D05A  3               md_pagecode:
+00D05A  3  48                   PHA
+00D05B  3  84 15                STY     MD_PAGESE+1     ; setup copy from pointer
+00D05D  3  8A                   TXA
+00D05E  3  29 80                AND     #$80
+00D060  3  A8                   TAY
+00D061  3  84 14                STY     MD_PAGESE
+00D063  3  8A                   TXA
+00D064  3  29 20                AND     #%00100000
+00D066  3  C9 00                CMP     #$00
+00D068  3  D0 3D                BNE     MD_PAGE_WRITE
+00D06A  3               ; PERFORM READ HERE
+00D06A  3  8A                   TXA
+00D06B  3  29 40                AND     #%01000000
+00D06D  3  C9 00                CMP     #$00
+00D06F  3  D0 0D                BNE     MD_PAGE_ROREAD
+00D071  3               ; DO RAM READ
+00D071  3  A9 80                LDA     #$80
+00D073  3  8D 7C 03             STA     MPCL_ROM
+00D076  3  68                   PLA
+00D077  3  09 80                ORA     #$80
+00D079  3  8D 78 03             STA     MPCL_RAM
+00D07C  3  80 0B                BRA     MD_PAGE_COPYFRM
+00D07E  3               MD_PAGE_ROREAD:
+00D07E  3  A9 00                LDA     #$00
+00D080  3  8D 78 03             STA     MPCL_RAM
+00D083  3  68                   PLA
+00D084  3  29 7F                AND     #$7F
+00D086  3  8D 7C 03             STA     MPCL_ROM
+00D089  3               MD_PAGE_COPYFRM:
+00D089  3               ; DO THE COPY
+00D089  3  A2 00                LDX     #$00
+00D08B  3  A0 00                LDY     #$00
+00D08D  3               :
+00D08D  3  B1 14                LDA     (MD_PAGESE),Y
+00D08F  3  9D 00 04             STA     MD_PAGEBU,X
+00D092  3  E8                   INX
+00D093  3  C8                   INY
+00D094  3  E0 80                CPX     #$80
+00D096  3  D0 F5                BNE     :-
+00D098  3  A9 80                LDA     #$80
+00D09A  3  8D 7C 03             STA     MPCL_ROM
+00D09D  3  EA                   NOP
+00D09E  3  EA                   NOP
+00D09F  3  A9 8C                LDA     #$8C
+00D0A1  3  8D 78 03             STA     MPCL_RAM
+00D0A4  3  EA                   nop
+00D0A5  3  EA                   nop
+00D0A6  3  60                   RTS
+00D0A7  3               MD_PAGE_WRITE:
+00D0A7  3  68                   PLA
+00D0A8  3  09 80                ORA     #%10000000
+00D0AA  3  8D 78 03             STA     MPCL_RAM
+00D0AD  3               ; DO THE COPY
+00D0AD  3  A2 00                LDX     #$00
+00D0AF  3  A0 00                LDY     #$00
+00D0B1  3               :
+00D0B1  3  BD 00 04             LDA     MD_PAGEBU,X
+00D0B4  3  91 14                STA     (MD_PAGESE),Y
+00D0B6  3  E8                   INX
+00D0B7  3  C8                   INY
+00D0B8  3  E0 80                CPX     #$80
+00D0BA  3  D0 F5                BNE     :-
+00D0BC  3  A9 8C                LDA     #$8C
+00D0BE  3  8D 78 03             STA     MPCL_RAM
+00D0C1  3  EA                   nop
+00D0C2  3  EA                   nop
+00D0C3  3  60                   RTS
+00D0C4  3               md_pagecodeend:
+00D0C4  3               farcall:
+00D0C4  3  48                   PHA
+00D0C5  3  A9 8C                LDA     #$8C
 00D0C7  3  8D 78 03             STA     MPCL_RAM
-00D0CA  3  68                   pla
-00D0CB  3  60                   RTS
-00D0CC  3               
-00D0CC  2               ;------------------------------------------------------------------------------------
-00D0CC  2               
-00D0CC  2               DOS65DSKYINIT:
-00D0CC  2  54 6E 5C 5E  	.BYTE 	$54,$6E,$5C,$5E,$6E,$54,$79,$40
-00D0D0  2  6E 54 79 40  
-00D0D4  2               
-00D0D4  2               ;disk control blocks
-00D0D4  2  7F 00        dcba:	.word	127		;max block number
-00D0D6  2  40 00        	.word	64		;sectors per track
-00D0D8  2  00 00        	.word	0		;number system tracks
-00D0DA  2  01           	.byte	1		;block size = 2048
-00D0DB  2  FF 00        	.word	255		;max directory number
-00D0DD  2  49 D1        	.word	almpa		;address of map for a
-00D0DF  2  00           	.byte	00		;do checksums
-00D0E0  2  39 D9        	.word	ckmp		;checksum map
-00D0E2  2  BF 00        dcbb:	.word	191		;max block number
-00D0E4  2  40 00        	.word	64		;sectors per track
-00D0E6  2  00 00        	.word	0		;number system tracks
-00D0E8  2  01           	.byte	1		;block size = 2048
-00D0E9  2  9B 00        	.word	155		;max directory number
-00D0EB  2  47 D2        	.word	almpb		;address of map for b
-00D0ED  2  00           	.byte	00		;do checksums
-00D0EE  2  39 D9        	.word	ckmp		;checksum map
-00D0F0  2  FF 07        dcbc:	.word	2047		;max block number
-00D0F2  2  40 00        	.word	64		;sectors per track
-00D0F4  2  10 00        	.word	16		;number system tracks
-00D0F6  2  02           	.byte	2		;block size = 4096
-00D0F7  2  FF 01        	.word	511		;max directory number
-00D0F9  2  45 D3        	.word	almpc		;address of map for C
-00D0FB  2  00           	.byte	0		;do checksums
-00D0FC  2  39 D9        	.word	ckmp		;checksum map
-00D0FE  2  FF 07        dcbd:	.word	2047		;max block number
-00D100  2  40 00        	.word	64		;sectors per track
-00D102  2  10 00        	.word	16		;number system tracks
-00D104  2  02           	.byte	2		;block size = 4096
-00D105  2  FF 01        	.word	511		;max directory number
-00D107  2  43 D4        	.word	almpd		;address of map for d
-00D109  2  00           	.byte	0		;do checksums
-00D10A  2  39 D9        	.word	ckmp		;checksum map
-00D10C  2  FF 07        dcbe:	.word	2047		;max block number
-00D10E  2  40 00        	.word	64		;sectors per track
-00D110  2  10 00        	.word	16		;number system tracks
-00D112  2  02           	.byte	2		;block size = 4096
-00D113  2  FF 01        	.word	511		;max directory number
-00D115  2  41 D5        	.word	almpe		;address of map for e
-00D117  2  00           	.byte	0		;do checksums
-00D118  2  39 D9        	.word	ckmp		;checksum map
-00D11A  2  FF 07        dcbf:	.word	2047		;max block number
-00D11C  2  40 00        	.word	64		;sectors per track
-00D11E  2  10 00        	.word	16		;number system tracks
-00D120  2  02           	.byte	2		;block size = 4096
-00D121  2  FF 01        	.word	511		;max directory number
-00D123  2  3F D6        	.word	almpf		;address of map for f
-00D125  2  00           	.byte	0		;do checksums
-00D126  2  39 D9        	.word	ckmp		;checksum map
-00D128  2  FF 07        dcbg:	.word	2047		;max block number
-00D12A  2  40 00        	.word	64		;sectors per track
-00D12C  2  10 00        	.word	16		;number system tracks
-00D12E  2  02           	.byte	2		;block size = 4096
-00D12F  2  FF 01        	.word	511		;max directory number
-00D131  2  3D D7        	.word	almpg		;address of map for g
-00D133  2  00           	.byte	0		;do checksums
-00D134  2  39 D9        	.word	ckmp		;checksum map
-00D136  2  FF 07        dcbh:	.word	2047		;max block number
-00D138  2  40 00        	.word	64		;sectors per track
-00D13A  2  10 00        	.word	16		;number system tracks
-00D13C  2  02           	.byte	2		;block size = 4096
-00D13D  2  FF 01        	.word	511		;max directory number
-00D13F  2  3B D8        	.word	almph		;address of map for h
-00D141  2  00           	.byte	0		;do checksums
-00D142  2  39 D9        	.word	ckmp		;checksum map
-00D144  2               
-00D144  2               ;data area
-00D144  2               
-00D144  2  00           hstwrt:		.byte	0	;0=written,1=pending host write
-00D145  2  00 00        debtmp:		.word 0		; DEBLOCK TEMP VAR
-00D147  2  00           hstact:		.byte 0		;host active flag
-00D148  2  00           unacnt:		.byte 0		;unalloc rec cnt
-00D149  2               
-00D149  2               
-00D149  2               ;allocation maps
-00D149  2  xx xx xx xx  almpa:		.res	254
-00D14D  2  xx xx xx xx  
-00D151  2  xx xx xx xx  
-00D247  2  xx xx xx xx  almpb:		.res	254
-00D24B  2  xx xx xx xx  
-00D24F  2  xx xx xx xx  
-00D345  2  xx xx xx xx  almpc:		.res	254
-00D349  2  xx xx xx xx  
-00D34D  2  xx xx xx xx  
-00D443  2  xx xx xx xx  almpd:		.res	254
-00D447  2  xx xx xx xx  
-00D44B  2  xx xx xx xx  
-00D541  2  xx xx xx xx  almpe:		.res	254
-00D545  2  xx xx xx xx  
-00D549  2  xx xx xx xx  
-00D63F  2  xx xx xx xx  almpf:		.res	254
-00D643  2  xx xx xx xx  
-00D647  2  xx xx xx xx  
-00D73D  2  xx xx xx xx  almpg:		.res	254
-00D741  2  xx xx xx xx  
-00D745  2  xx xx xx xx  
-00D83B  2  xx xx xx xx  almph:		.res	254
-00D83F  2  xx xx xx xx  
-00D843  2  xx xx xx xx  
-00D939  2               ;checksum maps - not used
-00D939  2  xx xx xx xx  ckmp:		.res	128
-00D93D  2  xx xx xx xx  
-00D941  2  xx xx xx xx  
-00D9B9  2               
-00D9B9  2               dftdskcfg:
-00D9B9  2  00 00        	.byte $00,$00		;  disk A: unit,slice  (invalid for floppy and RAM disks)
-00D9BB  2  01 00        	.byte $01,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
-00D9BD  2  30 00        	.byte $30,$00		;  disk C: unit,slice
-00D9BF  2  30 01        	.byte $30,$01		;  disk D: unit,slice
-00D9C1  2  30 02        	.byte $30,$02		;  disk E: unit,slice
-00D9C3  2  30 03        	.byte $30,$03		;  disk F: unit,slice
-00D9C5  2  30 04        	.byte $30,$04		;  disk G: unit,slice
-00D9C7  2  30 06        	.byte $30,$06		;  disk H: unit,slice
-00D9C9  2               
-00D9C9  1               
-00D9C9  1               	.end
+00D0CA  3  EA                   nop
+00D0CB  3  EA                   nop
+00D0CC  3  68                   PLA
+00D0CD  3  20 00 88             JSR     BANKED_DRIVER_DISPATCHER
+00D0D0  3  48                   pha
+00D0D1  3  A9 8E                LDA     #$8E
+00D0D3  3  8D 78 03             STA     MPCL_RAM
+00D0D6  3  68                   pla
+00D0D7  3  60                   RTS
+00D0D8  3               
+00D0D8  2               ;------------------------------------------------------------------------------------
+00D0D8  2               ;___MOVEBUFTODMA_________________________________________________________________________________________
+00D0D8  2               ;
+00D0D8  2               ;	MOVE BUFFER TO DMA
+00D0D8  2               ;
+00D0D8  2               ;________________________________________________________________________________________________________
+00D0D8  2               MOVEBUFTODMA:
+00D0D8  2  48           	PHA
+00D0D9  2  A9 00        	LDA	#$00                    ;
+00D0DB  2  85 EE        	STA     SRC
+00D0DD  2  A9 04        	LDA	#>MD_PAGEBU             ;
+00D0DF  2  85 EF        	STA	SRC+1			;
+00D0E1  2  A5 F4        	LDA	dmaadr			;
+00D0E3  2  85 EC        	STA	DEST			;
+00D0E5  2  A5 F5        	LDA	dmaadr+1		;
+00D0E7  2  85 ED        	STA	DEST+1			;
+00D0E9  2  20 04 D1     	JSR	COPY_DOS_SECTOR		;
+00D0EC  2  68           	PLA
+00D0ED  2  60                   RTS
+00D0EE  2               
+00D0EE  2               ;___MOVEDMATOBUF_________________________________________________________________________________________
+00D0EE  2               ;
+00D0EE  2               ;	MOVE DMA TO BUFFER
+00D0EE  2               ;
+00D0EE  2               ;________________________________________________________________________________________________________
+00D0EE  2               MOVEDMATOBUF:
+00D0EE  2  48           	PHA
+00D0EF  2  A9 00        	LDA	#$00                     ;
+00D0F1  2  85 EC        	STA     DEST
+00D0F3  2  A9 04        	LDA	#>MD_PAGEBU             ;
+00D0F5  2  85 ED        	STA	DEST+1			;
+00D0F7  2  A5 F4        	LDA	dmaadr			;
+00D0F9  2  85 EE        	STA	SRC			;
+00D0FB  2  A5 F5        	LDA	dmaadr+1		;
+00D0FD  2  85 EF        	STA	SRC+1			;
+00D0FF  2  20 04 D1     	JSR	COPY_DOS_SECTOR		;
+00D102  2  68           	PLA
+00D103  2  60                   RTS
+00D104  2               
+00D104  2               
+00D104  2               
+00D104  2               ;___COPY_DOS_SECTOR______________________________________________________________________________________
+00D104  2               ;
+00D104  2               ;	COPY 128 BYTE SECTOR FOR DOS/65
+00D104  2               ;
+00D104  2               ;________________________________________________________________________________________________________
+00D104  2               COPY_DOS_SECTOR:
+00D104  2  5A           	PHY
+00D105  2  A0 00        	LDY	#$00			;
+00D107  2               COPY_DOS_SECTOR1:
+00D107  2  B1 EE        	LDA	(SRC),Y			;
+00D109  2  91 EC        	STA	(DEST),Y		;
+00D10B  2  C8           	INY				;
+00D10C  2  98           	TYA				;
+00D10D  2  C9 80        	CMP	#$80			;
+00D10F  2  D0 F6        	BNE	COPY_DOS_SECTOR1	;
+00D111  2  7A           	PLY
+00D112  2  60           	RTS
+00D113  2               
+00D113  2               DOS65DSKYINIT:
+00D113  2  54 6E 5C 5E  	.BYTE 	$54,$6E,$5C,$5E,$6E,$54,$79,$40
+00D117  2  6E 54 79 40  
+00D11B  2               
+00D11B  2               ;disk control blocks
+00D11B  2  7F 00        dcba:	.word	127		;max block number
+00D11D  2  40 00        	.word	64		;sectors per track
+00D11F  2  00 00        	.word	0		;number system tracks
+00D121  2  01           	.byte	1		;block size = 2048
+00D122  2  FF 00        	.word	255		;max directory number
+00D124  2  90 D1        	.word	almpa		;address of map for a
+00D126  2  00           	.byte	00		;do checksums
+00D127  2  80 D9        	.word	ckmp		;checksum map
+00D129  2  BF 00        dcbb:	.word	191		;max block number
+00D12B  2  40 00        	.word	64		;sectors per track
+00D12D  2  00 00        	.word	0		;number system tracks
+00D12F  2  01           	.byte	1		;block size = 2048
+00D130  2  9B 00        	.word	155		;max directory number
+00D132  2  8E D2        	.word	almpb		;address of map for b
+00D134  2  00           	.byte	00		;do checksums
+00D135  2  80 D9        	.word	ckmp		;checksum map
+00D137  2  FF 07        dcbc:	.word	2047		;max block number
+00D139  2  40 00        	.word	64		;sectors per track
+00D13B  2  10 00        	.word	16		;number system tracks
+00D13D  2  02           	.byte	2		;block size = 4096
+00D13E  2  FF 01        	.word	511		;max directory number
+00D140  2  8C D3        	.word	almpc		;address of map for C
+00D142  2  00           	.byte	0		;do checksums
+00D143  2  80 D9        	.word	ckmp		;checksum map
+00D145  2  FF 07        dcbd:	.word	2047		;max block number
+00D147  2  40 00        	.word	64		;sectors per track
+00D149  2  10 00        	.word	16		;number system tracks
+00D14B  2  02           	.byte	2		;block size = 4096
+00D14C  2  FF 01        	.word	511		;max directory number
+00D14E  2  8A D4        	.word	almpd		;address of map for d
+00D150  2  00           	.byte	0		;do checksums
+00D151  2  80 D9        	.word	ckmp		;checksum map
+00D153  2  FF 07        dcbe:	.word	2047		;max block number
+00D155  2  40 00        	.word	64		;sectors per track
+00D157  2  10 00        	.word	16		;number system tracks
+00D159  2  02           	.byte	2		;block size = 4096
+00D15A  2  FF 01        	.word	511		;max directory number
+00D15C  2  88 D5        	.word	almpe		;address of map for e
+00D15E  2  00           	.byte	0		;do checksums
+00D15F  2  80 D9        	.word	ckmp		;checksum map
+00D161  2  FF 07        dcbf:	.word	2047		;max block number
+00D163  2  40 00        	.word	64		;sectors per track
+00D165  2  10 00        	.word	16		;number system tracks
+00D167  2  02           	.byte	2		;block size = 4096
+00D168  2  FF 01        	.word	511		;max directory number
+00D16A  2  86 D6        	.word	almpf		;address of map for f
+00D16C  2  00           	.byte	0		;do checksums
+00D16D  2  80 D9        	.word	ckmp		;checksum map
+00D16F  2  FF 07        dcbg:	.word	2047		;max block number
+00D171  2  40 00        	.word	64		;sectors per track
+00D173  2  10 00        	.word	16		;number system tracks
+00D175  2  02           	.byte	2		;block size = 4096
+00D176  2  FF 01        	.word	511		;max directory number
+00D178  2  84 D7        	.word	almpg		;address of map for g
+00D17A  2  00           	.byte	0		;do checksums
+00D17B  2  80 D9        	.word	ckmp		;checksum map
+00D17D  2  FF 07        dcbh:	.word	2047		;max block number
+00D17F  2  40 00        	.word	64		;sectors per track
+00D181  2  10 00        	.word	16		;number system tracks
+00D183  2  02           	.byte	2		;block size = 4096
+00D184  2  FF 01        	.word	511		;max directory number
+00D186  2  82 D8        	.word	almph		;address of map for h
+00D188  2  00           	.byte	0		;do checksums
+00D189  2  80 D9        	.word	ckmp		;checksum map
+00D18B  2               
+00D18B  2               ;data area
+00D18B  2               
+00D18B  2  00           hstwrt:		.byte	0	;0=written,1=pending host write
+00D18C  2  00 00        debtmp:		.word 0		; DEBLOCK TEMP VAR
+00D18E  2  00           hstact:		.byte 0		;host active flag
+00D18F  2  00           unacnt:		.byte 0		;unalloc rec cnt
+00D190  2               
+00D190  2               
+00D190  2               ;allocation maps
+00D190  2  xx xx xx xx  almpa:		.res	254
+00D194  2  xx xx xx xx  
+00D198  2  xx xx xx xx  
+00D28E  2  xx xx xx xx  almpb:		.res	254
+00D292  2  xx xx xx xx  
+00D296  2  xx xx xx xx  
+00D38C  2  xx xx xx xx  almpc:		.res	254
+00D390  2  xx xx xx xx  
+00D394  2  xx xx xx xx  
+00D48A  2  xx xx xx xx  almpd:		.res	254
+00D48E  2  xx xx xx xx  
+00D492  2  xx xx xx xx  
+00D588  2  xx xx xx xx  almpe:		.res	254
+00D58C  2  xx xx xx xx  
+00D590  2  xx xx xx xx  
+00D686  2  xx xx xx xx  almpf:		.res	254
+00D68A  2  xx xx xx xx  
+00D68E  2  xx xx xx xx  
+00D784  2  xx xx xx xx  almpg:		.res	254
+00D788  2  xx xx xx xx  
+00D78C  2  xx xx xx xx  
+00D882  2  xx xx xx xx  almph:		.res	254
+00D886  2  xx xx xx xx  
+00D88A  2  xx xx xx xx  
+00D980  2               ;checksum maps - not used
+00D980  2  xx xx xx xx  ckmp:		.res	128
+00D984  2  xx xx xx xx  
+00D988  2  xx xx xx xx  
+00DA00  2               
+00DA00  2               dftdskcfg:
+00DA00  2  00 00        	.byte $00,$00		;  disk A: unit,slice  (invalid for floppy and RAM disks)
+00DA02  2  01 00        	.byte $01,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
+00DA04  2  30 00        	.byte $30,$00		;  disk C: unit,slice
+00DA06  2  30 01        	.byte $30,$01		;  disk D: unit,slice
+00DA08  2  30 02        	.byte $30,$02		;  disk E: unit,slice
+00DA0A  2  30 03        	.byte $30,$03		;  disk F: unit,slice
+00DA0C  2  30 04        	.byte $30,$04		;  disk G: unit,slice
+00DA0E  2  30 06        	.byte $30,$06		;  disk H: unit,slice
+00DA10  2               
+00DA10  1               
+00DA10  1               	.end

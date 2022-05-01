@@ -1,16 +1,14 @@
 Modules list:
 -------------
 dos65drv.o:
-    CODE              Offs=000000  Size=000072  Align=00001  Fill=0000
-    DRIVERS           Offs=000000  Size=000C9D  Align=00001  Fill=0000
+    DRIVERS           Offs=000000  Size=000CDC  Align=00001  Fill=0000
 
 
 Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-CODE                  000100  000171  000072  00001
-DRIVERS               008800  00949C  000C9D  00001
+DRIVERS               008800  0094DB  000CDC  00001
 
 
 Exports list by name:

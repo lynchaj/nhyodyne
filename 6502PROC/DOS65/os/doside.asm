@@ -781,98 +781,6 @@ SET_PPI_WR:
 	PLA
 	RTS
 
-;___DEBSECR512________________________________________________________________________________________
-;
-;	DEBLOCK 512 BYTE SECTOR FOR DOS/65
-;
-;________________________________________________________________________________________________________
-DEBSECR512:
-	PHA
-	LDA	seksec			;
-	AND	#$03			; GET SECTOR INDEX
-	CLC				;
-	ROL	A			;
-	TAX				;
-	LDA	DEBTAB,X		;
-	STA     SRC
-	INX
-	LDA	DEBTAB,X		;
-	STA	SRC+1			;
-	LDA	dmaadr	XX		;
-	STA	DEST			;
-	LDA	dmaadr+1	XX	;
-	STA	DEST+1			;
-	JSR	COPY_DOS_SECTOR		;
-	PLA
-	RTS
-
-DEBTAB:
-	.word	hstbuf			;
-	.word	hstbuf+128		;
-	.word	hstbuf+256		;
-	.word	hstbuf+384		;
-
-
-;___BLKSECR512___________________________________________________________________________________________
-;
-;	BLOCK 512 SECTOR FOR DOS/65
-;
-;________________________________________________________________________________________________________
-BLKSECR512:
-	PHA
-	LDA	seksec			;
-	AND	#$03			; GET SECTOR INDEX
-	CLC				;
-	ROL	A			;
-	TAX				;
-	LDA	DEBTAB,X		;
-	STA     DEST
-	INX
-	LDA	DEBTAB,X		;
-	STA	DEST+1			;
-	LDA	dmaadr	XX		;
-	STA	SRC			;
-	LDA	dmaadr+1 XX		;
-	STA	SRC+1			;
-	JSR	COPY_DOS_SECTOR		;
-	PLA
-	RTS
-
-;___GET_DRIVE_DEVICE_____________________________________________________________________________________
-;
-;	GET SELECTED DEVICE TYPE AND UNIT, RETURN IN "A"
-;
-;________________________________________________________________________________________________________
-GET_DRIVE_DEVICE:
-	PHX
-	LDA	sekdsk			; GET DRIVE
-	AND 	#7			; ONLY FIRST 8 DEVICES SUPPORTED
-	asl	a			; DOUBLE NUMBER FOR TABLE LOOKUP
-	TAX 				; MOVE TO X REGISTER
-	LDA 	dskcfg,X 		; GET device
-	PLX
-	RTS
-
-
-;___COPY_DOS_SECTOR______________________________________________________________________________________
-;
-;	COPY 128 BYTE SECTOR FOR DOS/65
-;
-;________________________________________________________________________________________________________
-COPY_DOS_SECTOR:
-	PHY
-	LDY	#$00			;
-COPY_DOS_SECTOR1:
-	LDA	(SRC),Y			;
-	STA	(DEST),Y		;
-	INY				;
-	TYA				;
-	CMP	#$80			;
-	BNE	COPY_DOS_SECTOR1	;
-	PLY
-	RTS
-
-
 
 ;allocate the following data areas to unused ram space
 LASTCHAR: 	.byte 0		;save sector for warm boot
@@ -884,6 +792,3 @@ Cdebcylm:	.byte 0		; DEBLOCKED CYLINDER MSB
 Cdebsehd:	.byte 0		; DEBLOCKED SECTOR AND HEAD (HS)
 DEBDIRTY:	.byte 0		; DIRTY FLAG
 slicetmp:	.word 0		; USED TO CALCULATE SLICE OFFSET
-
-;deblocking buffer for dba
-hstbuf:		.res	512		;256 or 512 byte sectors
