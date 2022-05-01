@@ -9033,7 +9033,7 @@ Ibuffs		=  (ENDOFBASIC & $FF00)+$181
 Ibuffe		= Ibuffs+$47; end of input buffer
 
 Ram_base	= (Ibuffe & $FF00)+$100	; start of user RAM (set as needed, should be page aligned)
-Ram_top		= $B800						; end of user RAM+1 (set as needed, should be page aligned)
+Ram_top		= $D000						; end of user RAM+1 (set as needed, should be page aligned)
 
 
 

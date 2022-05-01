@@ -60,7 +60,7 @@
 
 		.PC02
                 .segment "OS"
-		.ORG $B800
+		.ORG $D000
 		.include "ccmnhy.asm"
 		.include "pemnhy.asm"
 		.include "simnhy.asm"

@@ -33,15 +33,15 @@ BootDOS65:
 	        LD	DE,SMSGFIL
         	CALL	BDOS		; Do it
 		DI                      ; DISABLE INTERRUPTS
-		LD	BC,4800H        ; BYTES TO MOVE
-		LD	DE,3800H        ; DESTINATION ADDRESS (6502 IS !A15)
+		LD	BC,2F00H        ; BYTES TO MOVE
+		LD	DE,5000H        ; DESTINATION ADDRESS (6502 IS !A15)
 		LD	HL,LoaderCodeEnd-LoaderCode1+loaderEnd   ; SOURCE ADDRESS
 		LDIR  	                ; COPY RAM
 		LD	HL,07FFCH        ; VECTOR
 		LD 	A,00H
 		LD 	(HL),A
 		LD	HL,07FFDH        ; VECTOR
-		LD 	A,0B8H
+		LD 	A,0D0H
 		LD 	(HL),A
 		IN 	A,(0FFH)        ; ENABLE 6502
                 ; should never get here
