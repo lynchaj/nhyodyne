@@ -5,3 +5,4 @@ The following patches are needed (per Dan's build. Mine are similar but slightly
 - SCIN (U5) needs the CLK signal, and this is disabled when JP1 is off (which it typically must be off in order to not conflict with the system clock Wink
 -- I clipped pin 12 on the bus connector and installed JP1
 - R, G, and B need 470 ohm pull downs to ground from pins 22,23 & 24 on the VDP (U3)
+- jumper (VRESET/VDS) U12, pin 4 to +5 VCC
