@@ -4,7 +4,7 @@
 ;
 ; Startup code for cc65 (Single Board Computer version)
 PEM	=	$103		;PEM ENTRY
-BOOT	=	$B800		;WARM BOOT
+BOOT	=	$100		;WARM BOOT
 
 
 .export   _init, _exit

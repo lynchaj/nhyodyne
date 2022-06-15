@@ -70,7 +70,17 @@ p4:
 p5:
 .endmacro
 
-
+.macro          DBGFLAG      character
+  .if     .paramcount <> 1
+        .error  "Too few parameters for macro DBGFLAG"
+        .endif
+        .if DEBUG=1
+        PHA
+        LDA #character
+        JSR CONSOLE_OUT
+        pla
+        .endif
+.endmacro
 
 
 ;__PRTHEXBYTE__________________________________________________
