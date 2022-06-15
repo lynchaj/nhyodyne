@@ -11,7 +11,7 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 16210)
+    (start_pass_no 33406)
     (layer_rule F.Cu
       (active on)
       (preferred_direction horizontal)
@@ -71,13 +71,13 @@
     A13 A8 A12 A9 A11 A10 "Net-(JP1-Pad1)" "Net-(RN2-Pad9)"
     "Net-(RN2-Pad8)" "Net-(RN2-Pad7)" "Net-(RN2-Pad6)" "Net-(RN2-Pad5)" "Net-(RN2-Pad4)" "Net-(RN2-Pad3)" "Net-(RN2-Pad2)" "Net-(RN3-Pad9)"
     "Net-(RN3-Pad8)" "Net-(RN3-Pad7)" "Net-(RN3-Pad6)" "Net-(RN3-Pad5)" "Net-(RN3-Pad4)" "Net-(RN3-Pad3)" "Net-(RN3-Pad2)" "_6502INT"
-    "_6502IO" "_6502NMI" 65TOGGLE "Net-(U10-Pad3)" 6502EN "Net-(U10-Pad8)" "Net-(U10-Pad6)" "Net-(U10-Pad4)"
-    "Net-(U10-Pad2)" "Net-(U6-Pad16)" "Net-(U6-Pad15)" "Net-(U6-Pad14)" "Net-(U6-Pad13)" "Net-(U6-Pad12)" "Net-(U6-Pad11)" "Net-(U6-Pad10)"
-    "Net-(U6-Pad9)" "Net-(U10-Pad17)" "Net-(U10-Pad15)" "Net-(U10-Pad13)" "Net-(U10-Pad11)" "Net-(D3-Pad2)" "Net-(D3-Pad1)" "Net-(D4-Pad2)"
-    "Net-(D4-Pad1)" "Net-(D5-Pad2)" "Net-(D5-Pad1)" "Net-(D6-Pad2)" "Net-(D6-Pad1)" "Net-(D7-Pad2)" "Net-(D7-Pad1)" "Net-(U11-Pad2)"
-    "Net-(U12-Pad3)" ICLK 6502IO "Net-(U4-Pad11)" "Net-(U12-Pad6)" "Net-(R9-Pad1)" "Net-(R10-Pad1)" "Net-(U12-Pad8)"
-    "Net-(U3-Pad3)" "Net-(U12-Pad10)" "_6502WR" "Net-(RN4-Pad9)" "Net-(RN4-Pad8)" "Net-(RN4-Pad7)" "Net-(RN4-Pad6)" "Net-(RN4-Pad5)"
-    "Net-(RN4-Pad4)" "Net-(RN4-Pad3)" "Net-(RN4-Pad2)" 6502RST
+    "_6502IO" "_6502NMI" 65TOGGLE 6502EN "Net-(U10-Pad8)" "Net-(U10-Pad6)" "Net-(U10-Pad4)" "Net-(U10-Pad2)"
+    "Net-(U6-Pad16)" "Net-(U6-Pad15)" "Net-(U6-Pad14)" "Net-(U6-Pad13)" "Net-(U6-Pad12)" "Net-(U6-Pad11)" "Net-(U6-Pad10)" "Net-(U6-Pad9)"
+    "Net-(U10-Pad17)" "Net-(U10-Pad15)" "Net-(U10-Pad13)" "Net-(U10-Pad11)" "Net-(D3-Pad2)" "Net-(D3-Pad1)" "Net-(D4-Pad2)" "Net-(D4-Pad1)"
+    "Net-(D5-Pad2)" "Net-(D5-Pad1)" "Net-(D6-Pad2)" "Net-(D6-Pad1)" "Net-(D7-Pad2)" "Net-(D7-Pad1)" "Net-(U11-Pad2)" "Net-(U12-Pad3)"
+    ICLK 6502IO "Net-(U4-Pad11)" "Net-(U12-Pad6)" "Net-(R9-Pad1)" "Net-(R10-Pad1)" "Net-(U12-Pad8)" "Net-(U3-Pad3)"
+    "Net-(U12-Pad10)" "_6502WR" "Net-(RN4-Pad9)" "Net-(RN4-Pad8)" "Net-(RN4-Pad7)" "Net-(RN4-Pad6)" "Net-(RN4-Pad5)" "Net-(RN4-Pad4)"
+    "Net-(RN4-Pad3)" "Net-(RN4-Pad2)" 6502RST "Net-(U4-Pad3)"
     (clearance_class "kicad_default")
     (via_rule kicad_default)
     (rule

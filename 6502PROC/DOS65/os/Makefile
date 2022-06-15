@@ -12,7 +12,7 @@ dos65.out: dos65.asm ccmnhy.asm pemnhy.asm simnhy.asm macro.asm dosdefn.asm dosp
 	ca65 dos65.asm -l dos65.lst
 	ld65 dos65.o -m dos65.map -C dos65.cfg -o dos65.out
 
-dos65drv.out: dos65drv.asm dosser.asm dosdefn.asm doside.asm dosmd.asm dosdskyn.asm drvmacro.asm
+dos65drv.out: dos65drv.asm dosser.asm dosdefn.asm doside.asm dosmd.asm dosdskyn.asm drvmacro.asm dosflp.asm
 	ca65 dos65drv.asm -l dos65drv.lst
 	ld65 dos65drv.o -m dos65drv.map -C dos65.cfg -o dos65drv.out
 

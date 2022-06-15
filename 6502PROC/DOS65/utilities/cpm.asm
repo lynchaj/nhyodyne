@@ -50,7 +50,7 @@ Z80CODE:
         ; SHOULD BE A SAFE AREA TO SWAP IN THE ROM AND CALL THE REBOOT VECTOR
         .segment "CPMDATA"
         .ORG $2000
-                .BYTE $3e,$00                  ; LD	A,00H           SWITCH IN ROM PAGE, ENABLE LOWER ROM PAGE
+                .BYTE $3e,$00           ; LD	A,00H           SWITCH IN ROM PAGE, ENABLE LOWER ROM PAGE
                 .BYTE $d3,$78		; OUT	(MPCL_RAM),A	FIRST, SWITCH OUT LOWER RAM PAGE (NO BUS CONTENTION)
                 .BYTE $00		; NOP
                 .BYTE $00		; NOP

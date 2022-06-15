@@ -675,11 +675,7 @@ Wire Wire Line
 Wire Wire Line
 	6150 2950 6500 2950
 Wire Wire Line
-	6100 2700 6100 3050
-Wire Wire Line
 	6100 3050 6500 3050
-Wire Wire Line
-	4900 2700 6100 2700
 Wire Wire Line
 	4900 1200 4900 950 
 Wire Wire Line
@@ -874,7 +870,7 @@ Text GLabel 7550 2850 2    50   Input ~ 0
 A13
 Text GLabel 7550 2950 2    50   Input ~ 0
 A14
-Text GLabel 8350 3050 2    50   Input ~ 0
+Text GLabel 7550 3050 2    50   Input ~ 0
 A15
 $Comp
 L power:VCC #PWR0114
@@ -965,16 +961,14 @@ $EndComp
 $Comp
 L 74xx:74LS04 U4
 U 2 1 61EBDFD8
-P 8050 3050
-F 0 "U4" H 8200 3150 50  0000 C CNN
-F 1 "74LS04" H 8100 2900 50  0000 C CNN
-F 2 "Package_DIP:DIP-14_W7.62mm_Socket_LongPads" H 8050 3050 50  0001 C CNN
-F 3 "http://www.ti.com/lit/gpn/sn74LS04" H 8050 3050 50  0001 C CNN
-	2    8050 3050
+P 5800 3050
+F 0 "U4" H 5950 3150 50  0000 C CNN
+F 1 "74LS04" H 5850 2900 50  0000 C CNN
+F 2 "Package_DIP:DIP-14_W7.62mm_Socket_LongPads" H 5800 3050 50  0001 C CNN
+F 3 "http://www.ti.com/lit/gpn/sn74LS04" H 5800 3050 50  0001 C CNN
+	2    5800 3050
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	7500 3050 7750 3050
 $Comp
 L 74xx:74LS688 U5
 U 1 1 61ED1547
@@ -2717,4 +2711,10 @@ F 3 "~" H 3500 2700 50  0001 C CNN
 	1    3500 2700
 	0    1    -1   0   
 $EndComp
+Wire Wire Line
+	5500 3050 5500 2700
+Wire Wire Line
+	5500 2700 4900 2700
+Wire Wire Line
+	7500 3050 7550 3050
 $EndSCHEMATC

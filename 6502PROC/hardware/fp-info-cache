@@ -1,4 +1,4 @@
-19668922285422875
+19697961391714274
 Apple2_bus
 BUS_A2
 Connector Apple ][ Slot
@@ -87030,6 +87030,132 @@ Zigbee_Module_MRF24J40MD
 0
 12
 12
+dragon64
+Button_AlpsAlpine_SPUN190900
+
+
+0
+6
+6
+dragon64
+CP_Radial_D5.0mm_P5.00mm
+CP, Radial series, Radial, pin pitch=5.00mm, , diameter=5mm, Electrolytic Capacitor
+CP Radial series Radial pin pitch 5.00mm  diameter 5mm Electrolytic Capacitor
+0
+2
+2
+dragon64
+CP_Radial_D8.0mm_P5.00mm
+CP, Radial series, Radial, pin pitch=5.00mm, , diameter=5mm, Electrolytic Capacitor
+CP Radial series Radial pin pitch 5.00mm  diameter 5mm Electrolytic Capacitor
+0
+2
+2
+dragon64
+CP_Radial_Tantal_D4.5mm_P2.50mm
+CP, Radial_Tantal series, Radial, pin pitch=2.50mm, , diameter=4.5mm, Tantal Electrolytic Capacitor, http://cdn-reichelt.de/documents/datenblatt/B300/TANTAL-TB-Serie%23.pdf
+CP Radial_Tantal series Radial pin pitch 2.50mm  diameter 4.5mm Tantal Electrolytic Capacitor
+0
+2
+2
+dragon64
+C_Disc_D6.0mm_W2.5mm_P5.00mm
+C, Disc series, Radial, pin pitch=5.00mm, , diameter*width=6*2.5mm^2, Capacitor, http://cdn-reichelt.de/documents/datenblatt/B300/DS_KERKO_TC.pdf
+C Disc series Radial pin pitch 5.00mm  diameter 6mm width 2.5mm Capacitor
+0
+2
+2
+dragon64
+C_Disc_D8.0mm_W2.5mm_P5.00mm
+C, Disc series, Radial, pin pitch=5.00mm, , diameter*width=8*2.5mm^2, Capacitor
+C Disc series Radial pin pitch 5.00mm  diameter 8mm width 2.5mm Capacitor
+0
+2
+2
+dragon64
+C_Trimmer_D7.5mm
+
+
+0
+3
+3
+dragon64
+DIN-5_DELTRON_671-0501_45deg_Horizontal
+DIN-5 45 degree
+
+0
+9
+5
+dragon64
+DIN-6_DELTRON_671-0601_Horizontal
+DIN-6
+
+0
+10
+6
+dragon64
+DIN-7_DELTRON_671-0701_Horizontal
+DIN-7
+
+0
+11
+7
+dragon64
+D_DO-35_SOD27_P12.19mm_Horizontal
+Diode, DO-35_SOD27 series, Axial, Horizontal, pin pitch=12.19mm, , length*diameter=4*2mm^2, , http://www.diodes.com/_files/packages/DO-35.pdf
+Diode DO-35_SOD27 series Axial Horizontal pin pitch 12.19mm  length 4mm diameter 2mm
+0
+2
+2
+dragon64
+Edge_2x20_P2.54mm_Horizontal
+Edge Connector 2x20 2.54mm pitch, 5.08mm row pitch
+
+0
+42
+41
+dragon64
+IDC-Header_2x10-1MP_P2.54mm_Latch_Horizontal
+Through hole IDC header, 2x10, 2.54mm pitch, DIN 41651 / IEC 60603-13, double rows latches, mounting holes, https://docs.google.com/spreadsheets/d/16SsEcesNF15N3Lb4niX7dcUr-NY5_MFPQhobNuNppn4/edit#gid=0
+Through hole horizontal IDC header THT 2x10 2.54mm double row
+0
+22
+21
+dragon64
+L_Axial_L7.0mm_D3.3mm_P15.24mm_Horizontal
+Resistor, Axial_DIN0207 series, Axial, Horizontal, pin pitch=12.12mm, 0.25W = 1/4W, length*diameter=6.3*2.5mm^2
+Resistor Axial_DIN0207 series Axial Horizontal pin pitch 12.19mm 0.25W = 1/4W length 6.3mm diameter 2.5mm
+0
+2
+2
+dragon64
+Molex_KK-396_A-41771-0026_1x09_P3.96mm_Vertical
+Molex KK 396 Interconnect System, old/engineering part number: A-41771-0009 example for new part number: 26-61-2090, 9 Pins
+connector Molex KK-396 vertical
+0
+9
+9
+dragon64
+R_Axial_DIN0207_L6.3mm_D2.5mm_P12.19mm_Horizontal
+Resistor, Axial_DIN0207 series, Axial, Horizontal, pin pitch=12.12mm, 0.25W = 1/4W, length*diameter=6.3*2.5mm^2
+Resistor Axial_DIN0207 series Axial Horizontal pin pitch 12.19mm 0.25W = 1/4W length 6.3mm diameter 2.5mm
+0
+2
+2
+logo
+TO-18-3_FIXED
+TO-18-3
+TO-18-3
+0
+3
+3
+logo
+TO-92_HandSolder_FIXED
+TO-92 leads molded, narrow, drill 0.75mm, handsoldering variant with enlarged pads (see NXP sot054_po.pdf)
+to-92 sc-43 sc-43a sot54 PA33 transistor
+0
+3
+3
 logo
 logo
 

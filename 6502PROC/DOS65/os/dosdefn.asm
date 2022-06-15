@@ -22,7 +22,7 @@ MD_PAGEBU       =       $0400           ; 0400-04FF PAGE BUFFER ADDRESS
 MD_PAGESE       =       pointr          ; PAGE SECTOR STORAGE
 
 ;
-; DSKY DISPLAY WORKING STORAGE
+; DRIVER WORKING STORAGE
 ;
 DSKY_BUF        =       $0500	        ; Eight Bytes DSKY display buffer
 DSKY_BUFLEN	=       8               ;
@@ -104,7 +104,7 @@ delete	=	$08		;delete character
 numcmd	=	36		;number commands
 
 BANKED_DRIVER_DISPATCHER=$8800  ; LOCATION OF DRIVER DISPATCHER
-DEBUG	=	0		; assemble with debug information on
+DEBUG	=	1		; assemble with debug information on
 
 
 USESERIAL 	= 	1	; SET TO ONE SERIAL CONSOLE IO

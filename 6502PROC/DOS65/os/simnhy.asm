@@ -97,23 +97,20 @@ boot:
 
 	PRTDBG "DISK CFG TABLE COPIED$"
 
-	lda 	#22            		;MD_SHOW
+  	lda	#0		;set zero
+	jsr	seldsk		;and select drive zero
+
+	lda 	#22            ;MD_SHOW
 	sta 	farfunct
 	JSR 	DO_FARCALL
 
-  .IF USEFLOPPYA=1
-;  	PRTDBG "Init floppy A$"
-;  	lda	#0			;set zero
-;	jsr	seldsk		;and select drive zero
-;	JSR	SETUPDRIVE
-  .ENDIF
+    	lda 	#25            ;FD_INIT
+	sta 	farfunct
+	JSR 	DO_FARCALL
 
-    .IF USEIDEC=1
     	lda 	#04            ;PPIDE_INIT
 	sta 	farfunct
 	JSR 	DO_FARCALL
-  .ENDIF
-
 
    .IF USEDSKYNG=1 || USEDSKY=1
 	lda 	#08            ;DSKY_INIT
@@ -136,13 +133,10 @@ boot:
 	JSR 	DO_FARCALL
   .ENDIF
 
-
 	LDA 	#<cnstxt	; STORE POINTER TO COMMAND LINE
 	STA 	cmdlnp
 	LDA 	#>cnstxt
 	STA 	cmdlnp+1
-
-
 
 	LDA 	#<dskcfg	; STORE POINTER TO DISK CONFIG TABLE FOR APPS
 	STA 	dskcfpc
@@ -270,22 +264,19 @@ read:
 	CMP 	#$20
 	BNE 	:+			; not floppy drive
 	;FD
-  	.IF USEFLOPPYA=1 || USEFLOPPYB=1
-  	JMP	READFL			;
-  	.else
-  	LDA	#$FF			;
+	lda 	#23            		;FD_READ_SECTOR
+	sta 	farfunct
+	JSR 	DO_FARCALL
+	JMP 	MOVEBUFTODMA
 	RTS				;
-  	.ENDIF
 :
 	CMP 	#$30
 	BNE 	:+			; invalid drive
 	;PPIDE
-  	.IF USEIDEC=1
 	lda 	#05            		;IDE_READ_SECTOR
 	sta 	farfunct
 	JSR 	DO_FARCALL
 	JMP 	MOVEBUFTODMA
-  	.ENDIF
 :
 	LDA	#$FF			; signal error
 	RTS				;
@@ -311,25 +302,16 @@ write:
 	CMP 	#$20
 	BNE 	:+			; not floppy drive
 	;FD
-  	.IF USEFLOPPYA=1 || USEFLOPPYB=1
-  	Jsr	WRITEFL			;
-	RTS				;
-  	.else
-  	LDA	#$FF			;
-	RTS				;
-  	.ENDIF
+	lda 	#24            		;FD_WRITE_SECTOR
+	sta 	farfunct
+	JMP 	DO_FARCALL
 :
 	CMP 	#$30
 	BNE 	writex			; not ppide
 	;PPIDE
-  	.IF USEIDEC=1
 	lda 	#06            		;IDE_WRITE_SECTOR
 	sta 	farfunct
 	jmp 	DO_FARCALL
-  	.else
-  	LDA	#$FF			;
-	RTS				;
-  	.ENDIF
 writex:
 	LDA	#$FF			; signal error
 	RTS				;
@@ -645,8 +627,10 @@ ckmp:		.res	128
 
 dftdskcfg:
 	.byte $00,$00		;  disk A: unit,slice  (invalid for floppy and RAM disks)
-	.byte $01,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
-	.byte $30,$00		;  disk C: unit,slice
+	;.byte $01,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
+	;.byte $30,$00		;  disk C: unit,slice
+	.byte $20,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
+	.byte $21,$00		;  disk C: unit,slice
 	.byte $30,$01		;  disk D: unit,slice
 	.byte $30,$02		;  disk E: unit,slice
 	.byte $30,$03		;  disk F: unit,slice

@@ -1669,7 +1669,7 @@
       (pins J3-11 U9-13 U8-7)
     )
     (net A15
-      (pins J3-10 U5-17 U4-4)
+      (pins J3-10 U10-3 U5-17)
     )
     (net A6
       (pins J3-9 U9-15 U8-5)
@@ -1761,9 +1761,6 @@
     (net 65TOGGLE
       (pins U11-3 U3-4)
     )
-    (net "Net-(U10-Pad3)"
-      (pins U10-3 U4-3)
-    )
     (net 6502EN
       (pins J4-3 U4-13 U4-8)
     )
@@ -1804,7 +1801,7 @@
       (pins U6-9 U8-2)
     )
     (net "Net-(U10-Pad17)"
-      (pins U6-25 U10-17)
+      (pins U10-17 U4-4)
     )
     (net "Net-(U10-Pad15)"
       (pins U6-24 U10-15)
@@ -1908,26 +1905,35 @@
     (net 6502RST
       (pins U6-40 J4-2 RN1-2)
     )
+    (net "Net-(U4-Pad3)"
+      (pins U6-25 U4-3)
+    )
     (class kicad_default "" 6502EN 6502IO 6502RST 65TOGGLE A0 A1 A10 A11 A12
       A13 A14 A15 A2 A3 A4 A5 A6 A7 A8 A9 CLK CLKO D0 D1 D2 D3 D4 D5 D6 D7
       GND ICLK "Net-(C1-Pad1)" "Net-(D2-Pad2)" "Net-(D3-Pad1)" "Net-(D3-Pad2)"
       "Net-(D4-Pad1)" "Net-(D4-Pad2)" "Net-(D5-Pad1)" "Net-(D5-Pad2)" "Net-(D6-Pad1)"
       "Net-(D6-Pad2)" "Net-(D7-Pad1)" "Net-(D7-Pad2)" "Net-(J2-Pad1)" "Net-(J2-Pad3)"
-      "Net-(J2-Pad5)" "Net-(J2-Pad7)" "Net-(JP1-Pad1)" "Net-(R10-Pad1)" "Net-(R9-Pad1)"
-      "Net-(RN2-Pad2)" "Net-(RN2-Pad3)" "Net-(RN2-Pad4)" "Net-(RN2-Pad5)"
-      "Net-(RN2-Pad6)" "Net-(RN2-Pad7)" "Net-(RN2-Pad8)" "Net-(RN2-Pad9)"
-      "Net-(RN3-Pad2)" "Net-(RN3-Pad3)" "Net-(RN3-Pad4)" "Net-(RN3-Pad5)"
-      "Net-(RN3-Pad6)" "Net-(RN3-Pad7)" "Net-(RN3-Pad8)" "Net-(RN3-Pad9)"
-      "Net-(RN4-Pad2)" "Net-(RN4-Pad3)" "Net-(RN4-Pad4)" "Net-(RN4-Pad5)"
-      "Net-(RN4-Pad6)" "Net-(RN4-Pad7)" "Net-(RN4-Pad8)" "Net-(RN4-Pad9)"
-      "Net-(U10-Pad11)" "Net-(U10-Pad13)" "Net-(U10-Pad15)" "Net-(U10-Pad17)"
-      "Net-(U10-Pad2)" "Net-(U10-Pad3)" "Net-(U10-Pad4)" "Net-(U10-Pad6)"
-      "Net-(U10-Pad8)" "Net-(U11-Pad2)" "Net-(U12-Pad10)" "Net-(U12-Pad3)"
-      "Net-(U12-Pad6)" "Net-(U12-Pad8)" "Net-(U3-Pad3)" "Net-(U4-Pad11)" "Net-(U6-Pad10)"
-      "Net-(U6-Pad11)" "Net-(U6-Pad12)" "Net-(U6-Pad13)" "Net-(U6-Pad14)"
-      "Net-(U6-Pad15)" "Net-(U6-Pad16)" "Net-(U6-Pad9)" VCC _6502EN _6502INT
-      _6502IO _6502NMI _6502WR _BUSACK _BUSRQ _HALT _INT _IORQ _M1 _MREQ _NMI
-      _RD _RESET _RFSH _WAIT _WR
+      "Net-(J2-Pad5)" "Net-(J2-Pad7)" "Net-(J3-Pad41)" "Net-(J3-Pad44)" "Net-(J3-Pad45)"
+      "Net-(J3-Pad46)" "Net-(J3-Pad47)" "Net-(J3-Pad48)" "Net-(J3-Pad49)"
+      "Net-(J3-Pad50)" "Net-(JP1-Pad1)" "Net-(R10-Pad1)" "Net-(R9-Pad1)" "Net-(RN2-Pad2)"
+      "Net-(RN2-Pad3)" "Net-(RN2-Pad4)" "Net-(RN2-Pad5)" "Net-(RN2-Pad6)"
+      "Net-(RN2-Pad7)" "Net-(RN2-Pad8)" "Net-(RN2-Pad9)" "Net-(RN3-Pad2)"
+      "Net-(RN3-Pad3)" "Net-(RN3-Pad4)" "Net-(RN3-Pad5)" "Net-(RN3-Pad6)"
+      "Net-(RN3-Pad7)" "Net-(RN3-Pad8)" "Net-(RN3-Pad9)" "Net-(RN4-Pad2)"
+      "Net-(RN4-Pad3)" "Net-(RN4-Pad4)" "Net-(RN4-Pad5)" "Net-(RN4-Pad6)"
+      "Net-(RN4-Pad7)" "Net-(RN4-Pad8)" "Net-(RN4-Pad9)" "Net-(U10-Pad11)"
+      "Net-(U10-Pad13)" "Net-(U10-Pad15)" "Net-(U10-Pad17)" "Net-(U10-Pad2)"
+      "Net-(U10-Pad3)" "Net-(U10-Pad4)" "Net-(U10-Pad6)" "Net-(U10-Pad8)"
+      "Net-(U11-Pad10)" "Net-(U11-Pad11)" "Net-(U11-Pad12)" "Net-(U11-Pad13)"
+      "Net-(U11-Pad2)" "Net-(U11-Pad8)" "Net-(U11-Pad9)" "Net-(U12-Pad10)"
+      "Net-(U12-Pad11)" "Net-(U12-Pad12)" "Net-(U12-Pad13)" "Net-(U12-Pad3)"
+      "Net-(U12-Pad6)" "Net-(U12-Pad8)" "Net-(U2-Pad15)" "Net-(U2-Pad17)"
+      "Net-(U2-Pad3)" "Net-(U2-Pad5)" "Net-(U3-Pad3)" "Net-(U4-Pad11)" "Net-(U4-Pad3)"
+      "Net-(U6-Pad10)" "Net-(U6-Pad11)" "Net-(U6-Pad12)" "Net-(U6-Pad13)"
+      "Net-(U6-Pad14)" "Net-(U6-Pad15)" "Net-(U6-Pad16)" "Net-(U6-Pad35)"
+      "Net-(U6-Pad36)" "Net-(U6-Pad39)" "Net-(U6-Pad5)" "Net-(U6-Pad7)" "Net-(U6-Pad9)"
+      VCC _6502EN _6502INT _6502IO _6502NMI _6502WR _BUSACK _BUSRQ _HALT _INT
+      _IORQ _M1 _MREQ _NMI _RD _RESET _RFSH _WAIT _WR
       (circuit
         (use_via Via[0-1]_800:400_um)
       )
@@ -1938,18 +1944,13 @@
     )
   )
   (wiring
-    (wire (path F.Cu 800  166692 -68350  167000 -68657.9)(net VCC)(type protect))
-    (wire (path F.Cu 800  165490 -68350  166692 -68350)(net VCC)(type protect))
-    (wire (path F.Cu 800  165775 -38300  164375 -38300)(net VCC)(type protect))
-    (wire (path F.Cu 800  167000 -39525  165775 -38300)(net VCC)(type protect))
-    (wire (path F.Cu 800  167000 -68657.9  167000 -39525)(net VCC)(type protect))
+    (wire (path F.Cu 800  167000 -94350  167000 -96175  166940 -96235  166940 -115335)(net VCC)(type protect))
+    (wire (path F.Cu 800  167000 -68657.9  167000 -39525  165775 -38300)(net VCC)(type protect))
+    (wire (path F.Cu 800  167000 -94350  166750 -94600  166340 -94600  165490 -93750)(net VCC)(type protect))
     (wire (path F.Cu 800  167000 -68657.9  167000 -94350)(net VCC)(type protect))
-    (wire (path F.Cu 800  166340 -94600  165490 -93750)(net VCC)(type protect))
-    (wire (path F.Cu 800  166750 -94600  166340 -94600)(net VCC)(type protect))
-    (wire (path F.Cu 800  167000 -94350  166750 -94600)(net VCC)(type protect))
+    (wire (path F.Cu 800  165490 -68350  166692 -68350  167000 -68657.9)(net VCC)(type protect))
+    (wire (path F.Cu 800  165775 -38300  164375 -38300)(net VCC)(type protect))
     (wire (path F.Cu 800  164875 -117400  163475 -117400)(net VCC)(type protect))
     (wire (path F.Cu 800  166940 -115335  164875 -117400)(net VCC)(type protect))
-    (wire (path F.Cu 800  167000 -96175  166940 -96235  166940 -115335)(net VCC)(type protect))
-    (wire (path F.Cu 800  167000 -94350  167000 -96175)(net VCC)(type protect))
   )
 )
