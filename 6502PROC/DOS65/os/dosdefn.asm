@@ -104,7 +104,7 @@ delete	=	$08		;delete character
 numcmd	=	36		;number commands
 
 BANKED_DRIVER_DISPATCHER=$8800  ; LOCATION OF DRIVER DISPATCHER
-DEBUG	=	1		; assemble with debug information on
+DEBUG	=	0		; assemble with debug information on
 
 
 USESERIAL 	= 	1	; SET TO ONE SERIAL CONSOLE IO
