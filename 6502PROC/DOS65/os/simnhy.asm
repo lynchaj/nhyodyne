@@ -104,9 +104,9 @@ boot:
 	sta 	farfunct
 	JSR 	DO_FARCALL
 
-  ;;;  	lda 	#25            ;FD_INIT
-;;;	sta 	farfunct
-;;;	JSR 	DO_FARCALL
+  ;  	lda 	#25            ;FD_INIT
+;	sta 	farfunct
+;	JSR 	DO_FARCALL
 
     	lda 	#04            ;PPIDE_INIT
 	sta 	farfunct
@@ -193,10 +193,7 @@ wboot:
 seldsk:
 	and	#7		;three lsbs only
 	sta	sekdsk		;save for later
- .IF (USEFLOPPYA=1 | USEFLOPPYB=1)
-	jsr	MOTOROFF	; TURN OFF ALL FLOPPY MOTORS
- .ENDIF
-	LDA	sekdsk		;save for later
+ 	LDA	sekdsk		;save for later
 	asl	a		;multiply by two
 	tax			;make an Index
 	lda	dcbtbl,x	;get address
@@ -627,10 +624,8 @@ ckmp:		.res	128
 
 dftdskcfg:
 	.byte $00,$00		;  disk A: unit,slice  (invalid for floppy and RAM disks)
-	;.byte $01,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
-	;.byte $30,$00		;  disk C: unit,slice
-	.byte $20,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
-	.byte $21,$00		;  disk C: unit,slice
+	.byte $01,$00		;  disk B: unit,slice  (invalid for floppy and RAM disks)
+	.byte $30,$00		;  disk C: unit,slice
 	.byte $30,$01		;  disk D: unit,slice
 	.byte $30,$02		;  disk E: unit,slice
 	.byte $30,$03		;  disk F: unit,slice
