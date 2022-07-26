@@ -68,9 +68,9 @@ DISPATCHTABLE:
 		.WORD 	MD_WRITE_SECTOR		; FUNCTION 21 - write a sector to memory device
 		.WORD 	MD_SHOW			; FUNCTION 22 - md show information
 
-		.WORD 	FL_READ_SECTOR 		; FUNCTION 23 - read a sector from floppy device
-		.WORD 	FL_WRITE_SECTOR		; FUNCTION 24 - write a sector to floppy device
-		.WORD 	FL_SETUP		; FUNCTION 25 - init floppy device
+;		.WORD 	FL_READ_SECTOR 		; FUNCTION 23 - read a sector from floppy device
+;		.WORD 	FL_WRITE_SECTOR		; FUNCTION 24 - write a sector to floppy device
+;		.WORD 	FL_SETUP		; FUNCTION 25 - init floppy device
 
 
 ;__DRIVERS___________________________________________________________________________________________
@@ -81,7 +81,7 @@ DISPATCHTABLE:
 		.INCLUDE "dosdskyn.asm"
 		.INCLUDE "dosmd.asm"
 		.INCLUDE "dosdblk.asm"
-		.INCLUDE "dosflp.asm"
+	;	.INCLUDE "dosflp.asm"
 
 ;// TODO: this should be dependent on "active console. . ." and should be a driver call
 CONSOLE_OUT:
