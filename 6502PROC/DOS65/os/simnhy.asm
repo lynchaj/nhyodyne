@@ -104,9 +104,9 @@ boot:
 	sta 	farfunct
 	JSR 	DO_FARCALL
 
-  ;;;  	lda 	#25            ;FD_INIT
-;;;	sta 	farfunct
-;;;	JSR 	DO_FARCALL
+    	lda 	#25            ;FD_INIT
+	sta 	farfunct
+	JSR 	DO_FARCALL
 
     	lda 	#04            ;PPIDE_INIT
 	sta 	farfunct
