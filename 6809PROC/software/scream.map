@@ -1,0 +1,13 @@
+Symbol: COLD_START (scream.s) = F000
+Symbol: MAIN (scream.s) = F000
+Symbol: RESETV (scream.s) = FFFE
+Symbol: SERIAL_OUTCH (scream.s) = F01A
+Symbol: TX_BUSYLP (scream.s) = F01A
+Symbol: UART0 (scream.s) = 0368
+Symbol: UART1 (scream.s) = 0369
+Symbol: UART2 (scream.s) = 036A
+Symbol: UART3 (scream.s) = 036B
+Symbol: UART4 (scream.s) = 036C
+Symbol: UART5 (scream.s) = 036D
+Symbol: UART6 (scream.s) = 036E
+Symbol: UART7 (scream.s) = 036F

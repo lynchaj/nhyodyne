@@ -1,5 +1,5 @@
-# MBC65C02
-65C02 processor board (hardware and software) for the Nhyodyne computer system
+# MBC6809
+6809 processor board (hardware and software) for the Nhyodyne computer system
 
 # JUMPER SETTINGS
 ## General
@@ -21,8 +21,8 @@
         JP1 - External Reset Switch
 
         SW1 - IO Page select
-                This maps the IO addresses $00-$FF into the 6502 memory space.  Note that
-                the 6502 has address line A15 inverted in order to maintain compatibility
+                This maps the IO addresses $00-$FF into the 6809 memory space.  Note that
+                the 6809 has address line A15 inverted in order to maintain compatibility
                 with the Nhyodyne ROM and RAM cards.   Therefore the MSB (SW8) is inverted.  Most test applications for this board expect an IO page of $03 ($0300-$03FF).Leading to a default setting of:
                 1-off
                 2-off
@@ -35,7 +35,7 @@
 
         SW2 - Reset
 
-        SW2 - 6502 toggle address
+        SW2 - 6809 toggle address
                 This setting sets the IO port that toggles the 6502 in and out of control when it is a secondary CPU.  When it is the only CPU in the system this setting has no effect. Most test applications for this board expect an IO address of $FF ($0300-$03FF).   Reading this IO port will toggle the 6502 active/inactive.
                 Leading to a default setting of:
                 1-off
