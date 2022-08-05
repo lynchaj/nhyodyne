@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name Z80DMA2-rescue)(type Legacy)(uri ${KIPRJMOD}/Z80DMA2-rescue.lib)(options "")(descr ""))
+  (lib (name Z80DMA-rescue)(type Legacy)(uri ${KIPRJMOD}/Z80DMA-rescue.lib)(options "")(descr ""))
+)
