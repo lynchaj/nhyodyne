@@ -3,9 +3,11 @@
 ;	Nhyodyne dos/65 CP/M loader program
 ;
 ;  DWERNER 04/24/2022 	Initial
+;  PSUMMERS 8/7/2022    Accept a command line argument for CPU to switch to (0-9)
 ;________________________________________________________________________________________________________________________________
 
 BDOS		        EQU	$0005		; BDOS invocation vector
+FCB			EQU	$5C		; Location of default FCB
 
 MPCL_RAM:		EQU	78H		; CONTROL PORT, SHOULD ONLY BE CHANGED WHILE
 ;					  IN UPPER MEMORY PAGE 08000h-$FFFF OR LIKELY
@@ -19,31 +21,47 @@ MPCL_RAM:		EQU	78H		; CONTROL PORT, SHOULD ONLY BE CHANGED WHILE
 ;
 section addr0100
 ORG	0100H
-		DI                      ; DISABLE INTERRUPTS
+;
+		; Check for cpu unit
+		LD	A,(FCB+1)		; Get first char of filename
+;
+		CP	'9' + 1			; > '9'
+		JR	NC,CopyLoader		; YES, NOT 0-9, Invalid argument
+;
+		SUB	'0'			; < '0'?
+		JR	C,CopyLoader		; YES, NOT 0-9, Invalid argument
+;
+;		SUB	'0'			; Convert CPU unit '0' - '9'
+		CPL				; to port and save
+		LD	(CPUunit),A		; Unit 0 = FFH, 1 = FEH etc
+;
+CopyLoader:	DI                      	; DISABLE INTERRUPTS
 
                 ; copy LOADER code to $8100
-		LD	BC,LoaderCodeEnd-LoaderCode1    ; BYTES TO MOVE
-		LD	DE,8100H                        ; DESTINATION ADDRESS
-		LD	HL,LoaderCode                   ; SOURCE ADDRESS
-		LDIR  	                ; COPY RAM
+		LD	BC,LoaderCodeEnd-LoaderCode1	; BYTES TO MOVE
+		LD	DE,8100H			; DESTINATION ADDRESS
+		LD	HL,LoaderCode			; SOURCE ADDRESS
+		LDIR					; COPY RAM
                 JP     8100H
-
+;
 BootDOS65:
                 LD	C,9
 	        LD	DE,SMSGFIL
-        	CALL	BDOS		; Do it
-		DI                      ; DISABLE INTERRUPTS
-		LD	BC,2F00H        ; BYTES TO MOVE
-		LD	DE,5000H        ; DESTINATION ADDRESS (6502 IS !A15)
+        	CALL	BDOS			; Do it
+		DI				; DISABLE INTERRUPTS
+		LD	BC,2F00H		; BYTES TO MOVE
+		LD	DE,5000H		; DESTINATION ADDRESS (6502 IS !A15)
 		LD	HL,LoaderCodeEnd-LoaderCode1+loaderEnd   ; SOURCE ADDRESS
-		LDIR  	                ; COPY RAM
-		LD	HL,07FFCH        ; VECTOR
+		LDIR				; COPY RAM
+		LD	HL,07FFCH		; VECTOR
 		LD 	A,00H
 		LD 	(HL),A
-		LD	HL,07FFDH        ; VECTOR
+		LD	HL,07FFDH		; VECTOR
 		LD 	A,0D0H
 		LD 	(HL),A
-		IN 	A,(0FFH)        ; ENABLE 6502
+		LD	A,(CPUunit)		; GET CPU PORT
+		LD	C,A
+		IN 	A,(C)			; ENABLE 6502
                 ; should never get here
                 nop
                 nop
@@ -51,7 +69,10 @@ BootDOS65:
                 nop
                 nop
                 nop
-
+		HALT
+;
+CPUunit:	DB	0FFh			; Default CPU unit port
+;
 loaderEnd:
 LoaderCode:
 section addr8000
@@ -104,7 +125,7 @@ _LD:            LD	DE,BUFFER		;
 _LDX:	        LD	C,16			; CPM Close File function
 	        LD	DE,FCB			; FCB
 	        CALL	BDOS			; Do it
-                jmp     BootDOS65
+                JP	BootDOS65
 
 ERRFIL:	; Error opening driver file
                 LD	C,9
