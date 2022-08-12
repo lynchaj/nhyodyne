@@ -6,12 +6,12 @@
 ;  PSUMMERS 8/7/2022    Accept a command line argument for CPU to switch to (0-9)
 ;________________________________________________________________________________________________________________________________
 
-BDOS		        EQU	$0005		; BDOS invocation vector
-FCB			EQU	$5C		; Location of default FCB
+BDOS:		        EQU	$0005		; BDOS invocation vector
+DEFFCB:				EQU	$5C			; Location of default FCB
 
-MPCL_RAM:		EQU	78H		; CONTROL PORT, SHOULD ONLY BE CHANGED WHILE
-;					  IN UPPER MEMORY PAGE 08000h-$FFFF OR LIKELY
-;					  LOSS OF CPU MEMORY CONTEXT
+MPCL_RAM:			EQU	78H			; CONTROL PORT, SHOULD ONLY BE CHANGED WHILE
+;									  IN UPPER MEMORY PAGE 08000h-$FFFF OR LIKELY
+;									  LOSS OF CPU MEMORY CONTEXT
 ; for Nhyodyne:
 ; RAM BANK $0C is RAM area for Drivers
 ; RAM BANK $0E is operating bank for DOS/65 $8000-$FFFF
@@ -23,32 +23,33 @@ section addr0100
 ORG	0100H
 ;
 		; Check for cpu unit
-		LD	A,(FCB+1)		; Get first char of filename
+		LD	A,(DEFFCB+1)				; Get first char of filename
 ;
-		CP	'9' + 1			; > '9'
-		JR	NC,CopyLoader		; YES, NOT 0-9, Invalid argument
+		CP	'9' + 1						; > '9'
+		JR	NC,CopyLoader				; YES, NOT 0-9, Invalid argument
 ;
-		SUB	'0'			; < '0'?
-		JR	C,CopyLoader		; YES, NOT 0-9, Invalid argument
+		SUB	'0'							; < '0'?
+		JR	C,CopyLoader				; YES, NOT 0-9, Invalid argument
 ;
-;		SUB	'0'			; Convert CPU unit '0' - '9'
-		CPL				; to port and save
-		LD	(CPUunit),A		; Unit 0 = FFH, 1 = FEH etc
+;		SUB	'0'							; Convert CPU unit '0' - '9'
+		CPL								; to port and save
+		LD	(CPUunit),A					; Unit 0 = FFH, 1 = FEH etc
 ;
-CopyLoader:	DI                      	; DISABLE INTERRUPTS
+CopyLoader:
 
-                ; copy LOADER code to $8100
+	DI              		        	; DISABLE INTERRUPTS
+					        	        ; copy LOADER code to $8100
 		LD	BC,LoaderCodeEnd-LoaderCode1	; BYTES TO MOVE
-		LD	DE,8100H			; DESTINATION ADDRESS
-		LD	HL,LoaderCode			; SOURCE ADDRESS
-		LDIR					; COPY RAM
-                JP     8100H
+		LD	DE,8100H					; DESTINATION ADDRESS
+		LD	HL,LoaderCode				; SOURCE ADDRESS
+		LDIR							; COPY RAM
+        JP     8100H
 ;
 BootDOS65:
-                LD	C,9
-	        LD	DE,SMSGFIL
-        	CALL	BDOS			; Do it
-		DI				; DISABLE INTERRUPTS
+        LD	C,9
+	    LD	DE,SMSGFIL
+       	CALL	BDOS		; Do it
+		DI					; DISABLE INTERRUPTS
 		LD	BC,2F00H		; BYTES TO MOVE
 		LD	DE,5000H		; DESTINATION ADDRESS (6502 IS !A15)
 		LD	HL,LoaderCodeEnd-LoaderCode1+loaderEnd   ; SOURCE ADDRESS
