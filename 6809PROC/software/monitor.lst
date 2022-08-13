@@ -70,9 +70,9 @@ F008 BDF18C           (      monitor.asm):00064 [8]             JSR     SERIALIN
 F00B                  (      monitor.asm):00070         CONTRL:
 F00B BDF181           (      monitor.asm):00071 [8]             JSR         DISPLAY_CRLF                ; DISPLAY CRLF
 F00E 863E             (      monitor.asm):00072 [2]             LDA     #'>'                    ; CARRIAGE RETURN
-F010 BDF1A4           (      monitor.asm):00073 [8]             JSR         WRSER1                      ; OUTPUT CHARACTER
-F013 BDF1B5           (      monitor.asm):00074 [8]             JSR         IOF_CONINW          ;
-F016 BDF1A4           (      monitor.asm):00075 [8]             JSR         WRSER1                      ; OUTPUT CHAR TO CONSOLE
+F010 BDF18D           (      monitor.asm):00073 [8]             JSR         WRSER1                      ; OUTPUT CHARACTER
+F013 BDF19E           (      monitor.asm):00074 [8]             JSR         IOF_CONINW          ;
+F016 BDF18D           (      monitor.asm):00075 [8]             JSR         WRSER1                      ; OUTPUT CHAR TO CONSOLE
                       (      monitor.asm):00076                                                         ;
 F019 8144             (      monitor.asm):00077 [2]             CMPA    #'D'                    ; IS DUMP MEMORY?
 F01B 271E             (      monitor.asm):00078 [3]             BEQ         DUMP                        ;
@@ -87,7 +87,7 @@ F02B 272C             (      monitor.asm):00086 [3]             BEQ         GO  
                       (      monitor.asm):00087                                                         ;
                       (      monitor.asm):00088                                                         ; COMMAND NOT FOUND ISSUE ERROR
 F02D 863F             (      monitor.asm):00089 [2]             LDA     #'?'                    ; PRINT '?'
-F02F BDF1A4           (      monitor.asm):00090 [8]             JSR         WRSER1                      ; OUTPUT CHARACTER
+F02F BDF18D           (      monitor.asm):00090 [8]             JSR         WRSER1                      ; OUTPUT CHARACTER
 F032 BDF181           (      monitor.asm):00091 [8]             JSR         DISPLAY_CRLF        ; DISPLAY CRLF
 F035 7EF00B           (      monitor.asm):00092 [4]             JMP         CONTRL                      ; RECEIVE NEXT CHARACTER
                       (      monitor.asm):00093         
@@ -143,10 +143,10 @@ F08A 7EF00B           (      monitor.asm):00140 [4]             JMP         CONT
 F08D                  (      monitor.asm):00143         LOAD:
                       (      monitor.asm):00144         
 F08D                  (      monitor.asm):00145         LOAD3:
-F08D BDF1B5           (      monitor.asm):00146 [8]             JSR         IOF_CONINW
+F08D BDF19E           (      monitor.asm):00146 [8]             JSR         IOF_CONINW
 F090 8153             (      monitor.asm):00147 [2]             CMPA    #'S'
 F092 26F9             (      monitor.asm):00148 [3]             BNE         LOAD3               ; FIRST CHAR NOT (S)
-F094 BDF1B5           (      monitor.asm):00149 [8]             JSR         IOF_CONINW          ; READ CHAR
+F094 BDF19E           (      monitor.asm):00149 [8]             JSR         IOF_CONINW          ; READ CHAR
 F097 8139             (      monitor.asm):00150 [2]             CMPA    #'9'
 F099 2729             (      monitor.asm):00151 [3]             BEQ         LOAD21
 F09B 8131             (      monitor.asm):00152 [2]             CMPA    #'1'
@@ -171,7 +171,7 @@ F0BA 7C010A           (      monitor.asm):00170 [7]             INC         CKSM
 F0BD 27CE             (      monitor.asm):00171 [3]             BEQ         LOAD3
 F0BF                  (      monitor.asm):00172         LOAD19:
 F0BF 863F             (      monitor.asm):00173 [2]             LDA         #'?'
-F0C1 BDF1A4           (      monitor.asm):00174 [8]             JSR         WRSER1
+F0C1 BDF18D           (      monitor.asm):00174 [8]             JSR         WRSER1
 F0C4                  (      monitor.asm):00175         LOAD21:
 F0C4 7EF00B           (      monitor.asm):00176 [4]     C1      JMP         CONTRL
                       (      monitor.asm):00177         
@@ -189,19 +189,19 @@ F0D5 26FA             (      monitor.asm):00188 [3]             BNE         DUMP
 F0D7 3510             (      monitor.asm):00189 [5+2]           PULS    X                           ;
 F0D9 BDF17C           (      monitor.asm):00190 [8]             JSR         OUTS                        ;
 F0DC 863A             (      monitor.asm):00191 [2]             LDA         #':'                        ;
-F0DE BDF1A4           (      monitor.asm):00192 [8]             JSR         WRSER1                      ;
-F0E1 8610             (      monitor.asm):00193 [2]             LDA         #$10                        ;
+F0DE BDF18D           (      monitor.asm):00192 [8]             JSR         WRSER1                      ;
+F0E1 C610             (      monitor.asm):00193 [2]             LDB         #$10                        ;
 F0E3                  (      monitor.asm):00194         DUMP_LINE_LOOPA:
 F0E3 A600             (      monitor.asm):00195 [4+1]           LDA         0,X                 ;
 F0E5 8120             (      monitor.asm):00196 [2]             CMPA    #32                     ;
 F0E7 2B0A             (      monitor.asm):00197 [3]             BMI         DUMP_LINE_INVALID
 F0E9 817F             (      monitor.asm):00198 [2]             CMPA    #127                    ;
 F0EB 2A06             (      monitor.asm):00199 [3]             BPL         DUMP_LINE_INVALID
-F0ED BDF1A4           (      monitor.asm):00200 [8]             JSR         WRSER1                      ;
+F0ED BDF18D           (      monitor.asm):00200 [8]             JSR         WRSER1                      ;
 F0F0 7EF0F8           (      monitor.asm):00201 [4]             JMP         DUMP_LINE_VALID
 F0F3                  (      monitor.asm):00202         DUMP_LINE_INVALID:                      ;
 F0F3 862E             (      monitor.asm):00203 [2]             LDA         #'.'                        ;
-F0F5 BDF1A4           (      monitor.asm):00204 [8]             JSR         WRSER1                      ;
+F0F5 BDF18D           (      monitor.asm):00204 [8]             JSR         WRSER1                      ;
 F0F8                  (      monitor.asm):00205         DUMP_LINE_VALID:                        ;
 F0F8 3001             (      monitor.asm):00206 [4+1]           LEAX    1,X                     ;
 F0FA 5A               (      monitor.asm):00207 [2]             DECB                            ;
@@ -211,9 +211,9 @@ F100 39               (      monitor.asm):00210 [5]             RTS
                       (      monitor.asm):00211         
                       (      monitor.asm):00212         ; INPUT HEX CHAR
 F101                  (      monitor.asm):00213         INHEX:
-F101 BDF1B5           (      monitor.asm):00214 [8]             JSR         IOF_CONINW          ;
+F101 BDF19E           (      monitor.asm):00214 [8]             JSR         IOF_CONINW          ;
 F104 3402             (      monitor.asm):00215 [5+1]           PSHS    A                       ;
-F106 BDF1A4           (      monitor.asm):00216 [8]             JSR         WRSER1                      ;
+F106 BDF18D           (      monitor.asm):00216 [8]             JSR         WRSER1                      ;
 F109 3502             (      monitor.asm):00217 [5+1]           PULS    A                       ;
 F10B 8130             (      monitor.asm):00218 [2]             CMPA    #$30                    ;
 F10D 2BB5             (      monitor.asm):00219 [3]             BMI         C1                          ; NOT HEX
@@ -270,7 +270,7 @@ F14F 8139             (      monitor.asm):00269 [2]             CMPA    #$39    
 F151 2302             (      monitor.asm):00270 [3]             BLS         OUTHR1              ;
 F153 8B07             (      monitor.asm):00271 [2]             ADDA    #$07                ;
 F155                  (      monitor.asm):00272         OUTHR1:
-F155 7EF1A4           (      monitor.asm):00273 [4]             JMP         WRSER1              ;
+F155 7EF18D           (      monitor.asm):00273 [4]             JMP         WRSER1              ;
                       (      monitor.asm):00274         
 F158                  (      monitor.asm):00275         OUT2H:
 F158 A600             (      monitor.asm):00276 [4+1]           LDA     0,X                     ; OUTPUT 2 HEX CHAR
@@ -298,7 +298,7 @@ F17A                  (      monitor.asm):00297         OUT2HS:
 F17A 8DDC             (      monitor.asm):00298 [7]             BSR         OUT2H               ; OUTPUT 2 HEX CHAR + SPACE
 F17C                  (      monitor.asm):00299         OUTS:
 F17C 8620             (      monitor.asm):00300 [2]             LDA         #$20                ; SPACE
-F17E 7EF1A4           (      monitor.asm):00301 [4]             JMP         WRSER1              ;
+F17E 7EF18D           (      monitor.asm):00301 [4]             JMP         WRSER1              ;
                       (      monitor.asm):00302         
                       (      monitor.asm):00303         
                       (      monitor.asm):00304         
@@ -306,43 +306,43 @@ F17E 7EF1A4           (      monitor.asm):00301 [4]             JMP         WRSE
                       (      monitor.asm):00306         
 F181                  (      monitor.asm):00307         DISPLAY_CRLF:
 F181 860D             (      monitor.asm):00308 [2]             LDA     #$0D                    ; PRINT CR
-F183 BDF1A4           (      monitor.asm):00309 [8]             JSR         WRSER1                      ; OUTPUT CHARACTER
+F183 BDF18D           (      monitor.asm):00309 [8]             JSR         WRSER1                      ; OUTPUT CHARACTER
 F186 860A             (      monitor.asm):00310 [2]             LDA     #$0A                    ; PRINT LF
-F188 BDF1A4           (      monitor.asm):00311 [8]             JSR         WRSER1                      ; OUTPUT CHARACTER
+F188 BDF18D           (      monitor.asm):00311 [8]             JSR         WRSER1                      ; OUTPUT CHARACTER
 F18B 39               (      monitor.asm):00312 [5]             RTS
                       (      monitor.asm):00313         
 F18C                  (      monitor.asm):00314         SERIALINIT:
-F18C 8680             (      monitor.asm):00315 [2]                     LDA             #$80            ;
-F18E B7036B           (      monitor.asm):00316 [5]                     STA             UART3           ; SET DLAB FLAG
-F191 860C             (      monitor.asm):00317 [2]                     LDA             #12                     ; SET TO 12 = 9600 BAUD
-F193 B70368           (      monitor.asm):00318 [5]                     STA             UART0           ; save baud rate
-F196 8600             (      monitor.asm):00319 [2]                     LDA             #00                     ;
-F198 B70369           (      monitor.asm):00320 [5]                     STA             UART1           ;
-F19B 8603             (      monitor.asm):00321 [2]                     LDA             #03                     ;
-F19D B7036B           (      monitor.asm):00322 [5]                     STA             UART3           ; SET 8 BIT DATA, 1 STOPBIT
-F1A0 B7036C           (      monitor.asm):00323 [5]                     STA             UART4           ;
-F1A3 39               (      monitor.asm):00324 [5]             RTS
+                      (      monitor.asm):00315                 ;       LDA             #$80            ;
+                      (      monitor.asm):00316                 ;       STA             UART3           ; SET DLAB FLAG
+                      (      monitor.asm):00317                 ;       LDA             #12                     ; SET TO 12 = 9600 BAUD
+                      (      monitor.asm):00318                 ;       STA             UART0           ; save baud rate
+                      (      monitor.asm):00319                 ;       LDA             #00                     ;
+                      (      monitor.asm):00320                 ;       STA             UART1           ;
+                      (      monitor.asm):00321                 ;       LDA             #03                     ;
+                      (      monitor.asm):00322                 ;       STA             UART3           ; SET 8 BIT DATA, 1 STOPBIT
+                      (      monitor.asm):00323                 ;       STA             UART4           ;
+F18C 39               (      monitor.asm):00324 [5]             RTS
                       (      monitor.asm):00325         
-F1A4                  (      monitor.asm):00326         WRSER1:
-F1A4 3402             (      monitor.asm):00327 [5+1]           PSHS    A
-F1A6                  (      monitor.asm):00328         TX_BUSYLP:
-F1A6 B6036D           (      monitor.asm):00329 [5]                     LDA             UART5                   ; READ LINE STATUS REGISTER
-F1A9 8420             (      monitor.asm):00330 [2]                     ANDA    #$20                    ; TEST IF UART IS READY TO SEND (BIT 5)
-F1AB 8100             (      monitor.asm):00331 [2]                     CMPA    #$00
-F1AD 27F7             (      monitor.asm):00332 [3]                     BEQ             TX_BUSYLP               ; IF NOT REPEAT
-F1AF 3502             (      monitor.asm):00333 [5+1]           PULS    A
-F1B1 B70368           (      monitor.asm):00334 [5]                     STA             UART0                   ; THEN WRITE THE CHAR TO UART
-F1B4 39               (      monitor.asm):00335 [5]             RTS
+F18D                  (      monitor.asm):00326         WRSER1:
+F18D 3402             (      monitor.asm):00327 [5+1]           PSHS    A
+F18F                  (      monitor.asm):00328         TX_BUSYLP:
+F18F B6036D           (      monitor.asm):00329 [5]                     LDA             UART5                   ; READ LINE STATUS REGISTER
+F192 8420             (      monitor.asm):00330 [2]                     ANDA    #$20                    ; TEST IF UART IS READY TO SEND (BIT 5)
+F194 8100             (      monitor.asm):00331 [2]                     CMPA    #$00
+F196 27F7             (      monitor.asm):00332 [3]                     BEQ             TX_BUSYLP               ; IF NOT REPEAT
+F198 3502             (      monitor.asm):00333 [5+1]           PULS    A
+F19A B70368           (      monitor.asm):00334 [5]                     STA             UART0                   ; THEN WRITE THE CHAR TO UART
+F19D 39               (      monitor.asm):00335 [5]             RTS
                       (      monitor.asm):00336         
                       (      monitor.asm):00337         
-F1B5                  (      monitor.asm):00338         IOF_CONINW:                             ;
-F1B5                  (      monitor.asm):00339         SERIAL_INCHW1:
-F1B5 B6036D           (      monitor.asm):00340 [5]                     LDA         UART5                       ; READ LINE STATUS REGISTER
-F1B8 8401             (      monitor.asm):00341 [2]                     ANDA    #$01                    ; TEST IF DATA IN RECEIVE BUFFER
-F1BA 8100             (      monitor.asm):00342 [2]                     CMPA    #$00
-F1BC 27F7             (      monitor.asm):00343 [3]                     BEQ         SERIAL_INCHW1       ; LOOP UNTIL DATA IS READY
-F1BE B60368           (      monitor.asm):00344 [5]                     LDA         UART0                       ; THEN READ THE CHAR FROM THE UART
-F1C1 39               (      monitor.asm):00345 [5]                     RTS
+F19E                  (      monitor.asm):00338         IOF_CONINW:                             ;
+F19E                  (      monitor.asm):00339         SERIAL_INCHW1:
+F19E B6036D           (      monitor.asm):00340 [5]                     LDA         UART5                       ; READ LINE STATUS REGISTER
+F1A1 8401             (      monitor.asm):00341 [2]                     ANDA    #$01                    ; TEST IF DATA IN RECEIVE BUFFER
+F1A3 8100             (      monitor.asm):00342 [2]                     CMPA    #$00
+F1A5 27F7             (      monitor.asm):00343 [3]                     BEQ         SERIAL_INCHW1       ; LOOP UNTIL DATA IS READY
+F1A7 B60368           (      monitor.asm):00344 [5]                     LDA         UART0                       ; THEN READ THE CHAR FROM THE UART
+F1AA 39               (      monitor.asm):00345 [5]                     RTS
                       (      monitor.asm):00346         
                       (      monitor.asm):00347         
                       (      monitor.asm):00348                 ORG     $FFFE               ; SET RESET VECTOR TO MAIN PROGRAM
@@ -370,7 +370,7 @@ Symbol Table:
 [ G] GO                               F059
 [ G] IN1HG                            F11D
 [ G] INHEX                            F101
-[ G] IOF_CONINW                       F1B5
+[ G] IOF_CONINW                       F19E
 [ G] LOAD                             F08D
 [ G] LOAD11                           F0AC
 [ G] LOAD15                           F0BA
@@ -390,11 +390,11 @@ Symbol Table:
 [ G] PRINT2                           F084
 [ G] RESETV                           FFFE
 [ G] RESTAB                           0000
-[ G] SERIAL_INCHW1                    F1B5
+[ G] SERIAL_INCHW1                    F19E
 [ G] SERIALINIT                       F18C
 [ G] SP                               0108
 [ G] STACK                            2100
-[ G] TX_BUSYLP                        F1A6
+[ G] TX_BUSYLP                        F18F
 [ G] UART0                            0368
 [ G] UART1                            0369
 [ G] UART2                            036A
@@ -403,6 +403,6 @@ Symbol Table:
 [ G] UART5                            036D
 [ G] UART6                            036E
 [ G] UART7                            036F
-[ G] WRSER1                           F1A4
+[ G] WRSER1                           F18D
 [ G] XHI                              010C
 [ G] XLOW                             010D

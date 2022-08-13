@@ -190,7 +190,7 @@ DUMP_LINE_LOOP:
 	JSR	    OUTS			;
 	LDA	    #':'			;
 	JSR	    WRSER1			;
-	LDA	    #$10			;
+	LDB	    #$10			;
 DUMP_LINE_LOOPA:
 	LDA	    0,X	    		;
 	CMPA	#32		    	;
@@ -312,15 +312,15 @@ DISPLAY_CRLF:
 	RTS
 
 SERIALINIT:
-		LDA		#$80		;
-		STA		UART3		; SET DLAB FLAG
-		LDA		#12			; SET TO 12 = 9600 BAUD
-		STA		UART0		; save baud rate
-		LDA		#00			;
-		STA		UART1		;
-		LDA		#03			;
-		STA		UART3		; SET 8 BIT DATA, 1 STOPBIT
-		STA		UART4		;
+	;	LDA		#$80		;
+	;	STA		UART3		; SET DLAB FLAG
+	;	LDA		#12			; SET TO 12 = 9600 BAUD
+	;	STA		UART0		; save baud rate
+	;	LDA		#00			;
+	;	STA		UART1		;
+	;	LDA		#03			;
+	;	STA		UART3		; SET 8 BIT DATA, 1 STOPBIT
+	;	STA		UART4		;
         RTS
 
 WRSER1:
