@@ -72,15 +72,15 @@ UART7	       	equ    	$036F           ; SCRATCH REG.
 ;_______________________________________________________________
 COLD_START:
 MAIN:	LDS		$007F		; RESET STACK POINTER
-		LDA		#$80		;
-		STA		UART3		; SET DLAB FLAG
-		LDA		#12			; SET TO 12 = 9600 BAUD
-		STA		UART0		; save baud rate
-		LDA		#00			;
-		STA		UART1		;
-		LDA		#03			;
-		STA		UART3		; SET 8 BIT DATA, 1 STOPBIT
-		STA		UART4		;
+	;	LDA		#$80		;
+	;	STA		UART3		; SET DLAB FLAG
+	;	LDA		#12			; SET TO 12 = 9600 BAUD
+	;	STA		UART0		; save baud rate
+	;	LDA		#00			;
+	;	STA		UART1		;
+	;	LDA		#03			;
+	;	STA		UART3		; SET 8 BIT DATA, 1 STOPBIT
+	;	STA		UART4		;
 
 SERIAL_OUTCH:
 TX_BUSYLP:

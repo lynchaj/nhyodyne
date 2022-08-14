@@ -72,25 +72,25 @@ EFF0 CD0500           (       scream.asm):00062                         FCB     
                       (       scream.asm):00072         ;_______________________________________________________________
 F000                  (       scream.asm):00073         COLD_START:
 F000 10DE7F           (       scream.asm):00074 [6]     MAIN:   LDS             $007F           ; RESET STACK POINTER
-F003 8680             (       scream.asm):00075 [2]                     LDA             #$80            ;
-F005 B7036B           (       scream.asm):00076 [5]                     STA             UART3           ; SET DLAB FLAG
-F008 860C             (       scream.asm):00077 [2]                     LDA             #12                     ; SET TO 12 = 9600 BAUD
-F00A B70368           (       scream.asm):00078 [5]                     STA             UART0           ; save baud rate
-F00D 8600             (       scream.asm):00079 [2]                     LDA             #00                     ;
-F00F B70369           (       scream.asm):00080 [5]                     STA             UART1           ;
-F012 8603             (       scream.asm):00081 [2]                     LDA             #03                     ;
-F014 B7036B           (       scream.asm):00082 [5]                     STA             UART3           ; SET 8 BIT DATA, 1 STOPBIT
-F017 B7036C           (       scream.asm):00083 [5]                     STA             UART4           ;
+                      (       scream.asm):00075                 ;       LDA             #$80            ;
+                      (       scream.asm):00076                 ;       STA             UART3           ; SET DLAB FLAG
+                      (       scream.asm):00077                 ;       LDA             #12                     ; SET TO 12 = 9600 BAUD
+                      (       scream.asm):00078                 ;       STA             UART0           ; save baud rate
+                      (       scream.asm):00079                 ;       LDA             #00                     ;
+                      (       scream.asm):00080                 ;       STA             UART1           ;
+                      (       scream.asm):00081                 ;       LDA             #03                     ;
+                      (       scream.asm):00082                 ;       STA             UART3           ; SET 8 BIT DATA, 1 STOPBIT
+                      (       scream.asm):00083                 ;       STA             UART4           ;
                       (       scream.asm):00084         
-F01A                  (       scream.asm):00085         SERIAL_OUTCH:
-F01A                  (       scream.asm):00086         TX_BUSYLP:
-F01A B6036D           (       scream.asm):00087 [5]                     LDA             UART5                   ; READ LINE STATUS REGISTER
-F01D 8420             (       scream.asm):00088 [2]                     ANDA    #$20                    ; TEST IF UART IS READY TO SEND (BIT 5)
-F01F 8100             (       scream.asm):00089 [2]                     CMPA    #$00
-F021 27F7             (       scream.asm):00090 [3]                     BEQ             TX_BUSYLP               ; IF NOT REPEAT
-F023 8641             (       scream.asm):00091 [2]                     LDA     #'A
-F025 B70368           (       scream.asm):00092 [5]                     STA             UART0                   ; THEN WRITE THE CHAR TO UART
-F028 7EF01A           (       scream.asm):00093 [4]             JMP     SERIAL_OUTCH
+F003                  (       scream.asm):00085         SERIAL_OUTCH:
+F003                  (       scream.asm):00086         TX_BUSYLP:
+F003 B6036D           (       scream.asm):00087 [5]                     LDA             UART5                   ; READ LINE STATUS REGISTER
+F006 8420             (       scream.asm):00088 [2]                     ANDA    #$20                    ; TEST IF UART IS READY TO SEND (BIT 5)
+F008 8100             (       scream.asm):00089 [2]                     CMPA    #$00
+F00A 27F7             (       scream.asm):00090 [3]                     BEQ             TX_BUSYLP               ; IF NOT REPEAT
+F00C 8641             (       scream.asm):00091 [2]                     LDA     #'A
+F00E B70368           (       scream.asm):00092 [5]                     STA             UART0                   ; THEN WRITE THE CHAR TO UART
+F011 7EF003           (       scream.asm):00093 [4]             JMP     SERIAL_OUTCH
                       (       scream.asm):00094         
                       (       scream.asm):00095                 ORG     $FFFE           ; SET RESET VECTOR TO
                       (       scream.asm):00096         
@@ -104,8 +104,8 @@ Symbol Table:
 [ G] COLD_START                       F000
 [ G] MAIN                             F000
 [ G] RESETV                           FFFE
-[ G] SERIAL_OUTCH                     F01A
-[ G] TX_BUSYLP                        F01A
+[ G] SERIAL_OUTCH                     F003
+[ G] TX_BUSYLP                        F003
 [ G] UART0                            0368
 [ G] UART1                            0369
 [ G] UART2                            036A
