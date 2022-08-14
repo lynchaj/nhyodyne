@@ -1,0 +1,625 @@
+                      (      drivers.asm):00001                         NAM     DRIVERS
+                      (      drivers.asm):00002                         PAG
+                      (      drivers.asm):00003                         PRAGMA CD
+                      (      drivers.asm):00004         
+                      (      drivers.asm):00005         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00006         ; File Name   : DRIVERS.ASM
+                      (      drivers.asm):00007         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00008         ;
+                      (      drivers.asm):00009         ;  Harware Addresses
+                      (      drivers.asm):00010         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00011         ; UART 16C550 SERIAL
+     FE68             (      drivers.asm):00012         UART0           equ     $FE68           ; DATA IN/OUT
+     FE69             (      drivers.asm):00013         UART1           equ     $FE69           ; CHECK RX
+     FE6A             (      drivers.asm):00014         UART2           equ     $FE6A           ; INTERRUPTS
+     FE6B             (      drivers.asm):00015         UART3           equ     $FE6B           ; LINE CONTROL
+     FE6C             (      drivers.asm):00016         UART4           equ     $FE6C           ; MODEM CONTROL
+     FE6D             (      drivers.asm):00017         UART5           equ     $FE6D           ; LINE STATUS
+     FE6E             (      drivers.asm):00018         UART6           equ     $FE6E           ; MODEM STATUS
+     FE6F             (      drivers.asm):00019         UART7           equ     $FE6F           ; SCRATCH REG.
+                      (      drivers.asm):00020         ;
+                      (      drivers.asm):00021         ; CONSOLE I/O DRIVER VECTOR TABLE
+                      (      drivers.asm):00022         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00023                         ORG     $D3E1       * TABLE STARTS AT $D3E1
+                      (      drivers.asm):00024         
+D3E1 DE8E             (      drivers.asm):00025         LD3E1           FDB     ADDDEV      ; add an IRQ handler to table
+D3E3 DE9A             (      drivers.asm):00026                         FDB     DELDEV      ; delete an IRQ handler from table
+                      (      drivers.asm):00027         
+D3E5 DE6D             (      drivers.asm):00028                         FDB     INCHNE      ; INPUT CHARACTER W/O ECHO
+D3E7 DE7A             (      drivers.asm):00029                         FDB     IHNDLR      ; IRQ INTERRUPT HANDLER
+D3E9 D3FD             (      drivers.asm):00030                         FDB     SWIVEC      ; SWI3 VECTOR LOCATION
+D3EB D3FD             (      drivers.asm):00031                         FDB     IRQVEC      ; IRQ VECTOR LOCATION
+D3ED DE3E             (      drivers.asm):00032                         FDB     TMOFF       ; TIMER OFF ROUTINE
+D3EF DE3E             (      drivers.asm):00033                         FDB     TMON        ; TIMER ON ROUTINE
+D3F1 DE3E             (      drivers.asm):00034                         FDB     TMINT       ; TIMER INITIALIZATION
+D3F3 DE33             (      drivers.asm):00035                         FDB     MONITR      ; MONITOR ENTRY ADDRESS
+D3F5 DE3F             (      drivers.asm):00036                         FDB     TINIT       ; TERMINAL INITIALIZATION
+D3F7 DE5D             (      drivers.asm):00037                         FDB     STAT        ; CHECK TERMINAL STATUS
+D3F9 DE4C             (      drivers.asm):00038                         FDB     VOUTCH      ; OUTPUT CHARACTER
+D3FB DE43             (      drivers.asm):00039                         FDB     VINCH       ; INPUT CHARACTER W/ ECHO
+                      (      drivers.asm):00040         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00041         ;   Default ISRs.  Will be changed by OS Setup
+D3FD                  (      drivers.asm):00042         SWIVEC:
+D3FD                  (      drivers.asm):00043         IRQVEC:
+D3FD 3B               (      drivers.asm):00044 [6+?]                   rti
+                      (      drivers.asm):00045         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00046         ;
+                      (      drivers.asm):00047         ; DISK DRIVER ROUTINE JUMP TABLE
+                      (      drivers.asm):00048         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00049                         ORG     $DE00
+                      (      drivers.asm):00050         
+DE00 7EDEBB           (      drivers.asm):00051 [4]     DREAD           JMP     >READ       * DE00    READ      Read a single sector
+DE03 7EDED1           (      drivers.asm):00052 [4]     DWRITE          JMP     >WRITE      * DE03    WRITE     Write a single sector
+DE06 7EDEE7           (      drivers.asm):00053 [4]     DVERFY          JMP     >VERIFY     * DE06    VERIFY    Verify last sector written
+DE09 7EDF0F           (      drivers.asm):00054 [4]     DRESTOR         JMP     >RESTORE    * DE09    RESTORE   Restore head to track #0
+DE0C 7EDF24           (      drivers.asm):00055 [4]     DDRIVE          JMP     >DRIVE      * DE0C    DRIVE     Select the specified drive
+DE0F 7EDF68           (      drivers.asm):00056 [4]     DCHECK          JMP     >CHKRDY     * DE0F    CHKRDY    Check for drive ready
+DE12 7EDF7A           (      drivers.asm):00057 [4]     DQUICK          JMP     >QUICK      * DE12    QUICK     Quick check for drive ready
+DE15 7EDF0D           (      drivers.asm):00058 [4]     DINIT           JMP     >INIT       * DE15    INIT      Driver initialize (cold start)
+DE18 7EDF0E           (      drivers.asm):00059 [4]     DWARM           JMP     >WARM       * DE18    WARM      Driver initialize (warm start)
+DE1B 7EDEFA           (      drivers.asm):00060 [4]     DSEEK           JMP     >SEEK       * DE1B    SEEK      Seek to specified track
+                      (      drivers.asm):00061         
+                      (      drivers.asm):00062         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00063         ; Temp Storage Area
+                      (      drivers.asm):00064         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00065         
+                      (      drivers.asm):00066         
+DE1E 00               (      drivers.asm):00067         CURDRV          FCB     $00
+DE1F 00               (      drivers.asm):00068         CURDRVTYP       FCB     $00
+DE20 00               (      drivers.asm):00069         CURDRVADDRESS   FCB     $00
+DE21 0000             (      drivers.asm):00070         CURDRVSLICE     FDB     $0000
+                      (      drivers.asm):00071         
+DE23 00000000         (      drivers.asm):00072         DRVTYPES        FCB     $00,$00,$00,$00
+                      (      drivers.asm):00073                         ;   $00 - INVALID
+                      (      drivers.asm):00074                         ;   $01 - Floppy
+                      (      drivers.asm):00075                         ;   $02 - IDE
+DE27 00000000         (      drivers.asm):00076         DRVADDRESS      FCB     $00,$00,$00,$00
+DE2B 0000000000000000 (      drivers.asm):00077         DRVSLICE        FDB     $0000,$0000,$0000,$0000
+                      (      drivers.asm):00078         
+                      (      drivers.asm):00079         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00080         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00081         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00082         
+                      (      drivers.asm):00083         
+                      (      drivers.asm):00084         
+                      (      drivers.asm):00085         
+                      (      drivers.asm):00086         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00087         ;
+                      (      drivers.asm):00088         ;       Monitor entry routine
+                      (      drivers.asm):00089         ;_____________________________________________________________________________________________________
+DE33 860A             (      drivers.asm):00090 [2]     MONITR          LDA     #$A
+DE35 8D15             (      drivers.asm):00091 [7]                     BSR     VOUTCH              * OUTPUT CHARACTER
+DE37 860D             (      drivers.asm):00092 [2]                     LDA     #$D
+DE39 8D11             (      drivers.asm):00093 [7]                     BSR     VOUTCH              * OUTPUT CHARACTER
+DE3B 7EFC0B           (      drivers.asm):00094 [4]                     JMP     $FC0B               LOCATION OF MONITOR
+                      (      drivers.asm):00095         
+                      (      drivers.asm):00096         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00097         ;
+                      (      drivers.asm):00098         ;       Timer Drivers
+                      (      drivers.asm):00099         ;
+                      (      drivers.asm):00100         ;       Timers not supported
+                      (      drivers.asm):00101         ;_____________________________________________________________________________________________________
+DE3E                  (      drivers.asm):00102         TMOFF       ; TIMER OFF ROUTINE
+DE3E                  (      drivers.asm):00103         TMON        ; TIMER ON ROUTINE
+DE3E                  (      drivers.asm):00104         TMINT       ; TIMER INITIALIZATION
+DE3E 39               (      drivers.asm):00105 [5]                     RTS
+                      (      drivers.asm):00106         
+                      (      drivers.asm):00107         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00108         ;
+                      (      drivers.asm):00109         ;       Console Drivers
+                      (      drivers.asm):00110         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00111         ;       Terminal init routine
+DE3F 3402             (      drivers.asm):00112 [5+1]   TINIT           PSHS    A
+                      (      drivers.asm):00113                         ; these are all set by CP/M prior to activating the 6809 card. If 6809 is the primary CPU, these need to be set
+                      (      drivers.asm):00114                         ;       LDA             #$80            ;
+                      (      drivers.asm):00115                         ;       STA             UART3           ; SET DLAB FLAG
+                      (      drivers.asm):00116                             ;   LDA             #12                     ; SET TO 12 = 9600 BAUD
+                      (      drivers.asm):00117                             ;   STA             UART0           ; save baud rate
+                      (      drivers.asm):00118                             ;   LDA             #00                     ;
+                      (      drivers.asm):00119                             ;   STA             UART1           ;
+                      (      drivers.asm):00120                             ;   LDA             #03                     ;
+                      (      drivers.asm):00121                             ;   STA             UART3           ; SET 8 BIT DATA, 1 STOPBIT
+                      (      drivers.asm):00122                             ;   STA             UART4           ;
+DE41 3582             (      drivers.asm):00123 [5+3]                   PULS    PC,A
+                      (      drivers.asm):00124         
+                      (      drivers.asm):00125         
+                      (      drivers.asm):00126         ;       Terminal input routine
+                      (      drivers.asm):00127         
+DE43 7DDEB9           (      drivers.asm):00128 [7]     VINCH           TST     >TAPPTR         ; allow redirection of input from terminal
+DE46 2720             (      drivers.asm):00129 [3]                     BEQ     TREDIR          ; redirection not required
+DE48 AD9FDEB9         (      drivers.asm):00130 [7+5]                   JSR     [TAPPTR]        ; redirect to alternate routine
+                      (      drivers.asm):00131         
+                      (      drivers.asm):00132         ;       Terminal output routine
+                      (      drivers.asm):00133         
+DE4C 3402             (      drivers.asm):00134 [5+1]   VOUTCH          PSHS    a
+                      (      drivers.asm):00135         !
+DE4E B6FE6D           (      drivers.asm):00136 [5]                             LDA             UART5                   ; READ LINE STATUS REGISTER
+DE51 8420             (      drivers.asm):00137 [2]                             ANDA    #$20                    ; TEST IF UART IS READY TO SEND (BIT 5)
+DE53 8100             (      drivers.asm):00138 [2]                             CMPA    #$00
+DE55 27F7             (      drivers.asm):00139 [3]                             BEQ             <                       ; IF NOT REPEAT
+DE57 3502             (      drivers.asm):00140 [5+1]                   PULS    A
+DE59 B7FE68           (      drivers.asm):00141 [5]                             STA             UART0                   ; THEN WRITE THE CHAR TO UART
+DE5C 39               (      drivers.asm):00142 [5]                     RTS
+                      (      drivers.asm):00143         
+                      (      drivers.asm):00144         
+                      (      drivers.asm):00145         ;       Terminal status check routine
+                      (      drivers.asm):00146         
+DE5D 3402             (      drivers.asm):00147 [5+1]   STAT:           PSHS    A
+DE5F B6FE6D           (      drivers.asm):00148 [5]                     LDA         UART5                       ; READ LINE STATUS REGISTER
+DE62 8401             (      drivers.asm):00149 [2]                             ANDA    #$01                    ; TEST IF DATA IN RECEIVE BUFFER
+DE64 8100             (      drivers.asm):00150 [2]                             CMPA    #$00
+DE66 3582             (      drivers.asm):00151 [5+3]                           PULS    PC,A
+                      (      drivers.asm):00152         
+                      (      drivers.asm):00153         
+                      (      drivers.asm):00154         ;       Monitor terminal input character with echo
+                      (      drivers.asm):00155         
+DE68 BDDE6D           (      drivers.asm):00156 [8]     TREDIR          JSR     INCHNE
+DE6B 20DF             (      drivers.asm):00157 [3]                     BRA     VOUTCH
+                      (      drivers.asm):00158         
+                      (      drivers.asm):00159         
+                      (      drivers.asm):00160         ;       Monitor terminal input character without echo
+                      (      drivers.asm):00161         
+DE6D                  (      drivers.asm):00162         INCHNE
+DE6D B6FE6D           (      drivers.asm):00163 [5]                             LDA         UART5                       ; READ LINE STATUS REGISTER
+DE70 8401             (      drivers.asm):00164 [2]                             ANDA    #$01                    ; TEST IF DATA IN RECEIVE BUFFER
+DE72 8100             (      drivers.asm):00165 [2]                             CMPA    #$00
+DE74 27F7             (      drivers.asm):00166 [3]                             BEQ         INCHNE              ; LOOP UNTIL DATA IS READY
+DE76 B6FE68           (      drivers.asm):00167 [5]                             LDA         UART0                       ; THEN READ THE CHAR FROM THE UART
+DE79 39               (      drivers.asm):00168 [5]                             RTS
+                      (      drivers.asm):00169         
+                      (      drivers.asm):00170         
+                      (      drivers.asm):00171         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00172         ;
+                      (      drivers.asm):00173         ;       Interupt handler
+                      (      drivers.asm):00174         ;_____________________________________________________________________________________________________
+DE7A                  (      drivers.asm):00175         IHNDLR          ;leau    <IRQLL-4,pc         get address of IRQ handler linked list
+DE7A 338C             (      drivers.asm):00176                         fcb     $33,$8c             Why?  Because LWASM does not handle the above line correctly
+DE7C 35               (      drivers.asm):00177                         fcb     IRQLL-*-5
+DE7D EE44             (      drivers.asm):00178 [5+1]   CHKNXT          ldu     4,u                 get a link
+DE7F 270C             (      drivers.asm):00179 [3]                     beq     IHDONE              end of list
+                      (      drivers.asm):00180         
+DE81 A6D4             (      drivers.asm):00181 [4+3]                   lda     [,u]                get status from device
+DE83 A546             (      drivers.asm):00182 [4+1]                   bita    6,u                 did it interrupt?
+DE85 27F6             (      drivers.asm):00183 [3]                     beq     CHKNXT              no - check next
+                      (      drivers.asm):00184         
+DE87 10AEC4           (      drivers.asm):00185 [6+0]                   ldy     ,u                  yes - get address of device in Y
+DE8A 6ED802           (      drivers.asm):00186 [3+4]                   jmp     [2,u]               go to device ISR
+                      (      drivers.asm):00187         
+DE8D 3B               (      drivers.asm):00188 [6+?]   IHDONE          rti                         return from interrupt
+                      (      drivers.asm):00189         
+                      (      drivers.asm):00190         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00191         ;       add a device to IRQ handler table
+                      (      drivers.asm):00192         ;_____________________________________________________________________________________________________
+DE8E 3470             (      drivers.asm):00193 [5+6]   ADDDEV          pshs    x,y,u
+DE90 8D14             (      drivers.asm):00194 [7]                     bsr     SRCHLST             find link in chain
+DE92 2704             (      drivers.asm):00195 [3]                     beq     DEVARE              already exists - exit
+DE94 EF04             (      drivers.asm):00196 [5+1]                   stu     4,x                 set link pointer in new ctl blk
+DE96 AF24             (      drivers.asm):00197 [5+1]                   stx     4,y                 link this one into prev blk
+DE98 35F0             (      drivers.asm):00198 [5+8]   DEVARE          puls    pc,u,y,x
+                      (      drivers.asm):00199         
+                      (      drivers.asm):00200         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00201         ;       delete a device from IRQ handler table
+                      (      drivers.asm):00202         ;_____________________________________________________________________________________________________
+DE9A 3470             (      drivers.asm):00203 [5+6]   DELDEV          pshs    x,y,u
+DE9C 8D08             (      drivers.asm):00204 [7]                     bsr     SRCHLST             find link in chain
+DE9E 2604             (      drivers.asm):00205 [3]                     bne     NODEV               not found - exit
+DEA0 AE04             (      drivers.asm):00206 [5+1]                   ldx     4,x                 get link from ctl blk to delete
+DEA2 AF44             (      drivers.asm):00207 [5+1]                   stx     4,u                 set in prev block
+DEA4 35F0             (      drivers.asm):00208 [5+8]   NODEV           puls    pc,u,y,x
+                      (      drivers.asm):00209         
+                      (      drivers.asm):00210         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00211         ;       search a linked list
+                      (      drivers.asm):00212         ;
+                      (      drivers.asm):00213         ;               entry: X = address of ISR control block
+                      (      drivers.asm):00214         ;               exit:  Y = address of link pointer
+                      (      drivers.asm):00215         ;                     CC = Z bit set if already linked
+                      (      drivers.asm):00216         ;
+                      (      drivers.asm):00217         ;               format of ISR control block:
+                      (      drivers.asm):00218         ;
+                      (      drivers.asm):00219         ;                       offset  description
+                      (      drivers.asm):00220         ;                         0     address of I/O device
+                      (      drivers.asm):00221         ;                         2     address of ISR
+                      (      drivers.asm):00222         ;                         4     link to next ISR control block
+                      (      drivers.asm):00223         ;                         6     bit mask for determining IRQ
+                      (      drivers.asm):00224         ;_____________________________________________________________________________________________________
+DEA6                  (      drivers.asm):00225         SRCHLST         ;leau    <IRQLL-4,pcMONTH
+DEA6 338C             (      drivers.asm):00226                         fcb     $33,$8c             Why?  Because LWASM does not handle the above line correctly
+DEA8 09               (      drivers.asm):00227                         fcb     IRQLL-*-5
+DEA9 31C4             (      drivers.asm):00228 [4+0]   SRCHLP          leay    ,u
+DEAB AC44             (      drivers.asm):00229 [6+1]                   cmpx    4,u                 X = link?
+DEAD 2706             (      drivers.asm):00230 [3]                     beq     FNDENT              yes - return pointer in U
+                      (      drivers.asm):00231         
+DEAF EE44             (      drivers.asm):00232 [5+1]                   ldu     4,u                 no - get link in U
+DEB1 26F6             (      drivers.asm):00233 [3]                     bne     SRCHLP              not end of chain - loop
+DEB3 1CFB             (      drivers.asm):00234 [3]                     andcc   #$FB                clear Z flag in CC
+                      (      drivers.asm):00235         
+DEB5 39               (      drivers.asm):00236 [5]     FNDENT          rts                         return - not found
+                      (      drivers.asm):00237         
+                      (      drivers.asm):00238         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00239         
+                      (      drivers.asm):00240         
+DEB6 0000             (      drivers.asm):00241         IRQLL           fdb     0                   pointer to first entry in the table
+DEB8 01               (      drivers.asm):00242                         fcb     1
+                      (      drivers.asm):00243         
+DEB9 0000             (      drivers.asm):00244         TAPPTR          fdb     0                   no terminal input redirection
+                      (      drivers.asm):00245         
+                      (      drivers.asm):00246         
+                      (      drivers.asm):00247         
+                      (      drivers.asm):00248         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00249         ;
+                      (      drivers.asm):00250         ;       Disk Driver Dispatchers
+                      (      drivers.asm):00251         ;
+                      (      drivers.asm):00252         ;       This code checks for the current drive type and dispatches the correct
+                      (      drivers.asm):00253         ;       driver for the device
+                      (      drivers.asm):00254         ;
+                      (      drivers.asm):00255         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00256         
+                      (      drivers.asm):00257         
+                      (      drivers.asm):00258         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00259         ;   READ    This routine reads the specified sector into memory at the
+                      (      drivers.asm):00260         ;           specified address. This routine should perform a seek
+                      (      drivers.asm):00261         ;           operation if necessary. A sector is 256 bytes in length.
+                      (      drivers.asm):00262         ;
+                      (      drivers.asm):00263         ;           ENTRY - (X) = Address in memory where sector is to be placed.
+                      (      drivers.asm):00264         ;                   (A) = Track Number
+                      (      drivers.asm):00265         ;                   (B) = Sector Number
+                      (      drivers.asm):00266         ;
+                      (      drivers.asm):00267         ;           EXIT -  (X) May be destroyed
+                      (      drivers.asm):00268         ;                   (A) May be destroyed
+                      (      drivers.asm):00269         ;                   (B) = Error condition
+                      (      drivers.asm):00270         ;                   (Z) = 1 if no error
+                      (      drivers.asm):00271         ;                       = 0 if an error
+                      (      drivers.asm):00272         ;_____________________________________________________________________________________________________
+DEBB 3402             (      drivers.asm):00273 [5+1]   READ            PSHS     A
+DEBD B6DE1F           (      drivers.asm):00274 [5]                     LDA     CURDRVTYP
+DEC0 8101             (      drivers.asm):00275 [2]                     CMPA    #$01
+DEC2 2709             (      drivers.asm):00276 [3]                     BEQ     READFLOPPY
+DEC4 8102             (      drivers.asm):00277 [2]                     CMPA    #$02
+DEC6 2707             (      drivers.asm):00278 [3]                     BEQ     READIDE
+DEC8 C61F             (      drivers.asm):00279 [2]     READERR:        LDB     #$1F
+DECA 57               (      drivers.asm):00280 [2]                     ASRB
+DECB 3582             (      drivers.asm):00281 [5+3]                   PULS    PC,A
+DECD                  (      drivers.asm):00282         READFLOPPY:
+DECD 20F9             (      drivers.asm):00283 [3]                     BRA     READERR
+DECF                  (      drivers.asm):00284         READIDE:
+DECF 20F7             (      drivers.asm):00285 [3]                     BRA     READERR
+                      (      drivers.asm):00286         
+                      (      drivers.asm):00287         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00288         ;   WRITE   This routine writes the information from the specifed memory
+                      (      drivers.asm):00289         ;           buffer area to the disk sector specified. This routine should
+                      (      drivers.asm):00290         ;           perform a seek operation if necessary. A sector is 256 bytes
+                      (      drivers.asm):00291         ;           in length.
+                      (      drivers.asm):00292         ;
+                      (      drivers.asm):00293         ;           ENTRY - (X) = Address of 256 memory buffer containing data
+                      (      drivers.asm):00294         ;                         to be written to disk
+                      (      drivers.asm):00295         ;                   (A) = Track Number
+                      (      drivers.asm):00296         ;                   (B) = Sector Number
+                      (      drivers.asm):00297         ;
+                      (      drivers.asm):00298         ;           EXIT -  (X) May be destroyed
+                      (      drivers.asm):00299         ;                   (A) May be destroyed
+                      (      drivers.asm):00300         ;                   (B) = Error condition
+                      (      drivers.asm):00301         ;                   (Z) = 1 if no error
+                      (      drivers.asm):00302         ;                       = 0 if an error
+                      (      drivers.asm):00303         ;_____________________________________________________________________________________________________
+DED1 3402             (      drivers.asm):00304 [5+1]   WRITE           PSHS     A
+DED3 B6DE1F           (      drivers.asm):00305 [5]                     LDA     CURDRVTYP
+DED6 8101             (      drivers.asm):00306 [2]                     CMPA    #$01
+DED8 2709             (      drivers.asm):00307 [3]                     BEQ     WRITEFLOPPY
+DEDA 8102             (      drivers.asm):00308 [2]                     CMPA    #$02
+DEDC 2707             (      drivers.asm):00309 [3]                     BEQ     WRITEIDE
+DEDE C61F             (      drivers.asm):00310 [2]     WRITEERR:       LDB     #$1F
+DEE0 57               (      drivers.asm):00311 [2]                     ASRB
+DEE1 3582             (      drivers.asm):00312 [5+3]                   PULS    PC,A
+DEE3                  (      drivers.asm):00313         WRITEFLOPPY:
+DEE3 20F9             (      drivers.asm):00314 [3]                     BRA     WRITEERR
+DEE5                  (      drivers.asm):00315         WRITEIDE:
+DEE5 20F7             (      drivers.asm):00316 [3]                     BRA     WRITEERR
+                      (      drivers.asm):00317         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00318         ;   VERIFY  The sector just written to the disk is to be verified to
+                      (      drivers.asm):00319         ;           determine if there are CRC errors. No seek is required as
+                      (      drivers.asm):00320         ;           this routine will only be called immediately after a write
+                      (      drivers.asm):00321         ;           single sector operation.
+                      (      drivers.asm):00322         ;
+                      (      drivers.asm):00323         ;           ENTRY - No entry parameters
+                      (      drivers.asm):00324         ;
+                      (      drivers.asm):00325         ;           EXIT -  (X) May be destroyed
+                      (      drivers.asm):00326         ;                   (A) May be destroyed
+                      (      drivers.asm):00327         ;                   (B) = Error condition
+                      (      drivers.asm):00328         ;                   (Z) = 1 if no error
+                      (      drivers.asm):00329         ;                       = 0 if an error
+                      (      drivers.asm):00330         ;_____________________________________________________________________________________________________
+DEE7                  (      drivers.asm):00331         VERIFY
+DEE7 B6DE1F           (      drivers.asm):00332 [5]                     LDA     CURDRVTYP
+DEEA 8101             (      drivers.asm):00333 [2]                     CMPA    #$01
+DEEC 2708             (      drivers.asm):00334 [3]                     BEQ     VERIFYFLOPPY
+DEEE 8102             (      drivers.asm):00335 [2]                     CMPA    #$02
+DEF0 2706             (      drivers.asm):00336 [3]                     BEQ     VERIFYIDE
+DEF2 C61F             (      drivers.asm):00337 [2]     VERIFYERR:      LDB     #$1F
+DEF4 57               (      drivers.asm):00338 [2]                     ASRB
+DEF5 39               (      drivers.asm):00339 [5]                     RTS
+DEF6                  (      drivers.asm):00340         VERIFYFLOPPY:
+DEF6 20FA             (      drivers.asm):00341 [3]                     BRA     VERIFYERR
+DEF8                  (      drivers.asm):00342         VERIFYIDE:
+DEF8 20F8             (      drivers.asm):00343 [3]                     BRA     VERIFYERR
+                      (      drivers.asm):00344         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00345         ;   SEEK    Seeks to the track specified in the 'A' accumulator. In
+                      (      drivers.asm):00346         ;           double-sided systems, this routine should also select the
+                      (      drivers.asm):00347         ;           correct side depending on the sector number supplied in 'B'.
+                      (      drivers.asm):00348         ;
+                      (      drivers.asm):00349         ;           ENTRY - (A) = Track Number
+                      (      drivers.asm):00350         ;                   (B) = Sector Number
+                      (      drivers.asm):00351         ;
+                      (      drivers.asm):00352         ;           EXIT -  (X) May be destroyed (See text)
+                      (      drivers.asm):00353         ;                   (A) May be destroyed (See text)
+                      (      drivers.asm):00354         ;                   (B) = Error condition
+                      (      drivers.asm):00355         ;                   (Z) = 1 if no error
+                      (      drivers.asm):00356         ;                       = 0 if an error
+                      (      drivers.asm):00357         ;_____________________________________________________________________________________________________
+DEFA                  (      drivers.asm):00358         SEEK
+DEFA B6DE1F           (      drivers.asm):00359 [5]                     LDA     CURDRVTYP
+DEFD 8101             (      drivers.asm):00360 [2]                     CMPA    #$01
+DEFF 2708             (      drivers.asm):00361 [3]                     BEQ     SEEKFLOPPY
+DF01 8102             (      drivers.asm):00362 [2]                     CMPA    #$02
+DF03 2706             (      drivers.asm):00363 [3]                     BEQ     SEEKIDE
+DF05 C61F             (      drivers.asm):00364 [2]     SEEKERR:        LDB     #$1F
+DF07 57               (      drivers.asm):00365 [2]                     ASRB
+DF08 39               (      drivers.asm):00366 [5]                     RTS
+DF09                  (      drivers.asm):00367         SEEKFLOPPY:
+DF09 20FA             (      drivers.asm):00368 [3]                     BRA     SEEKERR
+DF0B                  (      drivers.asm):00369         SEEKIDE:
+DF0B 20F8             (      drivers.asm):00370 [3]                     BRA     SEEKERR
+                      (      drivers.asm):00371         
+                      (      drivers.asm):00372         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00373         ;   INIT    This routine performs any necessary initialization of the
+                      (      drivers.asm):00374         ;           drivers during cold start (at boot time). Actually, any
+                      (      drivers.asm):00375         ;           operation which must be done when the system is first booted
+                      (      drivers.asm):00376         ;           can be done here.
+                      (      drivers.asm):00377         ;
+                      (      drivers.asm):00378         ;           ENTRY - No parameters
+                      (      drivers.asm):00379         ;
+                      (      drivers.asm):00380         ;           EXIT - A, B, X, Y, and U may be destroyed
+                      (      drivers.asm):00381         ;_____________________________________________________________________________________________________
+DF0D                  (      drivers.asm):00382         INIT
+DF0D 39               (      drivers.asm):00383 [5]                     RTS
+                      (      drivers.asm):00384         
+                      (      drivers.asm):00385         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00386         ;   WARM    Performs any necessary functions during FLEX warmstart. FLEX
+                      (      drivers.asm):00387         ;           calls this routine each time it goes thru the warm start
+                      (      drivers.asm):00388         ;           procedure (after every command). As an example, some
+                      (      drivers.asm):00389         ;           controllers use PIA's for communication with the processor.
+                      (      drivers.asm):00390         ;           If FLEX is exited with a CPU reset, these PIA's may also be
+                      (      drivers.asm):00391         ;           reset such that the controller would not function properly
+                      (      drivers.asm):00392         ;           upon a jump to the FLEX warm start entry point. This routine
+                      (      drivers.asm):00393         ;           could re-initialize the PIA when the warm start was executed.
+                      (      drivers.asm):00394         ;
+                      (      drivers.asm):00395         ;           ENTRY - No parameters
+                      (      drivers.asm):00396         ;
+                      (      drivers.asm):00397         ;           EXIT - A, B, X, Y, and U may be destroyed
+                      (      drivers.asm):00398         ;_____________________________________________________________________________________________________
+DF0E                  (      drivers.asm):00399         WARM
+DF0E 39               (      drivers.asm):00400 [5]                     RTS
+                      (      drivers.asm):00401         
+                      (      drivers.asm):00402         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00403         ;   RESTORE A restore operation (also known as a "seek to track 00") is to
+                      (      drivers.asm):00404         ;           be performed on the specified drive. The drive is specified
+                      (      drivers.asm):00405         ;           in the FCB pointed to by the contents of the X register. Note
+                      (      drivers.asm):00406         ;           that the drive number is the 4th byte of the FCB. This
+                      (      drivers.asm):00407         ;           routine should select the drive before executing the restore
+                      (      drivers.asm):00408         ;           operation.
+                      (      drivers.asm):00409         ;
+                      (      drivers.asm):00410         ;           ENTRY - (X) = FCB address (3,X contains drive number)
+                      (      drivers.asm):00411         ;
+                      (      drivers.asm):00412         ;           EXIT -  (X) May be destroyed
+                      (      drivers.asm):00413         ;                   (A) May be destroyed
+                      (      drivers.asm):00414         ;                   (B) = Error condition
+                      (      drivers.asm):00415         ;                   (Z) = 1 if no error
+                      (      drivers.asm):00416         ;                       = 0 if an error
+                      (      drivers.asm):00417         ;_____________________________________________________________________________________________________
+DF0F 8D13             (      drivers.asm):00418 [7]     RESTORE         BSR     DRIVE
+DF11 B6DE1F           (      drivers.asm):00419 [5]                     LDA     CURDRVTYP
+DF14 8101             (      drivers.asm):00420 [2]                     CMPA    #$01
+DF16 2708             (      drivers.asm):00421 [3]                     BEQ     RESTOREFLOPPY
+DF18 8102             (      drivers.asm):00422 [2]                     CMPA    #$02
+DF1A 2706             (      drivers.asm):00423 [3]                     BEQ     RESTOREIDE
+DF1C C61F             (      drivers.asm):00424 [2]     RESTOREERR:     LDB     #$1F
+DF1E 57               (      drivers.asm):00425 [2]                     ASRB
+DF1F 39               (      drivers.asm):00426 [5]                     RTS
+DF20                  (      drivers.asm):00427         RESTOREFLOPPY:
+DF20 20FA             (      drivers.asm):00428 [3]                     BRA     RESTOREERR
+DF22                  (      drivers.asm):00429         RESTOREIDE:
+DF22 20F8             (      drivers.asm):00430 [3]                     BRA     RESTOREERR
+                      (      drivers.asm):00431         
+                      (      drivers.asm):00432         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00433         ;   DRIVE   The specified drive is to be selected. The drive is specified
+                      (      drivers.asm):00434         ;           in the FCB pointed to by the contents of the X register. Note
+                      (      drivers.asm):00435         ;           that the drive number is the 4th byte of the FCB.
+                      (      drivers.asm):00436         ;
+                      (      drivers.asm):00437         ;           ENTRY - (X) = FCB address (3,X contains drive number)
+                      (      drivers.asm):00438         ;
+                      (      drivers.asm):00439         ;           EXIT -  (X) May be destroyed
+                      (      drivers.asm):00440         ;                   (A) May be destroyed
+                      (      drivers.asm):00441         ;                   (B) = $0F if non-existent drive
+                      (      drivers.asm):00442         ;                       = Error condition otherwise
+                      (      drivers.asm):00443         ;                   (Z) = 1 if no error
+                      (      drivers.asm):00444         ;                       = 0 if an error
+                      (      drivers.asm):00445         ;                   (C) = 0 if no error
+                      (      drivers.asm):00446         ;                       = 1 if an error
+                      (      drivers.asm):00447         ;_____________________________________________________________________________________________________
+DF24 3410             (      drivers.asm):00448 [5+2]   DRIVE:          PSHS    X
+DF26 A603             (      drivers.asm):00449 [4+1]                   LDA     3,X             ; DETERMINE IF DRIVE#>4, IF SO SET ERROR AND EXIT.
+DF28 8104             (      drivers.asm):00450 [2]                     CMPA    #4
+DF2A 2505             (      drivers.asm):00451 [3]                     BCS     DRIVE1
+DF2C                  (      drivers.asm):00452         DRIVEERR:
+DF2C C61F             (      drivers.asm):00453 [2]                     LDB     #$1F
+DF2E 57               (      drivers.asm):00454 [2]                     ASRB
+DF2F 3590             (      drivers.asm):00455 [5+4]                   PULS    PC,X
+                      (      drivers.asm):00456         
+DF31 8EDE23           (      drivers.asm):00457 [3]     DRIVE1          LDX     #DRVTYPES
+DF34 3086             (      drivers.asm):00458 [4+1]                   LEAX    A,X             ; GET DRIVE ENTRY FOR SELECTED DRIVE
+DF36 E684             (      drivers.asm):00459 [4+0]                   LDB     ,X
+DF38 C101             (      drivers.asm):00460 [2]                     CMPB    #$01            ; IF $01, OK
+DF3A 2706             (      drivers.asm):00461 [3]                     BEQ     >
+DF3C C102             (      drivers.asm):00462 [2]                     CMPB    #$02            ; IF $01, OK
+DF3E 2702             (      drivers.asm):00463 [3]                     BEQ     >
+DF40 20EA             (      drivers.asm):00464 [3]                     BRA     DRIVEERR
+DF42 F7DE1F           (      drivers.asm):00465 [5]     !               STB     CURDRVTYP
+DF45 B7DE1E           (      drivers.asm):00466 [5]                     STA     CURDRV
+DF48 8EDE27           (      drivers.asm):00467 [3]                     LDX     #DRVADDRESS
+DF4B 3086             (      drivers.asm):00468 [4+1]                   LEAX    A,X             ; GET DRIVE ADDRESS FOR SELECTED DRIVE
+DF4D E684             (      drivers.asm):00469 [4+0]                   LDB     ,X
+DF4F F7DE20           (      drivers.asm):00470 [5]                     STB     CURDRVADDRESS
+DF52 8EDE2B           (      drivers.asm):00471 [3]                     LDX     #DRVSLICE
+DF55 48               (      drivers.asm):00472 [2]                     LSLA                    ; THIS ONE IS A WORD, NOT BYTE LOOKUP
+DF56 3086             (      drivers.asm):00473 [4+1]                   LEAX    A,X             ; GET DRIVE SLICE FOR SELECTED DRIVE
+DF58 E684             (      drivers.asm):00474 [4+0]                   LDB     ,X
+DF5A F7DE21           (      drivers.asm):00475 [5]                     STB     CURDRVSLICE
+DF5D 3001             (      drivers.asm):00476 [4+1]                   LEAX    1,X             ; GET DRIVE SLICE FOR SELECTED DRIVE
+DF5F E684             (      drivers.asm):00477 [4+0]                   LDB     ,X
+DF61 F7DE22           (      drivers.asm):00478 [5]                     STB     CURDRVSLICE+1
+DF64 C600             (      drivers.asm):00479 [2]                     LDB     #$00
+DF66 3590             (      drivers.asm):00480 [5+4]                   PULS    PC,X
+                      (      drivers.asm):00481         
+                      (      drivers.asm):00482         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00483         ;   CHKRDY  Check for a drive ready condition. The drive number is found
+                      (      drivers.asm):00484         ;           in the specified FCB (at 3,X). If the user's controller turns
+                      (      drivers.asm):00485         ;           the drive motors off after some time delay, this routine
+                      (      drivers.asm):00486         ;           should first check for a drive ready condition and if it is
+                      (      drivers.asm):00487         ;           not ready, should delay long enough for the motors to come up
+                      (      drivers.asm):00488         ;           to speed, then check again. This delay should be done ONLY if
+                      (      drivers.asm):00489         ;           not ready on the first try and ONLY if necessary for the
+                      (      drivers.asm):00490         ;           particular drives and controller! If the hardware always
+                      (      drivers.asm):00491         ;           leaves the drive motors on, this routine should perform a
+                      (      drivers.asm):00492         ;           single check for drive ready and immediately return the
+                      (      drivers.asm):00493         ;           resulting status. Systems which do not have the ability to
+                      (      drivers.asm):00494         ;           check for a drive ready condition should simply always return
+                      (      drivers.asm):00495         ;           a ready status if the drive number is valid.
+                      (      drivers.asm):00496         ;
+                      (      drivers.asm):00497         ;           ENTRY - (X) = FCB address (3,X contains drive number)
+                      (      drivers.asm):00498         ;
+                      (      drivers.asm):00499         ;           EXIT -  (X) May be destroyed
+                      (      drivers.asm):00500         ;                   (A) May be destroyed
+                      (      drivers.asm):00501         ;                   (B) = Error condition
+                      (      drivers.asm):00502         ;                   (Z) = 1 if drive ready
+                      (      drivers.asm):00503         ;                       = 0 if not ready
+                      (      drivers.asm):00504         ;                   (C) = 0 if drive ready
+                      (      drivers.asm):00505         ;                       = 1 if not ready
+                      (      drivers.asm):00506         ;_____________________________________________________________________________________________________
+DF68                  (      drivers.asm):00507         CHKRDY
+DF68 A603             (      drivers.asm):00508 [4+1]                   LDA     3,X
+DF6A 8101             (      drivers.asm):00509 [2]                     CMPA    #$01
+DF6C 2708             (      drivers.asm):00510 [3]                     BEQ     CHKRDYFLOPPY
+DF6E 8102             (      drivers.asm):00511 [2]                     CMPA    #$02
+DF70 2706             (      drivers.asm):00512 [3]                     BEQ     CHKRDYIDE
+DF72 C61F             (      drivers.asm):00513 [2]     CHKRDYERR:      LDB     #$1F
+DF74 57               (      drivers.asm):00514 [2]                     ASRB
+DF75 39               (      drivers.asm):00515 [5]                     RTS
+DF76                  (      drivers.asm):00516         CHKRDYFLOPPY:
+DF76 20FA             (      drivers.asm):00517 [3]                     BRA     CHKRDYERR
+DF78                  (      drivers.asm):00518         CHKRDYIDE:
+DF78 20F8             (      drivers.asm):00519 [3]                     BRA     CHKRDYERR
+                      (      drivers.asm):00520         ;_____________________________________________________________________________________________________
+                      (      drivers.asm):00521         ;   QUICK   This routine performs a "quick" drive ready check. Its
+                      (      drivers.asm):00522         ;           function is exactly like the CHKRDY routine above except that
+                      (      drivers.asm):00523         ;           no delay should be done. If the drive does not give a ready
+                      (      drivers.asm):00524         ;           condition on the first check, a not ready condition is
+                      (      drivers.asm):00525         ;           immediately returned. Entry and exit are as above.
+                      (      drivers.asm):00526         ;_____________________________________________________________________________________________________
+DF7A A603             (      drivers.asm):00527 [4+1]   QUICK           LDA     3,X
+DF7C 8101             (      drivers.asm):00528 [2]                     CMPA    #$01
+DF7E 2708             (      drivers.asm):00529 [3]                     BEQ     QUICKFLOPPY
+DF80 8102             (      drivers.asm):00530 [2]                     CMPA    #$02
+DF82 2706             (      drivers.asm):00531 [3]                     BEQ     QUICKIDE
+DF84 C61F             (      drivers.asm):00532 [2]     QUICKERR:       LDB     #$1F
+DF86 57               (      drivers.asm):00533 [2]                     ASRB
+DF87 39               (      drivers.asm):00534 [5]                     RTS
+DF88                  (      drivers.asm):00535         QUICKFLOPPY:
+DF88 20FA             (      drivers.asm):00536 [3]                     BRA     QUICKERR
+DF8A                  (      drivers.asm):00537         QUICKIDE:
+DF8A 20F8             (      drivers.asm):00538 [3]                     BRA     QUICKERR
+                      (      drivers.asm):00539         
+                      (      drivers.asm):00540                         END
+
+Symbol Table:
+[ G] ADDDEV                           DE8E
+[ G] CHKNXT                           DE7D
+[ G] CHKRDY                           DF68
+[ G] CHKRDYERR                        DF72
+[ G] CHKRDYFLOPPY                     DF76
+[ G] CHKRDYIDE                        DF78
+[ G] CURDRV                           DE1E
+[ G] CURDRVADDRESS                    DE20
+[ G] CURDRVSLICE                      DE21
+[ G] CURDRVTYP                        DE1F
+[ G] DCHECK                           DE0F
+[ G] DDRIVE                           DE0C
+[ G] DELDEV                           DE9A
+[ G] DEVARE                           DE98
+[ G] DINIT                            DE15
+[ G] DQUICK                           DE12
+[ G] DREAD                            DE00
+[ G] DRESTOR                          DE09
+[ G] DRIVE                            DF24
+[ G] DRIVE1                           DF31
+[ G] DRIVEERR                         DF2C
+[ G] DRVADDRESS                       DE27
+[ G] DRVSLICE                         DE2B
+[ G] DRVTYPES                         DE23
+[ G] DSEEK                            DE1B
+[ G] DVERFY                           DE06
+[ G] DWARM                            DE18
+[ G] DWRITE                           DE03
+[ G] FNDENT                           DEB5
+[ G] IHDONE                           DE8D
+[ G] IHNDLR                           DE7A
+[ G] INCHNE                           DE6D
+[ G] INIT                             DF0D
+[ G] IRQLL                            DEB6
+[ G] IRQVEC                           D3FD
+[ G] LD3E1                            D3E1
+[ G] MONITR                           DE33
+[ G] NODEV                            DEA4
+[ G] QUICK                            DF7A
+[ G] QUICKERR                         DF84
+[ G] QUICKFLOPPY                      DF88
+[ G] QUICKIDE                         DF8A
+[ G] READ                             DEBB
+[ G] READERR                          DEC8
+[ G] READFLOPPY                       DECD
+[ G] READIDE                          DECF
+[ G] RESTORE                          DF0F
+[ G] RESTOREERR                       DF1C
+[ G] RESTOREFLOPPY                    DF20
+[ G] RESTOREIDE                       DF22
+[ G] SEEK                             DEFA
+[ G] SEEKERR                          DF05
+[ G] SEEKFLOPPY                       DF09
+[ G] SEEKIDE                          DF0B
+[ G] SRCHLP                           DEA9
+[ G] SRCHLST                          DEA6
+[ G] STAT                             DE5D
+[ G] SWIVEC                           D3FD
+[ G] TAPPTR                           DEB9
+[ G] TINIT                            DE3F
+[ G] TMINT                            DE3E
+[ G] TMOFF                            DE3E
+[ G] TMON                             DE3E
+[ G] TREDIR                           DE68
+[ G] UART0                            FE68
+[ G] UART1                            FE69
+[ G] UART2                            FE6A
+[ G] UART3                            FE6B
+[ G] UART4                            FE6C
+[ G] UART5                            FE6D
+[ G] UART6                            FE6E
+[ G] UART7                            FE6F
+[ G] VERIFY                           DEE7
+[ G] VERIFYERR                        DEF2
+[ G] VERIFYFLOPPY                     DEF6
+[ G] VERIFYIDE                        DEF8
+[ G] VINCH                            DE43
+[ G] VOUTCH                           DE4C
+[ G] WARM                             DF0E
+[ G] WRITE                            DED1
+[ G] WRITEERR                         DEDE
+[ G] WRITEFLOPPY                      DEE3
+[ G] WRITEIDE                         DEE5

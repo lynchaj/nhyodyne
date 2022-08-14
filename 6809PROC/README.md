@@ -23,22 +23,22 @@
         SW1 - IO Page select
                 This maps the IO addresses $00-$FF into the 6809 memory space.  Note that
                 the 6809 has address line A15 inverted in order to maintain compatibility
-                with the Nhyodyne ROM and RAM cards.   Therefore the MSB (SW8) is inverted.  Most test applications for this board expect an IO page of $03 ($0300-$03FF).Leading to a default setting of:
-                1-off
+                with the Nhyodyne ROM and RAM cards.   Therefore the MSB (SW8) is inverted.  Most applications for this board expect an IO page of $FE ($FE00-$FEFF).Leading to a default setting of:
+                1-on
                 2-off
-                3-on
-                4-on
-                5-on
-                6-on
-                7-on
-                8-off
+                3-off
+                4-off
+                5-off
+                6-off
+                7-off
+                8-on
 
         SW2 - Reset
 
         SW2 - 6809 toggle address
-                This setting sets the IO port that toggles the 6809 in and out of control when it is a secondary CPU.  When it is the only CPU in the system this setting has no effect. Most test applications for this board expect an IO address of $FF ($0300-$03FF).   Reading this IO port will toggle the 6809 active/inactive.
+                This setting sets the IO port that toggles the 6809 in and out of control when it is a secondary CPU.  When it is the only CPU in the system this setting has no effect. Most test applications for this board expect an IO address of $FE.   Reading this IO port will toggle the 6809 active/inactive.
                 Leading to a default setting of:
-                1-off
+                1-on
                 2-off
                 3-off
                 4-off
@@ -94,14 +94,14 @@ Ref|Value|Part|
 ### MONITOR
 This is a simple monitor program, see the "monitor" section of this document for usage instructions. "Monitor" requires that the UART is properly initialized.
 
-It assumes that the 6809 board is set for IOPage 03.
-        * remember that bit A15 is inverted on the board so the dip switch is set to $83.
+It assumes that the 6809 board is set for IOPage $FE.
+        * remember that bit A15 is inverted on the board
 
 If the SBC is the only CPU in the system, ensure that jumpers J1 and J4 are set for 1&2, then burn monitor.hex into EPROM. (note that this monitor does not initialize the UART yet, so this is broken at the moment)
 
 
-If the SBC is secondary to a Z80, the monitor.com file can be run from CP/M or the monitor.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6809 toggle IO address is set for $FF and the 6809 board is set for IOPage 03.
-        * remember that bit A15 is inverted on the board so the dip switch is set to $83.
+If the SBC is secondary to a Z80, the monitor.com file can be run from CP/M or the monitor.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6809 toggle IO address is set for $FE and the 6809 board is set for IOPage $FE.
+        * remember that bit A15 is inverted on the board
 
 
 To run from the MBC Z80 monitor
@@ -124,13 +124,13 @@ Finally transfer control to the 6809 by reading the toggle register
 ### SCREAM
 This is a quick program that can be put on a ROM to test the 6809 board. It will output a continuous stream of "A"s from the UART. It does not require the stack to be available and is pretty much the simplest code imaginable. :)
 
-It assumes that the 6809 board is set for IOPage 03.
-        * remember that bit A15 is inverted on the board so the dip switch is set to $83.
+It assumes that the 6809 board is set for IOPage $FE.
+        * remember that bit A15 is inverted on the board
 
 If the SBC is the only CPU in the system, ensure that jumpers J1 and J4 are set for 1&2, then burn scream.hex into EPROM.  (note that this monitor does not initialize the UART yet, so this is broken at the moment)
 
-If the SBC is secondary to a Z80, the scrm.com file can be run from CP/M or the scream.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6809 toggle IO address is set for $FF and the 6809 board is set for IOPage 03.
-        * remember that bit A15 is inverted on the board so the dip switch is set to $83.
+If the SBC is secondary to a Z80, the scrm.com file can be run from CP/M or the scream.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6809 toggle IO address is set for $FE and the 6809 board is set for IOPage $FE.
+        * remember that bit A15 is inverted on the board
 
 
 To run from the MBC Z80 monitor
@@ -153,7 +153,7 @@ Finally transfer control to the 6809 by reading the toggle register
 The '09 should reset and run this program
 
 
-## MONITOR Program
+### MONITOR Program
 
 Monitor is a simple machine language monitor that will allow you to view and manipulate the 6809 operating environment.
 
@@ -165,4 +165,103 @@ Monitor Supports the following Commands:
        	* M XXXX YY  - update the ram at XXXX with value YY
         * G XXXX - Execute program at XXXX
         * P - PRINT CONTENTS OF STACK
+```
+
+### FLEX09 OPERATING SYSTEM
+
+MEMORY MAP:
+
+```
+ C000  -------
+          I     System Stack
+ C080  -------
+          I     Input Buffer
+ C100  -------
+          I
+          I
+          I     Utility Area
+          I
+          I
+ C700  -------
+          I     Printer Spooler Stub
+ C71C  -------
+          I     Open Space
+          I
+ C840  -------
+          I
+          I     System/User FCB
+          I
+ C980  -------
+          I
+          I     System I/O FCB's
+          I     (FLEX Initialize at CA00)
+          I
+ CC00  -------
+          I     System Variables
+ CCC0  -------
+          I     Printer Drivers
+ CCF8  -------
+          I     System Variables
+ CD00  -------
+          I
+          I
+          I     Disk Operating System
+          I
+          I
+ D370  -------
+          I     Driver Code
+ D3E1  -------
+          I     Driver Vector Table
+                D3E1 ADDDEV      * add an IRQ handler to table
+                D3E3 DELDEV      * delete an IRQ handler from table
+                D3E5 INCHNE      * INPUT CHARACTER W/O ECHO
+                D3E7 IHNDLR      * IRQ INTERRUPT HANDLER
+                D3E9 SWIVEC      * SWI3 VECTOR LOCATION
+                D3EB IRQVEC      * IRQ VECTOR LOCATION
+                D3ED TMOFF       * TIMER OFF ROUTINE
+                D3EF TMON        * TIMER ON ROUTINE
+                D3F1 TMINT       * TIMER INITIALIZATION
+                D3F3 MONITR      * MONITOR ENTRY ADDRESS
+                D3F5 TINIT       * TERMINAL INITIALIZATION
+                D3F7 STAT        * CHECK TERMINAL STATUS
+                D3F9 VOUTCH      * OUTPUT CHARACTER
+                D3FB VINCH       * INPUT CHARACTER W/ ECHO
+ D3FC  -------
+          I     Driver Code
+ D400  -------
+          I
+          I
+          I     File Management-System
+          I
+          I
+          I
+ DE00  -------
+          I     DISK DRIVER ROUTINE JUMP TABLE
+                DE00 READ      Read a single sector
+                DE03 WRITE     Write a single sector
+                DE06 VERIFY    Verify last sector written
+                DE09 RESTORE   Restore head to track #0
+                DE0C DRIVE     Select the specified drive
+                DE0F CHKRDY    Check for drive ready
+                DE12 QUICK     Quick check for drive ready
+                DE15 INIT      Driver initialize (cold start)
+                DE18 WARM      Driver initialize (warm start)
+                DE1B SEEK      Seek to specified track
+          I
+          I     Disk Drivers
+          I
+ FE00  -------
+          I    I/O Area
+ FF00  -------
+          I    Work RAM
+ FFEF  -------
+        FFF0    RESERVED
+        FFF2    SWI3 VECTOR
+        FFF4    SWI2 VECTOR
+        FFF6    FIRQ VECTOR
+        FFF8    IRQ VECTOR
+        FFFA    SWI VECTOR
+        FFFC    NMI VECTOR
+        FFFE    RESET VECTOR
+ FFFF  -------
 ```

@@ -134,17 +134,17 @@ ZC43A   LDD     >PROMPT         get  current prompt pointer
         CLR     STIME+3         clear tick counter
 
         JSR     >PRCRLF         do CRLF
-        JSR     >DWARM          init the disk drivers
-        LDX     #SYSFCB         point to STARTUP.TXT FCB
-        JSR     >DCHECK         do disk check
-        LDA     #$01            set for read operation
-        STA     ,X
-        JSR     >FMSCAL
-        BEQ     ZC47E           no error
+      ;  JSR     >DWARM          init the disk drivers
+      ;  LDX     #SYSFCB         point to STARTUP.TXT FCB
+      ;  JSR     >DCHECK         do disk check
+      ;  LDA     #$01            set for read operation
+      ;  STA     ,X
+      ;  JSR     >FMSCAL
+      ;  BEQ     ZC47E           no error
 
-        LDA     $01,X
-        CMPA    #$04            file not found error?
-        BNE     ZC4B2           no -
+      ;  LDA     $01,X
+      ;  CMPA    #$04            file not found error?
+      ;  BNE     ZC4B2           no -
 
         JMP     >WARMST         yes - ignore file
 
@@ -225,8 +225,7 @@ ZC555   FCC     "Can't run STARTUP."
 
 *       FLEX startup signon message
 
-ZC810   FCB     $1A
-        FCC     "FLEX for MC6809 Version 2.9:2 - "
+ZC810   FCC     "FLEX for Nhyodyne 6809 Version 2.9:2 - "
         FCB     $00,$00,$00,$00
 
 ZC82B   FCC     "K"

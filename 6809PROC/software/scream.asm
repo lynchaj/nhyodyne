@@ -39,14 +39,14 @@
 ;_______________________________________________________________
 
 ; UART 16C550 SERIAL
-UART0       	equ    	$0368           ; DATA IN/OUT
-UART1       	equ    	$0369           ; CHECK RX
-UART2       	equ    	$036A           ; INTERRUPTS
-UART3       	equ    	$036B           ; LINE CONTROL
-UART4       	equ    	$036C           ; MODEM CONTROL
-UART5          	equ    	$036D           ; LINE STATUS
-UART6          	equ    	$036E           ; MODEM STATUS
-UART7	       	equ    	$036F           ; SCRATCH REG.
+UART0       	equ    	$FE68           ; DATA IN/OUT
+UART1       	equ    	$FE69           ; CHECK RX
+UART2       	equ    	$FE6A           ; INTERRUPTS
+UART3       	equ    	$FE6B           ; LINE CONTROL
+UART4       	equ    	$FE6C           ; MODEM CONTROL
+UART5          	equ    	$FE6D           ; LINE STATUS
+UART6          	equ    	$FE6E           ; MODEM STATUS
+UART7	       	equ    	$FE6F           ; SCRATCH REG.
 
 ; this is Z80 code that is used to be able to run this as a .COM file.  It is truncated
 ; when the various .HEX files are generated
@@ -57,7 +57,7 @@ UART7	       	equ    	$036F           ; SCRATCH REG.
 		FCB		$11,$00,$70    		;LD	DE,$7000 -DESTINATION ADDRESS (6809 IS !A15)
 		FCB		$21,$20,$01	    	;LD	HL,$0120 -SOURCE ADDRESS
 		FCB		$ED,$B0       		;LDIR  		 -COPY RAM
-		FCB		$DB,$FF       		;IN 	A,$FF    -ENABLE 6809
+		FCB		$DB,$FE       		;IN 	A,$FE    -ENABLE 6809
 		FCB		$0E,$00       		;LD	C,00H    -CP/M SYSTEM RESET CALL
 		FCB		$CD,$05,$00			;CALL	0005H	 -RETURN TO PROMPT
 ;

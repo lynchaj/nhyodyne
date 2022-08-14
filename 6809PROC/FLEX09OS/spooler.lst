@@ -1,0 +1,36 @@
+                      (      spooler.asm):00001                 NAM     SPOOLER.TXT
+                      (      spooler.asm):00002                 OPT     pag
+                      (      spooler.asm):00003         *       LEN     96
+                      (      spooler.asm):00004                 PAG
+                      (      spooler.asm):00005                 PRAGMA CD
+                      (      spooler.asm):00006         
+                      (      spooler.asm):00007         ;___________________________________________________________________________________________________________
+                      (      spooler.asm):00008         ;
+                      (      spooler.asm):00009         ;       FLEX Spooler STUB (No spooler support on Nhyodyne)
+                      (      spooler.asm):00010         ;
+                      (      spooler.asm):00011         ;       DWERNER 8/14/2022
+                      (      spooler.asm):00012         ;___________________________________________________________________________________________________________
+                      (      spooler.asm):00013         
+                      (      spooler.asm):00014                         ORG $C700               ; JUMP TABLE STARTS AT $C700
+                      (      spooler.asm):00015         
+C700 393939           (      spooler.asm):00016         PRSPLI          FCB $39,$39,$39         ; REPLACE THE FIRST BYTE
+C703 393939           (      spooler.asm):00017         PRSPL2          FCB $39,$39,$39         ; OF EACH ENTRY WITH AN
+C706 393939           (      spooler.asm):00018         PRSPL3          FCB $39,$39,$39         ; RTS ($39) AND THE SECOND
+C709 393939           (      spooler.asm):00019         PRSPL4          FCB $39,$39,$39         ; TWO BYTES WITH ANYTHING
+C70C 393939           (      spooler.asm):00020         PRSPL5          FCB $39,$39,$39
+C70F 393939           (      spooler.asm):00021         PRSPL6          FCB $39,$39,$39
+                      (      spooler.asm):00022         
+                      (      spooler.asm):00023                         ORG $C71B               ; QUEUE COUNT IS AT $C71B
+C71B 00               (      spooler.asm):00024         QCNT            FCB 0                   ; FORCE QUEUE COUNT TO ZERO
+                      (      spooler.asm):00025         
+                      (      spooler.asm):00026         
+                      (      spooler.asm):00027                 END
+
+Symbol Table:
+[ G] PRSPL2                           C703
+[ G] PRSPL3                           C706
+[ G] PRSPL4                           C709
+[ G] PRSPL5                           C70C
+[ G] PRSPL6                           C70F
+[ G] PRSPLI                           C700
+[ G] QCNT                             C71B

@@ -27,7 +27,6 @@ EOT     EQU     $04
 * EXTERNAL LABEL EQUATES
 
 STACK   EQU     $C07F
-LC400   EQU     $C400
 CHPR    EQU     $C700
 ;INDEX   EQU     $CC3D
 ;CRSAVE  EQU     $CC3F
@@ -205,7 +204,7 @@ INIT    LDS     #STACK      SET STACK
 INIT1   CLR     LSTTRM      CLEAR TERM BYTE
         JSR     FMSINT      INIT SYSTEM
         CLR     CMFLG       CLEAR FLAG
-        JSR     TSTSTR      CHECK FOR STARTUP
+        JSR     $C400       CHECK FOR STARTUP
 
 * ENTRY
 *
@@ -1256,5 +1255,3 @@ MEXIT2  LDX     #SYSFCB     POINT TO FCB
         JMP     ENTRY       GO BACK
 
         ORG     $D3FD
-
-TSTSTR  JMP     LC400
