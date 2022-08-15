@@ -1,0 +1,9 @@
+
+WRITE IDE DRIVER
+    FIX VERIFY FUNCTION
+WRITE FLOPPY DRIVER
+
+WRITE PRINTER DRIVER
+0145 CCC0 39         PINIT     RTS (jmp Printerinit)
+0149 CCD8 39         PCHK      RTS (jmp Check Printer)
+0153 CCE4 39         POUT      RTS (jmp output to Printer)

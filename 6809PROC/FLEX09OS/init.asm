@@ -225,8 +225,7 @@ ZC555   FCC     "Can't run STARTUP."
 
 *       FLEX startup signon message
 
-ZC810   FCB     $1A
-        FCC     "FLEX for MC6809 Version 2.9:2 - "
+ZC810   FCC     "FLEX for Nhyodyne 6809 Version 2.9:2 - "
         FCB     $00,$00,$00,$00
 
 ZC82B   FCC     "K"

@@ -1,0 +1,492 @@
+                      (         init.asm):00001                 NAM     INIT.TXT
+                      (         init.asm):00002                 OPT     pag
+                      (         init.asm):00003         *       LEN     96
+                      (         init.asm):00004                 PAG
+                      (         init.asm):00005                 PRAGMA CD
+                      (         init.asm):00006         *************************************************
+                      (         init.asm):00007         *                                               *
+                      (         init.asm):00008         *       Flex 2.9:1 initialization code          *
+                      (         init.asm):00009         *                                               *
+                      (         init.asm):00010         *************************************************
+                      (         init.asm):00011         
+     C080             (         init.asm):00012         LNBUFF  EQU     $C080
+     C100             (         init.asm):00013         STARTR  EQU     $C100
+     C840             (         init.asm):00014         SYSFCB  EQU     $C840
+                      (         init.asm):00015         
+     CC0E             (         init.asm):00016         SMONTH  EQU     $CC0E
+     CC14             (         init.asm):00017         LNBUFP  EQU     $CC14
+     CC16             (         init.asm):00018         ESCRTN  EQU     $CC16
+     CC2B             (         init.asm):00019         MEMEND  EQU     $CC2B
+     CC33             (         init.asm):00020         CPUTYP  EQU     $CC33
+     CC4E             (         init.asm):00021         PROMPT  EQU     $CC4E
+                      (         init.asm):00022         
+     CD00             (         init.asm):00023         COLDST  EQU     $CD00
+     CD03             (         init.asm):00024         WARMST  EQU     $CD03
+     CD06             (         init.asm):00025         RENTER  EQU     $CD06
+     CD09             (         init.asm):00026         INCH    EQU     $CD09
+     CD0C             (         init.asm):00027         INCH2   EQU     $CD0C
+     CD0F             (         init.asm):00028         OUTCH   EQU     $CD0F
+     CD12             (         init.asm):00029         OUTCH2  EQU     $CD12
+     CD1B             (         init.asm):00030         INBUFF  EQU     $CD1B
+     CD1E             (         init.asm):00031         PSTRNG  EQU     $CD1E
+     CD24             (         init.asm):00032         PRCRLF  EQU     $CD24
+     CD48             (         init.asm):00033         INDECM  EQU     $CD48
+     CD4E             (         init.asm):00034         STAT    EQU     $CD4E
+                      (         init.asm):00035         
+     D0F0             (         init.asm):00036         ZD0F0   EQU     $D0F0
+     D0F1             (         init.asm):00037         ZD0F1   EQU     $D0F1
+                      (         init.asm):00038         
+     D370             (         init.asm):00039         STIME   EQU     $D370
+                      (         init.asm):00040         
+     D3E7             (         init.asm):00041         IHNDLR  EQU     $D3E7
+     D3ED             (         init.asm):00042         TIMOFF  EQU     $D3ED
+     D3EF             (         init.asm):00043         TIMON   EQU     $D3EF
+     D3F1             (         init.asm):00044         TMINIT  EQU     $D3F1
+     D3F5             (         init.asm):00045         TRMINT  EQU     $D3F5
+     D3F7             (         init.asm):00046         TRMCHK  EQU     $D3F7
+     D3F9             (         init.asm):00047         TIMOUT  EQU     $D3F9
+     D3FB             (         init.asm):00048         TIMINE  EQU     $D3FB
+     D3FD             (         init.asm):00049         ZD3FD   EQU     $D3FD
+                      (         init.asm):00050         
+     D406             (         init.asm):00051         FMSCAL  EQU     $D406
+                      (         init.asm):00052         
+     DE0F             (         init.asm):00053         DCHECK  EQU     $DE0F
+     DE18             (         init.asm):00054         DWARM   EQU     $DE18
+                      (         init.asm):00055         
+     DFD0             (         init.asm):00056         ZDFD0   EQU     $DFD0
+     DFDC             (         init.asm):00057         ZDFDC   EQU     $DFDC
+     DFDD             (         init.asm):00058         ZDFDD   EQU     $DFDD
+                      (         init.asm):00059         
+     E005             (         init.asm):00060         ZE005   EQU     $E005
+     E045             (         init.asm):00061         ZE045   EQU     $E045
+     E085             (         init.asm):00062         ZE085   EQU     $E085
+     E090             (         init.asm):00063         ZE090   EQU     $E090
+     E0C5             (         init.asm):00064         ZE0C5   EQU     $E0C5
+                      (         init.asm):00065         
+     F810             (         init.asm):00066         ZF810   EQU     $F810
+     FFF0             (         init.asm):00067         ZFFF0   EQU     $FFF0
+     FFFC             (         init.asm):00068         ZFFFC   EQU     $FFFC
+     FFFD             (         init.asm):00069         ZFFFD   EQU     $FFFD
+                      (         init.asm):00070                 pag
+                      (         init.asm):00071         
+                      (         init.asm):00072         ****************************************************
+                      (         init.asm):00073         
+                      (         init.asm):00074         
+                      (         init.asm):00075         *
+                      (         init.asm):00076         * STARTUP ROUTINE
+                      (         init.asm):00077         * THIS ROUTINE INITIALIZES CERTAIN PARAMETERS, GETS
+                      (         init.asm):00078         * DATE FROM USER, AND EXECUTES A STARTUP.TXT FILE.
+                      (         init.asm):00079         
+                      (         init.asm):00080                 ORG     $C400
+                      (         init.asm):00081         
+C400 2005             (         init.asm):00082 [3]     STAR    BRA     STAR0
+C402 822E893A81       (         init.asm):00083         Vers    FCB     $82,$2E,$89,$3A,$81
+                      (         init.asm):00084         
+C407 8639             (         init.asm):00085 [2]     STAR0   LDA     #$39            SET UP RTS
+C409 B7D3FD           (         init.asm):00086 [5]             STA     >ZD3FD          disable re-entry to this code
+                      (         init.asm):00087         
+C40C CCCD03           (         init.asm):00088 [3]             LDD     #$CD03          setup 'escape routine' address
+C40F FDCC16           (         init.asm):00089 [6]             STD     >ESCRTN
+                      (         init.asm):00090         
+C412 FCD3F7           (         init.asm):00091 [6]             LDD     >TRMCHK         get address of terminal status check routine
+C415 FDCD4F           (         init.asm):00092 [6]             STD     >STAT+1         set in FLEX status check jump
+                      (         init.asm):00093         
+C418 FCD3F9           (         init.asm):00094 [6]             LDD     >TIMOUT         get address of terminal output routine
+C41B FDCD10           (         init.asm):00095 [6]             STD     >OUTCH+1        set in FLEX out char jump
+C41E FDCD13           (         init.asm):00096 [6]             STD     >OUTCH2+1       set in FLEX alternate out char jump
+                      (         init.asm):00097         
+C421 FCD3FB           (         init.asm):00098 [6]             LDD     >TIMINE         get address of terminal input routine
+C424 FDCD0A           (         init.asm):00099 [6]             STD     >INCH+1         set in FLEX in char jump
+C427 FDCD0D           (         init.asm):00100 [6]             STD     >INCH2+1        set in FLEX alt in char jump
+                      (         init.asm):00101         
+C42A AD9FD3F5         (         init.asm):00102 [7+5]           JSR     [TRMINT]        do terminal init
+C42E 8EC504           (         init.asm):00103 [3]             LDX     #ZC810          point to Flex version signon
+C431 BDCD1E           (         init.asm):00104 [8]             JSR     >PSTRNG         print to terminal
+C434 BDCD24           (         init.asm):00105 [8]             JSR     >PRCRLF         and CRLF
+                      (         init.asm):00106         
+C437 FCCC4E           (         init.asm):00107 [6]     ZC43A   LDD     >PROMPT         get  current prompt pointer
+C43A 3406             (         init.asm):00108 [5+2]           PSHS    B,A             save it
+C43C 8EC532           (         init.asm):00109 [3]             LDX     #ZC82E          request for date
+C43F BFCC4E           (         init.asm):00110 [6]             STX     >PROMPT         set new prompt pointer
+C442 BDCD1E           (         init.asm):00111 [8]             JSR     >PSTRNG         do prompt
+C445 BDCD1B           (         init.asm):00112 [8]             JSR     >INBUFF         get date
+C448 3506             (         init.asm):00113 [5+2]           PULS    B,A             restore prompt pointer
+C44A FDCC4E           (         init.asm):00114 [6]             STD     >PROMPT
+C44D 108ECC0E         (         init.asm):00115 [4]             LDY     #SMONTH         point Y reg to date regs
+C451 8D5D             (         init.asm):00116 [7]             BSR     ZC4A0           convert month from ascii
+C453 25E2             (         init.asm):00117 [3]             BCS     ZC43A           no good - retry
+                      (         init.asm):00118         
+C455 8D59             (         init.asm):00119 [7]             BSR     ZC4A0           convert day from ascii
+C457 25DE             (         init.asm):00120 [3]             BCS     ZC43A           no good - retry
+                      (         init.asm):00121         
+C459 8D55             (         init.asm):00122 [7]             BSR     ZC4A0           convert year from ascii
+C45B 25DA             (         init.asm):00123 [3]             BCS     ZC43A           no good - retry
+                      (         init.asm):00124         
+C45D 108ED370         (         init.asm):00125 [4]             LDY     #STIME          point Y reg to system time regs
+C461 8D4D             (         init.asm):00126 [7]             BSR     ZC4A0
+C463 25D2             (         init.asm):00127 [3]             BCS     ZC43A           no good - retry
+                      (         init.asm):00128         
+C465 8D49             (         init.asm):00129 [7]             BSR     ZC4A0
+C467 25CE             (         init.asm):00130 [3]             BCS     ZC43A           no good - retry
+                      (         init.asm):00131         
+C469 8D45             (         init.asm):00132 [7]             BSR     ZC4A0
+C46B 25CA             (         init.asm):00133 [3]             BCS     ZC43A           no good - retry
+C46D 7FD373           (         init.asm):00134 [7]             CLR     STIME+3         clear tick counter
+                      (         init.asm):00135         
+C470 BDCD24           (         init.asm):00136 [8]             JSR     >PRCRLF         do CRLF
+C473 BDDE18           (         init.asm):00137 [8]             JSR     >DWARM          init the disk drivers
+C476 8EC840           (         init.asm):00138 [3]             LDX     #SYSFCB         point to STARTUP.TXT FCB
+C479 BDDE0F           (         init.asm):00139 [8]             JSR     >DCHECK         do disk check
+C47C 8601             (         init.asm):00140 [2]             LDA     #$01            set for read operation
+C47E A784             (         init.asm):00141 [4+0]           STA     ,X
+C480 BDD406           (         init.asm):00142 [8]             JSR     >FMSCAL
+C483 2709             (         init.asm):00143 [3]             BEQ     ZC47E           no error
+                      (         init.asm):00144         
+C485 A601             (         init.asm):00145 [4+1]           LDA     $01,X
+C487 8104             (         init.asm):00146 [2]             CMPA    #$04            file not found error?
+C489 263B             (         init.asm):00147 [3]             BNE     ZC4B2           no -
+                      (         init.asm):00148         
+C48B 7ECD03           (         init.asm):00149 [4]             JMP     >WARMST         yes - ignore file
+                      (         init.asm):00150         
+C48E 108EC080         (         init.asm):00151 [4]     ZC47E   LDY     #LNBUFF         init line buffer pointer
+C492 10BFCC14         (         init.asm):00152 [7]             STY     >LNBUFP
+C496 C680             (         init.asm):00153 [2]             LDB     #$80            set byte count to move
+                      (         init.asm):00154         
+C498 BDD406           (         init.asm):00155 [8]     ZC488   JSR     >FMSCAL         get byte from startup.txt
+C49B 2629             (         init.asm):00156 [3]             BNE     ZC4B2           error
+C49D 5A               (         init.asm):00157 [2]             DECB                    decrement count
+C49E 2726             (         init.asm):00158 [3]             BEQ     ZC4B2           done
+                      (         init.asm):00159         
+C4A0 A7A0             (         init.asm):00160 [4+2]           STA     ,Y+             put character in line buffer
+C4A2 810D             (         init.asm):00161 [2]             CMPA    #$0D            see if EOL character
+C4A4 26F2             (         init.asm):00162 [3]             BNE     ZC488           no - loop
+                      (         init.asm):00163         
+C4A6 8604             (         init.asm):00164 [2]             LDA     #$04            yes - close file
+C4A8 A784             (         init.asm):00165 [4+0]           STA     ,X
+C4AA BDD406           (         init.asm):00166 [8]             JSR     >FMSCAL
+                      (         init.asm):00167         
+C4AD 7ECD06           (         init.asm):00168 [4]             JMP     >RENTER         re-enter FLEX with command in line buffer
+                      (         init.asm):00169         
+                      (         init.asm):00170         *       convert ascii to decimal
+                      (         init.asm):00171         
+C4B0 BDCD48           (         init.asm):00172 [8]     ZC4A0   JSR     >INDECM
+C4B3 3410             (         init.asm):00173 [5+2]           PSHS    X
+C4B5 250D             (         init.asm):00174 [3]             BCS     ZC4B0
+C4B7 A6A4             (         init.asm):00175 [4+0]           LDA     ,Y
+C4B9 5D               (         init.asm):00176 [2]             TSTB                    see if any valid decimal digits entered
+C4BA 1A01             (         init.asm):00177 [3]             ORCC    #$01            set carry flag for error
+C4BC 2704             (         init.asm):00178 [3]             BEQ     ZC4AE           no - return error
+                      (         init.asm):00179         
+C4BE A661             (         init.asm):00180 [4+1]           LDA     $01,S           yes - get returned byte
+C4C0 1CFE             (         init.asm):00181 [3]             ANDCC   #$FE            set carry flag = 0 if no error
+C4C2 A7A0             (         init.asm):00182 [4+2]   ZC4AE   STA     ,Y+             put in callers buffer
+C4C4 3586             (         init.asm):00183 [5+4]   ZC4B0   PULS    PC,B,A          return
+                      (         init.asm):00184         
+                      (         init.asm):00185         *       error in startup file - report it
+                      (         init.asm):00186         
+C4C6 8EC4F1           (         init.asm):00187 [3]     ZC4B2   LDX     #ZC555          can't run startup message
+C4C9 BDCD1E           (         init.asm):00188 [8]             JSR     >PSTRNG
+                      (         init.asm):00189         
+C4CC 7ECD03           (         init.asm):00190 [4]             JMP     >WARMST
+                      (         init.asm):00191         
+                      (         init.asm):00192         *       fix up number of K of memory available message
+                      (         init.asm):00193         
+C4CF 3414             (         init.asm):00194 [5+3]   ZC4BB   PSHS    X,B
+C4D1 8EC52F           (         init.asm):00195 [3]             LDX     #ZC82B          'K' message
+C4D4 8604             (         init.asm):00196 [2]             LDA     #$04
+C4D6 2006             (         init.asm):00197 [3]             BRA     ZC4CA
+                      (         init.asm):00198         
+                      (         init.asm):00199         *
+                      (         init.asm):00200         
+C4D8 800A             (         init.asm):00201 [2]     ZC4C4   SUBA    #$0A
+C4DA A784             (         init.asm):00202 [4+0]           STA     ,X
+C4DC 8601             (         init.asm):00203 [2]             LDA     #$01
+                      (         init.asm):00204         
+                      (         init.asm):00205         *
+                      (         init.asm):00206         
+C4DE AB82             (         init.asm):00207 [4+2]   ZC4CA   ADDA    ,-X
+C4E0 8A30             (         init.asm):00208 [2]             ORA     #$30
+C4E2 A784             (         init.asm):00209 [4+0]           STA     ,X
+C4E4 8139             (         init.asm):00210 [2]             CMPA    #$39
+C4E6 22F0             (         init.asm):00211 [3]             BHI     ZC4C4
+C4E8 3594             (         init.asm):00212 [5+5]           PULS    PC,X,B
+                      (         init.asm):00213         
+                      (         init.asm):00214         *       return status that no no RTC is available
+                      (         init.asm):00215         *       but MPT does exist
+                      (         init.asm):00216         
+C4EA AD9FD3F1         (         init.asm):00217 [7+5]   ZC4D6   JSR     [TMINIT]        init timer
+C4EE 8602             (         init.asm):00218 [2]             LDA     #$02            set flag for MPT
+C4F0 39               (         init.asm):00219 [5]             RTS
+                      (         init.asm):00220         
+                      (         init.asm):00221         *       startup file error message
+                      (         init.asm):00222         
+C4F1 43616E2774207275 (         init.asm):00223         ZC555   FCC     "Can't run STARTUP."
+     6E20535441525455
+     502E
+C503 04               (         init.asm):00224                 FCB     $04
+                      (         init.asm):00225         
+                      (         init.asm):00226         *       FLEX startup signon message
+                      (         init.asm):00227         
+C504 464C455820666F72 (         init.asm):00228         ZC810   FCC     "FLEX for Nhyodyne 6809 Version 2.9:2 - "
+     204E68796F64796E
+     6520363830392056
+     657273696F6E2032
+     2E393A32202D20
+C52B 00000000         (         init.asm):00229                 FCB     $00,$00,$00,$00
+                      (         init.asm):00230         
+C52F 4B               (         init.asm):00231         ZC82B   FCC     "K"
+C530 15               (         init.asm):00232                 FCB     $15
+C531 04               (         init.asm):00233                 FCB     $04
+                      (         init.asm):00234         
+                      (         init.asm):00235         *       Date prompt
+                      (         init.asm):00236         
+C532 4461746520616E64 (         init.asm):00237         ZC82E   FCC     "Date and TIME (MM/DD/YY HH/MM/SS)? "
+     2054494D4520284D
+     4D2F44442F595920
+     48482F4D4D2F5353
+     293F20
+C555 04               (         init.asm):00238                 FCB     $04
+                      (         init.asm):00239         
+                      (         init.asm):00240                 ORG     SYSFCB
+                      (         init.asm):00241         
+C840 FF               (         init.asm):00242                 FCB     $FF
+C841 00               (         init.asm):00243                 FCB     $00
+C842 00               (         init.asm):00244                 FCB     $00
+C843 00               (         init.asm):00245                 FCB     $00
+C844 73746172747570   (         init.asm):00246                 FCC     "startup"
+C84B 00               (         init.asm):00247                 FCB     $00
+C84C 747874           (         init.asm):00248                 FCC     "txt"
+C84F 00               (         init.asm):00249                 FCB     $00
+                      (         init.asm):00250         
+                      (         init.asm):00251         *************************************************
+                      (         init.asm):00252         *                                               *
+                      (         init.asm):00253         *       FLEX entry point after boot             *
+                      (         init.asm):00254         *                                               *
+                      (         init.asm):00255         *         this must start at $C850              *
+                      (         init.asm):00256         *                                               *
+                      (         init.asm):00257         *************************************************
+                      (         init.asm):00258         
+C850 1A50             (         init.asm):00259 [3]     SFRES1  ORCC    #$50
+C852 10CEC080         (         init.asm):00260 [4]             LDS     #LNBUFF
+C856 FCDFDC           (         init.asm):00261 [6]             LDD     >ZDFDC
+C859 BED0F0           (         init.asm):00262 [6]             LDX     >ZD0F0
+C85C 3416             (         init.asm):00263 [5+4]           PSHS    X,B,A
+C85E 8E99AA           (         init.asm):00264 [3]             LDX     #$99AA
+C861 108EC200         (         init.asm):00265 [4]             LDY     #STARTR+256
+C865 C6FF             (         init.asm):00266 [2]             LDB     #$FF
+                      (         init.asm):00267         
+C867 1700B0           (         init.asm):00268 [9]     ZC867   LBSR    ZC91A
+C86A BFD0F0           (         init.asm):00269 [6]             STX     >ZD0F0
+C86D BCD0F0           (         init.asm):00270 [7]             CMPX    >ZD0F0
+C870 2616             (         init.asm):00271 [3]             BNE     ZC888
+C872 3404             (         init.asm):00272 [5+1]           PSHS    B
+                      (         init.asm):00273         
+C874 1700A3           (         init.asm):00274 [9]     ZC874   LBSR    ZC91A
+C877 F7D0F1           (         init.asm):00275 [5]             STB     >ZD0F1
+C87A C001             (         init.asm):00276 [2]             SUBB    #$01
+C87C 24F6             (         init.asm):00277 [3]             BCC     ZC874
+                      (         init.asm):00278         
+C87E 3504             (         init.asm):00279 [5+1]           PULS    B
+C880 170097           (         init.asm):00280 [9]             LBSR    ZC91A
+C883 F1D0F1           (         init.asm):00281 [5]             CMPB    >ZD0F1
+C886 2701             (         init.asm):00282 [3]             BEQ     ZC889
+C888 4F               (         init.asm):00283 [2]     ZC888   CLRA
+                      (         init.asm):00284         
+C889 A7A2             (         init.asm):00285 [4+2]   ZC889   STA     ,-Y
+C88B 2703             (         init.asm):00286 [3]             BEQ     ZC890
+C88D 17FC3F           (         init.asm):00287 [9]             LBSR    ZC4BB
+                      (         init.asm):00288         
+C890 C001             (         init.asm):00289 [2]     ZC890   SUBB    #$01
+C892 24D3             (         init.asm):00290 [3]             BCC     ZC867
+                      (         init.asm):00291         
+C894 3516             (         init.asm):00292 [5+4]           PULS    X,B,A
+C896 FDFFFC           (         init.asm):00293 [6]             STD     >ZFFFC
+C899 BFD0F0           (         init.asm):00294 [6]             STX     >ZD0F0
+C89C 4F               (         init.asm):00295 [2]             CLRA
+C89D 8EC100           (         init.asm):00296 [3]             LDX     #STARTR
+C8A0 F6DFDC           (         init.asm):00297 [5]             LDB     >ZDFDC
+C8A3 C80F             (         init.asm):00298 [2]             EORB    #$0F
+C8A5 6F8B             (         init.asm):00299 [6+4]           CLR     D,X
+C8A7 F6DFDD           (         init.asm):00300 [5]             LDB     >ZDFDD
+C8AA C80F             (         init.asm):00301 [2]             EORB    #$0F
+C8AC 6F8B             (         init.asm):00302 [6+4]           CLR     D,X
+C8AE 8D72             (         init.asm):00303 [7]             BSR     ZC922
+C8B0 5D               (         init.asm):00304 [2]             TSTB
+C8B1 2705             (         init.asm):00305 [3]             BEQ     ZC8B8
+                      (         init.asm):00306         
+C8B3 6FA0             (         init.asm):00307 [6+2]   ZC8B3   CLR     ,Y+
+C8B5 5A               (         init.asm):00308 [2]             DECB
+C8B6 26FB             (         init.asm):00309 [3]             BNE     ZC8B3
+                      (         init.asm):00310         
+C8B8 3134             (         init.asm):00311 [4+1]   ZC8B8   LEAY    -$0C,Y
+C8BA 8EFFF0           (         init.asm):00312 [3]             LDX     #ZFFF0
+C8BD C610             (         init.asm):00313 [2]             LDB     #$10
+                      (         init.asm):00314         
+C8BF A6A0             (         init.asm):00315 [4+2]   ZC8BF   LDA     ,Y+
+C8C1 A780             (         init.asm):00316 [4+2]           STA     ,X+
+C8C3 5A               (         init.asm):00317 [2]             DECB
+C8C4 26F9             (         init.asm):00318 [3]             BNE     ZC8BF
+C8C6 B6CC2B           (         init.asm):00319 [5]             LDA     >MEMEND
+C8C9 48               (         init.asm):00320 [2]             ASLA
+C8CA 48               (         init.asm):00321 [2]             ASLA
+C8CB 48               (         init.asm):00322 [2]             ASLA
+C8CC 48               (         init.asm):00323 [2]             ASLA
+C8CD 5F               (         init.asm):00324 [2]             CLRB
+C8CE 830001           (         init.asm):00325 [4]             SUBD    #$0001
+C8D1 FDCC2B           (         init.asm):00326 [6]             STD     >MEMEND
+C8D4 17FC13           (         init.asm):00327 [9]             LBSR    ZC4D6
+C8D7 BACC33           (         init.asm):00328 [5]             ORA     >CPUTYP
+C8DA F6DFD0           (         init.asm):00329 [5]             LDB     >ZDFD0
+C8DD C5F0             (         init.asm):00330 [2]             BITB    #$F0
+C8DF 2702             (         init.asm):00331 [3]             BEQ     ZC8E3
+C8E1 8A01             (         init.asm):00332 [2]             ORA     #$01
+                      (         init.asm):00333         
+C8E3 F6E005           (         init.asm):00334 [5]     ZC8E3   LDB     >ZE005
+C8E6 2715             (         init.asm):00335 [3]             BEQ     ZC8FD
+C8E8 C1FF             (         init.asm):00336 [2]             CMPB    #$FF
+C8EA 2711             (         init.asm):00337 [3]             BEQ     ZC8FD
+C8EC F1E0C5           (         init.asm):00338 [5]             CMPB    >ZE0C5
+C8EF 260C             (         init.asm):00339 [3]             BNE     ZC8FD
+C8F1 F1E045           (         init.asm):00340 [5]             CMPB    >ZE045
+C8F4 2607             (         init.asm):00341 [3]             BNE     ZC8FD
+C8F6 F1E085           (         init.asm):00342 [5]             CMPB    >ZE085
+C8F9 2602             (         init.asm):00343 [3]             BNE     ZC8FD
+C8FB 8A04             (         init.asm):00344 [2]             ORA     #$04
+                      (         init.asm):00345         
+C8FD BEE800           (         init.asm):00346 [6]     ZC8FD   LDX     >$E800
+C900 3410             (         init.asm):00347 [5+2]           PSHS    X
+C902 8E99AA           (         init.asm):00348 [3]             LDX     #$99AA
+C905 BFE800           (         init.asm):00349 [6]             STX     >$E800
+C908 BCE800           (         init.asm):00350 [7]             CMPX    >$E800
+C90B 3510             (         init.asm):00351 [5+2]           PULS    X
+C90D 2602             (         init.asm):00352 [3]             BNE     ZC911
+C90F 8A10             (         init.asm):00353 [2]             ORA     #$10
+                      (         init.asm):00354         
+C911 BFE800           (         init.asm):00355 [6]     ZC911   STX     >$E800
+C914 B7CC33           (         init.asm):00356 [5]             STA     >CPUTYP
+C917 7ECD00           (         init.asm):00357 [4]             JMP     >COLDST
+                      (         init.asm):00358         
+                      (         init.asm):00359         *
+                      (         init.asm):00360         
+C91A 1F98             (         init.asm):00361 [6]     ZC91A   TFR     B,A
+C91C 880F             (         init.asm):00362 [2]             EORA    #$0F
+C91E B7FFFD           (         init.asm):00363 [5]             STA     >ZFFFD
+C921 39               (         init.asm):00364 [5]             RTS
+                      (         init.asm):00365         
+                      (         init.asm):00366         *
+                      (         init.asm):00367         
+C922 C60C             (         init.asm):00368 [2]     ZC922   LDB     #$0C
+C924 108EDFD0         (         init.asm):00369 [4]             LDY     #ZDFD0
+                      (         init.asm):00370         *       LDX     #STARTR+16
+C928 8EC100           (         init.asm):00371 [3]             LDX     #STARTR
+                      (         init.asm):00372         
+C92B 8CC200           (         init.asm):00373 [4]     ZC92B   CMPX    #STARTR+256
+C92E 270D             (         init.asm):00374 [3]             BEQ     ZC93D
+C930 A680             (         init.asm):00375 [4+2]           LDA     ,X+
+C932 27F7             (         init.asm):00376 [3]             BEQ     ZC92B
+C934 A7A0             (         init.asm):00377 [4+2]           STA     ,Y+
+C936 7CCC2B           (         init.asm):00378 [7]             INC     >MEMEND
+C939 5A               (         init.asm):00379 [2]             DECB
+C93A 26EF             (         init.asm):00380 [3]             BNE     ZC92B
+C93C 39               (         init.asm):00381 [5]             RTS
+                      (         init.asm):00382         
+C93D 8EC100           (         init.asm):00383 [3]     ZC93D   LDX     #STARTR
+                      (         init.asm):00384         
+C940 8CC110           (         init.asm):00385 [4]     ZC940   CMPX    #STARTR+16
+C943 270C             (         init.asm):00386 [3]             BEQ     ZC951
+C945 A680             (         init.asm):00387 [4+2]           LDA     ,X+
+C947 27F7             (         init.asm):00388 [3]             BEQ     ZC940
+C949 A7A0             (         init.asm):00389 [4+2]           STA     ,Y+
+C94B 7CCC2B           (         init.asm):00390 [7]             INC     >MEMEND
+C94E 5A               (         init.asm):00391 [2]             DECB
+C94F 26EF             (         init.asm):00392 [3]             BNE     ZC940
+                      (         init.asm):00393         
+C951 39               (         init.asm):00394 [5]     ZC951   RTS
+                      (         init.asm):00395         
+                      (         init.asm):00396                 END
+
+Symbol Table:
+[ G] COLDST                           CD00
+[ G] CPUTYP                           CC33
+[ G] DCHECK                           DE0F
+[ G] DWARM                            DE18
+[ G] ESCRTN                           CC16
+[ G] FMSCAL                           D406
+[ G] IHNDLR                           D3E7
+[ G] INBUFF                           CD1B
+[ G] INCH                             CD09
+[ G] INCH2                            CD0C
+[ G] INDECM                           CD48
+[ G] LNBUFF                           C080
+[ G] LNBUFP                           CC14
+[ G] MEMEND                           CC2B
+[ G] OUTCH                            CD0F
+[ G] OUTCH2                           CD12
+[ G] PRCRLF                           CD24
+[ G] PROMPT                           CC4E
+[ G] PSTRNG                           CD1E
+[ G] RENTER                           CD06
+[ G] SFRES1                           C850
+[ G] SMONTH                           CC0E
+[ G] STAR                             C400
+[ G] STAR0                            C407
+[ G] STARTR                           C100
+[ G] STAT                             CD4E
+[ G] STIME                            D370
+[ G] SYSFCB                           C840
+[ G] TIMINE                           D3FB
+[ G] TIMOFF                           D3ED
+[ G] TIMON                            D3EF
+[ G] TIMOUT                           D3F9
+[ G] TMINIT                           D3F1
+[ G] TRMCHK                           D3F7
+[ G] TRMINT                           D3F5
+[ G] Vers                             C402
+[ G] WARMST                           CD03
+[ G] ZC43A                            C437
+[ G] ZC47E                            C48E
+[ G] ZC488                            C498
+[ G] ZC4A0                            C4B0
+[ G] ZC4AE                            C4C2
+[ G] ZC4B0                            C4C4
+[ G] ZC4B2                            C4C6
+[ G] ZC4BB                            C4CF
+[ G] ZC4C4                            C4D8
+[ G] ZC4CA                            C4DE
+[ G] ZC4D6                            C4EA
+[ G] ZC555                            C4F1
+[ G] ZC810                            C504
+[ G] ZC82B                            C52F
+[ G] ZC82E                            C532
+[ G] ZC867                            C867
+[ G] ZC874                            C874
+[ G] ZC888                            C888
+[ G] ZC889                            C889
+[ G] ZC890                            C890
+[ G] ZC8B3                            C8B3
+[ G] ZC8B8                            C8B8
+[ G] ZC8BF                            C8BF
+[ G] ZC8E3                            C8E3
+[ G] ZC8FD                            C8FD
+[ G] ZC911                            C911
+[ G] ZC91A                            C91A
+[ G] ZC922                            C922
+[ G] ZC92B                            C92B
+[ G] ZC93D                            C93D
+[ G] ZC940                            C940
+[ G] ZC951                            C951
+[ G] ZD0F0                            D0F0
+[ G] ZD0F1                            D0F1
+[ G] ZD3FD                            D3FD
+[ G] ZDFD0                            DFD0
+[ G] ZDFDC                            DFDC
+[ G] ZDFDD                            DFDD
+[ G] ZE005                            E005
+[ G] ZE045                            E045
+[ G] ZE085                            E085
+[ G] ZE090                            E090
+[ G] ZE0C5                            E0C5
+[ G] ZF810                            F810
+[ G] ZFFF0                            FFF0
+[ G] ZFFFC                            FFFC
+[ G] ZFFFD                            FFFD

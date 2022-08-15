@@ -39,14 +39,14 @@
                       (       scream.asm):00039         ;_______________________________________________________________
                       (       scream.asm):00040         
                       (       scream.asm):00041         ; UART 16C550 SERIAL
-     0368             (       scream.asm):00042         UART0           equ     $0368           ; DATA IN/OUT
-     0369             (       scream.asm):00043         UART1           equ     $0369           ; CHECK RX
-     036A             (       scream.asm):00044         UART2           equ     $036A           ; INTERRUPTS
-     036B             (       scream.asm):00045         UART3           equ     $036B           ; LINE CONTROL
-     036C             (       scream.asm):00046         UART4           equ     $036C           ; MODEM CONTROL
-     036D             (       scream.asm):00047         UART5           equ     $036D           ; LINE STATUS
-     036E             (       scream.asm):00048         UART6           equ     $036E           ; MODEM STATUS
-     036F             (       scream.asm):00049         UART7           equ     $036F           ; SCRATCH REG.
+     FE68             (       scream.asm):00042         UART0           equ     $FE68           ; DATA IN/OUT
+     FE69             (       scream.asm):00043         UART1           equ     $FE69           ; CHECK RX
+     FE6A             (       scream.asm):00044         UART2           equ     $FE6A           ; INTERRUPTS
+     FE6B             (       scream.asm):00045         UART3           equ     $FE6B           ; LINE CONTROL
+     FE6C             (       scream.asm):00046         UART4           equ     $FE6C           ; MODEM CONTROL
+     FE6D             (       scream.asm):00047         UART5           equ     $FE6D           ; LINE STATUS
+     FE6E             (       scream.asm):00048         UART6           equ     $FE6E           ; MODEM STATUS
+     FE6F             (       scream.asm):00049         UART7           equ     $FE6F           ; SCRATCH REG.
                       (       scream.asm):00050         
                       (       scream.asm):00051         ; this is Z80 code that is used to be able to run this as a .COM file.  It is truncated
                       (       scream.asm):00052         ; when the various .HEX files are generated
@@ -57,7 +57,7 @@ EFE1 010010           (       scream.asm):00056                         FCB     
 EFE4 110070           (       scream.asm):00057                         FCB             $11,$00,$70             ;LD     DE,$7000 -DESTINATION ADDRESS (6809 IS !A15)
 EFE7 212001           (       scream.asm):00058                         FCB             $21,$20,$01             ;LD     HL,$0120 -SOURCE ADDRESS
 EFEA EDB0             (       scream.asm):00059                         FCB             $ED,$B0                 ;LDIR            -COPY RAM
-EFEC DBFF             (       scream.asm):00060                         FCB             $DB,$FF                 ;IN     A,$FF    -ENABLE 6809
+EFEC DBFE             (       scream.asm):00060                         FCB             $DB,$FE                 ;IN     A,$FE    -ENABLE 6809
 EFEE 0E00             (       scream.asm):00061                         FCB             $0E,$00                 ;LD     C,00H    -CP/M SYSTEM RESET CALL
 EFF0 CD0500           (       scream.asm):00062                         FCB             $CD,$05,$00                     ;CALL   0005H    -RETURN TO PROMPT
                       (       scream.asm):00063         ;
@@ -84,12 +84,12 @@ F000 10DE7F           (       scream.asm):00074 [6]     MAIN:   LDS             
                       (       scream.asm):00084         
 F003                  (       scream.asm):00085         SERIAL_OUTCH:
 F003                  (       scream.asm):00086         TX_BUSYLP:
-F003 B6036D           (       scream.asm):00087 [5]                     LDA             UART5                   ; READ LINE STATUS REGISTER
+F003 B6FE6D           (       scream.asm):00087 [5]                     LDA             UART5                   ; READ LINE STATUS REGISTER
 F006 8420             (       scream.asm):00088 [2]                     ANDA    #$20                    ; TEST IF UART IS READY TO SEND (BIT 5)
 F008 8100             (       scream.asm):00089 [2]                     CMPA    #$00
 F00A 27F7             (       scream.asm):00090 [3]                     BEQ             TX_BUSYLP               ; IF NOT REPEAT
 F00C 8641             (       scream.asm):00091 [2]                     LDA     #'A
-F00E B70368           (       scream.asm):00092 [5]                     STA             UART0                   ; THEN WRITE THE CHAR TO UART
+F00E B7FE68           (       scream.asm):00092 [5]                     STA             UART0                   ; THEN WRITE THE CHAR TO UART
 F011 7EF003           (       scream.asm):00093 [4]             JMP     SERIAL_OUTCH
                       (       scream.asm):00094         
                       (       scream.asm):00095                 ORG     $FFFE           ; SET RESET VECTOR TO
@@ -106,11 +106,11 @@ Symbol Table:
 [ G] RESETV                           FFFE
 [ G] SERIAL_OUTCH                     F003
 [ G] TX_BUSYLP                        F003
-[ G] UART0                            0368
-[ G] UART1                            0369
-[ G] UART2                            036A
-[ G] UART3                            036B
-[ G] UART4                            036C
-[ G] UART5                            036D
-[ G] UART6                            036E
-[ G] UART7                            036F
+[ G] UART0                            FE68
+[ G] UART1                            FE69
+[ G] UART2                            FE6A
+[ G] UART3                            FE6B
+[ G] UART4                            FE6C
+[ G] UART5                            FE6D
+[ G] UART6                            FE6E
+[ G] UART7                            FE6F
