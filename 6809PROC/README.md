@@ -255,13 +255,13 @@ MEMORY MAP:
  FF00  -------
           I    Work RAM
  FFEF  -------
-        FFF0    RESERVED
-        FFF2    SWI3 VECTOR
-        FFF4    SWI2 VECTOR
-        FFF6    FIRQ VECTOR
-        FFF8    IRQ VECTOR
-        FFFA    SWI VECTOR
-        FFFC    NMI VECTOR
-        FFFE    RESET VECTOR
+                FFF0    RESERVED
+                FFF2    SWI3 VECTOR
+                FFF4    SWI2 VECTOR
+                FFF6    FIRQ VECTOR
+                FFF8    IRQ VECTOR
+                FFFA    SWI VECTOR
+                FFFC    NMI VECTOR
+                FFFE    RESET VECTOR
  FFFF  -------
 ```

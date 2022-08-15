@@ -17,6 +17,11 @@ UART4       	equ    	$FE6C           ; MODEM CONTROL
 UART5          	equ    	$FE6D           ; LINE STATUS
 UART6          	equ    	$FE6E           ; MODEM STATUS
 UART7	       	equ    	$FE6F           ; SCRATCH REG.
+
+
+PSTRNG          EQU     $CD1E
+PRCRLF          EQU     $CD24
+
 ;
 ; CONSOLE I/O DRIVER VECTOR TABLE
 ;_____________________________________________________________________________________________________
@@ -195,7 +200,7 @@ ADDDEV          pshs    x,y,u
                 beq     DEVARE              already exists - exit
                 stu     4,x                 set link pointer in new ctl blk
                 stx     4,y                 link this one into prev blk
-DEVARE          puls    pc,u,y,x
+DEVARE          puls    pc,X,Y,U
 
 ;_____________________________________________________________________________________________________
 ;       delete a device from IRQ handler table
@@ -205,7 +210,7 @@ DELDEV          pshs    x,y,u
                 bne     NODEV               not found - exit
                 ldx     4,x                 get link from ctl blk to delete
                 stx     4,u                 set in prev block
-NODEV           puls    pc,u,y,x
+NODEV           puls    pc,X,Y,U
 
 ;_____________________________________________________________________________________________________
 ;       search a linked list
@@ -282,7 +287,8 @@ READERR:        LDB     #$1F
 READFLOPPY:
                 BRA     READERR
 READIDE:
-                BRA     READERR
+                PULS    A
+                JMP     IDE_READ_SECTOR
 
 ;_____________________________________________________________________________________________________
 ;   WRITE   This routine writes the information from the specifed memory
@@ -313,7 +319,8 @@ WRITEERR:       LDB     #$1F
 WRITEFLOPPY:
                 BRA     WRITEERR
 WRITEIDE:
-                BRA     WRITEERR
+                PULS    A
+                JMP     IDE_WRITE_SECTOR
 ;_____________________________________________________________________________________________________
 ;   VERIFY  The sector just written to the disk is to be verified to
 ;           determine if there are CRC errors. No seek is required as
@@ -340,7 +347,8 @@ VERIFYERR:      LDB     #$1F
 VERIFYFLOPPY:
                 BRA     VERIFYERR
 VERIFYIDE:
-                BRA     VERIFYERR
+                LDB     #$00
+                RTS
 ;_____________________________________________________________________________________________________
 ;   SEEK    Seeks to the track specified in the 'A' accumulator. In
 ;           double-sided systems, this routine should also select the
@@ -367,7 +375,8 @@ SEEKERR:        LDB     #$1F
 SEEKFLOPPY:
                 BRA     SEEKERR
 SEEKIDE:
-                BRA     SEEKERR
+                LDB     #$00
+                RTS
 
 ;_____________________________________________________________________________________________________
 ;   INIT    This routine performs any necessary initialization of the
@@ -380,6 +389,7 @@ SEEKIDE:
 ;           EXIT - A, B, X, Y, and U may be destroyed
 ;_____________________________________________________________________________________________________
 INIT
+                JSR     PPIDE_INIT
                 RTS
 
 ;_____________________________________________________________________________________________________
@@ -397,6 +407,7 @@ INIT
 ;           EXIT - A, B, X, Y, and U may be destroyed
 ;_____________________________________________________________________________________________________
 WARM
+                JSR     PPIDE_RESET
                 RTS
 
 ;_____________________________________________________________________________________________________
@@ -427,7 +438,9 @@ RESTOREERR:     LDB     #$1F
 RESTOREFLOPPY:
                 BRA     RESTOREERR
 RESTOREIDE:
-                BRA     RESTOREERR
+                LDB     #$00
+                RTS
+
 
 ;_____________________________________________________________________________________________________
 ;   DRIVE   The specified drive is to be selected. The drive is specified
@@ -516,7 +529,9 @@ CHKRDYERR:      LDB     #$1F
 CHKRDYFLOPPY:
                 BRA     CHKRDYERR
 CHKRDYIDE:
-                BRA     CHKRDYERR
+                LDB     #$00
+                RTS
+
 ;_____________________________________________________________________________________________________
 ;   QUICK   This routine performs a "quick" drive ready check. Its
 ;           function is exactly like the CHKRDY routine above except that
@@ -535,6 +550,29 @@ QUICKERR:       LDB     #$1F
 QUICKFLOPPY:
                 BRA     QUICKERR
 QUICKIDE:
-                BRA     QUICKERR
+                LDB     #$00
+                RTS
+
+
+;_____________________________________________________________________________________________________
+;_____________________________________________________________________________________________________
+
+PRTHEXBYTE:
+                PSHS    A
+                JSR     $cfd8       ; OUTHL       OUTPUT IT
+                PULS    A
+                JSR     $CFDC       ; OUTHR
+                RTS
+
+
+;_____________________________________________________________________________________________________
+                INCLUDE "flexidedrv.asm"
+
+
+;_____________________________________________________________________________________________________
+
+HSTBUF:         RMB     512
+
+
 
                 END

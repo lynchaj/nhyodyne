@@ -1,6 +1,6 @@
 ASM=lwasm
 
-ALL:    flex.com        \
+ALL:    flex09.com        \
         flex.sys        \
         flx29ccp.s19    \
         flx29fms.s19    \
@@ -10,7 +10,7 @@ ALL:    flex.com        \
         monitor.s19     \
         loader.s19
 
-drivers.s19:    drivers.asm
+drivers.s19:    drivers.asm flexidedrv.asm
 	$(ASM)  --6809 --6800compat drivers.asm -s --list=drivers.lst --map=drivers.map --output=drivers.s --format=srec
 	srec_cat  drivers.s -o drivers.s19 -Motorola -Data_Only
 
@@ -44,7 +44,7 @@ flex.sys:   init.s19 spooler.s19 flx29ccp.s19 flx29fms.s19 drivers.s19 monitor.s
 	srec_cat  flex.s19 -offset -0xC400 -o flex.sys -binary
 	truncate flex.sys -s 15360
 
-flex.com:   loader.s19 init.s19 spooler.s19 flx29ccp.s19 flx29fms.s19 drivers.s19 monitor.s19
+flex09.com:   loader.s19 init.s19 spooler.s19 flx29ccp.s19 flx29fms.s19 drivers.s19 monitor.s19
 	cat loader.s19 init.s19 spooler.s19 flx29ccp.s19 flx29fms.s19 drivers.s19 monitor.s19 >flex.s
 	srec_cat  flex.s -offset -0xC3E0 -o flex09.com -binary
 	truncate flex09.com -s 15392
