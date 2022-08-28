@@ -52,6 +52,8 @@ FMSCAL  EQU     $D406
 
 DCHECK  EQU     $DE0F
 DWARM   EQU     $DE18
+DINIT   EQU     $DE15
+DDRIVE  EQU     $DE0C
 
 ZDFD0   EQU     $DFD0
 ZDFDC   EQU     $DFDC
@@ -113,30 +115,45 @@ ZC43A   LDD     >PROMPT         get  current prompt pointer
         PULS    B,A             restore prompt pointer
         STD     >PROMPT
         LDY     #SMONTH         point Y reg to date regs
-        BSR     ZC4A0           convert month from ascii
+        LBSR     ZC4A0           convert month from ascii
         BCS     ZC43A           no good - retry
 
-        BSR     ZC4A0           convert day from ascii
+        LBSR     ZC4A0           convert day from ascii
         BCS     ZC43A           no good - retry
 
-        BSR     ZC4A0           convert year from ascii
+        LBSR     ZC4A0           convert year from ascii
         BCS     ZC43A           no good - retry
 
         LDY     #STIME          point Y reg to system time regs
-        BSR     ZC4A0
+        LBSR     ZC4A0
         BCS     ZC43A           no good - retry
 
-        BSR     ZC4A0
+        LBSR     ZC4A0
         BCS     ZC43A           no good - retry
 
-        BSR     ZC4A0
+        LBSR     ZC4A0
         BCS     ZC43A           no good - retry
         CLR     STIME+3         clear tick counter
 
         JSR     >PRCRLF         do CRLF
-        JSR     >DWARM          init the disk drivers
+        JSR     >DINIT          init the disk drivers
+
+                PSHS 	A
+	        LDA 	#'[
+	        JSR 	OUTCH
+	        PULS 	A
+
+
         LDX     #SYSFCB         point to STARTUP.TXT FCB
         JSR     >DCHECK         do disk check
+        BNE     initerr
+
+                PSHS 	A
+	        LDA 	#']
+	        JSR 	OUTCH
+	        PULS 	A
+
+        LDX     #SYSFCB         point to STARTUP.TXT FCB
         LDA     #$01            set for read operation
         STA     ,X
         JSR     >FMSCAL
@@ -145,10 +162,25 @@ ZC43A   LDD     >PROMPT         get  current prompt pointer
         LDA     $01,X
         CMPA    #$04            file not found error?
         BNE     ZC4B2           no -
+initerr:
+
+                PSHS 	A
+	        LDA 	#'!
+	        JSR 	OUTCH
+	        PULS 	A
+
 
         JMP     >WARMST         yes - ignore file
 
-ZC47E   LDY     #LNBUFF         init line buffer pointer
+ZC47E
+
+                PSHS 	A
+	        LDA 	#'%
+	        JSR 	OUTCH
+	        PULS 	A
+
+
+        LDY     #LNBUFF         init line buffer pointer
         STY     >LNBUFP
         LDB     #$80            set byte count to move
 

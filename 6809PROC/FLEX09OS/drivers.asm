@@ -2,6 +2,9 @@
                 PAG
                 PRAGMA CD
 
+USEDSKYNG   EQU     0
+
+
 ;_____________________________________________________________________________________________________
 ; File Name   : DRIVERS.ASM
 ;_____________________________________________________________________________________________________
@@ -19,13 +22,42 @@ UART6          	equ    	$FE6E           ; MODEM STATUS
 UART7	       	equ    	$FE6F           ; SCRATCH REG.
 
 
-PSTRNG          EQU     $CD1E
-PRCRLF          EQU     $CD24
+PDATA1          EQU     $CE7B
+
+* ASCII CODE EQUATES
+
+NUL     EQU     $00
+EOT     EQU     $04
+
+
+FINIT       EQU     $CD00      ; GO INITIALIZE
+ENTRY       EQU     $CD03      ; WARM ENTRY POINT
+DOS3        EQU     $CD06      ; RE-ENTER DOS
+GETCHR      EQU     $CD15      ; GET CHARACTER
+PUTCHR      EQU     $CD18      ; PUT CHARACTER
+INBUF       EQU     $CD1B      ; INPUT TO BUFFER
+PSTRNG      EQU     $CD1E      ;  PRINT STRING
+CLASS       EQU     $CD21      ; CLASSIFY CHARACTER
+PCRLF       EQU     $CD24      ; PRINT CR AND LF
+NXTCH       EQU     $CD27      ; NEXT BUFFER CHAR
+RESTIO      EQU     $CD2A      ; RESTORE IO VECTORS
+GETFIL      EQU     $CD2D      ; GET FILE SPEC
+LOAD        EQU     $CD30      ; FILE LOADER
+SETEXT      EQU     $CD33      ; SET NAME EXTENSION
+ADDBX       EQU     $CD36      ; ADD B TO X
+OUTDEC      EQU     $CD39      ; OUTPUT DECIMAL
+OUTHEX      EQU     $CD3C      ; OUT HEX CHARACTER
+RPTERR      EQU     $CD3F      ; REPORT ERROR
+GETHEX      EQU     $CD42      ; GET HEX NUMBER
+OUTADR      EQU     $CD45      ; OUT HEX ADDRESS
+INDEC       EQU     $CD48      ; GET DECIMAL NUMBER
+DOCMD       EQU     $CD4B      ; DO COMMAND LINE
+
 
 ;
 ; CONSOLE I/O DRIVER VECTOR TABLE
 ;_____________________________________________________________________________________________________
-                ORG     $D3E1       * TABLE STARTS AT $D3E1
+                ORG     $D3E1       ; TABLE STARTS AT $D3E1
 
 LD3E1           FDB     ADDDEV      ; add an IRQ handler to table
                 FDB     DELDEV      ; delete an IRQ handler from table
@@ -74,7 +106,7 @@ CURDRVTYP       FCB     $00
 CURDRVADDRESS   FCB     $00
 CURDRVSLICE     FDB     $0000
 
-DRVTYPES        FCB     $00,$00,$00,$00
+DRVTYPES        FCB     $02,$02,$02,$02
                 ;   $00 - INVALID
                 ;   $01 - Floppy
                 ;   $02 - IDE
@@ -276,6 +308,12 @@ TAPPTR          fdb     0                   no terminal input redirection
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
 READ            PSHS     A
+
+	PSHS 	A
+	LDA 	#'R
+	JSR 	VOUTCH
+	PULS 	A
+
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     READFLOPPY
@@ -285,8 +323,19 @@ READERR:        LDB     #$1F
                 ASRB
                 PULS    PC,A
 READFLOPPY:
+	PSHS 	A
+	LDA 	#'F
+	JSR 	VOUTCH
+	PULS 	A
+
                 BRA     READERR
 READIDE:
+
+	PSHS 	A
+	LDA 	#'R
+	JSR 	VOUTCH
+	PULS 	A
+
                 PULS    A
                 JMP     IDE_READ_SECTOR
 
@@ -308,6 +357,12 @@ READIDE:
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
 WRITE           PSHS     A
+
+	PSHS 	A
+	LDA 	#'W
+	JSR 	VOUTCH
+	PULS 	A
+
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     WRITEFLOPPY
@@ -336,6 +391,11 @@ WRITEIDE:
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
 VERIFY
+	PSHS 	A
+	LDA 	#'V
+	JSR 	VOUTCH
+	PULS 	A
+
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     VERIFYFLOPPY
@@ -364,6 +424,10 @@ VERIFYIDE:
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
 SEEK
+	PSHS 	A
+	LDA 	#'S
+	JSR 	VOUTCH
+	PULS 	A
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     SEEKFLOPPY
@@ -389,6 +453,10 @@ SEEKIDE:
 ;           EXIT - A, B, X, Y, and U may be destroyed
 ;_____________________________________________________________________________________________________
 INIT
+	PSHS 	A
+	LDA 	#'I
+	JSR 	VOUTCH
+	PULS 	A
                 JSR     PPIDE_INIT
                 RTS
 
@@ -407,6 +475,10 @@ INIT
 ;           EXIT - A, B, X, Y, and U may be destroyed
 ;_____________________________________________________________________________________________________
 WARM
+	PSHS 	A
+	LDA 	#'w
+	JSR 	VOUTCH
+	PULS 	A
                 JSR     PPIDE_RESET
                 RTS
 
@@ -426,7 +498,12 @@ WARM
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-RESTORE         BSR     DRIVE
+RESTORE
+	PSHS 	A
+	LDA 	#'r
+	JSR 	VOUTCH
+	PULS 	A
+                BSR     DRIVE
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     RESTOREFLOPPY
@@ -458,7 +535,13 @@ RESTOREIDE:
 ;                   (C) = 0 if no error
 ;                       = 1 if an error
 ;_____________________________________________________________________________________________________
-DRIVE:          PSHS    X
+DRIVE:
+
+	PSHS 	A
+	LDA 	#'D
+	JSR 	VOUTCH
+	PULS 	A
+
                 LDA     3,X             ; DETERMINE IF DRIVE#>4, IF SO SET ERROR AND EXIT.
                 CMPA    #4
                 BCS     DRIVE1
@@ -472,7 +555,7 @@ DRIVE1          LDX     #DRVTYPES
                 LDB     ,X
                 CMPB    #$01            ; IF $01, OK
                 BEQ     >
-                CMPB    #$02            ; IF $01, OK
+                CMPB    #$02            ; IF $02, OK
                 BEQ     >
                 BRA     DRIVEERR
 !               STB     CURDRVTYP
@@ -490,7 +573,7 @@ DRIVE1          LDX     #DRVTYPES
                 LDB     ,X
                 STB     CURDRVSLICE+1
                 LDB     #$00
-                PULS    PC,X
+                RTS
 
 ;_____________________________________________________________________________________________________
 ;   CHKRDY  Check for a drive ready condition. The drive number is found
@@ -518,19 +601,11 @@ DRIVE1          LDX     #DRVTYPES
 ;                       = 1 if not ready
 ;_____________________________________________________________________________________________________
 CHKRDY
-                LDA     3,X
-                CMPA    #$01
-                BEQ     CHKRDYFLOPPY
-                CMPA    #$02
-                BEQ     CHKRDYIDE
-CHKRDYERR:      LDB     #$1F
-                ASRB
-                RTS
-CHKRDYFLOPPY:
-                BRA     CHKRDYERR
-CHKRDYIDE:
-                LDB     #$00
-                RTS
+	PSHS 	A
+	LDA 	#'C
+	JSR 	VOUTCH
+	PULS 	A
+                BRA     DRIVE
 
 ;_____________________________________________________________________________________________________
 ;   QUICK   This routine performs a "quick" drive ready check. Its
@@ -539,30 +614,12 @@ CHKRDYIDE:
 ;           condition on the first check, a not ready condition is
 ;           immediately returned. Entry and exit are as above.
 ;_____________________________________________________________________________________________________
-QUICK           LDA     3,X
-                CMPA    #$01
-                BEQ     QUICKFLOPPY
-                CMPA    #$02
-                BEQ     QUICKIDE
-QUICKERR:       LDB     #$1F
-                ASRB
-                RTS
-QUICKFLOPPY:
-                BRA     QUICKERR
-QUICKIDE:
-                LDB     #$00
-                RTS
-
-
-;_____________________________________________________________________________________________________
-;_____________________________________________________________________________________________________
-
-PRTHEXBYTE:
-                PSHS    A
-                JSR     $cfd8       ; OUTHL       OUTPUT IT
-                PULS    A
-                JSR     $CFDC       ; OUTHR
-                RTS
+QUICK
+	PSHS 	A
+	LDA 	#'Q
+	JSR 	VOUTCH
+	PULS 	A
+                BRA     DRIVE
 
 
 ;_____________________________________________________________________________________________________
