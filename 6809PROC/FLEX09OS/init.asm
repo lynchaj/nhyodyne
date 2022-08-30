@@ -1,428 +1,395 @@
         NAM     INIT.TXT
         OPT     pag
-*       LEN     96
         PAG
         PRAGMA CD
 *************************************************
 *                                               *
-*       Flex 2.9:1 initialization code          *
+*       flex 2.9:1 initialization code          *
 *                                               *
 *************************************************
+STARTOFFLEX	equ	$C000
+ENDOFFLEX	equ	$DEFF
 
-LNBUFF  EQU     $C080
-STARTR  EQU     $C100
-SYSFCB  EQU     $C840
+;LNBUFF  equ     $C080
+;STARTR  equ     $C100
 
-SMONTH  EQU     $CC0E
-LNBUFP  EQU     $CC14
-ESCRTN  EQU     $CC16
-MEMEND  EQU     $CC2B
-CPUTYP  EQU     $CC33
-PROMPT  EQU     $CC4E
+;SMONTH  equ     $CC0E
+;LNBUFP  equ     $CC14
+;ESCRTN  equ     $CC16
+;PROMPT  equ     $CC4E
 
-COLDST  EQU     $CD00
-WARMST  EQU     $CD03
-RENTER  EQU     $CD06
-INCH    EQU     $CD09
-INCH2   EQU     $CD0C
-OUTCH   EQU     $CD0F
-OUTCH2  EQU     $CD12
-INBUFF  EQU     $CD1B
-PSTRNG  EQU     $CD1E
-PRCRLF  EQU     $CD24
-INDECM  EQU     $CD48
-STAT    EQU     $CD4E
+;COLDST  equ     $CD00
+;WARMST  equ     $CD03
+;RENTER  equ     $CD06
+;INCH    equ     $CD09
+;INCH2   equ     $CD0C
+;OUTCH   equ     $CD0F
+;OUTCH2  equ     $CD12
+;INBUFF  equ     $CD1B
+;PSTRNG  equ     $CD1E
+;PRCRLF  equ     $CD24
+;INDECM  equ     $CD48
+;STAT    equ     $CD4E
 
-ZD0F0   EQU     $D0F0
-ZD0F1   EQU     $D0F1
+;ZD0F0   equ     $D0F0
+;ZD0F1   equ     $D0F1
 
-STIME   EQU     $D370
+;STIME   equ     $D370
 
-IHNDLR  EQU     $D3E7
-TIMOFF  EQU     $D3ED
-TIMON   EQU     $D3EF
-TMINIT  EQU     $D3F1
-TRMINT  EQU     $D3F5
-TRMCHK  EQU     $D3F7
-TIMOUT  EQU     $D3F9
-TIMINE  EQU     $D3FB
-ZD3FD   EQU     $D3FD
+;IHNDLR  equ     $D3E7
+;TIMOFF  equ     $D3ED
+;TIMON   equ     $D3EF
+;TMINIT  equ     $D3F1
+;TRMINT  equ     $D3F5
+;TRMCHK  equ     $D3F7
+;TIMOUT  equ     $D3F9
+;TIMINE  equ     $D3FB
+;ZD3FD   equ     $D3FD
 
-FMSCAL  EQU     $D406
+;FMSCAL  equ     $D406
 
-DCHECK  EQU     $DE0F
-DWARM   EQU     $DE18
-DINIT   EQU     $DE15
-DDRIVE  EQU     $DE0C
+;ZDFD0   equ     $DFD0
+;ZDFDC   equ     $DFDC
+;ZDFDD   equ     $DFDD
 
-ZDFD0   EQU     $DFD0
-ZDFDC   EQU     $DFDC
-ZDFDD   EQU     $DFDD
+;ZE005   equ     $E005
+;ZE045   equ     $E045
+;ZE085   equ     $E085
+;ZE090   equ     $E090
+;ZE0C5   equ     $E0C5
 
-ZE005   EQU     $E005
-ZE045   EQU     $E045
-ZE085   EQU     $E085
-ZE090   EQU     $E090
-ZE0C5   EQU     $E0C5
+;ZF810   equ     $F810
+;ZFFF0   equ     $FFF0
+;ZFFFC   equ     $FFFC
+;ZFFFD   equ     $FFFD
 
-ZF810   EQU     $F810
-ZFFF0   EQU     $FFF0
-ZFFFC   EQU     $FFFC
-ZFFFD   EQU     $FFFD
-        pag
+        page
 
 ****************************************************
 
 
 *
-* STARTUP ROUTINE
-* THIS ROUTINE INITIALIZES CERTAIN PARAMETERS, GETS
-* DATE FROM USER, AND EXECUTES A STARTUP.TXT FILE.
+* STARTUp rouTINE
+* THIS RoutinE INITIALIZES CERTAIN PARAMETERS, GETS
+* DATE From uSER, AND EXECUTES A STARTUP.TXT FILE.
 
-        ORG     $C400
+        org     $C400
 
-STAR    BRA     STAR0
-Vers    FCB     $82,$2E,$89,$3A,$81
+LOADADDR
+STAR    bra     STAR0
+Vers    fcb     $82,$2E,$89,$3A,$81
 
-STAR0   LDA     #$39            SET UP RTS
-        STA     >ZD3FD          disable re-entry to this code
+STAR0   lda     #$39            ;SET UP RTS
+        sta     >TSTSTR          ;disable re-entry to this code
+        ldd     #$CD03          ;setup 'escape routine' address
+        std     >RETRNR         ;ESCRTN
+                                ;
+;        ldd     >TRMCHK         ;get address of terminal status check routine
+;        std     >DSTAT+1         ;set in FLEX status check jump
+;                                ;
+;        ldd     >TIMOUT         ;get address of terminal output routine
+;        std     >OUTCH+1        ;set in FLEX out char jump
+;        std     >OUTCH2+1       ;set in FLEX alternate out char jump
+;                                ;
+;        ldd     >TIMINE         ;get address of terminal input routine
+;        std     >INCH+1         ;set in FLEX in char jump
+;        std     >INCH2+1        ;set in FLEX alt in char jump
+                       ;
+        jsr     TINIT           ;do terminal init
 
-        LDD     #$CD03          setup 'escape routine' address
-        STD     >ESCRTN
+        ldx     #ZC810          ;point to Flex version signon
+        jsr     >PSTRNG         ;print to terminal
+        jsr     >DPCRLF         ;and CRLF
+                               ;
+ZC43A   ;ldd     >PPRMPT         ;PROMPT get  current prompt pointer
+        ;pshs    b,a             ;save it
+        ;ldx     #ZC82E          ;request for date - PROMPT FOR IT
+        ;stx     >PPRMPT         ;set new prompt pointer
+        ;jsr     >PSTRNG         ;do prompt
+        ;jsr     >DINBUF         ;get date
+        ;puls    b,a             ;restore prompt pointer
+        ;std     >PPRMPT         ;
+        ;ldy     #SYSMTH         ;SMONTH point Y reg to date regs
+        ;bsr     ZC4A0           ;convert month from ascii
+        ;bcs     ZC43A           ;no good - retry
+        ;                        ;
+        ;bsr     ZC4A0           ;convert day from ascii
+        ;bcs     ZC43A           ;no good - retry
+        ;                        ;
+        ;bsr     ZC4A0           ;convert year from ascii
+        ;bcs     ZC43A           ;no good - retry
+        ;                        ;
+        ;ldy     #STIME          ;point Y reg to system time regs
+        ;bsr     ZC4A0           ;
+        ;bcs     ZC43A           ;no good - retry
+        ;                        ;
+        ;bsr     ZC4A0           ;
+        ;bcs     ZC43A           ;no good - retry
+        ;                        ;
+        ;bsr     ZC4A0           ;
+        ;bcs     ZC43A           ;no good - retry
+        ;clr     STIME+3         ;clear tick counter
+        jsr     >DPCRLF         ;do CRLF
 
-        LDD     >TRMCHK         get address of terminal status check routine
-        STD     >STAT+1         set in FLEX status check jump
+        jsr     >DINIT          ;init the disk drivers
+        ldx     #SYSFCB         ;point to STARTUP.TXT FCB
+        jsr     >DCHECK         ;do disk check
+        lda     #$01            ;set for read operation
+        sta     ,x              ;
+        jsr     >FMS         	;D406
+        beq     ZC47E           ;no error
+                                ;
+        lda     $01,x           ;
+        cmpa    #$04            ;file not found error?
+        bne     ZC4B2           ;no -
+                                ;
+        jmp     >WARMS         ;yes - ignore file
+                                ;
+ZC47E   ldy     #LINBUF         ;init line buffer pointer
+        sty     >BUFPNT         ;LNBUFP
+        ldb     #$80            ;set byte count to move
+                                ;
+ZC488   jsr     >FMS            ;get byte from startup.txt
 
-        LDD     >TIMOUT         get address of terminal output routine
-        STD     >OUTCH+1        set in FLEX out char jump
-        STD     >OUTCH2+1       set in FLEX alternate out char jump
+        bne     ZC4B2           ;error
+        decb                    ;decrement count
+        beq     ZC4B2           ;done
+                                ;
+        sta     ,y+             ;put character in line buffer
+        cmpa    #$0D            ;see if EOL character
+        bne     ZC488           ;no - loop
+                                ;
+        lda     #$04            ;yes - close file
+        sta     ,x              ;
+        jsr     >FMS         ;
 
-        LDD     >TIMINE         get address of terminal input routine
-        STD     >INCH+1         set in FLEX in char jump
-        STD     >INCH2+1        set in FLEX alt in char jump
-
-        JSR     [TRMINT]        do terminal init
-        LDX     #ZC810          point to Flex version signon
-        JSR     >PSTRNG         print to terminal
-        JSR     >PRCRLF         and CRLF
-
-ZC43A   LDD     >PROMPT         get  current prompt pointer
-        PSHS    B,A             save it
-        LDX     #ZC82E          request for date
-        STX     >PROMPT         set new prompt pointer
-        JSR     >PSTRNG         do prompt
-        JSR     >INBUFF         get date
-        PULS    B,A             restore prompt pointer
-        STD     >PROMPT
-        LDY     #SMONTH         point Y reg to date regs
-        LBSR     ZC4A0           convert month from ascii
-        BCS     ZC43A           no good - retry
-
-        LBSR     ZC4A0           convert day from ascii
-        BCS     ZC43A           no good - retry
-
-        LBSR     ZC4A0           convert year from ascii
-        BCS     ZC43A           no good - retry
-
-        LDY     #STIME          point Y reg to system time regs
-        LBSR     ZC4A0
-        BCS     ZC43A           no good - retry
-
-        LBSR     ZC4A0
-        BCS     ZC43A           no good - retry
-
-        LBSR     ZC4A0
-        BCS     ZC43A           no good - retry
-        CLR     STIME+3         clear tick counter
-
-        JSR     >PRCRLF         do CRLF
-        JSR     >DINIT          init the disk drivers
-
-                PSHS 	A
-	        LDA 	#'[
-	        JSR 	OUTCH
-	        PULS 	A
-
-
-        LDX     #SYSFCB         point to STARTUP.TXT FCB
-        JSR     >DCHECK         do disk check
-        BNE     initerr
-
-                PSHS 	A
-	        LDA 	#']
-	        JSR 	OUTCH
-	        PULS 	A
-
-        LDX     #SYSFCB         point to STARTUP.TXT FCB
-        LDA     #$01            set for read operation
-        STA     ,X
-        JSR     >FMSCAL
-        BEQ     ZC47E           no error
-
-        LDA     $01,X
-        CMPA    #$04            file not found error?
-        BNE     ZC4B2           no -
-initerr:
-
-                PSHS 	A
-	        LDA 	#'!
-	        JSR 	OUTCH
-	        PULS 	A
-
-
-        JMP     >WARMST         yes - ignore file
-
-ZC47E
-
-                PSHS 	A
-	        LDA 	#'%
-	        JSR 	OUTCH
-	        PULS 	A
-
-
-        LDY     #LNBUFF         init line buffer pointer
-        STY     >LNBUFP
-        LDB     #$80            set byte count to move
-
-ZC488   JSR     >FMSCAL         get byte from startup.txt
-        BNE     ZC4B2           error
-        DECB                    decrement count
-        BEQ     ZC4B2           done
-
-        STA     ,Y+             put character in line buffer
-        CMPA    #$0D            see if EOL character
-        BNE     ZC488           no - loop
-
-        LDA     #$04            yes - close file
-        STA     ,X
-        JSR     >FMSCAL
-
-        JMP     >RENTER         re-enter FLEX with command in line buffer
-
-*       convert ascii to decimal
-
-ZC4A0   JSR     >INDECM
-        PSHS    X
-        BCS     ZC4B0
-        LDA     ,Y
-        TSTB                    see if any valid decimal digits entered
-        ORCC    #$01            set carry flag for error
-        BEQ     ZC4AE           no - return error
-
-        LDA     $01,S           yes - get returned byte
-        ANDCC   #$FE            set carry flag = 0 if no error
-ZC4AE   STA     ,Y+             put in callers buffer
-ZC4B0   PULS    PC,B,A          return
+        jmp     >RENTER         ;re-enter FLEX with command in line buffer
+                                ;
+*       convert ascii to decimal;
+                                ;
+ZC4A0   jsr     >DINDEC         ;
+        pshs    x               ;
+        bcs     ZC4B0           ;
+        lda     ,y              ;
+        tstb                    ;see if any valid decimal digits entered
+        orcc    #$01            ;set carry flag for error
+        beq     ZC4AE           ;no - return error
+                                ;
+        lda     $01,s           ;yes - get returned byte
+        andcc   #$FE            ;set carry flag = 0 if no error
+ZC4AE   sta     ,y+             ;put in callers buffer
+ZC4B0   puls    pc,b,a          ;return
 
 *       error in startup file - report it
 
-ZC4B2   LDX     #ZC555          can't run startup message
-        JSR     >PSTRNG
+ZC4B2   ldx     #ZC555          ;can't run startup message
 
-        JMP     >WARMST
+        jsr     >PSTRNG
+
+        jmp     >WARMS
 
 *       fix up number of K of memory available message
 
-ZC4BB   PSHS    X,B
-        LDX     #ZC82B          'K' message
-        LDA     #$04
-        BRA     ZC4CA
+ZC4BB   pshs    x,b
+        ldx     #ZC82B          ;'K' message
+        lda     #$04
+        bra     ZC4CA
 
 *
 
-ZC4C4   SUBA    #$0A
-        STA     ,X
-        LDA     #$01
+ZC4C4   suba    #$0A
+        sta     ,x
+        lda     #$01
 
 *
 
-ZC4CA   ADDA    ,-X
-        ORA     #$30
-        STA     ,X
-        CMPA    #$39
-        BHI     ZC4C4
-        PULS    PC,X,B
+ZC4CA   adda    ,-x
+        ora     #$30
+        sta     ,x
+        cmpa    #$39
+        bhi     ZC4C4
+        puls    pc,x,b
 
 *       return status that no no RTC is available
-*       but MPT does exist
+*       but mPT does exist
 
-ZC4D6   JSR     [TMINIT]        init timer
-        LDA     #$02            set flag for MPT
-        RTS
+ZC4D6   jsr     TMINT           ;init timer
+        lda     #$02            ;set flag for MPT
+        rts
 
 *       startup file error message
 
-ZC555   FCC     "Can't run STARTUP."
-        FCB     $04
+ZC555   fcc     "Can't run STARTUP."
+        fcb     $04
 
-*       FLEX startup signon message
+*       flex startup signon message
 
-ZC810   FCC     "FLEX for Nhyodyne 6809 Version 2.9:2 - "
-        FCB     $00,$00,$00,$00
+ZC810   ;fcb     $1A               ; purpose?
+        fcc     "FLEX for NHYODYNE 6809 Version 2.9:2 "
+        fcb     $04,$34,$38   ; purpose?
 
-ZC82B   FCC     "K"
-        FCB     $15
-        FCB     $04
+ZC82B   fcc     "48K ram"
+        fcb     $04        ; purpose?
+        fcb     $04
 
-*       Date prompt
+*       date prompt
 
-ZC82E   FCC     "Date and TIME (MM/DD/YY HH/MM/SS)? "
-        FCB     $04
+ZC82E   fcc     "Date and TIME (MM/DD/YY HH/MM/SS)? "
+        fcb     $04
 
-        ORG     SYSFCB
+;        org     SYSFCB		; same data in FLX29CPP
 
-        FCB     $FF
-        FCB     $00
-        FCB     $00
-        FCB     $00
-        FCC     "startup"
-        FCB     $00
-        FCC     "txt"
-        FCB     $00
+;        fcb     $FF
+;        fcb     $00
+;        fcb     $00
+;        fcb     $00
+;        fcc     "startup"
+;        fcb     $00
+;        fcc     "txt"
+;        fcb     $00
 
 *************************************************
 *                                               *
-*       FLEX entry point after boot             *
+*       flex entry point after boot             *
 *                                               *
 *         this must start at $C850              *
-*                                               *
+*       N8VEM doesn't use this!                 *
 *************************************************
+;		org $c850
+;COLDSTART
+;SFRES1  orcc    #$50
+        ;lds     #LNBUF
+        ;ldd     >ZDFDC
+        ;ldx     >ZD0F0
+        ;pshs    x,b,a
+        ;ldx     #$99AA
+        ;ldy     #STARTR+256
+        ;ldb     #$FF
 
-SFRES1  ORCC    #$50
-        LDS     #LNBUFF
-        LDD     >ZDFDC
-        LDX     >ZD0F0
-        PSHS    X,B,A
-        LDX     #$99AA
-        LDY     #STARTR+256
-        LDB     #$FF
+;ZC867   lbsr    ZC91A
+        ;stx     >ZD0F0
+        ;cmpx    >ZD0F0
+        ;bne     ZC888
+        ;pshs    b
 
-ZC867   LBSR    ZC91A
-        STX     >ZD0F0
-        CMPX    >ZD0F0
-        BNE     ZC888
-        PSHS    B
+;ZC874   lbsr    ZC91A
+        ;stb     >ZD0F1
+        ;subb    #$01
+        ;bcc     ZC874
 
-ZC874   LBSR    ZC91A
-        STB     >ZD0F1
-        SUBB    #$01
-        BCC     ZC874
+        ;puls    b
+        ;lbsr    ZC91A
+        ;cmpb    >ZD0F1
+        ;beq     ZC889
+;ZC888   clra
 
-        PULS    B
-        LBSR    ZC91A
-        CMPB    >ZD0F1
-        BEQ     ZC889
-ZC888   CLRA
+;ZC889   sta     ,-y
+        ;beq     ZC890
+        ;lbsr    ZC4BB
 
-ZC889   STA     ,-Y
-        BEQ     ZC890
-        LBSR    ZC4BB
+;ZC890   subb    #$01
+        ;bcc     ZC867
 
-ZC890   SUBB    #$01
-        BCC     ZC867
+        ;puls    x,b,a
+        ;std     >ZFFFC
+        ;stx     >ZD0F0
+        ;clra
+        ;ldx     #STARTR
+        ;ldb     >ZDFDC
+        ;eorb    #$0F
+        ;clr     d,x
+        ;ldb     >ZDFDD
+        ;eorb    #$0F
+        ;clr     d,x
+        ;bsr     ZC922
+        ;tstb
+        ;beq     ZC8B8
 
-        PULS    X,B,A
-        STD     >ZFFFC
-        STX     >ZD0F0
-        CLRA
-        LDX     #STARTR
-        LDB     >ZDFDC
-        EORB    #$0F
-        CLR     D,X
-        LDB     >ZDFDD
-        EORB    #$0F
-        CLR     D,X
-        BSR     ZC922
-        TSTB
-        BEQ     ZC8B8
+;ZC8B3   clr     ,y+
+        ;decb
+        ;bne     ZC8B3
 
-ZC8B3   CLR     ,Y+
-        DECB
-        BNE     ZC8B3
+;ZC8B8   leay    -$0C,y
+        ;ldx     #ZFFF0
+        ;ldb     #$10
 
-ZC8B8   LEAY    -$0C,Y
-        LDX     #ZFFF0
-        LDB     #$10
+;ZC8BF   lda     ,y+
+        ;sta     ,x+
+        ;decb
+        ;bne     ZC8BF
+        ;lda     >MEMEND
+        ;asla
+        ;asla
+        ;asla
+        ;asla
+        ;clrb
+        ;subd    #$0001
+        ;std     >MEMEND
+        ;lbsr    ZC4D6
+        ;ora     >CPUTYP
+        ;ldb     >ZDFD0
+        ;bitb    #$F0
+        ;beq     ZC8E3
+        ;ora     #$01
 
-ZC8BF   LDA     ,Y+
-        STA     ,X+
-        DECB
-        BNE     ZC8BF
-        LDA     >MEMEND
-        ASLA
-        ASLA
-        ASLA
-        ASLA
-        CLRB
-        SUBD    #$0001
-        STD     >MEMEND
-        LBSR    ZC4D6
-        ORA     >CPUTYP
-        LDB     >ZDFD0
-        BITB    #$F0
-        BEQ     ZC8E3
-        ORA     #$01
+;ZC8E3   ldb     >ZE005
+        ;beq     ZC8FD
+        ;cmpb    #$FF
+        ;beq     ZC8FD
+        ;cmpb    >ZE0C5
+        ;bne     ZC8FD
+        ;cmpb    >ZE045
+        ;bne     ZC8FD
+        ;cmpb    >ZE085
+        ;bne     ZC8FD
+        ;ora     #$04
 
-ZC8E3   LDB     >ZE005
-        BEQ     ZC8FD
-        CMPB    #$FF
-        BEQ     ZC8FD
-        CMPB    >ZE0C5
-        BNE     ZC8FD
-        CMPB    >ZE045
-        BNE     ZC8FD
-        CMPB    >ZE085
-        BNE     ZC8FD
-        ORA     #$04
+;ZC8FD   ldx     >$E800
+        ;pshs    x
+        ;ldx     #$99AA
+        ;stx     >$E800
+        ;cmpx    >$E800
+        ;puls    x
+        ;bne     ZC911
+        ;ora     #$10
 
-ZC8FD   LDX     >$E800
-        PSHS    X
-        LDX     #$99AA
-        STX     >$E800
-        CMPX    >$E800
-        PULS    X
-        BNE     ZC911
-        ORA     #$10
-
-ZC911   STX     >$E800
-        STA     >CPUTYP
-        JMP     >COLDST
-
-*
-
-ZC91A   TFR     B,A
-        EORA    #$0F
-        STA     >ZFFFD
-        RTS
+;ZC911   stx     >$E800
+        ;sta     >CPUTYP
+        jmp     >STAR
 
 *
 
-ZC922   LDB     #$0C
-        LDY     #ZDFD0
-*       LDX     #STARTR+16
-        LDX     #STARTR
+;ZC91A   tfr     b,a
+        ;eora    #$0F
+        ;sta     >ZFFFD
+        ;rts
 
-ZC92B   CMPX    #STARTR+256
-        BEQ     ZC93D
-        LDA     ,X+
-        BEQ     ZC92B
-        STA     ,Y+
-        INC     >MEMEND
-        DECB
-        BNE     ZC92B
-        RTS
+;*
 
-ZC93D   LDX     #STARTR
+;ZC922   ldb     #$0C
+        ;ldy     #ZDFD0
+;*       ldx     #STARTR+16
+        ;ldx     #STARTR
 
-ZC940   CMPX    #STARTR+16
-        BEQ     ZC951
-        LDA     ,X+
-        BEQ     ZC940
-        STA     ,Y+
-        INC     >MEMEND
-        DECB
-        BNE     ZC940
+;ZC92B   cmpx    #STARTR+256
+        ;beq     ZC93D
+        ;lda     ,x+
+        ;beq     ZC92B
+        ;sta     ,y+
+        ;inc     >MEMEND
+        ;decb
+        ;bne     ZC92B
+        ;rts
 
-ZC951   RTS
+;ZC93D   ldx     #STARTR
 
-        END
+;ZC940   cmpx    #STARTR+16
+        ;beq     ZC951
+        ;lda     ,x+
+        ;beq     ZC940
+        ;sta     ,y+
+        ;inc     >MEMEND
+        ;decb
+        ;bne     ZC940
+
+ZC951   rts

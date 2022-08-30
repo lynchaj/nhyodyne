@@ -1,5 +1,5 @@
-* OPT PAG
-        TTL     TSC 6809 DOS VERSION 2.92
+        OPT PAG
+        TTL 6809 FILE MANAGEMENT SYSTEM
         PAG
         PRAGMA CD
 *
@@ -16,1242 +16,1253 @@
 * GLOBAL VARIABLE STARAGE
 *
 
-LINBUF  EQU     $C080
-CURFCB  EQU     $D40B
+LINBUF  equ     $C080
+CURFCB  equ     $D40B
 
 * ASCII CODE EQUATES
 
-NUL     EQU     $00
-EOT     EQU     $04
+NUL     equ     $00
+EOT     equ     $04
 
 * EXTERNAL LABEL EQUATES
 
-STACK   EQU     $C07F
-CHPR    EQU     $C700
-;INDEX   EQU     $CC3D
-;CRSAVE  EQU     $CC3F
-;RETADR  EQU     $CC43
-;STKSTR  EQU     $CC45
-;IOTEMP  EQU     $CC47
-;OUTNUM  EQU     $CC4A
-;COUNT   EQU     $CC4B
-;GOTFIL  EQU     $CC4C
-TEMP    EQU     $CC4D
+STACK   equ     $C07F
+LC400   equ     $C400
+CHPR    equ     $C700
 
-INCHNE  EQU     $D3E5
-IHNDLR  EQU     $D3E7
-SWIVEC  EQU     $D3E9
-IRQVEC  EQU     $D3EB
-MONITR  EQU     $D3F3
 
-FMSINT  EQU     $D400
-FMSCLS  EQU     $D403
-FMS     EQU     $D406
 
-DWARM   EQU     $DE18
+        org     $C840
 
-        ORG     $C840
+SYSFCB
+		fcb     $FF,0,0,0
+                fcc     "startup"	; SYSTEM HANGS WHEN TRYING TO EXECUTE STARTUP.TXT
+		fcb		0
+		fcc		"txt"
+		fcb		0
 
-SYSFCB  FCB     $FF,0,0,0
-        FCN     "startup"
-        FCN     "txt"
+*************************************************
+*                                               *
+*       flex entry point after boot             *
+*                                               *
+*         this must start at $C850              *
+*       N8VEM doesn't use this!                 *
+*************************************************
+		org $c850
+                jmp         STAR0
 
-LBL     EQU     128         LINE BUFFER LENGTH
+LBL     equ     128         ;LINE BUFFER LENGTH
 
-        ORG     $CC00
+        org     $CC00
 
-TTYBS   FCB     $08         $CC00   BACK SPACE (^H)
-TTYDEL  FCB     $18         $CC01   DELETE CHARACTER (^X)
-TTYEOL  FCB     $3A         $CC02   END OF LINE CHAR (:)
-TTYDP   FCB     $00         $CC03   LINES PER SCREEN
-COLCNT  FCB     $00         $CC04   COLUMNS PER LINE
-TTYNL   FCB     $06         $CC05   LINE PADDING NULLS
-TTYTB   FCB     $00         $CC06   TAB CHARACTER
-TTYBE   FCB     $00         $CC07   BACK SPACE ECHO
-TTYEJ   FCB     $00         $CC08   EJECT LENGTH
-TTYPS   FCB     $FF         $CC09   PAUSE CONTROL
-TTYESC  FCB     $1B         $CC0A   ESCAPE CHARACTER
-SYSDRV  FCB     $00         $CC0B   SYSTEM DRIVE
-WRKDRV  FCB     $00         $CC0C   WORKING DRIVE
-SYSFLG  FCB     $00         $CC0D   SYSTEM FLAG
-SYSMTH  FCB     $00         $CC0E   SYSTEM DATE
-SYSDAY  FCB     $00         $CC0F
-SYSYR   FCB     $00         $CC10
-LSTTRM  FCB     $00         $CC11   LAST TERMINATOR
-USRTBL  FDB     $0000       $CC12   USER COMMAND TABLE
-BUFPNT  FDB     $0000       $CC14   LINE BUFFER POINTER
-RETRNR  FDB     $0000       $CC16   ESCAPE RETURN REG
-CHAR    FCB     $00         $CC18   CHARACTER
-PRVCHR  FCB     $00         $CC19   PREVIOUS CHARACTER
-LINE    FCB     $00         $CC1A   CURRENT LINE NUMBER
-OFFSET  FDB     $0000       $CC1B   LOADER ADR OFFSET
-XFR     FCB     $00         $CC1D   TRANSFER FLAG
-TADR    FDB     $0000       $CC1E   TRANSFER ADDRESS
-ERRTYP  FCB     $00         $CC20   ERROR TYPE
-SPCLS   FCB     $00         $CC21   SPECIAL IO FLAG
-OUTCHN  FCB     $00         $CC22   OUTPUT CHANNEL BYTE
-INCHNL  FCB     $00         $CC23   INPUT CHANNEL BYTE
-FILOUT  FDB     $0000       $CC24   OUTPUT FILE ADDRESS
-FILIN   FDB     $0000       $CC26   INPUT FILE ADDRESS
-CMFLG   FCB     $00         $CC28   COMMAND FLAG
-COLMN   FCB     $00         $CC29   CURRENT OUTPUT COL.
-TMRFLG  FCB     $00         $CC2A   TIMER FLAG UNUSED NOW
-MEMEND  FDB     $0000       $CC2B   MEMORY END
-ERRVEC  FDB     $0000       $CC2D   ERROR NAME VECTOR
-FILEKO  FCB     $01         $CC2F   FILE INPUT ECHO
-FMSBSY  FCB     $00         $CC30   FMS IS BUSY FLAG
-CP      FDB     $0000       $CC31
-CPUTYP  FCB     $00         $CC33
-PRCNT   FCB     $00         $CC34   UNUSED NOW
-SPARES  FDB     0,0,0       $CC35   SPARE BYTES
-XTEMP   RMB     2           $CC3B   INDEX TEMP
-INDEX   RMB     2           $CC3D   INDEX TEMP STORAGE
-CRSAVE  RMB     2           $CC3F   INDEX SAVE
-DATPNT  RMB     2           $CC41   DATA POINTER
-RETADR  RMB     2           $CC43   RETURN ADDRESS
-STKSTR  RMB     2           $CC45   STACK STORAGE
-IOTEMP  RMB     2           $CC47   IO TEMP STORE
+TTYBS   fcb     $08         ;$CC00   ;BACK SPACE (^H)
+TTYDEL  fcb     $18         ;$CC01   ;DELETE CHARACTER (^X)
+TTYEOL  fcb     $3A         ;$CC02   ;END OF LINE CHAR (:)
+;TTYDP   fcb     $00         ;$CC03   ;LINES PER SCREEN
+TTYDP   fcb     24         ;$CC03   ;LINES PER SCREEN
+;COLCNT  fcb     $00         ;$CC04   ;COLUMNS PER LINE
+COLCNT  fcb     80         ;$CC04   ;COLUMNS PER LINE
+;TTYNL   fcb     $06         ;$CC05   ;LINE PADDING NULLS
+TTYNL   fcb     $00         ;$CC05   ;LINE PADDING NULLS
+TTYTB   fcb     $00         ;$CC06   ;TAB CHARACTER
+;TTYBE   fcb     $00         ;$CC07   ;BACK SPACE ECHO
+TTYBE   fcb     $08         ;$CC07   ;BACK SPACE ECHO
+TTYEJ   fcb     $00         ;$CC08   ;EJECT LENGTH
+;TTYPS   fcb     $FF         ;$CC09   ;PAUSE CONTROL
+TTYPS   fcb     $00         ;$CC09   ;PAUSE CONTROL
+TTYESC  fcb     $1B         ;$CC0A   ;ESCAPE CHARACTER
+SYSDRV  fcb     $00         ;$CC0B   ;SYSTEM DRIVE
+WRKDRV  fcb     $01         ;$CC0C   ;WORKING DRIVE
+SYSFLG  fcb     $00         ;$CC0D   ;SYSTEM FLAG
+SYSMTH  fcb     $00         ;$CC0E   ;SYSTEM DATE
+SYSDAY  fcb     $00         ;$CC0F   ;
+SYSYR   fcb     $00         ;$CC10   ;
+LSTTRM  fcb     $00         ;$CC11   ;LAST TERMINATOR
+USRTBL  fdb     $0000       ;$CC12   ;USER COMMAND TABLE
+BUFPNT  fdb     $0000       ;$CC14   ;LINE BUFFER POINTER
+RETRNR  fdb     $0000       ;$CC16   ;ESCAPE RETURN REG
+CHAR    fcb     $00         ;$CC18   ;CHARACTER
+PRVCHR  fcb     $00         ;$CC19   ;PREVIOUS CHARACTER
+LINE    fcb     $00         ;$CC1A   ;CURRENT LINE NUMBER
+OFFSET  fdb     $0000       ;$CC1B   ;LOADER ADR OFFSET
+XFR     fcb     $00         ;$CC1D   ;TRANSFER FLAG
+TADR    fdb     $0000       ;$CC1E   ;TRANSFER ADDRESS
+ERRTYP  fcb     $00         ;$CC20   ;ERROR TYPE
+SPCLS   fcb     $00         ;$CC21   ;SPECIAL IO FLAG
+OUTCHN  fcb     $00         ;$CC22   ;OUTPUT CHANNEL BYTE
+INCHNL  fcb     $00         ;$CC23   ;INPUT CHANNEL BYTE
+FILOUT  fdb     $0000       ;$CC24   ;OUTPUT FILE ADDRESS
+FILIN   fdb     $0000       ;$CC26   ;INPUT FILE ADDRESS
+CMFLG   fcb     $00         ;$CC28   ;COMMAND FLAG
+COLMN   fcb     $00         ;$CC29   ;CURRENT OUTPUT COL.
+TMRFLG  fcb     $00         ;$CC2A   ;TIMER FLAG UNUSED NOW
+ERRVEC  fdb     $0000       ;$CC2D   ;ERROR NAME VECTOR
+FILEKO  fcb     $01         ;$CC2F   ;FILE INPUT ECHO
+FMSBSY  fcb     $00         ;$CC30   ;FMS IS BUSY FLAG
+CP      fdb     $0000       ;$CC31   ;
+CPUTYP  fcb     $00         ;$CC33   ;
+PRCNT   fcb     $00         ;$CC34   ;UNUSED NOW
+SPARES  fdb     0,0,0       ;$CC35   ;SPARE BYTES
+XTEMP   rmb     2           ;$CC3B   ;INDEX TEMP
+INDEX   rmb     2           ;$CC3D   ;INDEX TEMP STORAGE
+CRSAVE  rmb     2           ;$CC3F   ;INDEX SAVE
+DATPNT  rmb     2           ;$CC41   ;DATA POINTER
+RETADR  rmb     2           ;$CC43   ;RETURN ADDRESS
+STKSTR  rmb     2           ;$CC45   ;STACK STORAGE
+IOTEMP  rmb     2           ;$CC47   ;IO TEMP STORE
 
 * SET MAPUP TO $FF TO DISABLE MAPPING
 
-MAPUP   FCB     $60         $CC49   MAP FILENAMES TO UPPER
-OUTNUM  RMB     1           $CC4A   0 SUPPRESSION FLAG
-COUNT   RMB     1           $CC4B   SPARE COUNT REGISTER
-GOTFIL  RMB     1           $CC4C   FILE INDICATOR
-Temp    RMB     1           $CC4D   TEMPORARY REGISTER
+MAPUP   fcb     $60         ;$CC49   ;MAP FILENAMES TO UPPER
+OUTNUM  rmb     1           ;$CC4A   ;0 SUPPRESSION FLAG
+COUNT   rmb     1           ;$CC4B   ;SPARE COUNT REGISTER
+GOTFIL  rmb     1           ;$CC4C   ;FILE INDICATOR
+Temp    rmb     1           ;$CC4D   ;TEMPORARY REGISTER
 
-PPRMPT  FDB     PRMPT
+PPRMPT  fdb     PRMPT
 
-WHATST  FCC     "WHAT?"
-        FCB     EOT
-NOTRST  FCC     "CAN'T TRANSFER"
-        FCB     EOT
-NONMST  FCC     "NOT FOUND"
-        FCB     EOT
-DSKERS  FCC     "DISK ERROR #"
-        FCB     EOT
-NTRST   FCC     "DRIVE NOT READY"
-        FCB     EOT
-COMTBL  FCN     "GET"
-        FDB     GET
-        FCN     "MON"
-        FDB     MEXIT
-        FCB     $00
+WHATST  fcc     "WHAT?"
+		fcb		EOT
+NOTRST  fcc     "CAN'T TRANSFER"
+		fcb		EOT
+NONMST  fcc     "NOT FOUND"
+		fcb		EOT
+DSKERS  fcc     "DISK ERROR #"
+		fcb		EOT
+NTRST   fcc     "DRIVE NOT READY"
+		fcb		EOT
+COMTBL  fcc     "GET"
+		fcb		0
+        fdb     GET
+        fcc     "MON"
+        fcb		0
+        fdb     MEXIT
+        fcb     $00
 
-CONTBL  FDB     10000
-        FDB     1000
-        FDB     100
-        FDB     10
+CONTBL  fdb     10000
+        fdb     1000
+        fdb     100
+        fdb     10
 
-ERNM    FCC     "errors"
-        FCB     0,0
-        FCC     "sys"
-PRMPT   FCC     "+++"
-        FCB     EOT
-        ORG     $CCC0
+ERNM    fcc     "errors"
+		fcb     0,0
+		fcc		"sys"
 
-PINIT   RTS
+PRMPT   fcc     "+++"
+		fcb		EOT
 
-        ORG     $CCD8
+        org     $CCC0
 
-PCHK    RTS
+PINIT   rts
 
-        ORG     $CCE4
+        org     $CCD8
 
-POUT    RTS
+PCHK    rts
 
-        ORG     $CCF8
+        org     $CCE4
 
-PR0     FCB     $01,$00,$00,$00
-PR1     FCB     $00,$00,$00,$00
+POUT    rts
 
-COLDS   JMP     INIT        GO INITIALIZE
-WARMS   JMP     ENTRY       WARM ENTRY POINT
-RENTER  JMP     DOS3        RE-ENTER DOS
-INCH    JMP     INCH        **DRIVERS**                      INPUT ROUTINE
-INCH2   JMP     INCH2       **DRIVERS**                      TERMINAL INPUT
-OUTCH   JMP     OUTCH       **DRIVERS**                      OUTPUT CHARACTER
-OUTCH2  JMP     OUTCH2      **DRIVERS**                      TERMINAL OUTPUT
-DGETCH  JMP     GETCHR      GET CHARACTER
-DPUTCH  JMP     PUTCHR      PUT CHARACTER
-DINBUF  JMP     INBUF       INPUT TO BUFFER
-DPSTRN  JMP     PSTRNG      PRINT STRING
-DCLASS  JMP     CLASS       CLASSIFY CHARACTER
-DPCRLF  JMP     PCRLF       PRINT CR AND LF
-DNEXTC  JMP     NXTCH       NEXT BUFFER CHAR
-RSTRIO  JMP     RESTIO      RESTORE IO VECTORS
-DFILSP  JMP     GETFIL      GET FILE SPEC
-DLOAD   JMP     LOAD        FILE LOADER
-DSETEX  JMP     SETEXT      SET NAME EXTENSION
-DADDBX  JMP     ADDBX       ADD B TO X
-DOUTDE  JMP     OUTDEC      OUTPUT DECIMAL
-DOUTHE  JMP     OUTHEX      OUT HEX CHARACTER
-DRPTER  JMP     RPTERR      REPORT ERROR
-DGETHX  JMP     GETHEX      GET HEX NUMBER
-DOUTAD  JMP     OUTADR      OUT HEX ADDRESS
-DINDEC  JMP     INDEC       GET DECIMAL NUMBER
-DDOCMD  JMP     DOCMD       DO COMMAND LINE
-DSTAT   JMP     DSTAT       **DRIVERS**                     TERMINAL INPUT STATUS
-DSPR2   JMP     RTS
-DSPR3   JMP     RTS
+        org     $CCF8
+
+PR0     fcb     $01,$00,$00,$00
+PR1     fcb     $00,$00,$00,$00
+
+COLDS   jmp     INITI        ;GO INITIALIZE
+WARMS   jmp     ENTRY       ;WARM ENTRY POINT
+RENTER  jmp     DOS3        ;RE-ENTER DOS
+INCH    jmp     INCHNE      ;INCHNE           ;INPUT ROUTINE
+INCH2   jmp     INCHNE      ;TERMINAL INPUT
+OUTCH   jmp     VOUTCH      ;VOUTCH           ;OUTPUT CHARACTER
+OUTCH2  jmp     VOUTCH           ;TERMINAL OUTPUT
+DGETCH  jmp     GETCHR      ;GET CHARACTER
+DPUTCH  jmp     PUTCHR      ;PUT CHARACTER
+DINBUF  jmp     INBUF       ;INPUT TO BUFFER
+DPSTRN  jmp     PSTRNG      ;PRINT STRING
+DCLASS  jmp     CLASS       ;CLASSIFY CHARACTER
+DPCRLF  jmp     PCRLF       ;PRINT CR AND LF
+DNEXTC  jmp     NXTCH       ;NEXT BUFFER CHAR
+RSTRIO  jmp     RESTIO      ;RESTORE IO VECTORS
+DFILSP  jmp     GETFIL      ;GET FILE SPEC
+DLOAD   jmp     LOAD        ;FILE LOADER
+DSETEX  jmp     SETEXT      ;SET NAME EXTENSION
+DADDBX  jmp     ADDBX       ;ADD B TO X
+DOUTDE  jmp     OUTDEC      ;OUTPUT DECIMAL
+DOUTHE  jmp     OUTHEX      ;OUT HEX CHARACTER
+DRPTER  jmp     RPTERR      ;REPORT ERROR
+DGETHX  jmp     GETHEX      ;GET HEX NUMBER
+DOUTAD  jmp     OUTADR      ;OUT HEX ADDRESS
+DINDEC  jmp     INDEC       ;GET DECIMAL NUMBER
+DDOCMD  jmp     DOCMD       ;DO COMMAND LINE
+DSTAT   jmp     STAT        ;TERMINAL INPUT STATUS
+DSPR2   jmp     RTS
+DSPR3   jmp     RTS
 
 * INIT
 *
 * INIT IS THE INITIALIZATION ROUTINE.
 * ALL SYSTEM VARIABLES ARE SET HERE.
 
-INIT    LDS     #STACK      SET STACK
-INIT1   CLR     LSTTRM      CLEAR TERM BYTE
-        JSR     FMSINT      INIT SYSTEM
-        CLR     CMFLG       CLEAR FLAG
-        JSR     $C400       CHECK FOR STARTUP
+INITI    lds     #STACK      ;SET STACK
+INIT1   clr     LSTTRM      ;CLEAR TERM BYTE
+        jsr     FMSINT      ;INIT SYSTEM
+
+        clr     CMFLG       ;CLEAR FLAG
+        jsr     TSTSTR      ;CHECK FOR STARTUP
+
 
 * ENTRY
 *
 * ENTRY IS THE WARM START ENTRY POINT.
 * THE STACK IS RESET HERE.
 
-ENTRY   LDS     #STACK      SET STACK
-        JSR     DWARM       DO USER WARMSTART ROUTINE
-        LDX     #WARMS      POINT TO WARM START
-        STX     RETRNR      SET RETURN REG
-        LDX     #CHPR       SET SWI3 VECTOR
-        STX     [SWIVEC]
-        LDX     IHNDLR      SET IRQ VECTOR
-        STX     [IRQVEC]
-        LDX     #PR0        SET PR # 0
-        STX     CP
-        CLR     PRCNT       SET STATUS
-ENTRY2  CLR     GOTFIL      CLEAR FILE DESIG.
-        BSR     RESTIO      RESTORE IO
+ENTRY   lds     #STACK      ;SET STACK
+        jsr     DWARM       ;DO USER WARMSTART ROUTINE
+        ldx     #WARMS      ;POINT TO WARM START
+        stx     RETRNR      ;SET RETURN REG
+        ldx     #CHPR       ;SET SWI3 VECTOR
+        stx     [SWIVECP]    ;
+        ldx     IHNDLRP      ;SET IRQ VECTOR
+        stx     [IRQVECP]    ;
+        ldx     #PR0        ;SET PR # 0
+        stx     CP          ;
+        clr     PRCNT       ;SET STATUS
+ENTRY2  clr     GOTFIL      ;CLEAR FILE DESIG.
+        bsr     RESTIO      ;RESTORE IO
 
 * DOS
 *
 * DOS IS THE MAIN DOS LOOP
 
-DOS     LDA     LSTTRM      CHECK TERMINATOR
-        CMPA    TTYEOL      WAS IT EOL?
-        BNE     DOS2
-        INC     BUFPNT+1    RESET BUFPNT
-        BRA     DOS3
+DOS     lda     LSTTRM      ;CHECK TERMINATOR
+        cmpa    TTYEOL      ;WAS IT EOL?
 
-DOS2    TST     CMFLG       TEST FLAG
-        LBNE    RETRN       DO CMD RETURN
-        JSR     FMSCLS      CLOSE ALL
-        BNE     INIT1       ERRORS?
-        BSR     PRMTUSR     POINT TO PROMPT
+        bne     DOS2        ;
+        inc     BUFPNT+1    ;RESET BUFPNT
+        bra     DOS3        ;
+                            ;
+DOS2    tst     CMFLG       ;TEST FLAG
 
-DOS3    JSR     SKPSPC      SKIP SPACES
-        CMPA    #$0D        LONE CARRIAGE RET?
-        BEQ     DOS2
+        lbne    RETRN       ;DO CMD RETURN
+        jsr     FMSCLS      ;CLOSE ALL
 
-DOS4    LDX     #SYSFCB     POINT TO SYSTEM FCB
-        INC     SYSFLG      SET SYSTEM DRIVE
-        JSR     GETFIL      GET FILE NAME
-        BCS     NFERR       ERROR?
-        LDX     #COMTBL     POINT TO TABLE
-        BSR     LKNAM       LOOK FOR NAME
-        BEQ     DOS6        FIND?
-        LDX     USRTBL      CHECK USER TABLE
-        BEQ     DOS8        IS THERE ONE?
-        BSR     LKNAM       LOOK FOR NAME
-        BNE     DOS8        FIND?
+        bne     INIT1       ;ERRORS?
+        bsr     PRMTUSR     ;POINT TO PROMPT
+                            ;
+DOS3    jsr     SKPSPC      ;SKIP SPACES
+        cmpa    #$0D        ;LONE CARRIAGE RET?
+        beq     DOS2        ;
+                            ;
+DOS4    ldx     #SYSFCB     ;POINT TO SYSTEM FCB
+        inc     SYSFLG      ;SET SYSTEM DRIVE
+        jsr     GETFIL      ;GET FILE NAME
+        bcs     NFERR       ;ERROR?
+        ldx     #COMTBL     ;POINT TO TABLE
+        bsr     LKNAM       ;LOOK FOR NAME
+        beq     DOS6        ;FIND?
 
-DOS6    JMP     [1,X]       JUMP TO COM ADDRESS
+        ldx     USRTBL      ;CHECK USER TABLE
+        beq     DOS8        ;IS THERE ONE?
 
-DOS8    JSR     LGO         DO LOAD & GO
-
-* NFERR
-
-NFERR   LDX     #WHATST     POINT TO STRING
-        LDA     #$15        SET ERROR TYPE
-NFERR1  STA     ERRTYP
-NFERR2  JSR     PSTRNG      OUTPUT IT
-NFERR4  CLR     LSTTRM      CLEAR TERM
-        JMP     ENTRY       RESTART
+        bsr     LKNAM       ;LOOK FOR NAME
+        bne     DOS8        ;FIND?
+                            ;
+DOS6    jmp     [1,x]       ;JUMP TO COM ADDRESS
+                            ;
+DOS8    jsr     LGO         ;DO LOAD & GO
+                            ;
+* NFERR                     ;
+                            ;
+NFERR   ldx     #WHATST     ;POINT TO STRING
+        lda     #$15        ;SET ERROR TYPE
+NFERR1  sta     ERRTYP      ;
+NFERR2  jsr     PSTRNG      ;OUTPUT IT
+NFERR4  clr     LSTTRM      ;CLEAR TERM
+        jmp     ENTRY       ;RESTART
 
 * RESTIO
 *
 * RESTIO RESTORES THE SYSTEM IO JUMP
 * VECTORS FOR INPUT, OUTPUT, & INIT.
 
-RESTIO  LDX     OUTCH2+1    SET OUTPUT
-        STX     OUTCH+1
-        LDX     INCH2+1     SET INPUT
-        STX     INCH+1
-        CLR     INCHNL
-        CLR     OUTCHN      CLEAR OUT CHAN
-        CLR     SPCLS       SET SPECIALS
-        CLR     FILIN       CLEAR FILES
-        CLR     FILOUT
-RTS     RTS
+RESTIO  ldx     OUTCH2+1    ;SET OUTPUT
+        stx     OUTCH+1     ;
+        ldx     INCH2+1     ;SET INPUT
+        stx     INCH+1      ;
+        clr     INCHNL      ;
+        clr     OUTCHN      ;CLEAR OUT CHAN
+        clr     SPCLS       ;SET SPECIALS
+        clr     FILIN       ;CLEAR FILES
+        clr     FILOUT
+RTS     rts
 
 * LKNAM
 *
-* LKNAM LOOKS FOR A COMMAND
-* NAME IN A TABLE
+* LKNAM looks FOR A COMMAND
+* NAME In a tABLE
 *
-*   ENTRY: X POINTS TO TABLE
-*   EXIT:  EQ IF FOUND
-*          X+1 POINTS TO ADR
+*   ENTRy: x POINTS TO TABLE
+*   EXIT:  eq IF FOUND
+*          x+1 POINTS TO ADR
 
-LKNAM   LDY     #SYSFCB+4   SET POINTER
-LKNAM3  LDA     ,Y+         GET A NAME CHAR
-        CMPA    #$5F        CHECK IF UPPER CASE
-        BLS     LKNAM4      SKIP IF NOT
-        SUBA    #$20        MAKE UPPER
+LKNAM   ldy     #SYSFCB+4   ;SET POINTER
+LKNAM3  lda     ,y+        ;GET A NAME CHAR
+        cmpa    #$5F        ;CHECK IF UPPER CASE
+        bls     LKNAM4      ;SKIP IF NOT
+        suba    #$20        ;MAKE UPPER
+                            ;
+LKNAM4  cmpa    ,x+        ;CHECK AGAINST TABLE
+        bne     LKNAM6      ;BRANCH IF NO MATCH
+        tst     ,x         ;CHECK IF END
+        bne     LKNAM3      ;LOOP IF NOT
+                            ;
+        tst     ,y         ;AT END OF NAME
+        beq     LKNAM8      ;GOT COMMAND IF SO
+                            ;
+LKNAM6  tst     ,x+        ;END OF WORD?
+        bne     LKNAM6      ;LOOP TIL SO
+        leax    2,x         ;BUMP PAST ADDRESS
+        tst     ,x         ;END OF TABLE?
+        bne     LKNAM       ;REPEAT IF NOT
+        andcc   #$FB        ;CLZ SET NOT EQUAL
+LKNAM8  rts
 
-LKNAM4  CMPA    ,X+         CHECK AGAINST TABLE
-        BNE     LKNAM6      BRANCH IF NO MATCH
-        TST     0,X         CHECK IF END
-        BNE     LKNAM3      LOOP IF NOT
-
-        TST     0,Y         AT END OF NAME
-        BEQ     LKNAM8      GOT COMMAND IF SO
-
-LKNAM6  TST     ,X+         END OF WORD?
-        BNE     LKNAM6      LOOP TIL SO
-        LEAX    2,X         BUMP PAST ADDRESS
-        TST     0,X         END OF TABLE?
-        BNE     LKNAM       REPEAT IF NOT
-        ANDCC   #$FB        CLZ SET NOT EQUAL
-LKNAM8  RTS
-
-PRMTUSR LDX     PPRMPT
-        BSR     PSTRNG
+PRMTUSR ldx     PPRMPT
+        bsr     PSTRNG
 
 * INBUF
 *
-* INBUF INPUTS A LINE INTO THE LINE
-* BUFFER. DELETE AND BACK SPACE
-* CHARACTERS ARE CHECKED HERE.
+* INBUF inputS A LINE INTO THE LINE
+* BUFFER. delETE AND BACK SPACE
+* CHARACters ARE CHECKED HERE.
 *
-*   ENTRY: NONE
-*   EXIT:  ALL REGISTERS CHANGED
+*   ENTRy: noNE
+*   EXIT:  alL REGISTERS CHANGED
 
-INBUF   LDX     #LINBUF     POINT TO BUFFER
-        STX     BUFPNT      SET POINTER
-INBUF2  JSR     GETCHR      GO GET A CHARACTER
-        CMPA    TTYDEL      IS IT DELETE?
-        BEQ     PRMTUSR
-        CMPA    TTYBS       IS IT BACK SPACE?
-        BEQ     INBUF6
-        CMPA    #$0D        IS IT CARRIAGE RET?
-        BEQ     INBUF4
-        CMPA    #$0A        IS IT LF?
-        BEQ     INBUF7
-        CMPA    #$1F        IS IT CONTROL?
-        BLS     INBUF2      IGNORE IF SO
-INBUF3  CMPX    #LINBUF+LBL-1
-        BEQ     INBUF2
-INBUF4  STA     ,X+         PUT CHAR IN BUFFER
-        CMPA    #$0D        IS IT RETURN?
-        BNE     INBUF2      REPEAT IF NOT
-        RTS
-
-INBUF6  CMPX    #LINBUF     FRONT OF BUFFER?
-        BEQ     PRMTUSR
-        LEAX    -1,X        DEC THE POINTER
-        LDA     TTYBE       GET ECHO CHAR
-        CMPA    #8          IS IT ^H ?
-        BNE     INBU65
-        LDA     #$20        SETUP SPACE
-        JSR     PUTCH6      OUTPUT IT
-        LDA     TTYBE       GET CHAR
-INBU65  JSR     PUTCH6      OUTPUT IT
-        BRA     INBUF2      REPEAT
-
-INBUF7  LDA     #$0D        OUTPUT CR
-        JSR     PUTCHR
-        LDA     #$20        SETUP SPACE
-        BRA     INBUF3
+INBUF   ldx     #LINBUF     ;POINT TO BUFFER
+        stx     BUFPNT      ;SET POINTER
+INBUF2  jsr     GETCHR      ;GO GET A CHARACTER
+        cmpa    TTYDEL      ;IS IT DELETE?
+        beq     PRMTUSR     ;
+        cmpa    TTYBS       ;IS IT BACK SPACE?
+        beq     INBUF6      ;
+        cmpa    #$0D        ;IS IT CARRIAGE RET?
+        beq     INBUF4      ;
+        cmpa    #$0A        ;IS IT LF?
+        beq     INBUF7      ;
+        cmpa    #$1F        ;IS IT CONTROL?
+        bls     INBUF2      ;IGNORE IF SO
+INBUF3  cmpx    #LINBUF+LBL-1
+        beq     INBUF2
+INBUF4  sta     ,x+        ;PUT CHAR IN BUFFER
+        cmpa    #$0D        ;IS IT RETURN?
+        bne     INBUF2      ;REPEAT IF NOT
+        rts                 ;
+                            ;
+INBUF6  cmpx    #LINBUF     ;FRONT OF BUFFER?
+        beq     PRMTUSR     ;
+        leax    -1,x        ;DEC THE POINTER
+        lda     TTYBE       ;GET ECHO CHAR
+        cmpa    #8          ;IS IT ^H ?
+        bne     INBU65      ;
+        lda     #$20        ;SETUP SPACE
+        jsr     PUTCH6      ;OUTPUT IT
+        lda     TTYBE       ;GET CHAR
+INBU65  jsr     PUTCH6      ;OUTPUT IT
+        bra     INBUF2      ;REPEAT
+                            ;
+INBUF7  lda     #$0D        ;OUTPUT CR
+        jsr     PUTCHR      ;
+        lda     #$20        ;SETUP SPACE
+        bra     INBUF3
 
 * PSTRNG
 *
-* PSTRNG PRINTS THE STRING POINTED
-* TO BY THE INDEX REGISTER.
+* PSTRNG prinTS THE STRING POINTED
+* TO BY the iNDEX REGISTER.
 *
-*   ENTRY: X POINTS TO STRING
-*   EXIT:  A & X CHANGED
+*   ENTRy: x POINTS TO STRING
+*   EXIT:  a & X CHANGED
 
-PSTRNG  BSR     PCRLF       OUTPUT CR & LF
-PDATA1  LDA     0,X         GET A CHARACTER
-        CMPA    #4          IS IT TERM?
-        BEQ     PCRLF8
-        JSR     PUTCHR      GO PUT CHAR.
-        LEAX    1,X         BUMP THE POINTER
-        BRA     PDATA1      REPEAT IT
+PSTRNG  bsr     PCRLF       ;OUTPUT CR & LF
+
+PDATA1  lda     ,x         ;GET A CHARACTER
+        cmpa    #4          ;IS IT TERM?
+        beq     PCRLF8      ;
+        jsr     PUTCHR      ;GO PUT CHAR.
+        leax    1,x         ;BUMP THE POINTER
+        bra     PDATA1      ;REPEAT IT
 
 * BREAK
 *
-* BREAK CHECKS FOR A CHARACTER ON INPUT CHANNEL,
-* RETURNS IMMEDIATELY IF NONE OR NOT ESCAPE.
-* IF ESCAPE, WAITS FOR ANOTHER OR FOR RETURN.
+* BREAK checkS FOR A CHARACTER ON INPUT CHANNEL,
+* RETURNs immEDIATELY IF NONE OR NOT ESCAPE.
+* IF ESCape, WAITS FOR ANOTHER OR FOR RETURN.
 
-BREAK   JSR     DSTAT       ANY INPUT CHARACTER?
-        BEQ     PCRLF9      EXIT IF NOT
-
-        JSR     [INCHNE]    ELSE, GET THE CHARACTER
-        ANDA    #$7F        STRIP UPPER BIT
-        CMPA    TTYESC      AN ESCAPE?
-        BNE     PCRLF9      EXIT IF NOT
-
-BREAK1  CLR     LINE        CLEAR LINE COUNT
-BREAK2  JSR     [INCHNE]    WAIT FOR A CHARACTER
-        ANDA    #$7F        STRIP UPPER BIT
-        CMPA    TTYESC      AN ESCAPE?
-        BEQ     PCRLF9      CONTINUE IF SO
-        CMPA    #$0D        IS IT A C.R.?
-        BNE     BREAK2      LOOP IF NEITHER
-        CLR     LSTTRM      CLEAR TERMINATOR
-        JMP     [RETRNR]    JUMP TO RETURN REG
+BREAK   jsr     DSTAT       ;ANY INPUT CHARACTER?
+        beq     PCRLF9      ;EXIT IF NOT
+                            ;
+        jsr     INCH        ;ELSE, GET THE CHARACTER
+        anda    #$7F        ;STRIP UPPER BIT
+        cmpa    TTYESC      ;AN ESCAPE?
+        bne     PCRLF9      ;EXIT IF NOT
+                            ;
+BREAK1  clr     LINE        ;CLEAR LINE COUNT
+BREAK2  jsr     INCH        ;WAIT FOR A CHARACTER
+        anda    #$7F        ;STRIP UPPER BIT
+        cmpa    TTYESC      ;AN ESCAPE?
+        beq     PCRLF9      ;CONTINUE IF SO
+        cmpa    #$0D        ;IS IT A C.R.?
+        bne     BREAK2      ;LOOP IF NEITHER
+        clr     LSTTRM      ;CLEAR TERMINATOR
+        jmp     [RETRNR]    ;JUMP TO RETURN REG
 
 * PCRLF
 *
-* PCRLF OUTPUTS A CARRIAGE RETURN
-* AND A LINE FEED COMBINATION.
+* PCRLF outpuTS A CARRIAGE RETURN
+* AND A line FEED COMBINATION.
 *
 *   ENTRY: NONE
 *   EXIT:  A & B CHANGED
 
-PCRLF   TST     SPCLS       TEST SPECIALS
-        BNE     PCRLF2
-        BSR     BREAK       CHECK FOR BREAK
-        LDA     TTYDP       GET COUNT
-        BEQ     PCRLF2      IS IT OFF?
-
-        CMPA    LINE        CHECK COUNT
-        BHI     PCRL19
-        CLR     LINE        CLEAR COUNT
-        TST     TTYPS       PAUSE ON?
-        BEQ     PCRLF1
-        BSR     BREAK1      WAIT FOR ESC
-
-PCRLF1  PSHS    B           SAVE B
-        LDB     TTYEJ       CHECK COUNT
-        BEQ     PCRL18
-PCRL15  BSR     PCRLF2      OUTPUT CR & LF
-        DECB                DEC THE COUNT
-        BNE     PCRL15
-
-PCRL18  PULS    B           RESTORE B
-PCRL19  INC     LINE        BUMP LINE COUNT
-PCRLF2  LDA     #$0D        SET UP CR
-        BSR     PUTCHR      OUTPUT IT
-        LDA     #$0A        SET UP LINE FEED
-        BSR     PUTCHR      OUTPUT IT
-        PSHS    B           SAVE B
-        LDB     TTYNL       CHECK NULLS
-        BEQ     PCRLF6
-PCRLF4  CLRA                SET UP NULL
-        BSR     PUTCHR      OUTPUT IT
-        DECB                DEC THE COUNT
-        BNE     PCRLF4      REPEAT?
-
-PCRLF6  PULS    B           RESTORE B
-PCRLF8  ANDCC   #$FE        CLC  CLEAR ERRORS
-PCRLF9  RTS
+PCRLF   tst     SPCLS       ;TEST SPECIALS
+        bne     PCRLF2      ;
+        ;bra     PCRLF2      ;
+        bsr     BREAK       ;CHECK FOR BREAK
+        lda     TTYDP       ;GET COUNT
+        beq     PCRLF2      ;IS IT OFF?
+                            ;
+        cmpa    LINE        ;CHECK COUNT
+        bhi     PCRL19      ;
+        clr     LINE        ;CLEAR COUNT
+        tst     TTYPS       ;PAUSE ON?
+        beq     PCRLF1      ;
+        bsr     BREAK1      ;WAIT FOR ESC
+                            ;
+PCRLF1  pshs    b           ;SAVE B
+        ldb     TTYEJ       ;CHECK COUNT
+        beq     PCRL18      ;
+PCRL15  bsr     PCRLF2      ;OUTPUT CR & LF
+        decb                ;DEC THE COUNT
+        bne     PCRL15      ;
+                            ;
+PCRL18  puls    b           ;RESTORE B
+PCRL19  inc     LINE        ;BUMP LINE COUNT
+PCRLF2  lda     #$0D        ;SET UP CR
+        bsr     PUTCHR      ;OUTPUT IT
+        lda     #$0A        ;SET UP LINE FEED
+        bsr     PUTCHR      ;OUTPUT IT
+        ;rts					; !!!
+        pshs    b           ;SAVE B
+        ldb     TTYNL       ;CHECK NULLS
+        beq     PCRLF6      ;
+PCRLF4  clra                ;SET UP NULL
+        bsr     PUTCHR      ;OUTPUT IT
+        decb                ;DEC THE COUNT
+        bne     PCRLF4      ;REPEAT?
+                            ;
+PCRLF6  puls    b           ;RESTORE B
+PCRLF8  andcc   #$FE        ;CLC  CLEAR ERRORS
+PCRLF9  rts
 
 * GETCHR
 *
-* GETCHR GETS A CHARACTER FROM EITHER
-* THE STANDARD INPUT OR A FILE.
+* GETCHR gets A CHARACTER FROM EITHER
+* THE STandarD INPUT OR A FILE.
 *
-*   ENTRY: NONE
-*   EXIT:  A HAS CHARACTER
+*   ENTRy: noNE
+*   EXIT:  a HAS CHARACTER
 
-GETCHR  TST     INCHNL      CHECK CHAN
-        BNE     GETCH5
-        TST     FILIN       FILE INPUT?
-        BEQ     GETCH4
-        BSR     FILIO       DO FILE INPUT
-        TST     FILEKO      ECHO CHARACTER?
-        BEQ     GETCH6
-        TST     FILOUT      OUTPUT FILE?
-        BEQ     GETCH6
-        BSR     PUTCH6      ECHO CHARACTER
-        BRA     GETCH6
-
-GETCH4  JSR     INCH        GET CHAR
-        BRA     GETCH6
-
-GETCH5  JSR     INCH2       TERMINAL INPUT
-GETCH6  CLR     LINE        CLEAR COUNTER
-        RTS
+GETCHR  tst     INCHNL      ;CHECK CHAN
+        bne     GETCH5      ;
+        tst     FILIN       ;FILE INPUT?
+        beq     GETCH4      ;
+        bsr     FILIO       ;DO FILE INPUT
+        tst     FILEKO      ;ECHO CHARACTER?
+        beq     GETCH6      ;
+        tst     FILOUT      ;OUTPUT FILE?
+        beq     GETCH6      ;
+        bsr     PUTCH6      ;ECHO CHARACTER
+        bra     GETCH6      ;
+                            ;
+GETCH4  jsr     INCH        ;GET CHAR
+        bra     GETCH6      ;
+                            ;
+GETCH5  jsr     INCH2       ;TERMINAL INPUT
+GETCH6  clr     LINE        ;CLEAR COUNTER
+        rts
 
 * FILIO
 *
-* FILIO DOSE A FMS CALL FOR CHARACTER
-* IO TRANSFER. CONTROL RETURNED TO
-* WARM START UPON ERROR.
+* FILIO dose A FMS CALL FOR CHARACTER
+* IO TRAnsfer. CONTROL RETURNED TO
+* WARM Start UPON ERROR.
 
-FILIO   STX     IOTEMP      SAVE INDEX
-        LDX     FILIN       GET INPUT FCB
-        BRA     FILIO4
-
-FILIO2  STX     IOTEMP      SAVE X
-        LDX     FILOUT      GET OUTPUT FCB
-
-FILIO4  JSR     FMS         CALL FMS
-        BNE     FILIO6      ERROR?
-        LDX     IOTEMP      RESTORE INDEX
-        RTS
-
-FILIO6  CLR     FILOUT      CLEAR CHAN
-        JSR     RPTERR      REPORT ERROR
-        JMP     WARMS       DO WARM START
+FILIO   stx     IOTEMP      ;SAVE INDEX
+        ldx     FILIN       ;GET INPUT FCB
+        bra     FILIO4      ;
+                            ;
+FILIO2  stx     IOTEMP      ;SAVE X
+        ldx     FILOUT      ;GET OUTPUT FCB
+                            ;
+FILIO4  jsr     FMS         ;CALL FMS
+        bne     FILIO6      ;ERROR?
+        ldx     IOTEMP      ;RESTORE INDEX
+        rts                 ;
+                            ;
+FILIO6  clr     FILOUT      ;CLEAR CHAN
+        jsr     RPTERR      ;REPORT ERROR
+        jmp     WARMS       ;DO WARM START
 
 * PUTCHR
 *
-* PUTCHR WRITES A CHARACTER TO EITHER
-* THE STANDARD OUTPUT OR TO A FILE.
+* PUTCHR writES A CHARACTER TO EITHER
+* THE STandarD OUTPUT OR TO A FILE.
 *
-*   ENTRY: CHARACTER IN A
-*   EXIT:  A MAY BE DESTROYED
+*   ENTRy: chARACTER IN A
+*   EXIT:  a MAY BE DESTROYED
 
-PUTCHR  TST     SPCLS       CHECK SPECIALS
-        BNE     PUTCH6
-        CMPA    #$1F        IS IT CONTROL?
-        BHI     PUTCH2
-        CLR     COLMN       CLEAR COL COUNT
-        BRA     PUTCH6      JUMP AHEAD
-
-PUTCH2  INC     COLMN       BUMP COUNTER
-        PSHS    A           SAVE CHARACTER
-        LDA     COLCNT      GET COUNT
-        BEQ     PUTCH4      IS IT 0?
-        CMPA    COLMN       ENOUGH?
-        BCC     PUTCH4
-        JSR     PCRLF       OUTPUT CR & LF
-        INC     COLMN
-
-PUTCH4  PULS    A           RESTORE CHAR
-PUTCH6  PSHS    A
-        TST     OUTCHN      TEST CHANNEL
-        BNE     PUTCH7
-        TST     FILOUT      FILE OUTPUT?
-        BEQ     PUTC68
-        BSR     FILIO2      DO FMS CALL
-        BRA     PUTC75
-
-PUTC68  TST     FILIN
-        BNE     PUTC75      FILE INPUT?
-        JSR     OUTCH       OUTPUT IT
-        BRA     PUTC75
-
-PUTCH7  JSR     OUTCH2      CHAN 2 OUTPUT
-PUTC75  PULS    A           RESTORE CHAR
-        RTS
+PUTCHR  tst     SPCLS       ;CHECK SPECIALS
+        bne     PUTCH6      ;
+        cmpa    #$1F        ;IS IT CONTROL?
+        bhi     PUTCH2      ;
+        clr     COLMN       ;CLEAR COL COUNT
+        bra     PUTCH6      ;JUMP AHEAD
+                            ;
+PUTCH2  inc     COLMN       ;BUMP COUNTER
+        pshs    a           ;SAVE CHARACTER
+        lda     COLCNT      ;GET COUNT
+        beq     PUTCH4      ;IS IT 0?
+        cmpa    COLMN       ;ENOUGH?
+        bcc     PUTCH4      ;
+        jsr     PCRLF       ;OUTPUT CR & LF
+        inc     COLMN       ;
+                            ;
+PUTCH4  puls    a           ;RESTORE CHAR
+PUTCH6  pshs    a           ;
+        tst     OUTCHN      ;TEST CHANNEL
+        bne     PUTCH7      ;
+        tst     FILOUT      ;FILE OUTPUT?
+        beq     PUTC68      ;
+        bsr     FILIO2      ;DO FMS CALL
+        bra     PUTC75      ;
+                            ;
+PUTC68  tst     FILIN       ;
+        bne     PUTC75      ;FILE INPUT?
+        jsr     OUTCH       ;OUTPUT IT
+        bra     PUTC75      ;
+                            ;
+PUTCH7  jsr     OUTCH2      ;CHAN 2 OUTPUT
+PUTC75  puls    a           ;RESTORE CHAR
+        rts
 
 * OUTDEC
 *
-* OUTPUT DECIMAL NUMBER POINTED TO
-* BY X. THE NS ENTRY PRINTS LEADING
+* OUTPUT deciMAL NUMBER POINTED TO
+* BY X. the nS ENTRY PRINTS LEADING
 * ZEROES.
 *
-*   ENTRY: X POINTS TO NUMBER
-*   EXIT:  ALL CHANGED
+*   ENTRy: x POINTS TO NUMBER
+*   EXIT:  alL CHANGED
 
-OUTDEC  CLR     OUTNUM      CLEAR FLAG
-        STB     XFR         SET SUP FLAG
-        LDA     #4          SET COUNTER
-        STA     TEMP        SAVE IT
-        LDD     0,X         GET VALUE
-        LDX     #CONTBL     POINT TO CONSTANTS
-
-OUTDE4  BSR     OUTDIG      OUTPUT DIGIT
-        LEAX    2,X         BUMP TO NEXT CONST.
-        DEC     TEMP        DEC THE COUNT
-        BNE     OUTDE4
-        TFR     B,A         GET LS DIGIT
-        BRA     OUTHR       OUTPUT IT
+OUTDEC  clr     OUTNUM      ;CLEAR FLAG
+        stb     XFR         ;SET SUP FLAG
+        lda     #4          ;SET COUNTER
+        sta     TEMP        ;SAVE IT
+        ldd     ,x         ;GET VALUE
+        ldx     #CONTBL     ;POINT TO CONSTANTS
+                            ;
+OUTDE4  bsr     OUTDIG      ;OUTPUT DIGIT
+        leax    2,x         ;BUMP TO NEXT CONST.
+        dec     TEMP        ;DEC THE COUNT
+        bne     OUTDE4      ;
+        tfr     b,a         ;GET LS DIGIT
+        bra     OUTHR       ;OUTPUT IT
 
 * OUTDIG
 *
-* OUTDIG OUTPUTS THE DIGITS PLACE
-* OF THE NUMBER IN A & B CORRESPONDING
-* TO THE CONSTANT POINTED TO BY X.
+* OUTDIG outpUTS THE DIGITS PLACE
+* OF THE numbER IN A & B CORRESPONDING
+* TO THE consTANT POINTED TO BY X.
 *
-*   ENTRY: A & B CONTAIN NUMBER
-*          X POINTS TO CONSTANT
-*   EXIT:  ALL REGISTERS PRESERVED
+*   ENTRy: a & B CONTAIN NUMBER
+*          x POINTS TO CONSTANT
+*   EXIT:  alL REGISTERS PRESERVED
 
-OUTDIG  CLR     COUNT       CLEAR COUNTER
-OUTDI2  CMPD    0,X         COMPARE NUMBER
-        BCS     OUTDI5
-        SUBD    0,X         SUB VALUE
-        INC     COUNT       BUMP COUNTER
-        BRA     OUTDI2      REPEAT
+OUTDIG  clr     COUNT       ;CLEAR COUNTER
+OUTDI2  cmpd    0,x         ;COMPARE NUMBER
+        bcs     OUTDI5      ;
+        subd    0,x         ;SUB VALUE
+        inc     COUNT       ;BUMP COUNTER
+        bra     OUTDI2      ;REPEAT
+                            ;
+OUTDI5  pshs    a           ;SAVE A
+        lda     COUNT       ;GET TOTAL
+        bne     OUTDI6      ;IS IT ZERO?
+        tst     OUTNUM      ;SUPRESS ZEROES?
+        bne     OUTDI6      ;NUMBER YET?
+        tst     XFR         ;NULL OR SPACE?
+        beq     OUTDI8      ;
+        lda     #$20        ;SETUP SPACE
+        bsr     OUTHR2      ;OUTPUT IT
+        bra     OUTDI8
 
-OUTDI5  PSHS    A           SAVE A
-        LDA     COUNT       GET TOTAL
-        BNE     OUTDI6      IS IT ZERO?
-        TST     OUTNUM      SUPRESS ZEROES?
-        BNE     OUTDI6      NUMBER YET?
-        TST     XFR         NULL OR SPACE?
-        BEQ     OUTDI8
-        LDA     #$20        SETUP SPACE
-        BSR     OUTHR2      OUTPUT IT
-        BRA     OUTDI8
+OUTDI6  inc     OUTNUM      ;SHOW NUMBER
+        bsr     OUTHR       ;OUTPUT DIGIT
 
-OUTDI6  INC     OUTNUM      SHOW NUMBER
-        BSR     OUTHR       OUTPUT DIGIT
-
-OUTDI8  PULS    A,PC        RESTORE A & RETURN
+OUTDI8  puls    a,pc        ;RESTORE A & RETURN
 
 * OUTADR
 *
-* OUTPUT FOUR HEX DIGITS POINTED
-* TO BY THE INDEX REGISTER.
+* OUTPUT four HEX DIGITS POINTED
+* TO BY the iNDEX REGISTER.
 
-OUTADR  BSR     OUTHEX      OUT 2 DIGITS
-        LEAX    1,X         BUMP POINTER
+OUTADR  bsr     OUTHEX      ;OUT 2 DIGITS
+        leax    1,x         ;BUMP POINTER
 
 * OUTHEX
 *
-* OUTHEX OUTPUTS THE BYTE IN HEX
-* POINTED TO BY X.
+* OUTHEX outpUTS THE BYTE IN HEX
+* POINTEd to BY X.
 *
-*   ENTRY: X POINTS TO BYTE
-*   EXIT:  B PRESERVED
+*   ENTRy: x POINTS TO BYTE
+*   EXIT:  b PRESERVED
 
-OUTHEX  LDA     0,X         GET MSB
-        BSR     OUTHL       OUTPUT IT
-        LDA     0,X         DO LSB
-        BRA     OUTHR       OUTPUT IT
+OUTHEX  lda     0,x         ;GET MSB
+        bsr     OUTHL       ;OUTPUT IT
+        lda     0,x         ;DO LSB
+        bra     OUTHR       ;OUTPUT IT
+                            ;
+OUTHL   lsra                ;GET MSB TO LSB
+        lsra
+        lsra
+        lsra
 
-OUTHL   LSRA                GET MSB TO LSB
-        LSRA
-        LSRA
-        LSRA
+OUTHR   anda    #$0F        ;MASK OFF MSB
+        adda    #$30        ;ADD IN BIAS
+        cmpa    #$39        ;OVER NUMBERS?
+        bls     OUTHR2
 
-OUTHR   ANDA    #$0F        MASK OFF MSB
-        ADDA    #$30        ADD IN BIAS
-        CMPA    #$39        OVER NUMBERS?
-        BLS     OUTHR2
+        adda    #7          ;FINISH BIAS
 
-        ADDA    #7          FINISH BIAS
-
-OUTHR2  JMP     PUTCHR      OUTPUT IT
+OUTHR2  jmp     PUTCHR      ;OUTPUT IT
 
 * CLASS
 *
-* CLASS WILL CLASSIFY THE CHARACTER IN A.
+* CLASS will CLASSIFY THE CHARACTER IN A.
 *
-*   ENTRY: CHARACTER IN A
-*   EXIT:  CS IF NOT 0-9 OR A-Z
+*   ENTRy: chARACTER IN A
+*   EXIT:  cs IF NOT 0-9 OR A-Z
 
-CLASS   CMPA    #$30        IS IT 0?
-        BCS     CLASS2      REPORT
-        CMPA    #$39        COMPARE TO 9
-        BLS     CLASS4      IS IT NUMBER?
-        CMPA    #$41        COMPARE TO A
-        BCS     CLASS2      REPORT
-        CMPA    #$5A        COMPARE TO Z
-        BLS     CLASS4      IS IT LETTER?
-        CMPA    #$61        CHECK FOR LOWER
-        BCS     CLASS2      REPORT
-        CMPA    #$7A        UPPER LIMIT
-        BLS     CLASS4
+CLASS   cmpa    #$30        ;IS IT 0?
+        bcs     CLASS2      ;REPORT
+        cmpa    #$39        ;COMPARE TO 9
+        bls     CLASS4      ;IS IT NUMBER?
+        cmpa    #$41        ;COMPARE TO A
+        bcs     CLASS2      ;REPORT
+        cmpa    #$5A        ;COMPARE TO Z
+        bls     CLASS4      ;IS IT LETTER?
+        cmpa    #$61        ;CHECK FOR LOWER
+        bcs     CLASS2      ;REPORT
+        cmpa    #$7A        ;UPPER LIMIT
+        bls     CLASS4
 
-CLASS2  ORCC    #1          SEC  SET FOR NOT
-        STA     LSTTRM
-        RTS
+CLASS2  orcc    #1          ;SEC  SET FOR NOT
+        sta     LSTTRM
+        rts
 
-CLASS4  ANDCC   #$FE        CLC  SHOW ALPHANUMERIC
-        RTS
+CLASS4  andcc   #$FE        ;CLC  SHOW ALPHANUMERIC
+        rts
 
 * NXTCH
 *
-* NXTCH GETS THE NEXT CHARACTER FROM
-* THE LINE BUFFER.
+* NXTCH gets THE NEXT CHARACTER FROM
+* THE LIne buFFER.
 *
-*   ENTRY: NONE
-*   EXIT:  A HAS CHARACTER
+*   ENTRy: noNE
+*   EXIT:  a HAS CHARACTER
 
-NXTCH   PSHS    X
-        LDX     BUFPNT      GET POINTER
-        LDA     CHAR        GET OLD CHAR
-        STA     PRVCHR      SAVE AS PREVIOUS
-NXTCH3  LDA     ,X+         GET THE CHARACTER
-        STA     CHAR        SAVE CHAR
-        CMPA    #$0D        IS IT RETURN?
-        BEQ     NXTCH4
-        CMPA    TTYEOL      IS IT EOL?
-        BEQ     NXTCH4
-        STX     BUFPNT      SAVE NEW POSITION
-        CMPA    #$20        CHECK FOR SPACE
-        BNE     NXTCH4
-        CMPA    0,X         NEXT CHAR SPACE?
-        BEQ     NXTCH3      SKIP IF SO
-
-NXTCH4  BSR     CLASS       GO CLASSIFY
-        PULS    X,PC        RESTORE REG. & RETURN
+NXTCH   pshs    x
+        ldx     BUFPNT      ;GET POINTER
+        lda     CHAR        ;GET OLD CHAR
+        sta     PRVCHR      ;SAVE AS PREVIOUS
+NXTCH3  lda     ,x+        ;GET THE CHARACTER
+        sta     CHAR        ;SAVE CHAR
+        cmpa    #$0D        ;IS IT RETURN?
+        beq     NXTCH4      ;
+        cmpa    TTYEOL      ;IS IT EOL?
+        beq     NXTCH4      ;
+        stx     BUFPNT      ;SAVE NEW POSITION
+        cmpa    #$20        ;CHECK FOR SPACE
+        bne     NXTCH4      ;
+        cmpa    0,x         ;NEXT CHAR SPACE?
+        beq     NXTCH3      ;SKIP IF SO
+                            ;
+NXTCH4  bsr     CLASS       ;GO CLASSIFY
+        puls    x,pc        ;RESTORE REG. & RETURN
 
 * GETFIL
 *
-* GETFIL GETS A FILE SPECIFICATION FROM
-* THE INPUT STREAM.
+* GETFIL gets A FILE SPECIFICATION FROM
+* THE INput sTREAM.
 *
-*   ENTRY: X POINTS TO FCB
-*   EXIT:  ALL REGISTERS CHANGED
+*   ENTRy: x POINTS TO FCB
+*   EXIT:  alL REGISTERS CHANGED
 
-GETFIL  LDA     #21         SET PRE ERROR
-        STA     1,X
-        LDA     #$FF        SET DRIVE NEG
-        STA     3,X
-        CLR     4,X
-        CLR     12,X        CLEAR EXTENSION
-        JSR     SKPSPC      SKIP SPACES
-        LDA     #8          SET UP COUNT
-        STA     COUNT       SAVE IT
-        BSR     PRTM        PROCESS ITEM
-        BCS     GETFI5      ERROR?
-        BNE     GETFI2      CHECK TERM
-        BSR     PRTM        PROCESS ITEM
-        BCS     GETFI5      ERROR?
-        BNE     GETFI2      CHECK TERM
-        CMPX    CRSAVE      CHECK ERROR?
-        BEQ     PRTM6
-        BSR     PRTM        PROCESS ITEM
-        BLS     PRTM6       ERROR?
-
-GETFI2  LDX     CRSAVE      RESTORE POINTER
-        TST     4,X         IS NAME NULL?
-        BEQ     PRTM6
-        TST     3,X         CHECK DRIVE NUMBER
-        BPL     GETFI4      SET YET?
-        TST     SYSFLG      SYSTEM DRIVE?
-        BEQ     GETFI3
-        LDA     SYSDRV      GET SYSTEM DRIVE
-        BRA     GETF35
-
-GETFI3  LDA     WRKDRV      GET WORK DRIVE
-GETF35  STA     3,X         SET DRIVE NUMBER
-GETFI4  CLR     SYSFLG      CLEAR FLAG
-GETFI5  LDX     CRSAVE      RESTORE FCB
-        RTS
+GETFIL  lda     #21         ;SET PRE ERROR
+        sta     1,x         ;
+        lda     #$FF        ;SET DRIVE NEG
+        sta     3,x         ;
+        clr     4,x         ;
+        clr     12,x        ;CLEAR EXTENSION
+        jsr     SKPSPC      ;SKIP SPACES
+        lda     #8          ;SET UP COUNT
+        sta     COUNT       ;SAVE IT
+        bsr     PRTM        ;PROCESS ITEM
+        bcs     GETFI5      ;ERROR?
+        bne     GETFI2      ;CHECK TERM
+        bsr     PRTM        ;PROCESS ITEM
+        bcs     GETFI5      ;ERROR?
+        bne     GETFI2      ;CHECK TERM
+        cmpx    CRSAVE      ;CHECK ERROR?
+        beq     PRTM6       ;
+        bsr     PRTM        ;PROCESS ITEM
+        bls     PRTM6       ;ERROR?
+                            ;
+GETFI2  ldx     CRSAVE      ;RESTORE POINTER
+        tst     4,x         ;IS NAME NULL?
+        beq     PRTM6       ;
+        tst     3,x         ;CHECK DRIVE NUMBER
+        bpl     GETFI4      ;SET YET?
+        tst     SYSFLG      ;SYSTEM DRIVE?
+        beq     GETFI3      ;
+        lda     SYSDRV      ;GET SYSTEM DRIVE
+        bra     GETF35      ;
+                            ;
+GETFI3  lda     WRKDRV      ;GET WORK DRIVE
+GETF35  sta     3,x         ;SET DRIVE NUMBER
+GETFI4  clr     SYSFLG      ;CLEAR FLAG
+GETFI5  ldx     CRSAVE      ;RESTORE FCB
+        rts
 
 * PRTM
 *
-* PRTM PROCESSES AN ITEM OF THE FILE SPEC
+* PRTM ProcesSES AN ITEM OF THE FILE SPEC
 
-PRTM    BSR     NXTCH       GET NEXT CHAR
-        BCS     PRTM6       ERROR?
-        CMPA    #$39        CHECK IF NUMBER
-        BHI     PRTM2
-        LDX     CRSAVE      RESTORE POINTER
-        TST     3,X         CHECK FOR DRIVE NO
-        BPL     PRTM6       ERROR?
-        ANDA    #3          MASK DRIVE
-        STA     3,X         SET DRIVE NUM
-        JSR     NXTCH       GET NEXT CHAR
-        BCC     PRTM6       ERROR?
-
-PRTM1   CMPA    #$2E        CHECK TERM
-        ANDCC   #$FE        CLC  CLEAR ERROR
-        RTS
-
-PRTM2   LDB     COUNT       GET COUNT
-        BMI     PRTM6       ERROR?
-        PSHS    B           SAVE COUNT
-        SUBB    #5          SET NEW COUNT
-        STB     COUNT       SAVE IT
-        PULS    B           RESTORE OLD
-
-PRTM3   CMPA    MAPUP       CHECK FOR LOWER CASE
-        BCS     LD0AE       SKIP IF NOT
-        SUBA    #$20        CONVERT TO UPPER
-
-LD0AE   STA     4,X         PUT CHARACTER
-        LEAX    1,X         BUMP THE POINTER
-        DECB                DEC THE COUNT
-        JSR     NXTCH       GET NEXT CHAR
-        BCC     PRTM5       TERM CHAR?
-        CMPA    #$2D        IS IT HYPHEN?
-        BEQ     PRTM5
-
-        CMPA    #$5F        IS IT UNDER SCORE?
-        BNE     PRTM7
-
-PRTM5   TSTB                CHECK COUNT
-        BNE     PRTM3       REPEAT
-
-PRTM6   ORCC    #1          SEC  SET ERROR
-        RTS
-
-PRTM7   TSTB                CHECK COUNT
-        BEQ     PRTM1       FINISHED?
-
-        CLR     4,X         CLEAR REST
-        LEAX    1,X         BUMP POINTER
-        DECB                DEC THE COUNT
-        BRA     PRTM7       REPEAT
+PRTM    bsr     NXTCH       ;GET NEXT CHAR
+        bcs     PRTM6       ;ERROR?
+        cmpa    #$39        ;CHECK IF NUMBER
+        bhi     PRTM2       ;
+        ldx     CRSAVE      ;RESTORE POINTER
+        tst     3,x         ;CHECK FOR DRIVE NO
+        bpl     PRTM6       ;ERROR?
+        anda    #3          ;MASK DRIVE
+        sta     3,x         ;SET DRIVE NUM
+        jsr     NXTCH       ;GET NEXT CHAR
+        bcc     PRTM6       ;ERROR?
+                            ;
+PRTM1   cmpa    #$2E        ;CHECK TERM
+        andcc   #$FE        ;CLC  CLEAR ERROR
+        rts                 ;
+                            ;
+PRTM2   ldb     COUNT       ;GET COUNT
+        bmi     PRTM6       ;ERROR?
+        pshs    b           ;SAVE COUNT
+        subb    #5          ;SET NEW COUNT
+        stb     COUNT       ;SAVE IT
+        puls    b           ;RESTORE OLD
+                            ;
+PRTM3   cmpa    MAPUP       ;CHECK FOR LOWER CASE
+        bcs     LD0AE       ;SKIP IF NOT
+        suba    #$20        ;CONVERT TO UPPER
+                            ;
+LD0AE   sta     4,x         ;PUT CHARACTER
+        leax    1,x         ;BUMP THE POINTER
+        decb                ;DEC THE COUNT
+        jsr     NXTCH       ;GET NEXT CHAR
+        bcc     PRTM5       ;TERM CHAR?
+        cmpa    #$2D        ;IS IT HYPHEN?
+        beq     PRTM5       ;
+                            ;
+        cmpa    #$5F        ;IS IT UNDER SCORE?
+        bne     PRTM7       ;
+                            ;
+PRTM5   tstb                ;CHECK COUNT
+        bne     PRTM3       ;REPEAT
+                            ;
+PRTM6   orcc    #1          ;SEC  SET ERROR
+        rts                 ;
+                            ;
+PRTM7   tstb                ;CHECK COUNT
+        beq     PRTM1       ;FINISHED?
+                            ;
+        clr     4,x         ;CLEAR REST
+        leax    1,x         ;BUMP POINTER
+        decb                ;DEC THE COUNT
+        bra     PRTM7       ;REPEAT
 
 * SKPSPC
 *
-* SKPSPC SKIPS SPACES IN THE BUFFER
+* SKPSPC skipS SPACES IN THE BUFFER
 *
-*   ENTRY: NONE
-*   EXIT:  ALL CHANGED
+*   ENTRy: noNE
+*   EXIT:  alL CHANGED
 
-SKPSPC  STX     CRSAVE      SAVE INDEX
-        LDX     BUFPNT      GET POINTER
-
-SKPSP2  LDA     0,X         GET CHARACTER
-        CMPA    #$20        IS IT SPACE?
-        BNE     SKPSP4
-
-        LEAX    1,X         BUMP TO NEXT
-        BRA     SKPSP2      REPEAT
-
-SKPSP4  STX     BUFPNT      SET POINTER
-        LDX     CRSAVE      RESTORE REGISTER
-        RTS
+SKPSPC  stx     CRSAVE      ;SAVE INDEX
+        ldx     BUFPNT      ;GET POINTER
+                            ;
+SKPSP2  lda     0,x         ;GET CHARACTER
+        cmpa    #$20        ;IS IT SPACE?
+        bne     SKPSP4      ;
+                            ;
+        leax    1,x         ;BUMP TO NEXT
+        bra     SKPSP2      ;REPEAT
+                            ;
+SKPSP4  stx     BUFPNT      ;SET POINTER
+        ldx     CRSAVE      ;RESTORE REGISTER
+        rts
 
 * SETEXT
 *
-* SETEXT SETS A DEFAULT NAME EXTENSION
-* IF THE EXTENSION IS NULL. IT IS SET
-* ACCORDING TO THE CODE IN A.
+* SETEXT sets A DEFAULT NAME EXTENSION
+* IF THE exteNSION IS NULL. IT IS SET
+* ACCORDing tO THE CODE IN A.
 *
-*   ENTRY: A HAS CODE
-*          X POINTS TO FCB
-*   EXIT:  ALL REGISTERS CHANGED
+*   ENTRy: a HAS CODE
+*          x POINTS TO FCB
+*   EXIT:  alL REGISTERS CHANGED
 
-SETEXT  PSHS    X,Y         SAVE REGISTERS
-        LDB     12,X        GET FIRST EXT
-        BNE     SETEX6      NULL?
-
-        LEAY    <EXTTBL,PCR POINT TO TABLE
-        CMPA    #$0F        CHECK RANGE
-        BHI     SETEX6
-        LDB     #3          GET TO DESIRED EXT.
-        MUL
-        LEAY    D,Y
-        LDB     #3          GET EXTENSION LENGTH
-
-SETEX4  LDA     ,Y+         GET CHAR
-        CMPA    MAPUP       IS IT LOWER CASE?
-        BCS     SETEX5      NO
-        SUBA    #$20        YES - MAKE UPPER CASE
-
-SETEX5  STA     12,X        PUT IN EXT
-        LEAX    1,X         BUMP POINTER
-        DECB                THE COUNT
-        BNE     SETEX4      FINISHED?
-
-SETEX6  PULS    X,Y,PC      RESTORE REGS. & RETURN
+SETEXT  pshs    x,y         ;SAVE REGISTERS
+        ldb     12,x        ;GET FIRST EXT
+        bne     SETEX6      ;NULL?
+                            ;
+        leay    >EXTTBL,pc  ;POINT TO TABLE
+        cmpa    #$0F        ;CHECK RANGE
+        bhi     SETEX6      ;
+        ldb     #3          ;GET TO DESIRED EXT.
+        mul                 ;
+        leay    d,y         ;
+        ldb     #3          ;GET EXTENSION LENGTH
+                            ;
+SETEX4  lda     ,y+        ;GET CHAR
+        cmpa    MAPUP       ;IS IT LOWER CASE?
+        bcs     SETEX5      ;NO
+        suba    #$20        ;YES - MAKE UPPER CASE
+                            ;
+SETEX5  sta     12,x        ;PUT IN EXT
+        leax    1,x         ;BUMP POINTER
+        decb                ;THE COUNT
+        bne     SETEX4      ;FINISHED?
+                            ;
+SETEX6  puls    x,y,pc      ;RESTORE REGS. & RETURN
 
 * EXTTBL
 *
-* EXTENSION CODE TABLE
+* EXTENSion cODE TABLE
 
-EXTTBL  FCC     "bin"   ;CODE 0
-        FCC     "txt"   ;CODE 1
-        FCC     "cmd"   ;CODE 2
-        FCC     "bas"   ;CODE 3
-        FCC     "sys"   ;CODE 4
-        FCC     "bak"   ;CODE 5
-        FCC     "scr"   ;CODE 6
-        FCC     "dat"   ;CODE 7
-        FCC     "bac"   ;CODE 8
-        FCC     "dir"   ;CODE 9
-        FCC     "prt"   ;CODE 10
-        FCC     "out"   ;CODE 11
-        FCC     "rel"   ;CODE 12
-        FCC     "rfi"   ;CODE 13
-        FCC     "dev"   ;CODE 14
-        FCC     "arc"   ;CODE 15
+EXTTBL  fcc     "bin"   ;CODE 0
+        fcc     "txt"   ;CODE 1
+        fcc     "cmd"   ;CODE 2
+        fcc     "bas"   ;CODE 3
+        fcc     "sys"   ;CODE 4
+        fcc     "bak"   ;CODE 5
+        fcc     "scr"   ;CODE 6
+        fcc     "dat"   ;CODE 7
+        fcc     "bac"   ;CODE 8
+        fcc     "dir"   ;CODE 9
+        fcc     "prt"   ;CODE 10
+        fcc     "out"   ;CODE 11
+        fcc     "rel"   ;CODE 12
+        fcc     "rfi"   ;CODE 13
+        fcc     "dev"   ;CODE 14
+        fcc     "arc"   ;CODE 15
 
 * GETHEX
 *
-* GETHEX GETS A HEX VALUE FROM THE
-* INPUT BUFFER.  B IS NON ZERO IF
-* THERE WAS A NUMBER.
+* GETHEX gets A HEX VALUE FROM THE
+* INPUT buffeR.  B IS NON ZERO IF
+* THERE was a NUMBER.
 *
-*   ENTRY: NONE
-*   EXIT:  CS IF ERROR
-*          VALUE IN X
+*   ENTRy: noNE
+*   EXIT:  cs IF ERROR
+*          vaLUE IN X
 
-GETHEX  JSR     CLROFS      CLEAR SPACE & B REG
-GETHE2  JSR     NXTCH       GET CHARACTER
-        BCS     GETHE8      GRAPHICS?
-
-        BSR     TSTHEX      TEST FOR HEX
-        BCS     GETHE6      ERROR?
-
-        PSHS    B           SAVE IND
-        LDB     #4          SET UP COUNT
-
-GETHE4  ASL     OFFSET+1    SHIFT OVER 4
-        ROL     OFFSET
-        DECB                DEC THE COUNT
-        BNE     GETHE4      LOOP TIL DONE
-
-        PULS    B           RESTORE IND
-        ADDA    OFFSET+1
-        STA     OFFSET+1    SET NEW DIGIT
-        INCB                SET INDICATOR
-        BRA     GETHE2
-
-GETHE6  JSR     NXTCH       GET CHARACTER
-        BCC     GETHE6      WAIT FOR TERM
-        RTS
-
-GETHE8  LDX     OFFSET      GET VALUE
-GETHE9  ANDCC   #$FE        CLC  CLEAR ERRORS
-        RTS
+GETHEX  jsr     CLROFS      ;CLEAR SPACE & B REG
+GETHE2  jsr     NXTCH       ;GET CHARACTER
+        bcs     GETHE8      ;GRAPHICS?
+                            ;
+        bsr     TSTHEX      ;TEST FOR HEX
+        bcs     GETHE6      ;ERROR?
+                            ;
+        pshs    b           ;SAVE IND
+        ldb     #4          ;SET UP COUNT
+                            ;
+GETHE4  asl     OFFSET+1    ;SHIFT OVER 4
+        rol     OFFSET      ;
+        decb                ;DEC THE COUNT
+        bne     GETHE4      ;LOOP TIL DONE
+                            ;
+        puls    b           ;RESTORE IND
+        adda    OFFSET+1    ;
+        sta     OFFSET+1    ;SET NEW DIGIT
+        incb                ;SET INDICATOR
+        bra     GETHE2      ;
+                            ;
+GETHE6  jsr     NXTCH       ;GET CHARACTER
+        bcc     GETHE6      ;WAIT FOR TERM
+        rts                 ;
+                            ;
+GETHE8  ldx     OFFSET      ;GET VALUE
+GETHE9  andcc   #$FE        ;CLC  CLEAR ERRORS
+        rts
 
 * TSTHEX
 *
-* TEST FOR VALID HEX CHARACTER
+* TEST For vaLID HEX CHARACTER
 
-TSTHEX  CMPA    #$5F
-        BLS     TSTHE2
-        SUBA    #$20
+TSTHEX  cmpa    #$5F
+        bls     TSTHE2
+        suba    #$20
 
-TSTHE2  SUBA    #$47        REMOVE BIAS
-        BPL     TSTHE4
+TSTHE2  suba    #$47        ;REMOVE BIAS
+        bpl     TSTHE4      ;
+                            ;
+        adda    #6          ;CHECK RANGE
+        bpl     TSTHE3      ;ERROR?
+                            ;
+        adda    #7          ;ADD BACK IN
+        bpl     TSTHE4      ;ERROR?
+                            ;
+TSTHE3  adda    #$0A        ;FINAL BIAS
+        bpl     GETHE9      ;NO ERROR
 
-        ADDA    #6          CHECK RANGE
-        BPL     TSTHE3      ERROR?
-
-        ADDA    #7          ADD BACK IN
-        BPL     TSTHE4      ERROR?
-
-TSTHE3  ADDA    #$0A        FINAL BIAS
-        BPL     GETHE9      NO ERROR
-
-TSTHE4  ORCC    #1
-        RTS
+TSTHE4  orcc    #1
+        rts
 
 * INDEC
 *
-* INPUT DECIMAL NUMBER.
+* INPUT decimAL NUMBER.
 *
-*   ENTRY: NONE
-*   EXIT:  CS IF ERROR
-*          VALUE IN X
-*          B=0 IF NO NUMBER
+*   ENTRy: noNE
+*   EXIT:  cs IF ERROR
+*          vaLUE IN X
+*          b=0 IF NO NUMBER
 
-INDEC   JSR     CLROFS      CLEAR SPACE & B REG.
-INDEC2  JSR     NXTCH       GET CHARACTER
-        BCS     GETHE8      TERM?
-        CMPA    #$39        CHECK FOR NUMBER
-        BHI     GETHE6
-        ANDA    #$0F        MASK NUMBER
-        PSHS    B           SAVE COUNT
-        PSHS    A           SAVE NUMBER
-        LDD     OFFSET      GET VALUE
-        ASLB                DO TIMES 8
-        ROLA
-        ASLB
-        ROLA
-        ADDD    OFFSET      PLUS TIMES 2
-        ASLB
-        ROLA
-        ADDB    ,S+         ADD IN NEW DIGIT
-        ADCA    #0
-        STD     OFFSET      SAVE RESULT
-        PULS    B           GET COUNT
-        INCB                BUMP COUNT
-        BRA     INDEC2      REPEAT
+INDEC   jsr     CLROFS      ;CLEAR SPACE & B REG.
+INDEC2  jsr     NXTCH       ;GET CHARACTER
+        bcs     GETHE8      ;TERM?
+        cmpa    #$39        ;CHECK FOR NUMBER
+        bhi     GETHE6      ;
+        anda    #$0F        ;MASK NUMBER
+        pshs    b           ;SAVE COUNT
+        pshs    a           ;SAVE NUMBER
+        ldd     OFFSET      ;GET VALUE
+        aslb                ;DO TIMES 8
+        rola                ;
+        aslb                ;
+        rola                ;
+        addd    OFFSET      ;PLUS TIMES 2
+        aslb                ;
+        rola                ;
+        addb    ,s+        ;ADD IN NEW DIGIT
+        adca    #0          ;
+        std     OFFSET      ;SAVE RESULT
+        puls    b           ;GET COUNT
+        incb                ;BUMP COUNT
+        bra     INDEC2      ;REPEAT
 
 * LOAD
 *
-* LOAD IS THE SYSTEM BINARY LOADER
+* LOAD Is the SYSTEM BINARY LOADER
 *
-*   ENTRY: X POINTS TO FCB
-*   EXIT:  WARMS IF ERROR
-*          ALL RGISTERS CHANGED
+*   ENTRy: x POINTS TO FCB
+*   EXIT:  waRMS IF ERROR
+*          alL RGISTERS CHANGED
 
-LOAD    CLR     XFR         CLEAR TRANSFER FLAG
-LOAD2   BSR     DOFMS       DO READ
-        CMPA    #2          BEGIN DESIGNATOR?
-        BEQ     LOAD4       YES - GET DATA COUNT
-
-        CMPA    #$16        TRANSFER DESIG?
-        BNE     LOAD2
-        BSR     DOFMS       GET NEXT CHAR
-        STA     TADR        SET TRANSFER ADR
-        BSR     DOFMS       GET LSB
-        STA     TADR+1      SAVE IT
-        LDA     #1          SET NON ZERO
-        STA     XFR         SET TRANSFER FLAG
-        BRA     LOAD2       REPEAT
-
-LOAD4   BSR     DOFMS       GET NEXT CHAR
-        TFR     A,B         SAVE IT
-        BSR     DOFMS       GET REST
-        EXG     A,B         PUT IN ORDER
-        ADDD    OFFSET      OFFSET + ADDRESS
-        STD     INDEX       SAVE POINTER
-        BSR     DOFMS       GET DATA COUNT
-        TFR     A,B         MOVE TO B
-        TSTA                ZERO COUNT?
-        BEQ     LOAD2       YES -
-
-LOAD6   BSR     DOFMS       GET CHARACTER
-        LDX     INDEX       GET POINTER
-        STA     ,X+         SAVE IN MEMORY
-        STX     INDEX       SAVE POINTER
-        DECB                DEC THE COUNT
-        BNE     LOAD6       FINISHED?
-        BRA     LOAD2       REPEAT
+LOAD    clr     XFR         ;CLEAR TRANSFER FLAG
+LOAD2   bsr     DOFMS       ;DO READ
+        cmpa    #2          ;BEGIN DESIGNATOR?
+        beq     LOAD4       ;YES - GET DATA COUNT
+                            ;
+        cmpa    #$16        ;TRANSFER DESIG?
+        bne     LOAD2       ;
+        bsr     DOFMS       ;GET NEXT CHAR
+        sta     TADR        ;SET TRANSFER ADR
+        bsr     DOFMS       ;GET LSB
+        sta     TADR+1      ;SAVE IT
+        lda     #1          ;SET NON ZERO
+        sta     XFR         ;SET TRANSFER FLAG
+        bra     LOAD2       ;REPEAT
+                            ;
+LOAD4   bsr     DOFMS       ;GET NEXT CHAR
+        tfr     a,b         ;SAVE IT
+        bsr     DOFMS       ;GET REST
+        exg     a,b         ;PUT IN ORDER
+        addd    OFFSET      ;OFFSET + ADDRESS
+        std     INDEX       ;SAVE POINTER
+        bsr     DOFMS       ;GET DATA COUNT
+        tfr     a,b         ;MOVE TO B
+        tsta                ;ZERO COUNT?
+        beq     LOAD2       ;YES -
+                            ;
+LOAD6   bsr     DOFMS       ;GET CHARACTER
+        ldx     INDEX       ;GET POINTER
+        sta     ,x+        ;SAVE IN MEMORY
+        stx     INDEX       ;SAVE POINTER
+        decb                ;DEC THE COUNT
+        bne     LOAD6       ;FINISHED?
+        bra     LOAD2       ;REPEAT
 
 * DOFMS
 *
-* DOFMS DOES AN IO TRANSFER TO THE
-* FILE MGMNT SYSTEM.
+* DOFMS does AN IO TRANSFER TO THE
+* FILE Mgmnt SYSTEM.
 *
-*   ENTRY: NONE
-*   EXIT:  SAME AS FMS COMMAND
+*   ENTRy: noNE
+*   EXIT:  saME AS FMS COMMAND
 
-DOFMS   LDX     #SYSFCB     POINT TO FCB
-        JSR     FMS         DO COMMAND
-        BEQ     LD20B       ERROR?
-
-        LDA     1,X         GET ERROR CODE
-        CMPA    #8          IS IT EOF?
-        BNE     DOFMS4
-
-        LEAS    2,S         FIX STACK
-        LDA     #4          SET CMND
-        STA     0,X
-        JSR     FMS         CALL FMS
-        BNE     DOFMS6      ERROR?
-
-LD20B   ANDCC   #$FE        CLC  CLEAR ERROR
-        RTS
-
-DOFMS4  STA     ERRTYP      SET TYPE
-        CMPA    #4          NO FILE ERROR?
-        BEQ     LD287       YES -
-
-DOFMS6  BSR     RPTERR      REPORT ERROR
-        JMP     NFERR4      DO WARM START
+DOFMS   ldx     #SYSFCB     ;POINT TO FCB
+        jsr     FMS         ;DO COMMAND
+        beq     LD20B       ;ERROR?
+                            ;
+        lda     1,x         ;GET ERROR CODE
+        cmpa    #8          ;IS IT EOF?
+        bne     DOFMS4      ;
+                            ;
+        leas    2,s         ;FIX STACK
+        lda     #4          ;SET CMND
+        sta     0,x         ;
+        jsr     FMS         ;CALL FMS
+        bne     DOFMS6      ;ERROR?
+                            ;
+LD20B   andcc   #$FE        ;CLC  CLEAR ERROR
+        rts                 ;
+                            ;
+DOFMS4  sta     ERRTYP      ;SET TYPE
+        cmpa    #4          ;NO FILE ERROR?
+        beq     LD287       ;YES -
+                            ;
+DOFMS6  bsr     RPTERR      ;REPORT ERROR
+        jmp     NFERR4      ;DO WARM START
 
 * GET
 *
-* GET IS THE DOS COMMAND USED TO
-* LOAD BINARY FILES INTO MEMORY.
+* GET IS the DOS COMMAND USED TO
+* LOAD Binary FILES INTO MEMORY.
 *
-*   ENTRY: NONE
-*   EXIT:  ALL REGISTERS CHANGED
+*   ENTRy: noNE
+*   EXIT:  alL REGISTERS CHANGED
 
-GET     LDA     #0          SET DEFAULT CODE
-        BSR     GETOPN      GET & OPEN FILE
-        BCS     TSTNAM      NO NAME?
-        BSR     CLROFS      CLEAR OFFSET
-        INC     GOTFIL      SET FILE INDIC.
-        BSR     LOAD        GO DO LOAD
-        BRA     GET         REPEAT PROCESS
+GET     lda     #0          ;SET DEFAULT CODE
+        bsr     GETOPN      ;GET & OPEN FILE
+        bcs     TSTNAM      ;NO NAME?
+        bsr     CLROFS      ;CLEAR OFFSET
+        inc     GOTFIL      ;SET FILE INDIC.
+        bsr     LOAD        ;GO DO LOAD
+        bra     GET         ;REPEAT PROCESS
 
 * CLROFS
 *
-* CLEARS STORAGE LOC. OFFSET
+* CLEARS storAGE LOC. OFFSET
 
-CLROFS  CLRA
-        CLRB
-        STD     OFFSET
-        RTS
+CLROFS  clra
+        clrb
+        std     OFFSET
+        rts
 
 * TSTNAM
 *
-* TSTNAM TESTS TO SEE IF ANY NAMES HAVE
-* BEEN PROCESSED YET.
+* TSTNAM testS TO SEE IF ANY NAMES HAVE
+* BEEN ProcesSED YET.
 
-TSTNAM  LDB     GOTFIL      CHECK FLAG
-        LBEQ    NFERR       REPORT ERROR
-        JMP     WARMS       ALL DONE
+TSTNAM  ldb     GOTFIL      ;CHECK FLAG
+        lbeq    NFERR       ;REPORT ERROR
+        jmp     WARMS       ;ALL DONE
 
 * LGO
 *
-* LGO IS THE SYSTEM LOAD AND GO MODULE.
+* LGO IS the SYSTEM LOAD AND GO MODULE.
 *
-*   ENTRY: NONE
-*   EXIT:  ALL CHANGED
+*   ENTRy: noNE
+*   EXIT:  alL CHANGED
 
-LGO     LDA     #2          SET DEFAULT CODE
-        BSR     GETOP2      OPEN FILE
-        BSR     CLROFS      CLEAR OFFSET
-        JSR     LOAD        GO DO LOAD
-
-        LDB     XFR         CHECK FOR TRANSFER ADR
-        BEQ     LGO2
-        JMP     [TADR]      JUMP TO XFR ADR
-
-LGO2    LDX     #NOTRST     POINT TO STRING
-        LDA     #$81        SET TYPE
-        JMP     NFERR1      REPORT
+LGO     lda     #2          ;SET DEFAULT CODE
+        bsr     GETOP2      ;OPEN FILE
+        bsr     CLROFS      ;CLEAR OFFSET
+        jsr     LOAD        ;GO DO LOAD
+        ;                    ;
+        ldb     XFR         ;CHECK FOR TRANSFER ADR
+        beq     LGO2        ;
+        jmp     [TADR]      ;JUMP TO XFR ADR
+                            ;
+LGO2    ldx     #NOTRST     ;POINT TO STRING
+        lda     #$81        ;SET TYPE
+        jmp     NFERR1      ;REPORT
 
 * GETOPN
 *
-* GETOPN GETS THE FILES NAME FROM
-* THE INPUT BUFFER AND OPENS THE FILE
+* GETOPN gets THE FILES NAME FROM
+* THE INput bUFFER AND OPENS THE FILE
 *
-*   ENTRY: A HAS DEFAULT CODE
-*   EXIT:  ALL CHANGED
+*   ENTRy: a HAS DEFAULT CODE
+*   EXIT:  alL CHANGED
 
-GETOPN  PSHS    A           SAVE CODE
-        LDX     #SYSFCB     POINT TO FCB
-        JSR     GETFIL      GET FILE SPEC
-        PULS    A           RESTORE CODE
-        BCS     GETOP4      ERROR?
-
-GETOP2  LDX     #SYSFCB     POINT TO FCB
-        JSR     SETEXT      SET EXTENSION
-        LDX     #SYSFCB     POINT TO FCB
-        LDA     #1          SET OPEN CODE
-        STA     0,X         SET COMMAND
-        JSR     DOFMS       GO DO FMS
-        LBCS    NONMER      REPORT ANY ERROR
-        LDA     #$FF        SET NEG
-        STA     59,X        SET FOR NO SPC COMP
-        RTS
-
-GETOP4  LDA     LSTTRM      GET TERM
-        CMPA    #$0D        IS TERM CR?
-        BEQ     LD287       YES -
-
-        CMPA    TTYEOL      IS IT EOL?
-        LBNE    NFERR       ERROR IF NEITHER
-
-LD287   ORCC    #1          SEC  SET TERM INDICATOR
-        RTS
+GETOPN  pshs    a           ;SAVE CODE
+        ldx     #SYSFCB     ;POINT TO FCB
+        jsr     GETFIL      ;GET FILE SPEC
+        puls    a           ;RESTORE CODE
+        bcs     GETOP4      ;ERROR?
+                            ;
+GETOP2  ldx     #SYSFCB     ;POINT TO FCB
+        jsr     SETEXT      ;SET EXTENSION
+        ldx     #SYSFCB     ;POINT TO FCB
+        lda     #1          ;SET OPEN CODE
+        sta     0,x         ;SET COMMAND
+        jsr     DOFMS       ;GO DO FMS
+        lbcs    NONMER      ;REPORT ANY ERROR
+        lda     #$FF        ;SET NEG
+        sta     59,x        ;SET FOR NO SPC COMP
+        rts                 ;
+                            ;
+GETOP4  lda     LSTTRM      ;GET TERM
+        cmpa    #$0D        ;IS TERM CR?
+        beq     LD287       ;YES -
+                            ;
+        cmpa    TTYEOL      ;IS IT EOL?
+        lbne    NFERR       ;ERROR IF NEITHER
+                            ;
+LD287   orcc    #1          ;SEC  SET TERM INDICATOR
+        rts
 
 * RPTERR
 *
-* RPTERR REPORTS FMS ERRORS
+* RPTERR repoRTS FMS ERRORS
 
-RPTERR  PSHS    X,Y         SAVE REGISTERS
-        LDA     1,X         GET ERR NUM
-        STA     ERRTYP      SAVE IT
-        BEQ     RPTE44
-        JSR     RESTIO      RESTORE IO
-        LDY     ERRVEC      GET ERR VECTOR
-        BNE     RPTER1
-        CMPA    #$10        NOT READY ERROR
-        BEQ     RPTER6
-        LDY     #ERNM       POINT TO STRING
-
-RPTER1  LDX     #SYSFCB     POINT TO FCB
-        TST     2,X
-        BEQ     RPTER2
-
-        LDA     #4          CLOSE FILE IN FCB
-        STA     0,X
-        JSR     FMS         CALL FMS
-        BNE     RPTER4
-
-RPTER2  LDX     #SYSFCB-8   SET TO FCB
-        LDB     #$0B        SET COUNT
-        BSR     RPTER9      COPY NAME TO FCB
-        LDX     #SYSFCB
-        LDA     SYSDRV      SET ALL DRIVES ** CHANGED TO SYS ** 2-25-79
-        STA     3,X
-        LDA     #1          SET EXTENSION
-        STA     0,X         OPEN FOR READ
-        JSR     FMS
-        BNE     RPTER4      ERROR?
-
-        LDA     ERRTYP      GET ERROR NUM
-        DECA                CALCULATE REC NUM
-        ASRA
-        ASRA
-        INCA
-        CLR     32,X        SET LRN IN FCB
-        STA     33,X
-        LDA     #21
-        STA     0,X         DO POSITION
-        JSR     FMS
-        BEQ     RPTER7
-
-RPTER4  LDX     #DSKERS     POINT TO STRING
-        JSR     PSTRNG      OUTPUT IT
-        LDX     CRSAVE      RESTORE TO FCB
-        LDA     ERRTYP      GET ERR NUM
-        STA     1,X
-        CLR     0,X
-        CLRB
-        JSR     OUTDEC      OUTPUT NUMBER
-
-RPTE44  PULS    X,Y,PC      RESTORE REGS. & RETURN
-
-RPTER6  LDX     #NTRST      POINT TO STRING
-        JSR     PSTRNG      OUTPUT IT
-        BRA     RPTE44
-
-RPTER7  JSR     PCRLF       OUTPUT CR & LF
-        LDX     #SYSFCB     SET TO FCB
-        LDA     ERRTYP      GET ERROR
-        DECA                FIND RECORD IN FCB
-        ANDA    #3          MASK NUMBER
-        LDB     #63         GET MESSAGE LENGTH
-        MUL                 GET TO DESIRED MESSAGE
-        ADDB    #4          ADD IN BIAS
-        STB     34,X        SET FDI IN FCB
-
-RPTE85  JSR     FMS         GET CHARACTER
-        BNE     RPTER4      ERROR?
-        JSR     PUTCHR      OUTPUT CHARACTER
-        CMPA    #$0D        IS IT CR?
-        BNE     RPTE85      REPEAT
-
-        LDA     #4          CLOSE FILE
-        STA     0,X
-        JSR     FMS         CALL FMS
-        BRA     RPTE44      EXIT
-
-RPTER9  PSHS    X,Y         SAVE REGISTERS
-        JMP     SETEX4      GO COPY
+RPTERR  pshs    x,y         ;SAVE REGISTERS
+        lda     1,x         ;GET ERR NUM
+        sta     ERRTYP      ;SAVE IT
+        beq     RPTE44      ;
+        jsr     RESTIO      ;RESTORE IO
+        ldy     ERRVEC      ;GET ERR VECTOR
+        bne     RPTER1      ;
+        cmpa    #$10        ;NOT READY ERROR
+        beq     RPTER6      ;
+        ldy     #ERNM       ;POINT TO STRING
+                            ;
+RPTER1  ldx     #SYSFCB     ;POINT TO FCB
+        tst     2,x         ;
+        beq     RPTER2      ;
+                            ;
+        lda     #4          ;CLOSE FILE IN FCB
+        sta     0,x         ;
+        jsr     FMS         ;CALL FMS
+        bne     RPTER4      ;
+                            ;
+RPTER2  ldx     #SYSFCB-8   ;SET TO FCB
+        ldb     #$0B        ;SET COUNT
+        bsr     RPTER9      ;COPY NAME TO FCB
+        ldx     #SYSFCB     ;
+        lda     SYSDRV      ;SET ALL DRIVES ** CHANGED TO SYS ** 2-25-79
+        sta     3,x         ;
+        lda     #1          ;SET EXTENSION
+        sta     0,x         ;OPEN FOR READ
+        jsr     FMS         ;
+        bne     RPTER4      ;ERROR?
+                            ;
+        lda     ERRTYP      ;GET ERROR NUM
+        deca                ;CALCULATE REC NUM
+        asra                ;
+        asra                ;
+        inca                ;
+        clr     32,x        ;SET LRN IN FCB
+        sta     33,x        ;
+        lda     #21         ;
+        sta     0,x         ;DO POSITION
+        jsr     FMS         ;
+        beq     RPTER7      ;
+                            ;
+RPTER4  ldx     #DSKERS     ;POINT TO STRING
+        jsr     PSTRNG      ;OUTPUT IT
+        ldx     CRSAVE      ;RESTORE TO FCB
+        lda     ERRTYP      ;GET ERR NUM
+        sta     1,x         ;
+        clr     0,x         ;
+        clrb                ;
+        jsr     OUTDEC      ;OUTPUT NUMBER
+                            ;
+RPTE44  puls    x,y,pc      ;RESTORE REGS. & RETURN
+                            ;
+RPTER6  ldx     #NTRST      ;POINT TO STRING
+        jsr     PSTRNG      ;OUTPUT IT
+        bra     RPTE44      ;
+                            ;
+RPTER7  jsr     PCRLF       ;OUTPUT CR & LF
+        ldx     #SYSFCB     ;SET TO FCB
+        lda     ERRTYP      ;GET ERROR
+        deca                ;FIND RECORD IN FCB
+        anda    #3          ;MASK NUMBER
+        ldb     #63         ;GET MESSAGE LENGTH
+        mul                 ;GET TO DESIRED MESSAGE
+        addb    #4          ;ADD IN BIAS
+        stb     34,x        ;SET FDI IN FCB
+                            ;
+RPTE85  jsr     FMS         ;GET CHARACTER
+        bne     RPTER4      ;ERROR?
+        jsr     PUTCHR      ;OUTPUT CHARACTER
+        cmpa    #$0D        ;IS IT CR?
+        bne     RPTE85      ;REPEAT
+                            ;
+        lda     #4          ;CLOSE FILE
+        sta     0,x         ;
+        jsr     FMS         ;CALL FMS
+        bra     RPTE44      ;EXIT
+                            ;
+RPTER9  pshs    x,y         ;SAVE REGISTERS
+        jmp     SETEX4      ;GO COPY
 
 * NONMER
 *
-* REPORT NO NAME ERROR
+* REPORT no nAME ERROR
 
-NONMER  LDX     #NONMST     POINT TO STRING
-        JMP     NFERR2      REPORT IT
+NONMER  ldx     #NONMST     ;POINT TO STRING
+        jmp     NFERR2      ;REPORT IT
 
 * DOCMD
 *
-* DO COMMAND LINE
+* DO COMmand LINE
 
-DOCMD   PULS    A,B         GET RET ADR
-        STD     RETADR      SAVE ADDRESS
-        STS     STKSTR      SAVE STACK PNTR
-        CLR     ERRTYP      CLEAR FLAG
-        INC     CMFLG       SET MODE
-        JMP     DOS4        GO DO LINE
+DOCMD   puls    a,b         ;GET RET ADR
+        std     RETADR      ;SAVE ADDRESS
+        sts     STKSTR      ;SAVE STACK PNTR
+        clr     ERRTYP      ;CLEAR FLAG
+        inc     CMFLG       ;SET MODE
+        jmp     DOS4        ;GO DO LINE
 
 * RETRN
 *
-* RETRN RETURNS FROM DOCMD
+* RETRN returNS FROM DOCMD
 
-RETRN   CLR     CMFLG       CLEAR MODE
-        LDS     STKSTR      RESTORE STACK
-        LDB     ERRTYP      GET STATUS
-        JMP     [RETADR]    DO RETURN
+RETRN   clr     CMFLG       ;CLEAR MODE
+        lds     STKSTR      ;RESTORE STACK
+        ldb     ERRTYP      ;GET STATUS
+        jmp     [RETADR]    ;DO RETURN
 
 * ADDBX
-* ADDS CONTENTS OF B TO X
+* ADDS ContenTS OF B TO X
 
-ADDBX   ABX
-        RTS
+ADDBX   abx
+        rts
 
 * MEXIT
 *
-* MONITOR EXIT CHECK
+* MONITOr exiT CHECK
 
-MEXIT   TST     PR1         CHECK PROCESS 1
-        BNE     MEXIT2
-        JMP     [MONITR]    JUMP TO MONITOR
-
-MEXIT2  LDX     #SYSFCB     POINT TO FCB
-        LDA     #27
-        STA     1,X         SET ERROR
-        JSR     RPTERR      REPORT ERROR
-        JMP     ENTRY       GO BACK
-
-        ORG     $D3FD
+MEXIT   tst     PR1         ;CHECK PROCESS 1
+        bne     MEXIT2      ;
+        jmp     [MONITR]    ;JUMP TO MONITOR
+                            ;
+MEXIT2  ldx     #SYSFCB     ;POINT TO FCB
+        lda     #27         ;
+        sta     1,x         ;SET ERROR
+        jsr     RPTERR      ;REPORT ERROR
+        jmp     ENTRY       ;GO BACK

@@ -13,17 +13,17 @@
 ;___________________________________________________________________________________________________
 ;
 
-STACK			EQU	$C000		; STACK POINTER
+MONSTACK			EQU	$C000		; STACK POINTER
 
 ; UART 16C550 SERIAL
-UART0       	equ    	$FE68           ; DATA IN/OUT
-UART1       	equ    	$FE69           ; CHECK RX
-UART2       	equ    	$FE6A           ; INTERRUPTS
-UART3       	equ    	$FE6B           ; LINE CONTROL
-UART4       	equ    	$FE6C           ; MODEM CONTROL
-UART5          	equ    	$FE6D           ; LINE STATUS
-UART6          	equ    	$FE6E           ; MODEM STATUS
-UART7	       	equ    	$FE6F           ; SCRATCH REG.
+MONUART0       	equ    	$FE68           ; DATA IN/OUT
+MONUART1       	equ    	$FE69           ; CHECK RX
+MONUART2       	equ    	$FE6A           ; INTERRUPTS
+MONUART3       	equ    	$FE6B           ; LINE CONTROL
+MONUART4       	equ    	$FE6C           ; MODEM CONTROL
+MONUART5       	equ    	$FE6D           ; LINE STATUS
+MONUART6       	equ    	$FE6E           ; MODEM STATUS
+MONUART7      	equ    	$FE6F           ; SCRATCH REG.
 
 
               ORG	$EFE0
@@ -47,7 +47,7 @@ UART7	       	equ    	$FE6F           ; SCRATCH REG.
 ; 	INITIALIZE 6809
 ;___________________________________________________________________________________________________
 MAIN:
-	LDS	#STACK			; RESET STACK POINTER
+	LDS	#MONSTACK			; RESET STACK POINTER
 	CLRA			        ; set direct page register to 0
 	TFR	A,DP			;
 
@@ -84,7 +84,7 @@ CONTRL:
 	JMP	    CONTRL			; RECEIVE NEXT CHARACTER
 
 MLOAD:
-	JMP	    LOAD
+	JMP	    MONLOAD
 
 
 DUMP:
@@ -132,7 +132,7 @@ PRINT2:				    	;
 	JMP	    CONTRL		    ; DONE? IF YES RETURN TO MAIN LOOP
 
 
-LOAD:
+MONLOAD:
 
 LOAD3:
 	JSR	    IOF_CONINW
@@ -249,13 +249,13 @@ BYTE:
 
 
 
-OUTHL:
+MONOUTHL:
 	LSRA			        ; OUT HEX LEFT BCD DIGIT
 	LSRA			        ;
 	LSRA			        ;
 	LSRA			        ;
 
-OUTHR:				        ;
+MONOUTHR:				        ;
 	ANDA	#$0F		    ; OUT HEC RIGHT DIGIT
 	ADDA	#$30	    	;
 	CMPA	#$39	    	;
@@ -266,9 +266,9 @@ OUTHR1:
 
 OUT2H:
 	LDA 	0,X		        ; OUTPUT 2 HEX CHAR
-	BSR	    OUTHL	    	; OUT LEFT HEX CHAR
+	BSR	    MONOUTHL	    	; OUT LEFT HEX CHAR
 	LDA 	0,X	        	;
-	BSR	    OUTHR	    	; OUT RIGHT HEX CHAR
+	BSR	    MONOUTHR	    	; OUT RIGHT HEX CHAR
 	LEAX    1,X
 	RTS
 
@@ -276,14 +276,14 @@ OUTADDR:
 	PSHS	X       		;
 	PULS	A       		;
 	PSHS	A	        	;
-	BSR	    OUTHL	    	; OUT LEFT HEX CHAR
+	BSR	    MONOUTHL	   	; OUT LEFT HEX CHAR
 	PULS	A	        	;
-	BSR	    OUTHR	    	; OUT RIGHT HEX CHAR
+	BSR	    MONOUTHR	   	; OUT RIGHT HEX CHAR
 	PULS	A	        	;
 	PSHS	A	         	;
-	BSR	    OUTHL	    	; OUT LEFT HEX CHAR
+	BSR	    MONOUTHL	   	; OUT LEFT HEX CHAR
 	PULS	A	        	;
-	BSR	    OUTHR	    	; OUT RIGHT HEX CHAR
+	BSR	    MONOUTHR	   	; OUT RIGHT HEX CHAR
 	RTS
 
 OUT2HS:
@@ -318,24 +318,30 @@ SERIALINIT:
 WRSER1:
         PSHS    A
 TX_BUSYLP:
-		LDA		UART5			; READ LINE STATUS REGISTER
+		LDA		MONUART5		; READ LINE STATUS REGISTER
 		ANDA	#$20			; TEST IF UART IS READY TO SEND (BIT 5)
 		CMPA 	#$00
 		BEQ		TX_BUSYLP		; IF NOT REPEAT
         PULS    A
-		STA		UART0			; THEN WRITE THE CHAR TO UART
+		STA		MONUART0		; THEN WRITE THE CHAR TO UART
         RTS
 
 
 IOF_CONINW:	    		    	;
 SERIAL_INCHW1:
-		LDA	    UART5			; READ LINE STATUS REGISTER
+		LDA	    MONUART5		; READ LINE STATUS REGISTER
 		ANDA	#$01			; TEST IF DATA IN RECEIVE BUFFER
 		CMPA 	#$00
 		BEQ	    SERIAL_INCHW1	; LOOP UNTIL DATA IS READY
-		LDA	    UART0			; THEN READ THE CHAR FROM THE UART
+		LDA	    MONUART0		; THEN READ THE CHAR FROM THE UART
 		RTS
 
+
+;_____________________________________________________________________________________________________
+;   Default ISRs.  Will be changed by OS Setup
+SWIVEC:
+IRQVEC:
+                rti
 
 ; REGISTERS FOR GO
 SP	    FDB	$0000		; S-HIGH
@@ -345,8 +351,13 @@ BYTECT	FCB	00			; BYTE COUNT
 XHI	    FCB	00			; XREG HIGH
 XLOW	FCB	00			; XREG LOW
 
-	ORG	$FFFE		    ; SET RESET VECTOR TO MAIN PROGRAM
-
+	ORG	$FFF2		    ; SET RESET VECTOR TO MAIN PROGRAM
+		FDB	    SWIVEC
+SW2VECP	FDB	    MAIN
+FRQVECP	FDB	    MAIN
+		FDB	    IRQVEC
+SW1VECP	FDB	    MAIN
+NMIVECP	FDB	    MAIN
 RESETV	FDB	    MAIN
 
 	END

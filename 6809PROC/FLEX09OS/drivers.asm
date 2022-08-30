@@ -21,64 +21,6 @@ UART5          	equ    	$FE6D           ; LINE STATUS
 UART6          	equ    	$FE6E           ; MODEM STATUS
 UART7	       	equ    	$FE6F           ; SCRATCH REG.
 
-
-PDATA1          EQU     $CE7B
-
-* ASCII CODE EQUATES
-
-NUL     EQU     $00
-EOT     EQU     $04
-
-
-FINIT       EQU     $CD00      ; GO INITIALIZE
-ENTRY       EQU     $CD03      ; WARM ENTRY POINT
-DOS3        EQU     $CD06      ; RE-ENTER DOS
-GETCHR      EQU     $CD15      ; GET CHARACTER
-PUTCHR      EQU     $CD18      ; PUT CHARACTER
-INBUF       EQU     $CD1B      ; INPUT TO BUFFER
-PSTRNG      EQU     $CD1E      ;  PRINT STRING
-CLASS       EQU     $CD21      ; CLASSIFY CHARACTER
-PCRLF       EQU     $CD24      ; PRINT CR AND LF
-NXTCH       EQU     $CD27      ; NEXT BUFFER CHAR
-RESTIO      EQU     $CD2A      ; RESTORE IO VECTORS
-GETFIL      EQU     $CD2D      ; GET FILE SPEC
-LOAD        EQU     $CD30      ; FILE LOADER
-SETEXT      EQU     $CD33      ; SET NAME EXTENSION
-ADDBX       EQU     $CD36      ; ADD B TO X
-OUTDEC      EQU     $CD39      ; OUTPUT DECIMAL
-OUTHEX      EQU     $CD3C      ; OUT HEX CHARACTER
-RPTERR      EQU     $CD3F      ; REPORT ERROR
-GETHEX      EQU     $CD42      ; GET HEX NUMBER
-OUTADR      EQU     $CD45      ; OUT HEX ADDRESS
-INDEC       EQU     $CD48      ; GET DECIMAL NUMBER
-DOCMD       EQU     $CD4B      ; DO COMMAND LINE
-
-
-;
-; CONSOLE I/O DRIVER VECTOR TABLE
-;_____________________________________________________________________________________________________
-                ORG     $D3E1       ; TABLE STARTS AT $D3E1
-
-LD3E1           FDB     ADDDEV      ; add an IRQ handler to table
-                FDB     DELDEV      ; delete an IRQ handler from table
-
-                FDB     INCHNE      ; INPUT CHARACTER W/O ECHO
-                FDB     IHNDLR      ; IRQ INTERRUPT HANDLER
-                FDB     SWIVEC      ; SWI3 VECTOR LOCATION
-                FDB     IRQVEC      ; IRQ VECTOR LOCATION
-                FDB     TMOFF       ; TIMER OFF ROUTINE
-                FDB     TMON        ; TIMER ON ROUTINE
-                FDB     TMINT       ; TIMER INITIALIZATION
-                FDB     MONITR      ; MONITOR ENTRY ADDRESS
-                FDB     TINIT       ; TERMINAL INITIALIZATION
-                FDB     STAT        ; CHECK TERMINAL STATUS
-                FDB     VOUTCH      ; OUTPUT CHARACTER
-                FDB     VINCH       ; INPUT CHARACTER W/ ECHO
-;_____________________________________________________________________________________________________
-;   Default ISRs.  Will be changed by OS Setup
-SWIVEC:
-IRQVEC:
-                rti
 ;_____________________________________________________________________________________________________
 ;
 ; DISK DRIVER ROUTINE JUMP TABLE
@@ -92,7 +34,7 @@ DRESTOR         JMP     >RESTORE    * DE09    RESTORE   Restore head to track #0
 DDRIVE          JMP     >DRIVE      * DE0C    DRIVE     Select the specified drive
 DCHECK          JMP     >CHKRDY     * DE0F    CHKRDY    Check for drive ready
 DQUICK          JMP     >QUICK      * DE12    QUICK     Quick check for drive ready
-DINIT           JMP     >INIT       * DE15    INIT      Driver initialize (cold start)
+DINIT           JMP     >CINIT      * DE15    CINIT     Driver initialize (cold start)
 DWARM           JMP     >WARM       * DE18    WARM      Driver initialize (warm start)
 DSEEK           JMP     >SEEK       * DE1B    SEEK      Seek to specified track
 
@@ -452,11 +394,9 @@ SEEKIDE:
 ;
 ;           EXIT - A, B, X, Y, and U may be destroyed
 ;_____________________________________________________________________________________________________
-INIT
-	PSHS 	A
+CINIT
 	LDA 	#'I
 	JSR 	VOUTCH
-	PULS 	A
                 JSR     PPIDE_INIT
                 RTS
 
@@ -475,10 +415,8 @@ INIT
 ;           EXIT - A, B, X, Y, and U may be destroyed
 ;_____________________________________________________________________________________________________
 WARM
-	PSHS 	A
 	LDA 	#'w
 	JSR 	VOUTCH
-	PULS 	A
                 JSR     PPIDE_RESET
                 RTS
 
@@ -499,10 +437,8 @@ WARM
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
 RESTORE
-	PSHS 	A
 	LDA 	#'r
 	JSR 	VOUTCH
-	PULS 	A
                 BSR     DRIVE
                 LDA     CURDRVTYP
                 CMPA    #$01
@@ -537,10 +473,8 @@ RESTOREIDE:
 ;_____________________________________________________________________________________________________
 DRIVE:
 
-	PSHS 	A
 	LDA 	#'D
 	JSR 	VOUTCH
-	PULS 	A
 
                 LDA     3,X             ; DETERMINE IF DRIVE#>4, IF SO SET ERROR AND EXIT.
                 CMPA    #4
@@ -626,10 +560,8 @@ QUICK
                 INCLUDE "flexidedrv.asm"
 
 
+
+
 ;_____________________________________________________________________________________________________
 
 HSTBUF:         RMB     512
-
-
-
-                END

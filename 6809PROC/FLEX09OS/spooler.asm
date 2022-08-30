@@ -22,6 +22,3 @@ PRSPL6          FCB $39,$39,$39
 
                 ORG $C71B               ; QUEUE COUNT IS AT $C71B
 QCNT            FCB 0                   ; FORCE QUEUE COUNT TO ZERO
-
-
-        END
