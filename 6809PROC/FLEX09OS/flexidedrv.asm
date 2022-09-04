@@ -267,7 +267,10 @@ IDE_READ_SECTOR:
         INCB
         CMPB    #$00
         BNE <
+		RTS
 IDE_READ_SECTOR_ERROR:
+ 		LDB     #$1F
+        ASRB
         RTS
 
 IDE_READ_RAW_SECTOR:
@@ -333,11 +336,11 @@ IDE_WRITE_SECTOR:
 		DECA							;
 !										;
         PSHS    X
-        STB		PPIDETMP                ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
+		STB 	PPIDETMP                ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
 
-	;	PRTDBG "IDE WRITE SECTOR$"
-	  	JSR	    IDE_READ_RAW_SECTOR	    ; DETERMINE PHYSICAL SECTOR
-        BNE     IDE_WRITE_SECTOR_ERROR
+		JSR 	IDE_READ_RAW_SECTOR
+        LBNE     IDE_WRITE_SECTOR_ERROR1
+        PULS    X
 
         LDA		PPIDETMP
         ANDA    #$01
@@ -366,13 +369,22 @@ IDE_WRITE_SECTOR:
 		STA	    CDEBSEHD		;
 		STA	    CDEBCYLL		;
 		STA	    CDEBCYLM		;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+		PSHS 	A,B,X,Y
+		JSR 	IDE_READ_SECTOR_DIRTY		; NOT 100% SURE WHY THIS IS NECESSARY FOR A SUCCESSFUL WRITE  . .
+		PULS 	A,B,X,Y						; BUT I AM OUT OF TIME FOR TODAY
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 		LDB	    #$00			; ZERO ON RETURN = OPERATION OK
 		PULS 	Y,PC
+IDE_WRITE_SECTOR_ERROR1:
+        PULS    X
 IDE_WRITE_SECTOR_ERROR:
 		LDB	    #$FF			; 1 ON RETURN = OPERATION FAIL
         STB	    CDEBSEHD		;
 		STB	    CDEBCYLL		;
 		STB	    CDEBCYLM		;
+		LDB     #$1F
+        ASRB
 		PULS 	Y,PC
 
 ;*__PPIDE_RESET____________________________________________________________________________________

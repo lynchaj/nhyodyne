@@ -4053,7 +4053,7 @@ DEE6                  (      drivers.asm):00296         WRITEFLOPPY:
 DEE6 20F9             (      drivers.asm):00297 [3]                     BRA     WRITEERR
 DEE8                  (      drivers.asm):00298         WRITEIDE:
 DEE8 3502             (      drivers.asm):00299 [5+1]                   PULS    A
-DEEA 7EE102           (      drivers.asm):00300 [4]                     JMP     IDE_WRITE_SECTOR
+DEEA 7EE106           (      drivers.asm):00300 [4]                     JMP     IDE_WRITE_SECTOR
                       (      drivers.asm):00301         ;_____________________________________________________________________________________________________
                       (      drivers.asm):00302         ;   VERIFY  The sector just written to the disk is to be verified to
                       (      drivers.asm):00303         ;           determine if there are CRC errors. No seek is required as
@@ -4140,7 +4140,7 @@ DF18 39               (      drivers.asm):00370 [5]                     RTS
                       (      drivers.asm):00384         ;           EXIT - A, B, X, Y, and U may be destroyed
                       (      drivers.asm):00385         ;_____________________________________________________________________________________________________
 DF19                  (      drivers.asm):00386         DWARM
-DF19 BDE166           (      drivers.asm):00387 [8]                     JSR     PPIDE_RESET
+DF19 BDE17A           (      drivers.asm):00387 [8]                     JSR     PPIDE_RESET
 DF1C 39               (      drivers.asm):00388 [5]                     RTS
                       (      drivers.asm):00389         
                       (      drivers.asm):00390         ;_____________________________________________________________________________________________________
@@ -4331,34 +4331,34 @@ DF78 0000             (   flexidedrv.asm):00056         PPIDEWORKVAR:   .BYTE   
 DF7A                  (   flexidedrv.asm):00063         PPIDE_INIT:
 DF7A BDCEB1           (   flexidedrv.asm):00064 [8]                 JSR     >PCRLF         ; AND CRLF
 DF7D BDCEB1           (   flexidedrv.asm):00065 [8]                 JSR     >PCRLF         ; AND CRLF
-DF80 8EE2FE           (   flexidedrv.asm):00066 [3]             LDX     #MESSAGE1
+DF80 8EE312           (   flexidedrv.asm):00066 [3]             LDX     #MESSAGE1
 DF83 BDCE7B           (   flexidedrv.asm):00067 [8]             JSR     >PDATA1         ; DO PROMPT
 DF86 BDCEB1           (   flexidedrv.asm):00068 [8]             JSR     >PCRLF         ; AND CRLF
 DF89 BDE077           (   flexidedrv.asm):00069 [8]                 JSR     IDE_PPIDETECT       ; TEST FOR PPI HARDWARE
 DF8C 261D             (   flexidedrv.asm):00070 [3]             BNE     IDE_ABORT       ; BAIL OUT IF NOT THERE
                       (   flexidedrv.asm):00071         ;
-DF8E 8EE306           (   flexidedrv.asm):00072 [3]             LDX     #MESSAGE2
+DF8E 8EE31A           (   flexidedrv.asm):00072 [3]             LDX     #MESSAGE2
 DF91 BDCE7B           (   flexidedrv.asm):00073 [8]             JSR     >PDATA1         ; DO PROMPT
 DF94 CCFE60           (   flexidedrv.asm):00074 [3]                 LDD     #PPIDE_PPI      ; GET BASE PORT
 DF97 FDDF78           (   flexidedrv.asm):00075 [6]                     STD     PPIDEWORKVAR
 DF9A 8EDF78           (   flexidedrv.asm):00076 [3]                     LDX     #PPIDEWORKVAR
 DF9D BDCFCC           (   flexidedrv.asm):00077 [8]                 JSR     OUTADR                      ; PRINT BASE PORT
                       (   flexidedrv.asm):00078         ;
-DFA0 BDE166           (   flexidedrv.asm):00079 [8]                 JSR     PPIDE_RESET         ; RESET THE BUS
+DFA0 BDE17A           (   flexidedrv.asm):00079 [8]                 JSR     PPIDE_RESET         ; RESET THE BUS
 DFA3 BDDFD1           (   flexidedrv.asm):00080 [8]                 JSR     PPIDE_PROBE         ; DETECT AN ATA DEVICE, ABORT IF NOT FOUND
 DFA6 2503             (   flexidedrv.asm):00081 [3]                 BCS         IDE_ABORT
 DFA8 7EDFB4           (   flexidedrv.asm):00082 [4]                 JMP         IDE_PRINT_INFO
 DFAB                  (   flexidedrv.asm):00083         IDE_ABORT:
-DFAB 8EE30D           (   flexidedrv.asm):00084 [3]             LDX     #MESSAGE3
+DFAB 8EE321           (   flexidedrv.asm):00084 [3]             LDX     #MESSAGE3
 DFAE BDCE7B           (   flexidedrv.asm):00085 [8]             JSR     >PDATA1         ; DO PROMPT
 DFB1 7EDFCD           (   flexidedrv.asm):00086 [4]                 JMP         IDE_INITA
 DFB4                  (   flexidedrv.asm):00087         IDE_PRINT_INFO:
 DFB4 BDCEB1           (   flexidedrv.asm):00088 [8]                 JSR     >PCRLF         ; AND CRLF
-DFB7 8EE31A           (   flexidedrv.asm):00089 [3]             LDX     #MESSAGE4
+DFB7 8EE32E           (   flexidedrv.asm):00089 [3]             LDX     #MESSAGE4
 DFBA BDCE7B           (   flexidedrv.asm):00090 [8]             JSR     >PDATA1         ; DO PROMPT
 DFBD 8600             (   flexidedrv.asm):00091 [2]                 LDA     #$00
 DFBF BDE01C           (   flexidedrv.asm):00092 [8]                 JSR     IDE_READ_INFO       ; GET DRIVE INFO, ABORT IF ERROR
-DFC2 8EE32B           (   flexidedrv.asm):00093 [3]             LDX     #MESSAGE5
+DFC2 8EE33F           (   flexidedrv.asm):00093 [3]             LDX     #MESSAGE5
 DFC5 BDCE7B           (   flexidedrv.asm):00094 [8]             JSR     >PDATA1         ; DO PROMPT
 DFC8 8601             (   flexidedrv.asm):00095 [2]                 LDA     #$01
 DFCA BDE01C           (   flexidedrv.asm):00096 [8]                 JSR     IDE_READ_INFO       ; GET DRIVE INFO, ABORT IF ERROR
@@ -4385,10 +4385,10 @@ DFD1                  (   flexidedrv.asm):00106         PPIDE_PROBE:
 DFD1 8600             (   flexidedrv.asm):00117 [2]             LDA     #$00
 DFD3 B7FE60           (   flexidedrv.asm):00118 [5]             STA     PPIDELO                 ; PPI PORT A, DATALO
                       (   flexidedrv.asm):00119         
-DFD6 BDE191           (   flexidedrv.asm):00120 [8]             JSR         IDE_WAIT_NOT_BUSY   ; WAIT FOR BUSY TO CLEAR
+DFD6 BDE1A5           (   flexidedrv.asm):00120 [8]             JSR         IDE_WAIT_NOT_BUSY   ; WAIT FOR BUSY TO CLEAR
 DFD9 253E             (   flexidedrv.asm):00121 [3]             BCS     PPIDE_PROBE_FAIL        ; IF TIMEOUT, REPORT NO IDE PRESENT
 DFDB 860F             (   flexidedrv.asm):00122 [2]             LDA         #PPIDE_STATUS               ; GET STATUS
-DFDD BDE28D           (   flexidedrv.asm):00123 [8]             JSR         IDE_READ
+DFDD BDE2A1           (   flexidedrv.asm):00123 [8]             JSR         IDE_READ
 DFE0 1F18             (   flexidedrv.asm):00124 [6]         TFR     X,A
 DFE2 8440             (   flexidedrv.asm):00125 [2]             ANDA    #%01000000
 DFE4 8100             (   flexidedrv.asm):00126 [2]             CMPA    #$00
@@ -4396,22 +4396,22 @@ DFE6 2731             (   flexidedrv.asm):00127 [3]             BEQ     PPIDE_PR
                       (   flexidedrv.asm):00128         
                       (   flexidedrv.asm):00129                 ; CHECK SIGNATURE
 DFE8 860A             (   flexidedrv.asm):00130 [2]             LDA         #PPIDE_SEC_CNT
-DFEA BDE28D           (   flexidedrv.asm):00131 [8]             JSR         IDE_READ
+DFEA BDE2A1           (   flexidedrv.asm):00131 [8]             JSR         IDE_READ
 DFED 1F18             (   flexidedrv.asm):00132 [6]         TFR     X,A
 DFEF 8101             (   flexidedrv.asm):00133 [2]             CMPA    #$01
 DFF1 2626             (   flexidedrv.asm):00134 [3]             BNE     PPIDE_PROBE_FAIL        ; IF NOT '01' THEN REPORT NO IDE PRESENT
 DFF3 860B             (   flexidedrv.asm):00135 [2]             LDA         #PPIDE_LBALOW
-DFF5 BDE28D           (   flexidedrv.asm):00136 [8]             JSR         IDE_READ
+DFF5 BDE2A1           (   flexidedrv.asm):00136 [8]             JSR         IDE_READ
 DFF8 1F18             (   flexidedrv.asm):00137 [6]         TFR     X,A
 DFFA 8101             (   flexidedrv.asm):00138 [2]             CMPA    #$01
 DFFC 261B             (   flexidedrv.asm):00139 [3]             BNE     PPIDE_PROBE_FAIL        ; IF NOT '01' THEN REPORT NO IDE PRESENT
 DFFE 860C             (   flexidedrv.asm):00140 [2]             LDA         #PPIDE_LBAMID
-E000 BDE28D           (   flexidedrv.asm):00141 [8]             JSR         IDE_READ
+E000 BDE2A1           (   flexidedrv.asm):00141 [8]             JSR         IDE_READ
 E003 1F18             (   flexidedrv.asm):00142 [6]         TFR     X,A
 E005 8100             (   flexidedrv.asm):00143 [2]             CMPA    #$00
 E007 2610             (   flexidedrv.asm):00144 [3]             BNE     PPIDE_PROBE_FAIL        ; IF NOT '00' THEN REPORT NO IDE PRESENT
 E009 860D             (   flexidedrv.asm):00145 [2]             LDA         #PPIDE_LBAHI
-E00B BDE28D           (   flexidedrv.asm):00146 [8]             JSR         IDE_READ
+E00B BDE2A1           (   flexidedrv.asm):00146 [8]             JSR         IDE_READ
 E00E 1F18             (   flexidedrv.asm):00147 [6]         TFR     X,A
 E010 8100             (   flexidedrv.asm):00148 [2]             CMPA    #$00
 E012 2605             (   flexidedrv.asm):00149 [3]             BNE     PPIDE_PROBE_FAIL        ; IF NOT '00' THEN REPORT NO IDE PRESENT
@@ -4440,28 +4440,28 @@ E024 1F89             (   flexidedrv.asm):00171 [6]                     TFR     
 E026 8600             (   flexidedrv.asm):00172 [2]             LDA     #$00
 E028 1F01             (   flexidedrv.asm):00173 [6]             TFR     D,X
 E02A 860E             (   flexidedrv.asm):00174 [2]                     LDA         #PPIDE_DEVICE
-E02C BDE2B2           (   flexidedrv.asm):00175 [8]                     JSR         IDE_WRITE
-E02F BDE191           (   flexidedrv.asm):00176 [8]                     JSR         IDE_WAIT_NOT_BUSY   ;MAKE SURE DRIVE IS READY
+E02C BDE2C6           (   flexidedrv.asm):00175 [8]                     JSR         IDE_WRITE
+E02F BDE1A5           (   flexidedrv.asm):00176 [8]                     JSR         IDE_WAIT_NOT_BUSY   ;MAKE SURE DRIVE IS READY
 E032 2531             (   flexidedrv.asm):00177 [3]                     BCS         IDE_READ_INFO_ABORT
 E034 860F             (   flexidedrv.asm):00178 [2]                     LDA         #PPIDE_COMMAND              ;SELECT IDE REGISTER
 E036 8E00EC           (   flexidedrv.asm):00179 [3]                     LDX         #PPIDE_CMD_ID
-E039 BDE2B2           (   flexidedrv.asm):00180 [8]                     JSR         IDE_WRITE           ;ASK THE DRIVE TO READ IT
-E03C BDE1BA           (   flexidedrv.asm):00181 [8]                     JSR         IDE_WAIT_DRQ                ;WAIT UNTIL IT'S GOT THE DATA
+E039 BDE2C6           (   flexidedrv.asm):00180 [8]                     JSR         IDE_WRITE           ;ASK THE DRIVE TO READ IT
+E03C BDE1CE           (   flexidedrv.asm):00181 [8]                     JSR         IDE_WAIT_DRQ                ;WAIT UNTIL IT'S GOT THE DATA
 E03F 2524             (   flexidedrv.asm):00182 [3]                     BCS         IDE_READ_INFO_ABORT
-E041 BDE1EA           (   flexidedrv.asm):00183 [8]                     JSR         IDE_READ_BUFFER             ; GRAB THE 256 WORDS FROM THE BUFFER
-E044 8EE33C           (   flexidedrv.asm):00184 [3]             LDX     #MESSAGE6
+E041 BDE1FE           (   flexidedrv.asm):00183 [8]                     JSR         IDE_READ_BUFFER             ; GRAB THE 256 WORDS FROM THE BUFFER
+E044 8EE350           (   flexidedrv.asm):00184 [3]             LDX     #MESSAGE6
 E047 BDCE7B           (   flexidedrv.asm):00185 [8]             JSR     >PDATA1
-E04A B6E3C1           (   flexidedrv.asm):00186 [5]                     LDA     HSTBUF+123
-E04D BDE2F0           (   flexidedrv.asm):00187 [8]                     JSR     OUTHEXA
-E050 B6E3C0           (   flexidedrv.asm):00188 [5]                     LDA     HSTBUF+122
-E053 BDE2F0           (   flexidedrv.asm):00189 [8]                     JSR     OUTHEXA
-E056 B6E3BF           (   flexidedrv.asm):00190 [5]                     LDA     HSTBUF+121
-E059 BDE2F0           (   flexidedrv.asm):00191 [8]                     JSR     OUTHEXA
-E05C B6E3BE           (   flexidedrv.asm):00192 [5]                     LDA     HSTBUF+120
-E05F BDE2F0           (   flexidedrv.asm):00193 [8]                     JSR     OUTHEXA
+E04A B6E3D5           (   flexidedrv.asm):00186 [5]                     LDA     HSTBUF+123
+E04D BDE304           (   flexidedrv.asm):00187 [8]                     JSR     OUTHEXA
+E050 B6E3D4           (   flexidedrv.asm):00188 [5]                     LDA     HSTBUF+122
+E053 BDE304           (   flexidedrv.asm):00189 [8]                     JSR     OUTHEXA
+E056 B6E3D3           (   flexidedrv.asm):00190 [5]                     LDA     HSTBUF+121
+E059 BDE304           (   flexidedrv.asm):00191 [8]                     JSR     OUTHEXA
+E05C B6E3D2           (   flexidedrv.asm):00192 [5]                     LDA     HSTBUF+120
+E05F BDE304           (   flexidedrv.asm):00193 [8]                     JSR     OUTHEXA
 E062 7EE071           (   flexidedrv.asm):00194 [4]                     JMP     IDE_READ_INFO_OK
 E065                  (   flexidedrv.asm):00195         IDE_READ_INFO_ABORT:
-E065 8EE30D           (   flexidedrv.asm):00196 [3]             LDX     #MESSAGE3
+E065 8EE321           (   flexidedrv.asm):00196 [3]             LDX     #MESSAGE3
 E068 BDCE7B           (   flexidedrv.asm):00197 [8]             JSR     >PDATA1         DO PROMPT
 E06B BDCEB1           (   flexidedrv.asm):00198 [8]                     JSR     >PCRLF         AND CRLF
 E06E 1A01             (   flexidedrv.asm):00199 [3]                     SEC
@@ -4485,7 +4485,7 @@ E077                  (   flexidedrv.asm):00212         IDE_PPIDETECT:
                       (   flexidedrv.asm):00217                 ; THEN THE BUS HOLD CIRCUITRY WILL READ BACK THE ZERO. SINCE
                       (   flexidedrv.asm):00218                 ; WE ARE IN WRITE MODE, AN IDE CONTROLLER WILL NOT BE ABLE TO
                       (   flexidedrv.asm):00219                 ; INTERFERE WITH THE VALUE BEING READ.
-E077 BDE2E2           (   flexidedrv.asm):00220 [8]             JSR         SET_PPI_WR
+E077 BDE2F6           (   flexidedrv.asm):00220 [8]             JSR         SET_PPI_WR
                       (   flexidedrv.asm):00221         ;
 E07A 8600             (   flexidedrv.asm):00222 [2]             LDA     #$00                    ; VALUE ZERO
 E07C B7FE60           (   flexidedrv.asm):00223 [5]             STA         PPIDELO                     ; PUSH VALUE TO PORT
@@ -4512,473 +4512,485 @@ E084 39               (   flexidedrv.asm):00226 [5]             RTS             
 E085                  (   flexidedrv.asm):00244         IDE_READ_SECTOR:
                       (   flexidedrv.asm):00245                 ;       PRTDBG "IDE READ SECTOR$"
 E085 5A               (   flexidedrv.asm):00246 [2]                     DECB                                                    ; WE LOSE ONE SECTOR PER TRACK BASED ON FLEX
-E086 B7E345           (   flexidedrv.asm):00247 [5]                     STA     PPIDETMP                                ; USING 1 BASED SECTOR COUNTING
-E089 F0E345           (   flexidedrv.asm):00248 [5]                     SUBB    PPIDETMP                                ;
+E086 B7E359           (   flexidedrv.asm):00247 [5]                     STA     PPIDETMP                                ; USING 1 BASED SECTOR COUNTING
+E089 F0E359           (   flexidedrv.asm):00248 [5]                     SUBB    PPIDETMP                                ;
 E08C 2401             (   flexidedrv.asm):00249 [3]                     BCC     >                                               ;
 E08E 4A               (   flexidedrv.asm):00250 [2]                     DECA                                                    ;
                       (   flexidedrv.asm):00251         !                                                                               ;
 E08F 3410             (   flexidedrv.asm):00252 [5+2]           PSHS    X
-E091 F7E345           (   flexidedrv.asm):00253 [5]                     STB     PPIDETMP                ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
-E094 BDE0B4           (   flexidedrv.asm):00254 [8]                     JSR     IDE_READ_RAW_SECTOR
+E091 F7E359           (   flexidedrv.asm):00253 [5]                     STB     PPIDETMP                ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
+E094 BDE0B8           (   flexidedrv.asm):00254 [8]                     JSR     IDE_READ_RAW_SECTOR
 E097 3510             (   flexidedrv.asm):00255 [5+2]           PULS    X
-E099 2618             (   flexidedrv.asm):00256 [3]             BNE     IDE_READ_SECTOR_ERROR
-E09B B6E345           (   flexidedrv.asm):00257 [5]             LDA     PPIDETMP
+E099 2619             (   flexidedrv.asm):00256 [3]             BNE     IDE_READ_SECTOR_ERROR
+E09B B6E359           (   flexidedrv.asm):00257 [5]             LDA     PPIDETMP
 E09E 8401             (   flexidedrv.asm):00258 [2]             ANDA    #$01
 E0A0 C600             (   flexidedrv.asm):00259 [2]             LDB     #$00
 E0A2 1F02             (   flexidedrv.asm):00260 [6]             TFR     D,Y                    ; Y NOW HAS HSTBUF OFFSET
                       (   flexidedrv.asm):00261         
 E0A4 C600             (   flexidedrv.asm):00262 [2]             LDB     #$00                   ; DEBLOCK TO ADDRESS IN "X"
                       (   flexidedrv.asm):00263         !
-E0A6 A6A9E346         (   flexidedrv.asm):00264 [4+4]           LDA     HSTBUF,Y
+E0A6 A6A9E35A         (   flexidedrv.asm):00264 [4+4]           LDA     HSTBUF,Y
 E0AA A780             (   flexidedrv.asm):00265 [4+2]           STA     ,X+
 E0AC 3121             (   flexidedrv.asm):00266 [5]             INY
 E0AE 5C               (   flexidedrv.asm):00267 [2]             INCB
 E0AF C100             (   flexidedrv.asm):00268 [2]             CMPB    #$00
 E0B1 26F3             (   flexidedrv.asm):00269 [3]             BNE <
-E0B3                  (   flexidedrv.asm):00270         IDE_READ_SECTOR_ERROR:
-E0B3 39               (   flexidedrv.asm):00271 [5]             RTS
-                      (   flexidedrv.asm):00272         
-E0B4                  (   flexidedrv.asm):00273         IDE_READ_RAW_SECTOR:
-                      (   flexidedrv.asm):00274                 ;       PRTDBG "IDE READ RAW SECTOR$"
-E0B4 BDE269           (   flexidedrv.asm):00275 [8]                     JSR         IDE_CONVERT_SECTOR  ;
-E0B7 B6E344           (   flexidedrv.asm):00276 [5]                     LDA         DEBSEHD                     ; STORE CURRENT PARMS
-E0BA B1E341           (   flexidedrv.asm):00277 [5]                     CMPA    CDEBSEHD                ;
-E0BD 2613             (   flexidedrv.asm):00278 [3]                     BNE     IDE_READ_SECTOR_DIRTY
-E0BF B6E343           (   flexidedrv.asm):00279 [5]                     LDA         DEBCYLM                     ;
-E0C2 B1E340           (   flexidedrv.asm):00280 [5]                     CMPA    CDEBCYLM                ;
-E0C5 260B             (   flexidedrv.asm):00281 [3]                     BNE         IDE_READ_SECTOR_DIRTY
-E0C7 B6E342           (   flexidedrv.asm):00282 [5]                     LDA         DEBCYLL                     ;
-E0CA B1E33F           (   flexidedrv.asm):00283 [5]                     CMPA    CDEBCYLL                ;
-E0CD 2603             (   flexidedrv.asm):00284 [3]                     BNE     IDE_READ_SECTOR_DIRTY
-E0CF C600             (   flexidedrv.asm):00285 [2]                     LDB         #$00                        ; RETURN = OPERATION OK
-E0D1 39               (   flexidedrv.asm):00286 [5]                     RTS
-                      (   flexidedrv.asm):00287         
-E0D2                  (   flexidedrv.asm):00288         IDE_READ_SECTOR_DIRTY:
-                      (   flexidedrv.asm):00289                 ;       PRTDBG "IDE READ SECTOR BUFFER DIRTY$"
-E0D2 BDE191           (   flexidedrv.asm):00290 [8]                     JSR         IDE_WAIT_NOT_BUSY   ;MAKE SURE DRIVE IS READY
-E0D5 2528             (   flexidedrv.asm):00291 [3]                     BCS     IDE_READ_SECTOR_DIRTY_ERROR     ; IF TIMEOUT, REPORT NO IDE PRESENT
-E0D7                  (   flexidedrv.asm):00292         IDE_READ_SECTOR_DIRTY1:
-E0D7 BDE226           (   flexidedrv.asm):00293 [8]                     JSR         IDE_SETUP_LBA               ;TELL IT WHICH SECTOR WE WANT
-E0DA 860F             (   flexidedrv.asm):00294 [2]                     LDA         #PPIDE_COMMAND              ;SELECT IDE REGISTER
-E0DC 8E0020           (   flexidedrv.asm):00295 [3]                     LDX         #PPIDE_CMD_READ
-E0DF BDE2B2           (   flexidedrv.asm):00296 [8]                     JSR         IDE_WRITE                   ;ASK THE DRIVE TO READ IT
-E0E2 BDE1BA           (   flexidedrv.asm):00297 [8]                     JSR         IDE_WAIT_DRQ                ;WAIT UNTIL IT'S GOT THE DATA
-E0E5 2518             (   flexidedrv.asm):00298 [3]                     BCS     IDE_READ_SECTOR_DIRTY_ERROR     ; IF TIMEOUT, REPORT NO IDE PRESENT
-E0E7 BDE1EA           (   flexidedrv.asm):00299 [8]                     JSR         IDE_READ_BUFFER             ; GRAB THE 256 WORDS FROM THE BUFFER
-E0EA B6E344           (   flexidedrv.asm):00300 [5]                     LDA         DEBSEHD                     ; STORE CURRENT PARMS
-E0ED B7E341           (   flexidedrv.asm):00301 [5]                     STA         CDEBSEHD            ;
-E0F0 B6E342           (   flexidedrv.asm):00302 [5]                     LDA         DEBCYLL                     ;
-E0F3 B7E33F           (   flexidedrv.asm):00303 [5]                     STA         CDEBCYLL            ;
-E0F6 B6E343           (   flexidedrv.asm):00304 [5]                     LDA         DEBCYLM                     ;
-E0F9 B7E340           (   flexidedrv.asm):00305 [5]                     STA         CDEBCYLM            ;
-                      (   flexidedrv.asm):00306         
-E0FC C600             (   flexidedrv.asm):00307 [2]                     LDB         #$00                        ; RETURN = OPERATION OK
-E0FE 39               (   flexidedrv.asm):00308 [5]                     RTS
-E0FF                  (   flexidedrv.asm):00309         IDE_READ_SECTOR_DIRTY_ERROR:
-E0FF C60F             (   flexidedrv.asm):00310 [2]                     LDB         #$0F                        ; SET ERROR CONDITION
-E101 39               (   flexidedrv.asm):00311 [5]                     RTS
-                      (   flexidedrv.asm):00312         
-                      (   flexidedrv.asm):00313         ;*__IDE_WRITE_SECTOR__________________________________________________________________________________
-                      (   flexidedrv.asm):00314         ;*
-                      (   flexidedrv.asm):00315         ;*  WRITE IDE SECTOR (IN LBA) FROM BUFFER
-                      (   flexidedrv.asm):00316         ;*
-                      (   flexidedrv.asm):00317         ;           ENTRY - (X) = Address in memory where data to be written lives.
-                      (   flexidedrv.asm):00318         ;                   (A) = Track Number
-                      (   flexidedrv.asm):00319         ;                   (B) = Sector Number
-                      (   flexidedrv.asm):00320         ;
-                      (   flexidedrv.asm):00321         ;           EXIT -  (X) May be destroyed
-                      (   flexidedrv.asm):00322         ;                   (A) May be destroyed
-                      (   flexidedrv.asm):00323         ;                   (B) = Error condition
-                      (   flexidedrv.asm):00324         ;                   (Z) = 1 if no error
-                      (   flexidedrv.asm):00325         ;                       = 0 if an error
-                      (   flexidedrv.asm):00326         ;*____________________________________________________________________________________________________
-E102                  (   flexidedrv.asm):00327         IDE_WRITE_SECTOR:
-E102 3420             (   flexidedrv.asm):00328 [5+2]                   PSHS    Y
-E104 5A               (   flexidedrv.asm):00329 [2]                     DECB                                                    ; WE LOSE ONE SECTOR PER TRACK BASED ON FLEX
-E105 B7E345           (   flexidedrv.asm):00330 [5]                     STA     PPIDETMP                                ; USING 1 BASED SECTOR COUNTING
-E108 F0E345           (   flexidedrv.asm):00331 [5]                     SUBB    PPIDETMP                                ;
-E10B 2401             (   flexidedrv.asm):00332 [3]                     BCC     >                                               ;
-E10D 4A               (   flexidedrv.asm):00333 [2]                     DECA                                                    ;
-                      (   flexidedrv.asm):00334         !                                                                               ;
-E10E 3410             (   flexidedrv.asm):00335 [5+2]           PSHS    X
-E110 F7E345           (   flexidedrv.asm):00336 [5]             STB             PPIDETMP                ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
-                      (   flexidedrv.asm):00337         
-                      (   flexidedrv.asm):00338                 ;       PRTDBG "IDE WRITE SECTOR$"
-E113 BDE0B4           (   flexidedrv.asm):00339 [8]                     JSR         IDE_READ_RAW_SECTOR     ; DETERMINE PHYSICAL SECTOR
-E116 2641             (   flexidedrv.asm):00340 [3]             BNE     IDE_WRITE_SECTOR_ERROR
-                      (   flexidedrv.asm):00341         
-E118 B6E345           (   flexidedrv.asm):00342 [5]             LDA             PPIDETMP
-E11B 8401             (   flexidedrv.asm):00343 [2]             ANDA    #$01
-E11D C600             (   flexidedrv.asm):00344 [2]             LDB     #$00
-E11F 1F02             (   flexidedrv.asm):00345 [6]             TFR     D,Y                    ; Y NOW HAS HSTBUF OFFSET
-E121 C600             (   flexidedrv.asm):00346 [2]             LDB     #$00                   ; BLOCK TO ADDRESS IN "X"
-                      (   flexidedrv.asm):00347         !
-E123 A680             (   flexidedrv.asm):00348 [4+2]           LDA     ,X+
-E125 A7A9E346         (   flexidedrv.asm):00349 [4+4]           STA     HSTBUF,Y
-E129 3121             (   flexidedrv.asm):00350 [5]             INY
-E12B 5C               (   flexidedrv.asm):00351 [2]             INCB
-E12C C100             (   flexidedrv.asm):00352 [2]             CMPB    #$00
-E12E 26F3             (   flexidedrv.asm):00353 [3]             BNE <
-                      (   flexidedrv.asm):00354         
-E130 BDE191           (   flexidedrv.asm):00355 [8]                     JSR         IDE_WAIT_NOT_BUSY   ;MAKE SURE DRIVE IS READY
-E133 2524             (   flexidedrv.asm):00356 [3]                     BCS     IDE_WRITE_SECTOR_ERROR  ; IF TIMEOUT, REPORT NO IDE PRESENT
-E135 860F             (   flexidedrv.asm):00357 [2]                     LDA         #PPIDE_COMMAND
-E137 8E0030           (   flexidedrv.asm):00358 [3]                     LDX         #PPIDE_CMD_WRITE
-E13A BDE2B2           (   flexidedrv.asm):00359 [8]                     JSR         IDE_WRITE           ;TELL DRIVE TO WRITE A SECTOR
-E13D BDE1BA           (   flexidedrv.asm):00360 [8]                     JSR         IDE_WAIT_DRQ                ;WAIT UNIT IT WANTS THE DATA
-E140 2517             (   flexidedrv.asm):00361 [3]                     BCS     IDE_WRITE_SECTOR_ERROR  ; IF TIMEOUT, REPORT NO IDE PRESENT
-E142 BDE208           (   flexidedrv.asm):00362 [8]                     JSR         IDE_WRITE_BUFFER    ;GIVE THE DATA TO THE DRIVE
-E145 BDE191           (   flexidedrv.asm):00363 [8]                     JSR         IDE_WAIT_NOT_BUSY   ;WAIT UNTIL THE WRITE IS COMPLETE
-E148 250F             (   flexidedrv.asm):00364 [3]                     BCS     IDE_WRITE_SECTOR_ERROR  ; IF TIMEOUT, REPORT NO IDE PRESENT
-E14A 86FF             (   flexidedrv.asm):00365 [2]                     LDA         #$FF                        ; STORE CURRENT PARMS
-E14C B7E341           (   flexidedrv.asm):00366 [5]                     STA         CDEBSEHD            ;
-E14F B7E33F           (   flexidedrv.asm):00367 [5]                     STA         CDEBCYLL            ;
-E152 B7E340           (   flexidedrv.asm):00368 [5]                     STA         CDEBCYLM            ;
-E155 C600             (   flexidedrv.asm):00369 [2]                     LDB         #$00                        ; ZERO ON RETURN = OPERATION OK
-E157 35A0             (   flexidedrv.asm):00370 [5+4]                   PULS    Y,PC
-E159                  (   flexidedrv.asm):00371         IDE_WRITE_SECTOR_ERROR:
-E159 C6FF             (   flexidedrv.asm):00372 [2]                     LDB         #$FF                        ; 1 ON RETURN = OPERATION FAIL
-E15B F7E341           (   flexidedrv.asm):00373 [5]             STB         CDEBSEHD            ;
-E15E F7E33F           (   flexidedrv.asm):00374 [5]                     STB         CDEBCYLL            ;
-E161 F7E340           (   flexidedrv.asm):00375 [5]                     STB         CDEBCYLM            ;
-E164 35A0             (   flexidedrv.asm):00376 [5+4]                   PULS    Y,PC
-                      (   flexidedrv.asm):00377         
-                      (   flexidedrv.asm):00378         ;*__PPIDE_RESET____________________________________________________________________________________
-                      (   flexidedrv.asm):00379         ;*
-                      (   flexidedrv.asm):00380         ;*  SOFT RESET IDE CHANNEL
-                      (   flexidedrv.asm):00381         ;*
-                      (   flexidedrv.asm):00382         ;*____________________________________________________________________________________________________
-E166                  (   flexidedrv.asm):00383         PPIDE_RESET:
-                      (   flexidedrv.asm):00384           ;     PRTDBG "IDE RESET$"
-E166 8600             (   flexidedrv.asm):00385 [2]                     LDA         #$00
-E168 B7E344           (   flexidedrv.asm):00386 [5]                     STA         DEBSEHD
-E16B B7E342           (   flexidedrv.asm):00387 [5]                     STA         DEBCYLL
-E16E B7E343           (   flexidedrv.asm):00388 [5]                     STA         DEBCYLM
-E171 86FF             (   flexidedrv.asm):00389 [2]                     LDA         #$FF                        ;
-E173 B7E341           (   flexidedrv.asm):00390 [5]                     STA         CDEBSEHD            ;
-E176 B7E33F           (   flexidedrv.asm):00391 [5]                     STA         CDEBCYLL            ;
-E179 B7E340           (   flexidedrv.asm):00392 [5]                     STA         CDEBCYLM            ;
-                      (   flexidedrv.asm):00393         
-E17C 8680             (   flexidedrv.asm):00394 [2]                     LDA         #PPIDE_RST_LINE
-E17E B7FE62           (   flexidedrv.asm):00395 [5]                     STA         PPIDECNTRL                  ; ASSERT RST LINE ON IDE INTERFACE
-                      (   flexidedrv.asm):00396         
-E181 8E0100           (   flexidedrv.asm):00397 [3]                     LDX         #$0100
-                      (   flexidedrv.asm):00398         ;       PRTDBG "IDE RESET DELAY$"
-E184                  (   flexidedrv.asm):00399         RST_DLY:
-E184 301F             (   flexidedrv.asm):00400 [5]                     DEX
-E186 8C0000           (   flexidedrv.asm):00401 [4]                     CPX         #$0000
-E189 26F9             (   flexidedrv.asm):00402 [3]                     BNE         RST_DLY
-E18B 8600             (   flexidedrv.asm):00403 [2]                     LDA         #$00
-E18D B7FE62           (   flexidedrv.asm):00404 [5]                     STA         PPIDECNTRL                  ; DEASSERT RST LINE ON IDE INTERFACE
+E0B3 39               (   flexidedrv.asm):00270 [5]                     RTS
+E0B4                  (   flexidedrv.asm):00271         IDE_READ_SECTOR_ERROR:
+E0B4 C61F             (   flexidedrv.asm):00272 [2]                     LDB     #$1F
+E0B6 57               (   flexidedrv.asm):00273 [2]             ASRB
+E0B7 39               (   flexidedrv.asm):00274 [5]             RTS
+                      (   flexidedrv.asm):00275         
+E0B8                  (   flexidedrv.asm):00276         IDE_READ_RAW_SECTOR:
+                      (   flexidedrv.asm):00277                 ;       PRTDBG "IDE READ RAW SECTOR$"
+E0B8 BDE27D           (   flexidedrv.asm):00278 [8]                     JSR         IDE_CONVERT_SECTOR  ;
+E0BB B6E358           (   flexidedrv.asm):00279 [5]                     LDA         DEBSEHD                     ; STORE CURRENT PARMS
+E0BE B1E355           (   flexidedrv.asm):00280 [5]                     CMPA    CDEBSEHD                ;
+E0C1 2613             (   flexidedrv.asm):00281 [3]                     BNE     IDE_READ_SECTOR_DIRTY
+E0C3 B6E357           (   flexidedrv.asm):00282 [5]                     LDA         DEBCYLM                     ;
+E0C6 B1E354           (   flexidedrv.asm):00283 [5]                     CMPA    CDEBCYLM                ;
+E0C9 260B             (   flexidedrv.asm):00284 [3]                     BNE         IDE_READ_SECTOR_DIRTY
+E0CB B6E356           (   flexidedrv.asm):00285 [5]                     LDA         DEBCYLL                     ;
+E0CE B1E353           (   flexidedrv.asm):00286 [5]                     CMPA    CDEBCYLL                ;
+E0D1 2603             (   flexidedrv.asm):00287 [3]                     BNE     IDE_READ_SECTOR_DIRTY
+E0D3 C600             (   flexidedrv.asm):00288 [2]                     LDB         #$00                        ; RETURN = OPERATION OK
+E0D5 39               (   flexidedrv.asm):00289 [5]                     RTS
+                      (   flexidedrv.asm):00290         
+E0D6                  (   flexidedrv.asm):00291         IDE_READ_SECTOR_DIRTY:
+                      (   flexidedrv.asm):00292                 ;       PRTDBG "IDE READ SECTOR BUFFER DIRTY$"
+E0D6 BDE1A5           (   flexidedrv.asm):00293 [8]                     JSR         IDE_WAIT_NOT_BUSY   ;MAKE SURE DRIVE IS READY
+E0D9 2528             (   flexidedrv.asm):00294 [3]                     BCS     IDE_READ_SECTOR_DIRTY_ERROR     ; IF TIMEOUT, REPORT NO IDE PRESENT
+E0DB                  (   flexidedrv.asm):00295         IDE_READ_SECTOR_DIRTY1:
+E0DB BDE23A           (   flexidedrv.asm):00296 [8]                     JSR         IDE_SETUP_LBA               ;TELL IT WHICH SECTOR WE WANT
+E0DE 860F             (   flexidedrv.asm):00297 [2]                     LDA         #PPIDE_COMMAND              ;SELECT IDE REGISTER
+E0E0 8E0020           (   flexidedrv.asm):00298 [3]                     LDX         #PPIDE_CMD_READ
+E0E3 BDE2C6           (   flexidedrv.asm):00299 [8]                     JSR         IDE_WRITE                   ;ASK THE DRIVE TO READ IT
+E0E6 BDE1CE           (   flexidedrv.asm):00300 [8]                     JSR         IDE_WAIT_DRQ                ;WAIT UNTIL IT'S GOT THE DATA
+E0E9 2518             (   flexidedrv.asm):00301 [3]                     BCS     IDE_READ_SECTOR_DIRTY_ERROR     ; IF TIMEOUT, REPORT NO IDE PRESENT
+E0EB BDE1FE           (   flexidedrv.asm):00302 [8]                     JSR         IDE_READ_BUFFER             ; GRAB THE 256 WORDS FROM THE BUFFER
+E0EE B6E358           (   flexidedrv.asm):00303 [5]                     LDA         DEBSEHD                     ; STORE CURRENT PARMS
+E0F1 B7E355           (   flexidedrv.asm):00304 [5]                     STA         CDEBSEHD            ;
+E0F4 B6E356           (   flexidedrv.asm):00305 [5]                     LDA         DEBCYLL                     ;
+E0F7 B7E353           (   flexidedrv.asm):00306 [5]                     STA         CDEBCYLL            ;
+E0FA B6E357           (   flexidedrv.asm):00307 [5]                     LDA         DEBCYLM                     ;
+E0FD B7E354           (   flexidedrv.asm):00308 [5]                     STA         CDEBCYLM            ;
+                      (   flexidedrv.asm):00309         
+E100 C600             (   flexidedrv.asm):00310 [2]                     LDB         #$00                        ; RETURN = OPERATION OK
+E102 39               (   flexidedrv.asm):00311 [5]                     RTS
+E103                  (   flexidedrv.asm):00312         IDE_READ_SECTOR_DIRTY_ERROR:
+E103 C60F             (   flexidedrv.asm):00313 [2]                     LDB         #$0F                        ; SET ERROR CONDITION
+E105 39               (   flexidedrv.asm):00314 [5]                     RTS
+                      (   flexidedrv.asm):00315         
+                      (   flexidedrv.asm):00316         ;*__IDE_WRITE_SECTOR__________________________________________________________________________________
+                      (   flexidedrv.asm):00317         ;*
+                      (   flexidedrv.asm):00318         ;*  WRITE IDE SECTOR (IN LBA) FROM BUFFER
+                      (   flexidedrv.asm):00319         ;*
+                      (   flexidedrv.asm):00320         ;           ENTRY - (X) = Address in memory where data to be written lives.
+                      (   flexidedrv.asm):00321         ;                   (A) = Track Number
+                      (   flexidedrv.asm):00322         ;                   (B) = Sector Number
+                      (   flexidedrv.asm):00323         ;
+                      (   flexidedrv.asm):00324         ;           EXIT -  (X) May be destroyed
+                      (   flexidedrv.asm):00325         ;                   (A) May be destroyed
+                      (   flexidedrv.asm):00326         ;                   (B) = Error condition
+                      (   flexidedrv.asm):00327         ;                   (Z) = 1 if no error
+                      (   flexidedrv.asm):00328         ;                       = 0 if an error
+                      (   flexidedrv.asm):00329         ;*____________________________________________________________________________________________________
+E106                  (   flexidedrv.asm):00330         IDE_WRITE_SECTOR:
+E106 3420             (   flexidedrv.asm):00331 [5+2]                   PSHS    Y
+E108 5A               (   flexidedrv.asm):00332 [2]                     DECB                                                    ; WE LOSE ONE SECTOR PER TRACK BASED ON FLEX
+E109 B7E359           (   flexidedrv.asm):00333 [5]                     STA     PPIDETMP                                ; USING 1 BASED SECTOR COUNTING
+E10C F0E359           (   flexidedrv.asm):00334 [5]                     SUBB    PPIDETMP                                ;
+E10F 2401             (   flexidedrv.asm):00335 [3]                     BCC     >                                               ;
+E111 4A               (   flexidedrv.asm):00336 [2]                     DECA                                                    ;
+                      (   flexidedrv.asm):00337         !                                                                               ;
+E112 3410             (   flexidedrv.asm):00338 [5+2]           PSHS    X
+E114 F7E359           (   flexidedrv.asm):00339 [5]                     STB     PPIDETMP                ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
+                      (   flexidedrv.asm):00340         
+E117 BDE0B8           (   flexidedrv.asm):00341 [8]                     JSR     IDE_READ_RAW_SECTOR
+E11A 1026004A         (   flexidedrv.asm):00342 [5+?]           LBNE     IDE_WRITE_SECTOR_ERROR1
+E11E 3510             (   flexidedrv.asm):00343 [5+2]           PULS    X
+                      (   flexidedrv.asm):00344         
+E120 B6E359           (   flexidedrv.asm):00345 [5]             LDA             PPIDETMP
+E123 8401             (   flexidedrv.asm):00346 [2]             ANDA    #$01
+E125 C600             (   flexidedrv.asm):00347 [2]             LDB     #$00
+E127 1F02             (   flexidedrv.asm):00348 [6]             TFR     D,Y                    ; Y NOW HAS HSTBUF OFFSET
+E129 C600             (   flexidedrv.asm):00349 [2]             LDB     #$00                   ; BLOCK TO ADDRESS IN "X"
+                      (   flexidedrv.asm):00350         !
+E12B A680             (   flexidedrv.asm):00351 [4+2]           LDA     ,X+
+E12D A7A9E35A         (   flexidedrv.asm):00352 [4+4]           STA     HSTBUF,Y
+E131 3121             (   flexidedrv.asm):00353 [5]             INY
+E133 5C               (   flexidedrv.asm):00354 [2]             INCB
+E134 C100             (   flexidedrv.asm):00355 [2]             CMPB    #$00
+E136 26F3             (   flexidedrv.asm):00356 [3]             BNE <
+                      (   flexidedrv.asm):00357         
+E138 BDE1A5           (   flexidedrv.asm):00358 [8]                     JSR         IDE_WAIT_NOT_BUSY   ;MAKE SURE DRIVE IS READY
+E13B 252D             (   flexidedrv.asm):00359 [3]                     BCS     IDE_WRITE_SECTOR_ERROR  ; IF TIMEOUT, REPORT NO IDE PRESENT
+E13D 860F             (   flexidedrv.asm):00360 [2]                     LDA         #PPIDE_COMMAND
+E13F 8E0030           (   flexidedrv.asm):00361 [3]                     LDX         #PPIDE_CMD_WRITE
+E142 BDE2C6           (   flexidedrv.asm):00362 [8]                     JSR         IDE_WRITE           ;TELL DRIVE TO WRITE A SECTOR
+E145 BDE1CE           (   flexidedrv.asm):00363 [8]                     JSR         IDE_WAIT_DRQ                ;WAIT UNIT IT WANTS THE DATA
+E148 2520             (   flexidedrv.asm):00364 [3]                     BCS     IDE_WRITE_SECTOR_ERROR  ; IF TIMEOUT, REPORT NO IDE PRESENT
+E14A BDE21C           (   flexidedrv.asm):00365 [8]                     JSR         IDE_WRITE_BUFFER    ;GIVE THE DATA TO THE DRIVE
+E14D BDE1A5           (   flexidedrv.asm):00366 [8]                     JSR         IDE_WAIT_NOT_BUSY   ;WAIT UNTIL THE WRITE IS COMPLETE
+E150 2518             (   flexidedrv.asm):00367 [3]                     BCS     IDE_WRITE_SECTOR_ERROR  ; IF TIMEOUT, REPORT NO IDE PRESENT
+E152 86FF             (   flexidedrv.asm):00368 [2]                     LDA         #$FF                        ; STORE CURRENT PARMS
+E154 B7E355           (   flexidedrv.asm):00369 [5]                     STA         CDEBSEHD            ;
+E157 B7E353           (   flexidedrv.asm):00370 [5]                     STA         CDEBCYLL            ;
+E15A B7E354           (   flexidedrv.asm):00371 [5]                     STA         CDEBCYLM            ;
+                      (   flexidedrv.asm):00372         
+E15D 3436             (   flexidedrv.asm):00373 [5+6]                   PSHS    A,B,X,Y
+E15F BDE0D6           (   flexidedrv.asm):00374 [8]                     JSR     IDE_READ_SECTOR_DIRTY           ; NOT 100% SURE WHY THIS IS NECESSARY FOR A SUCCESSFUL WRITE  . .
+E162 3536             (   flexidedrv.asm):00375 [5+6]                   PULS    A,B,X,Y                                         ; BUT I AM OUT OF TIME FOR TODAY
+                      (   flexidedrv.asm):00376         
+E164 C600             (   flexidedrv.asm):00377 [2]                     LDB         #$00                        ; ZERO ON RETURN = OPERATION OK
+E166 35A0             (   flexidedrv.asm):00378 [5+4]                   PULS    Y,PC
+E168                  (   flexidedrv.asm):00379         IDE_WRITE_SECTOR_ERROR1:
+E168 3510             (   flexidedrv.asm):00380 [5+2]           PULS    X
+E16A                  (   flexidedrv.asm):00381         IDE_WRITE_SECTOR_ERROR:
+E16A C6FF             (   flexidedrv.asm):00382 [2]                     LDB         #$FF                        ; 1 ON RETURN = OPERATION FAIL
+E16C F7E355           (   flexidedrv.asm):00383 [5]             STB         CDEBSEHD            ;
+E16F F7E353           (   flexidedrv.asm):00384 [5]                     STB         CDEBCYLL            ;
+E172 F7E354           (   flexidedrv.asm):00385 [5]                     STB         CDEBCYLM            ;
+E175 C61F             (   flexidedrv.asm):00386 [2]                     LDB     #$1F
+E177 57               (   flexidedrv.asm):00387 [2]             ASRB
+E178 35A0             (   flexidedrv.asm):00388 [5+4]                   PULS    Y,PC
+                      (   flexidedrv.asm):00389         
+                      (   flexidedrv.asm):00390         ;*__PPIDE_RESET____________________________________________________________________________________
+                      (   flexidedrv.asm):00391         ;*
+                      (   flexidedrv.asm):00392         ;*  SOFT RESET IDE CHANNEL
+                      (   flexidedrv.asm):00393         ;*
+                      (   flexidedrv.asm):00394         ;*____________________________________________________________________________________________________
+E17A                  (   flexidedrv.asm):00395         PPIDE_RESET:
+                      (   flexidedrv.asm):00396           ;     PRTDBG "IDE RESET$"
+E17A 8600             (   flexidedrv.asm):00397 [2]                     LDA         #$00
+E17C B7E358           (   flexidedrv.asm):00398 [5]                     STA         DEBSEHD
+E17F B7E356           (   flexidedrv.asm):00399 [5]                     STA         DEBCYLL
+E182 B7E357           (   flexidedrv.asm):00400 [5]                     STA         DEBCYLM
+E185 86FF             (   flexidedrv.asm):00401 [2]                     LDA         #$FF                        ;
+E187 B7E355           (   flexidedrv.asm):00402 [5]                     STA         CDEBSEHD            ;
+E18A B7E353           (   flexidedrv.asm):00403 [5]                     STA         CDEBCYLL            ;
+E18D B7E354           (   flexidedrv.asm):00404 [5]                     STA         CDEBCYLM            ;
                       (   flexidedrv.asm):00405         
-                      (   flexidedrv.asm):00406         ; IF A DSKYNG IS ACTIVE AND IS ON THE SAME PPI PORT AS THE PPISD BEING
-                      (   flexidedrv.asm):00407         ; RESET, THEN THE DSKYNG WILL ALSO BE RESET.  SO, THE DSKY IS ALSO INITIALIZED.
-                      (   flexidedrv.asm):00408                 IF USEDSKYNG = 1
-                      (   flexidedrv.asm):00409                         JSR     DSKY_REINIT
-                      (   flexidedrv.asm):00410                 ENDC
-                      (   flexidedrv.asm):00411         
-E190 39               (   flexidedrv.asm):00412 [5]                     RTS
-                      (   flexidedrv.asm):00413         
-                      (   flexidedrv.asm):00414         
-                      (   flexidedrv.asm):00415         ;*__IDE_WAIT_NOT_BUSY_______________________________________________________________________________
-                      (   flexidedrv.asm):00416         ;*
-                      (   flexidedrv.asm):00417         ;*  WAIT FOR IDE CHANNEL TO BECOME READY
-                      (   flexidedrv.asm):00418         ;*
-                      (   flexidedrv.asm):00419         ;*____________________________________________________________________________________________________
-E191                  (   flexidedrv.asm):00420         IDE_WAIT_NOT_BUSY:
-E191 3412             (   flexidedrv.asm):00421 [5+3]                   PSHS    X,A
-E193 8600             (   flexidedrv.asm):00422 [2]                     LDA     #$00
-E195 B7DF76           (   flexidedrv.asm):00423 [5]                     STA     PPIDETIMEOUT
-E198 B7DF77           (   flexidedrv.asm):00424 [5]                     STA     PPIDETIMEOUT+1
-E19B                  (   flexidedrv.asm):00425         IDE_WAIT_NOT_BUSY1:
-E19B 860F             (   flexidedrv.asm):00426 [2]                     LDA         #PPIDE_STATUS               ;WAIT FOR RDY BIT TO BE SET
-E19D BDE28D           (   flexidedrv.asm):00427 [8]                     JSR         IDE_READ
-E1A0 1F18             (   flexidedrv.asm):00428 [6]             TFR     X,A
-E1A2 8480             (   flexidedrv.asm):00429 [2]                     ANDA    #$80
-E1A4 270F             (   flexidedrv.asm):00430 [3]                     BEQ         IDE_WAIT_NOT_BUSY2
-E1A6 7CDF76           (   flexidedrv.asm):00431 [7]                     INC     PPIDETIMEOUT
-E1A9 26F0             (   flexidedrv.asm):00432 [3]                     BNE     IDE_WAIT_NOT_BUSY1
-E1AB 7CDF77           (   flexidedrv.asm):00433 [7]                     INC     PPIDETIMEOUT+1
-E1AE 26EB             (   flexidedrv.asm):00434 [3]                     BNE     IDE_WAIT_NOT_BUSY1
-E1B0 1A01             (   flexidedrv.asm):00435 [3]                     SEC
-E1B2 7EE1B7           (   flexidedrv.asm):00436 [4]                     JMP         IDE_WAIT_NOT_BUSY3
-E1B5                  (   flexidedrv.asm):00437         IDE_WAIT_NOT_BUSY2:
-E1B5 1CFE             (   flexidedrv.asm):00438 [3]                     CLC
-E1B7                  (   flexidedrv.asm):00439         IDE_WAIT_NOT_BUSY3:
-E1B7 3592             (   flexidedrv.asm):00440 [5+5]           PULS    PC,X,A
-E1B9 39               (   flexidedrv.asm):00441 [5]                     RTS
-                      (   flexidedrv.asm):00442         
-                      (   flexidedrv.asm):00443         ;*__IDE_WAIT_DRQ______________________________________________________________________________________
-                      (   flexidedrv.asm):00444         ;*
-                      (   flexidedrv.asm):00445         ;*      WAIT FOR THE DRIVE TO BE READY TO TRANSFER DATA.
-                      (   flexidedrv.asm):00446         ;*
-                      (   flexidedrv.asm):00447         ;*____________________________________________________________________________________________________
-E1BA                  (   flexidedrv.asm):00448         IDE_WAIT_DRQ:
-E1BA 3432             (   flexidedrv.asm):00449 [5+5]           PSHS    A,X,Y
-E1BC 8600             (   flexidedrv.asm):00450 [2]                     LDA     #$00
-E1BE B7DF76           (   flexidedrv.asm):00451 [5]                     STA     PPIDETIMEOUT
-E1C1 B7DF77           (   flexidedrv.asm):00452 [5]                     STA     PPIDETIMEOUT+1
-E1C4                  (   flexidedrv.asm):00453         IDE_WAIT_DRQ1:
-E1C4 860F             (   flexidedrv.asm):00454 [2]                     LDA         #PPIDE_STATUS               ;WAIT FOR DRQ BIT TO BE SET
-E1C6 BDE28D           (   flexidedrv.asm):00455 [8]                     JSR         IDE_READ
-E1C9 1F18             (   flexidedrv.asm):00456 [6]                     TFR     X,A
-E1CB 8488             (   flexidedrv.asm):00457 [2]                     ANDA    #%10001000              ; MASK OFF BUSY(7) AND DRQ(3)
-E1CD 8108             (   flexidedrv.asm):00458 [2]                     CMPA    #%00001000              ; WE WANT BUSY(7) TO BE 0 AND DRQ (3) TO BE 1
-E1CF 2715             (   flexidedrv.asm):00459 [3]                     BEQ         IDE_WAIT_DRQ2
-E1D1 8401             (   flexidedrv.asm):00460 [2]                     ANDA    #%00000001              ; IS ERROR?
-E1D3 8101             (   flexidedrv.asm):00461 [2]                     CMPA    #%00000001              ;
-E1D5 270A             (   flexidedrv.asm):00462 [3]                     BEQ     IDE_WAIT_DRQE
-E1D7 7CDF76           (   flexidedrv.asm):00463 [7]                     INC     PPIDETIMEOUT
-E1DA 26E8             (   flexidedrv.asm):00464 [3]                     BNE     IDE_WAIT_DRQ1
-E1DC 7CDF77           (   flexidedrv.asm):00465 [7]                     INC     PPIDETIMEOUT+1
-E1DF 26E3             (   flexidedrv.asm):00466 [3]                     BNE     IDE_WAIT_DRQ1
-E1E1                  (   flexidedrv.asm):00467         IDE_WAIT_DRQE:
-E1E1 1A01             (   flexidedrv.asm):00468 [3]                     SEC
-E1E3 7EE1E8           (   flexidedrv.asm):00469 [4]                     JMP     IDE_WAIT_DRQ3
-E1E6                  (   flexidedrv.asm):00470         IDE_WAIT_DRQ2:
-E1E6 1CFE             (   flexidedrv.asm):00471 [3]                     CLC
-E1E8                  (   flexidedrv.asm):00472         IDE_WAIT_DRQ3:
-E1E8 35B2             (   flexidedrv.asm):00473 [5+7]           PULS    PC,A,X,Y
-                      (   flexidedrv.asm):00474         
-                      (   flexidedrv.asm):00475         
-                      (   flexidedrv.asm):00476         
-                      (   flexidedrv.asm):00477         ;*__IDE_READ_BUFFER___________________________________________________________________________________
-                      (   flexidedrv.asm):00478         ;*
-                      (   flexidedrv.asm):00479         ;*  READ IDE BUFFER LITTLE ENDIAN
-                      (   flexidedrv.asm):00480         ;*
-                      (   flexidedrv.asm):00481         ;*____________________________________________________________________________________________________
-E1EA                  (   flexidedrv.asm):00482         IDE_READ_BUFFER:
-E1EA 108E0000         (   flexidedrv.asm):00483 [4]                     LDY     #$0000                  ; INDEX
-E1EE                  (   flexidedrv.asm):00484         IDEBUFRD:
-E1EE 8608             (   flexidedrv.asm):00485 [2]                     LDA         #PPIDE_DATA
-E1F0 BDE290           (   flexidedrv.asm):00486 [8]                     JSR         IDE_READ_NO_SETUP
-E1F3 1F10             (   flexidedrv.asm):00487 [6]                     TFR     X,D
-E1F5 E7A9E346         (   flexidedrv.asm):00488 [4+4]                   STB         HSTBUF,Y            ;
-E1F9 3121             (   flexidedrv.asm):00489 [5]             INY
-E1FB A7A9E346         (   flexidedrv.asm):00490 [4+4]                   STA         HSTBUF,Y            ;
-E1FF 3121             (   flexidedrv.asm):00491 [5]             INY
-E201 108C0200         (   flexidedrv.asm):00492 [5]                     CMPY    #$0200                  ;
-E205 26E7             (   flexidedrv.asm):00493 [3]                     BNE         IDEBUFRD            ;
-E207 39               (   flexidedrv.asm):00494 [5]                     RTS                             ;
-                      (   flexidedrv.asm):00495         
-                      (   flexidedrv.asm):00496         ;*__IDE_WRITE_BUFFER___________________________________________________________________________________
-                      (   flexidedrv.asm):00497         ;*
-                      (   flexidedrv.asm):00498         ;*  WRITE IDE BUFFER LITTLE ENDIAN
-                      (   flexidedrv.asm):00499         ;*
-                      (   flexidedrv.asm):00500         ;*____________________________________________________________________________________________________
-E208                  (   flexidedrv.asm):00501         IDE_WRITE_BUFFER:
-E208 108E0000         (   flexidedrv.asm):00502 [4]                     LDY     #$0000                  ; INDEX
-E20C                  (   flexidedrv.asm):00503         IDEBUFWT:
-E20C E6A9E346         (   flexidedrv.asm):00504 [4+4]                   LDB     HSTBUF,Y                ; SECTORS ARE LITTLE ENDIAN
-E210 3121             (   flexidedrv.asm):00505 [5]                     INY                                     ;
-E212 A6A9E346         (   flexidedrv.asm):00506 [4+4]                   LDA     HSTBUF,Y                ; SECTORS ARE LITTLE ENDIAN
-E216 3121             (   flexidedrv.asm):00507 [5]                     INY
-E218 1F01             (   flexidedrv.asm):00508 [6]                     TFR     D,X
-E21A 8608             (   flexidedrv.asm):00509 [2]                     LDA         #PPIDE_DATA
-E21C BDE2B2           (   flexidedrv.asm):00510 [8]                     JSR         IDE_WRITE
-E21F 108C0200         (   flexidedrv.asm):00511 [5]                     CMPY    #$0200                  ;
-E223 26E7             (   flexidedrv.asm):00512 [3]                     BNE         IDEBUFWT            ;
-E225 39               (   flexidedrv.asm):00513 [5]                     RTS                                     ;
-                      (   flexidedrv.asm):00514         
-                      (   flexidedrv.asm):00515         ;*__IDE_SETUP_LBA_____________________________________________________________________________________
-                      (   flexidedrv.asm):00516         ;*
-                      (   flexidedrv.asm):00517         ;*  SETUP LBA DATA
-                      (   flexidedrv.asm):00518         ;*  A= DRIVE DEVICE
-                      (   flexidedrv.asm):00519         ;*____________________________________________________________________________________________________
-E226                  (   flexidedrv.asm):00520         IDE_SETUP_LBA:
-                      (   flexidedrv.asm):00521         ;               PRTDBG "PPIDE SETUP LBA$"
-E226 B6DE20           (   flexidedrv.asm):00522 [5]             LDA     CURDRVADDRESS
-E229 8401             (   flexidedrv.asm):00523 [2]                     ANDA    #$01                    ; ONLY WANT DRIVE CFG
-E22B 48               (   flexidedrv.asm):00524 [2]                     ASLA                                ; SHIFT 4
-E22C 48               (   flexidedrv.asm):00525 [2]                     ASLA                                ;
-E22D 48               (   flexidedrv.asm):00526 [2]                     ASLA                                ;
-E22E 48               (   flexidedrv.asm):00527 [2]                     ASLA                                ;
-E22F 8AE0             (   flexidedrv.asm):00528 [2]                     ORA     #$E0                    ; E0=MST  F0=SLV
-E231 1F89             (   flexidedrv.asm):00529 [6]                     TFR     A,B
-E233 8600             (   flexidedrv.asm):00530 [2]             LDA     #$00
-E235 1F01             (   flexidedrv.asm):00531 [6]                     TFR     D,X
-E237 860E             (   flexidedrv.asm):00532 [2]                     LDA         #PPIDE_DEVICE
-E239 BDE2B2           (   flexidedrv.asm):00533 [8]                     JSR         IDE_WRITE
-E23C 8600             (   flexidedrv.asm):00534 [2]             LDA     #$00
-E23E F6E343           (   flexidedrv.asm):00535 [5]                     LDB     DEBCYLM
-E241 1F01             (   flexidedrv.asm):00536 [6]                     TFR     D,X
-E243 860D             (   flexidedrv.asm):00537 [2]                     LDA         #PPIDE_LBAHI
-E245 BDE2B2           (   flexidedrv.asm):00538 [8]                     JSR         IDE_WRITE
-E248 8600             (   flexidedrv.asm):00539 [2]             LDA     #$00
-E24A F6E342           (   flexidedrv.asm):00540 [5]                     LDB     DEBCYLL                 ;
-E24D 1F01             (   flexidedrv.asm):00541 [6]                     TFR     D,X
-E24F 860C             (   flexidedrv.asm):00542 [2]                     LDA         #PPIDE_LBAMID
-E251 BDE2B2           (   flexidedrv.asm):00543 [8]                     JSR         IDE_WRITE
-E254 8600             (   flexidedrv.asm):00544 [2]             LDA     #$00
-E256 F6E344           (   flexidedrv.asm):00545 [5]                     LDB     DEBSEHD                 ;
-E259 1F01             (   flexidedrv.asm):00546 [6]                     TFR     D,X
-E25B 860B             (   flexidedrv.asm):00547 [2]                     LDA         #PPIDE_LBALOW
-E25D BDE2B2           (   flexidedrv.asm):00548 [8]                     JSR         IDE_WRITE
-E260 8E0001           (   flexidedrv.asm):00549 [3]                     LDX         #$0001
-E263 860A             (   flexidedrv.asm):00550 [2]                     LDA         #PPIDE_SEC_CNT
-E265 BDE2B2           (   flexidedrv.asm):00551 [8]                     JSR         IDE_WRITE
-                      (   flexidedrv.asm):00552         
-E268 39               (   flexidedrv.asm):00553 [5]                     RTS
-                      (   flexidedrv.asm):00554         
-                      (   flexidedrv.asm):00555         ;___IDE_CONVERT_SECTOR___________________________________________________________________________________
-                      (   flexidedrv.asm):00556         ;
-                      (   flexidedrv.asm):00557         ;       TRANSLATE SECTORS INTO IDE FORMAT
-                      (   flexidedrv.asm):00558         ;
-                      (   flexidedrv.asm):00559         ;                   (A) = Track Number
-                      (   flexidedrv.asm):00560         ;                   (B) = Sector Number
-                      (   flexidedrv.asm):00561         ;________________________________________________________________________________________________________
-E269                  (   flexidedrv.asm):00562         IDE_CONVERT_SECTOR:
-E269 54               (   flexidedrv.asm):00563 [2]                 LSRB                                ; DIVIDE BY 2 (FOR BLOCKING)
-E26A 44               (   flexidedrv.asm):00564 [2]             LSRA                    ;
-E26B 2402             (   flexidedrv.asm):00565 [3]             BCC     >
-E26D CA80             (   flexidedrv.asm):00566 [2]             ORB     #$80
-                      (   flexidedrv.asm):00567         !
-E26F F7E344           (   flexidedrv.asm):00568 [5]                 STB     DEBSEHD                     ; STORE IN SECTOR/HEAD
-E272 B7E342           (   flexidedrv.asm):00569 [5]                 STA     DEBCYLL                     ; STORE IN TRACK (LSB)
-                      (   flexidedrv.asm):00570         
-                      (   flexidedrv.asm):00571         ;       ADD SLICE OFFSET
-E275 FCDE21           (   flexidedrv.asm):00572 [6]                 LDD     CURDRVSLICE
-E278 54               (   flexidedrv.asm):00573 [2]                 LSRB                                ; DIVIDE BY 2 (FOR BLOCKING)
-E279 44               (   flexidedrv.asm):00574 [2]             LSRA                    ;
-E27A 2402             (   flexidedrv.asm):00575 [3]             BCC     >
-E27C CA80             (   flexidedrv.asm):00576 [2]             ORB     #$80
-                      (   flexidedrv.asm):00577         !
-E27E F7E343           (   flexidedrv.asm):00578 [5]             STB         DEBCYLM                     ; STORE IN TRACK (LSB)
-E281 2408             (   flexidedrv.asm):00579 [3]             BCC     >
-E283 B6E342           (   flexidedrv.asm):00580 [5]                 LDA     DEBCYLL                     ; STORE IN TRACK (LSB)
-E286 8A80             (   flexidedrv.asm):00581 [2]             ORA     #$80
-E288 B7E342           (   flexidedrv.asm):00582 [5]             STA         DEBCYLL                     ; STORE IN TRACK (LSB)
-                      (   flexidedrv.asm):00583         !
-E28B 39               (   flexidedrv.asm):00584 [5]             RTS
-                      (   flexidedrv.asm):00585         
-                      (   flexidedrv.asm):00586         
-                      (   flexidedrv.asm):00587         
-                      (   flexidedrv.asm):00588           IF USEDSKYNG = 1
-                      (   flexidedrv.asm):00589         ;       PRTDBG "DSKY OUTPUT 1$"
-                      (   flexidedrv.asm):00590                 LDA     SEKDSK
-                      (   flexidedrv.asm):00591                 STA     DSKY_HEXBUF
-                      (   flexidedrv.asm):00592                 LDA     DEBCYLM
-                      (   flexidedrv.asm):00593                 STA     DSKY_HEXBUF+1
-                      (   flexidedrv.asm):00594                 LDA     DEBCYLL
-                      (   flexidedrv.asm):00595                 STA     DSKY_HEXBUF+2
-                      (   flexidedrv.asm):00596                 LDA     DEBSEHD
-                      (   flexidedrv.asm):00597                 STA     DSKY_HEXBUF+3
-                      (   flexidedrv.asm):00598                 JSR     DSKY_BIN2SEG
-                      (   flexidedrv.asm):00599                 JSR     DSKY_SHOW
-                      (   flexidedrv.asm):00600           ENDC
-E28C 39               (   flexidedrv.asm):00601 [5]             RTS
-                      (   flexidedrv.asm):00602         
-                      (   flexidedrv.asm):00603         
-                      (   flexidedrv.asm):00604         ;-------------------------------------------------------------------------------
-                      (   flexidedrv.asm):00605         
-                      (   flexidedrv.asm):00606         ; LOW LEVEL I/O TO THE DRIVE.  THESE ARE THE ROUTINES THAT TALK
-                      (   flexidedrv.asm):00607         ; DIRECTLY TO THE DRIVE, VIA THE 8255 CHIP.  NORMALLY A MAIN
-                      (   flexidedrv.asm):00608         ; PROGRAM WOULD NOT CALL TO THESE.
-                      (   flexidedrv.asm):00609         
-                      (   flexidedrv.asm):00610                 ;DO A READ BUS CYCLE TO THE DRIVE, USING THE 8255.
-                      (   flexidedrv.asm):00611                 ;INPUT A = IDE REGSITER ADDRESS
-                      (   flexidedrv.asm):00612                 ;OUTPUT X = WORD READ FROM IDE DRIVE
-E28D                  (   flexidedrv.asm):00613         IDE_READ:
-E28D BDE2D4           (   flexidedrv.asm):00614 [8]             JSR         SET_PPI_RD          ; SETUP FOR A READ CYCLE
-E290                  (   flexidedrv.asm):00615         IDE_READ_NO_SETUP:
-E290 B7FE62           (   flexidedrv.asm):00616 [5]             STA         PPIDECNTRL          ;DRIVE ADDRESS ONTO CONTROL LINES
-E293 8A40             (   flexidedrv.asm):00617 [2]             ORA         #PPIDE_RD_LINE      ; ASSERT RD PIN
-E295 B7FE62           (   flexidedrv.asm):00618 [5]             STA         PPIDECNTRL
-E298 3402             (   flexidedrv.asm):00619 [5+1]       PSHS    A
-E29A F6FE60           (   flexidedrv.asm):00620 [5]             LDB         PPIDELO                     ; READ LOWER BYTE
-E29D B6FE61           (   flexidedrv.asm):00621 [5]             LDA         PPIDEHI                     ; READ UPPER BYTE
-E2A0 1F01             (   flexidedrv.asm):00622 [6]         TFR     D,X
-E2A2 3502             (   flexidedrv.asm):00623 [5+1]           PULS    A                               ; RESTORE REGISTER VALUE
-E2A4 B7FE62           (   flexidedrv.asm):00624 [5]             STA         PPIDECNTRL          ;DRIVE ADDRESS ONTO CONTROL LINES
-E2A7 8840             (   flexidedrv.asm):00625 [2]             EORA    #PPIDE_RD_LINE  ; ASSERT RD PIN
-E2A9 B7FE62           (   flexidedrv.asm):00626 [5]             STA         PPIDECNTRL
-E2AC 8600             (   flexidedrv.asm):00627 [2]             LDA         #$00
-E2AE B7FE62           (   flexidedrv.asm):00628 [5]             STA         PPIDECNTRL          ;DEASSERT ALL CONTROL PINS
-E2B1 39               (   flexidedrv.asm):00629 [5]             RTS
-                      (   flexidedrv.asm):00630         
-                      (   flexidedrv.asm):00631                 ;DO A WRITE BUS CYCLE TO THE DRIVE, VIA THE 8255
-                      (   flexidedrv.asm):00632                 ;INPUT A = IDE REGISTER ADDRESS
-                      (   flexidedrv.asm):00633                 ;INPUT REGISTER X = WORD TO WRITE
-                      (   flexidedrv.asm):00634                 ;
-                      (   flexidedrv.asm):00635         
-E2B2                  (   flexidedrv.asm):00636         IDE_WRITE:
-E2B2 BDE2E2           (   flexidedrv.asm):00637 [8]             JSR         SET_PPI_WR          ; SETUP FOR A WRITE CYCLE
-E2B5 3402             (   flexidedrv.asm):00638 [5+1]       PSHS    A
-E2B7 1F10             (   flexidedrv.asm):00639 [6]         TFR     X,D
-E2B9 F7FE60           (   flexidedrv.asm):00640 [5]             STB         PPIDELO                     ; WRITE LOWER BYTE
-E2BC B7FE61           (   flexidedrv.asm):00641 [5]             STA         PPIDEHI                     ; WRITE UPPER BYTE
-E2BF 3502             (   flexidedrv.asm):00642 [5+1]           PULS    A                               ; RESTORE REGISTER VALUE
-E2C1 B7FE62           (   flexidedrv.asm):00643 [5]             STA         PPIDECNTRL          ;DRIVE ADDRESS ONTO CONTROL LINES
-E2C4 8A20             (   flexidedrv.asm):00644 [2]             ORA         #PPIDE_WR_LINE              ; ASSERT WRITE PIN
-E2C6 B7FE62           (   flexidedrv.asm):00645 [5]             STA         PPIDECNTRL
-E2C9 8820             (   flexidedrv.asm):00646 [2]             EORA    #PPIDE_WR_LINE          ; DE ASSERT WR PIN
-E2CB B7FE62           (   flexidedrv.asm):00647 [5]             STA             PPIDECNTRL
-E2CE 8600             (   flexidedrv.asm):00648 [2]             LDA         #$00
-E2D0 B7FE62           (   flexidedrv.asm):00649 [5]             STA         PPIDECNTRL          ;DEASSERT ALL CONTROL PINS
-E2D3 39               (   flexidedrv.asm):00650 [5]             RTS
-                      (   flexidedrv.asm):00651         
-                      (   flexidedrv.asm):00652         
-                      (   flexidedrv.asm):00653         ;-----------------------------------------------------------------------------------
-                      (   flexidedrv.asm):00654         ; PPI SETUP ROUTINE TO CONFIGURE THE APPROPRIATE PPI MODE
-                      (   flexidedrv.asm):00655         ;
-                      (   flexidedrv.asm):00656         ;------------------------------------------------------------------------------------
-                      (   flexidedrv.asm):00657         
-E2D4                  (   flexidedrv.asm):00658         SET_PPI_RD:
-E2D4 3402             (   flexidedrv.asm):00659 [5+1]           PSHS    A
-E2D6 8600             (   flexidedrv.asm):00660 [2]             LDA         #$00
-E2D8 B7FE62           (   flexidedrv.asm):00661 [5]             STA         PPIDECNTRL          ;DEASSERT ALL CONTROL PINS
-E2DB 8692             (   flexidedrv.asm):00662 [2]             LDA     #PPRD_IDE_8255
-E2DD B7FE63           (   flexidedrv.asm):00663 [5]             STA     PPIDEPPIC                               ;CONFIG 8255 CHIP, READ MODE
-E2E0 3582             (   flexidedrv.asm):00664 [5+3]           PULS    A,PC
-                      (   flexidedrv.asm):00665         
-E2E2                  (   flexidedrv.asm):00666         SET_PPI_WR:
-E2E2 3402             (   flexidedrv.asm):00667 [5+1]           PSHS    A
-E2E4 8600             (   flexidedrv.asm):00668 [2]             LDA         #$00
-E2E6 B7FE62           (   flexidedrv.asm):00669 [5]             STA         PPIDECNTRL          ;DEASSERT ALL CONTROL PINS
-E2E9 8680             (   flexidedrv.asm):00670 [2]             LDA     #PPWR_IDE_8255
-E2EB B7FE63           (   flexidedrv.asm):00671 [5]             STA     PPIDEPPIC                               ;CONFIG 8255 CHIP, WRITE MODE
-E2EE 3582             (   flexidedrv.asm):00672 [5+3]           PULS    A,PC
-                      (   flexidedrv.asm):00673         
-E2F0                  (   flexidedrv.asm):00674         OUTHEXA:
-E2F0 3402             (   flexidedrv.asm):00675 [5+1]           PSHS    A
-E2F2 3402             (   flexidedrv.asm):00676 [5+1]           PSHS    A
-E2F4 BDCFD8           (   flexidedrv.asm):00677 [8]             JSR     OUTHL
-E2F7 3502             (   flexidedrv.asm):00678 [5+1]           PULS    A
-E2F9 BDCFDC           (   flexidedrv.asm):00679 [8]             JSR     OUTHR
-E2FC 3582             (   flexidedrv.asm):00680 [5+3]           PULS    A,PC
-                      (   flexidedrv.asm):00681         
-E2FE 5050494445203A   (   flexidedrv.asm):00682         MESSAGE1    FCC     "PPIDE :"
-E305 04               (   flexidedrv.asm):00683                     FCB     EOT
-E306 20494F3D3078     (   flexidedrv.asm):00684         MESSAGE2    FCC     " IO=0x"
-E30C 04               (   flexidedrv.asm):00685                     FCB     EOT
-E30D 204E4F5420505245 (   flexidedrv.asm):00686         MESSAGE3    FCC     " NOT PRESENT"
+E190 8680             (   flexidedrv.asm):00406 [2]                     LDA         #PPIDE_RST_LINE
+E192 B7FE62           (   flexidedrv.asm):00407 [5]                     STA         PPIDECNTRL                  ; ASSERT RST LINE ON IDE INTERFACE
+                      (   flexidedrv.asm):00408         
+E195 8E0100           (   flexidedrv.asm):00409 [3]                     LDX         #$0100
+                      (   flexidedrv.asm):00410         ;       PRTDBG "IDE RESET DELAY$"
+E198                  (   flexidedrv.asm):00411         RST_DLY:
+E198 301F             (   flexidedrv.asm):00412 [5]                     DEX
+E19A 8C0000           (   flexidedrv.asm):00413 [4]                     CPX         #$0000
+E19D 26F9             (   flexidedrv.asm):00414 [3]                     BNE         RST_DLY
+E19F 8600             (   flexidedrv.asm):00415 [2]                     LDA         #$00
+E1A1 B7FE62           (   flexidedrv.asm):00416 [5]                     STA         PPIDECNTRL                  ; DEASSERT RST LINE ON IDE INTERFACE
+                      (   flexidedrv.asm):00417         
+                      (   flexidedrv.asm):00418         ; IF A DSKYNG IS ACTIVE AND IS ON THE SAME PPI PORT AS THE PPISD BEING
+                      (   flexidedrv.asm):00419         ; RESET, THEN THE DSKYNG WILL ALSO BE RESET.  SO, THE DSKY IS ALSO INITIALIZED.
+                      (   flexidedrv.asm):00420                 IF USEDSKYNG = 1
+                      (   flexidedrv.asm):00421                         JSR     DSKY_REINIT
+                      (   flexidedrv.asm):00422                 ENDC
+                      (   flexidedrv.asm):00423         
+E1A4 39               (   flexidedrv.asm):00424 [5]                     RTS
+                      (   flexidedrv.asm):00425         
+                      (   flexidedrv.asm):00426         
+                      (   flexidedrv.asm):00427         ;*__IDE_WAIT_NOT_BUSY_______________________________________________________________________________
+                      (   flexidedrv.asm):00428         ;*
+                      (   flexidedrv.asm):00429         ;*  WAIT FOR IDE CHANNEL TO BECOME READY
+                      (   flexidedrv.asm):00430         ;*
+                      (   flexidedrv.asm):00431         ;*____________________________________________________________________________________________________
+E1A5                  (   flexidedrv.asm):00432         IDE_WAIT_NOT_BUSY:
+E1A5 3412             (   flexidedrv.asm):00433 [5+3]                   PSHS    X,A
+E1A7 8600             (   flexidedrv.asm):00434 [2]                     LDA     #$00
+E1A9 B7DF76           (   flexidedrv.asm):00435 [5]                     STA     PPIDETIMEOUT
+E1AC B7DF77           (   flexidedrv.asm):00436 [5]                     STA     PPIDETIMEOUT+1
+E1AF                  (   flexidedrv.asm):00437         IDE_WAIT_NOT_BUSY1:
+E1AF 860F             (   flexidedrv.asm):00438 [2]                     LDA         #PPIDE_STATUS               ;WAIT FOR RDY BIT TO BE SET
+E1B1 BDE2A1           (   flexidedrv.asm):00439 [8]                     JSR         IDE_READ
+E1B4 1F18             (   flexidedrv.asm):00440 [6]             TFR     X,A
+E1B6 8480             (   flexidedrv.asm):00441 [2]                     ANDA    #$80
+E1B8 270F             (   flexidedrv.asm):00442 [3]                     BEQ         IDE_WAIT_NOT_BUSY2
+E1BA 7CDF76           (   flexidedrv.asm):00443 [7]                     INC     PPIDETIMEOUT
+E1BD 26F0             (   flexidedrv.asm):00444 [3]                     BNE     IDE_WAIT_NOT_BUSY1
+E1BF 7CDF77           (   flexidedrv.asm):00445 [7]                     INC     PPIDETIMEOUT+1
+E1C2 26EB             (   flexidedrv.asm):00446 [3]                     BNE     IDE_WAIT_NOT_BUSY1
+E1C4 1A01             (   flexidedrv.asm):00447 [3]                     SEC
+E1C6 7EE1CB           (   flexidedrv.asm):00448 [4]                     JMP         IDE_WAIT_NOT_BUSY3
+E1C9                  (   flexidedrv.asm):00449         IDE_WAIT_NOT_BUSY2:
+E1C9 1CFE             (   flexidedrv.asm):00450 [3]                     CLC
+E1CB                  (   flexidedrv.asm):00451         IDE_WAIT_NOT_BUSY3:
+E1CB 3592             (   flexidedrv.asm):00452 [5+5]           PULS    PC,X,A
+E1CD 39               (   flexidedrv.asm):00453 [5]                     RTS
+                      (   flexidedrv.asm):00454         
+                      (   flexidedrv.asm):00455         ;*__IDE_WAIT_DRQ______________________________________________________________________________________
+                      (   flexidedrv.asm):00456         ;*
+                      (   flexidedrv.asm):00457         ;*      WAIT FOR THE DRIVE TO BE READY TO TRANSFER DATA.
+                      (   flexidedrv.asm):00458         ;*
+                      (   flexidedrv.asm):00459         ;*____________________________________________________________________________________________________
+E1CE                  (   flexidedrv.asm):00460         IDE_WAIT_DRQ:
+E1CE 3432             (   flexidedrv.asm):00461 [5+5]           PSHS    A,X,Y
+E1D0 8600             (   flexidedrv.asm):00462 [2]                     LDA     #$00
+E1D2 B7DF76           (   flexidedrv.asm):00463 [5]                     STA     PPIDETIMEOUT
+E1D5 B7DF77           (   flexidedrv.asm):00464 [5]                     STA     PPIDETIMEOUT+1
+E1D8                  (   flexidedrv.asm):00465         IDE_WAIT_DRQ1:
+E1D8 860F             (   flexidedrv.asm):00466 [2]                     LDA         #PPIDE_STATUS               ;WAIT FOR DRQ BIT TO BE SET
+E1DA BDE2A1           (   flexidedrv.asm):00467 [8]                     JSR         IDE_READ
+E1DD 1F18             (   flexidedrv.asm):00468 [6]                     TFR     X,A
+E1DF 8488             (   flexidedrv.asm):00469 [2]                     ANDA    #%10001000              ; MASK OFF BUSY(7) AND DRQ(3)
+E1E1 8108             (   flexidedrv.asm):00470 [2]                     CMPA    #%00001000              ; WE WANT BUSY(7) TO BE 0 AND DRQ (3) TO BE 1
+E1E3 2715             (   flexidedrv.asm):00471 [3]                     BEQ         IDE_WAIT_DRQ2
+E1E5 8401             (   flexidedrv.asm):00472 [2]                     ANDA    #%00000001              ; IS ERROR?
+E1E7 8101             (   flexidedrv.asm):00473 [2]                     CMPA    #%00000001              ;
+E1E9 270A             (   flexidedrv.asm):00474 [3]                     BEQ     IDE_WAIT_DRQE
+E1EB 7CDF76           (   flexidedrv.asm):00475 [7]                     INC     PPIDETIMEOUT
+E1EE 26E8             (   flexidedrv.asm):00476 [3]                     BNE     IDE_WAIT_DRQ1
+E1F0 7CDF77           (   flexidedrv.asm):00477 [7]                     INC     PPIDETIMEOUT+1
+E1F3 26E3             (   flexidedrv.asm):00478 [3]                     BNE     IDE_WAIT_DRQ1
+E1F5                  (   flexidedrv.asm):00479         IDE_WAIT_DRQE:
+E1F5 1A01             (   flexidedrv.asm):00480 [3]                     SEC
+E1F7 7EE1FC           (   flexidedrv.asm):00481 [4]                     JMP     IDE_WAIT_DRQ3
+E1FA                  (   flexidedrv.asm):00482         IDE_WAIT_DRQ2:
+E1FA 1CFE             (   flexidedrv.asm):00483 [3]                     CLC
+E1FC                  (   flexidedrv.asm):00484         IDE_WAIT_DRQ3:
+E1FC 35B2             (   flexidedrv.asm):00485 [5+7]           PULS    PC,A,X,Y
+                      (   flexidedrv.asm):00486         
+                      (   flexidedrv.asm):00487         
+                      (   flexidedrv.asm):00488         
+                      (   flexidedrv.asm):00489         ;*__IDE_READ_BUFFER___________________________________________________________________________________
+                      (   flexidedrv.asm):00490         ;*
+                      (   flexidedrv.asm):00491         ;*  READ IDE BUFFER LITTLE ENDIAN
+                      (   flexidedrv.asm):00492         ;*
+                      (   flexidedrv.asm):00493         ;*____________________________________________________________________________________________________
+E1FE                  (   flexidedrv.asm):00494         IDE_READ_BUFFER:
+E1FE 108E0000         (   flexidedrv.asm):00495 [4]                     LDY     #$0000                  ; INDEX
+E202                  (   flexidedrv.asm):00496         IDEBUFRD:
+E202 8608             (   flexidedrv.asm):00497 [2]                     LDA         #PPIDE_DATA
+E204 BDE2A4           (   flexidedrv.asm):00498 [8]                     JSR         IDE_READ_NO_SETUP
+E207 1F10             (   flexidedrv.asm):00499 [6]                     TFR     X,D
+E209 E7A9E35A         (   flexidedrv.asm):00500 [4+4]                   STB         HSTBUF,Y            ;
+E20D 3121             (   flexidedrv.asm):00501 [5]             INY
+E20F A7A9E35A         (   flexidedrv.asm):00502 [4+4]                   STA         HSTBUF,Y            ;
+E213 3121             (   flexidedrv.asm):00503 [5]             INY
+E215 108C0200         (   flexidedrv.asm):00504 [5]                     CMPY    #$0200                  ;
+E219 26E7             (   flexidedrv.asm):00505 [3]                     BNE         IDEBUFRD            ;
+E21B 39               (   flexidedrv.asm):00506 [5]                     RTS                             ;
+                      (   flexidedrv.asm):00507         
+                      (   flexidedrv.asm):00508         ;*__IDE_WRITE_BUFFER___________________________________________________________________________________
+                      (   flexidedrv.asm):00509         ;*
+                      (   flexidedrv.asm):00510         ;*  WRITE IDE BUFFER LITTLE ENDIAN
+                      (   flexidedrv.asm):00511         ;*
+                      (   flexidedrv.asm):00512         ;*____________________________________________________________________________________________________
+E21C                  (   flexidedrv.asm):00513         IDE_WRITE_BUFFER:
+E21C 108E0000         (   flexidedrv.asm):00514 [4]                     LDY     #$0000                  ; INDEX
+E220                  (   flexidedrv.asm):00515         IDEBUFWT:
+E220 E6A9E35A         (   flexidedrv.asm):00516 [4+4]                   LDB     HSTBUF,Y                ; SECTORS ARE LITTLE ENDIAN
+E224 3121             (   flexidedrv.asm):00517 [5]                     INY                                     ;
+E226 A6A9E35A         (   flexidedrv.asm):00518 [4+4]                   LDA     HSTBUF,Y                ; SECTORS ARE LITTLE ENDIAN
+E22A 3121             (   flexidedrv.asm):00519 [5]                     INY
+E22C 1F01             (   flexidedrv.asm):00520 [6]                     TFR     D,X
+E22E 8608             (   flexidedrv.asm):00521 [2]                     LDA         #PPIDE_DATA
+E230 BDE2C6           (   flexidedrv.asm):00522 [8]                     JSR         IDE_WRITE
+E233 108C0200         (   flexidedrv.asm):00523 [5]                     CMPY    #$0200                  ;
+E237 26E7             (   flexidedrv.asm):00524 [3]                     BNE         IDEBUFWT            ;
+E239 39               (   flexidedrv.asm):00525 [5]                     RTS                                     ;
+                      (   flexidedrv.asm):00526         
+                      (   flexidedrv.asm):00527         ;*__IDE_SETUP_LBA_____________________________________________________________________________________
+                      (   flexidedrv.asm):00528         ;*
+                      (   flexidedrv.asm):00529         ;*  SETUP LBA DATA
+                      (   flexidedrv.asm):00530         ;*  A= DRIVE DEVICE
+                      (   flexidedrv.asm):00531         ;*____________________________________________________________________________________________________
+E23A                  (   flexidedrv.asm):00532         IDE_SETUP_LBA:
+                      (   flexidedrv.asm):00533         ;               PRTDBG "PPIDE SETUP LBA$"
+E23A B6DE20           (   flexidedrv.asm):00534 [5]             LDA     CURDRVADDRESS
+E23D 8401             (   flexidedrv.asm):00535 [2]                     ANDA    #$01                    ; ONLY WANT DRIVE CFG
+E23F 48               (   flexidedrv.asm):00536 [2]                     ASLA                                ; SHIFT 4
+E240 48               (   flexidedrv.asm):00537 [2]                     ASLA                                ;
+E241 48               (   flexidedrv.asm):00538 [2]                     ASLA                                ;
+E242 48               (   flexidedrv.asm):00539 [2]                     ASLA                                ;
+E243 8AE0             (   flexidedrv.asm):00540 [2]                     ORA     #$E0                    ; E0=MST  F0=SLV
+E245 1F89             (   flexidedrv.asm):00541 [6]                     TFR     A,B
+E247 8600             (   flexidedrv.asm):00542 [2]             LDA     #$00
+E249 1F01             (   flexidedrv.asm):00543 [6]                     TFR     D,X
+E24B 860E             (   flexidedrv.asm):00544 [2]                     LDA         #PPIDE_DEVICE
+E24D BDE2C6           (   flexidedrv.asm):00545 [8]                     JSR         IDE_WRITE
+E250 8600             (   flexidedrv.asm):00546 [2]             LDA     #$00
+E252 F6E357           (   flexidedrv.asm):00547 [5]                     LDB     DEBCYLM
+E255 1F01             (   flexidedrv.asm):00548 [6]                     TFR     D,X
+E257 860D             (   flexidedrv.asm):00549 [2]                     LDA         #PPIDE_LBAHI
+E259 BDE2C6           (   flexidedrv.asm):00550 [8]                     JSR         IDE_WRITE
+E25C 8600             (   flexidedrv.asm):00551 [2]             LDA     #$00
+E25E F6E356           (   flexidedrv.asm):00552 [5]                     LDB     DEBCYLL                 ;
+E261 1F01             (   flexidedrv.asm):00553 [6]                     TFR     D,X
+E263 860C             (   flexidedrv.asm):00554 [2]                     LDA         #PPIDE_LBAMID
+E265 BDE2C6           (   flexidedrv.asm):00555 [8]                     JSR         IDE_WRITE
+E268 8600             (   flexidedrv.asm):00556 [2]             LDA     #$00
+E26A F6E358           (   flexidedrv.asm):00557 [5]                     LDB     DEBSEHD                 ;
+E26D 1F01             (   flexidedrv.asm):00558 [6]                     TFR     D,X
+E26F 860B             (   flexidedrv.asm):00559 [2]                     LDA         #PPIDE_LBALOW
+E271 BDE2C6           (   flexidedrv.asm):00560 [8]                     JSR         IDE_WRITE
+E274 8E0001           (   flexidedrv.asm):00561 [3]                     LDX         #$0001
+E277 860A             (   flexidedrv.asm):00562 [2]                     LDA         #PPIDE_SEC_CNT
+E279 BDE2C6           (   flexidedrv.asm):00563 [8]                     JSR         IDE_WRITE
+                      (   flexidedrv.asm):00564         
+E27C 39               (   flexidedrv.asm):00565 [5]                     RTS
+                      (   flexidedrv.asm):00566         
+                      (   flexidedrv.asm):00567         ;___IDE_CONVERT_SECTOR___________________________________________________________________________________
+                      (   flexidedrv.asm):00568         ;
+                      (   flexidedrv.asm):00569         ;       TRANSLATE SECTORS INTO IDE FORMAT
+                      (   flexidedrv.asm):00570         ;
+                      (   flexidedrv.asm):00571         ;                   (A) = Track Number
+                      (   flexidedrv.asm):00572         ;                   (B) = Sector Number
+                      (   flexidedrv.asm):00573         ;________________________________________________________________________________________________________
+E27D                  (   flexidedrv.asm):00574         IDE_CONVERT_SECTOR:
+E27D 54               (   flexidedrv.asm):00575 [2]                 LSRB                                ; DIVIDE BY 2 (FOR BLOCKING)
+E27E 44               (   flexidedrv.asm):00576 [2]             LSRA                    ;
+E27F 2402             (   flexidedrv.asm):00577 [3]             BCC     >
+E281 CA80             (   flexidedrv.asm):00578 [2]             ORB     #$80
+                      (   flexidedrv.asm):00579         !
+E283 F7E358           (   flexidedrv.asm):00580 [5]                 STB     DEBSEHD                     ; STORE IN SECTOR/HEAD
+E286 B7E356           (   flexidedrv.asm):00581 [5]                 STA     DEBCYLL                     ; STORE IN TRACK (LSB)
+                      (   flexidedrv.asm):00582         
+                      (   flexidedrv.asm):00583         ;       ADD SLICE OFFSET
+E289 FCDE21           (   flexidedrv.asm):00584 [6]                 LDD     CURDRVSLICE
+E28C 54               (   flexidedrv.asm):00585 [2]                 LSRB                                ; DIVIDE BY 2 (FOR BLOCKING)
+E28D 44               (   flexidedrv.asm):00586 [2]             LSRA                    ;
+E28E 2402             (   flexidedrv.asm):00587 [3]             BCC     >
+E290 CA80             (   flexidedrv.asm):00588 [2]             ORB     #$80
+                      (   flexidedrv.asm):00589         !
+E292 F7E357           (   flexidedrv.asm):00590 [5]             STB         DEBCYLM                     ; STORE IN TRACK (LSB)
+E295 2408             (   flexidedrv.asm):00591 [3]             BCC     >
+E297 B6E356           (   flexidedrv.asm):00592 [5]                 LDA     DEBCYLL                     ; STORE IN TRACK (LSB)
+E29A 8A80             (   flexidedrv.asm):00593 [2]             ORA     #$80
+E29C B7E356           (   flexidedrv.asm):00594 [5]             STA         DEBCYLL                     ; STORE IN TRACK (LSB)
+                      (   flexidedrv.asm):00595         !
+E29F 39               (   flexidedrv.asm):00596 [5]             RTS
+                      (   flexidedrv.asm):00597         
+                      (   flexidedrv.asm):00598         
+                      (   flexidedrv.asm):00599         
+                      (   flexidedrv.asm):00600           IF USEDSKYNG = 1
+                      (   flexidedrv.asm):00601         ;       PRTDBG "DSKY OUTPUT 1$"
+                      (   flexidedrv.asm):00602                 LDA     SEKDSK
+                      (   flexidedrv.asm):00603                 STA     DSKY_HEXBUF
+                      (   flexidedrv.asm):00604                 LDA     DEBCYLM
+                      (   flexidedrv.asm):00605                 STA     DSKY_HEXBUF+1
+                      (   flexidedrv.asm):00606                 LDA     DEBCYLL
+                      (   flexidedrv.asm):00607                 STA     DSKY_HEXBUF+2
+                      (   flexidedrv.asm):00608                 LDA     DEBSEHD
+                      (   flexidedrv.asm):00609                 STA     DSKY_HEXBUF+3
+                      (   flexidedrv.asm):00610                 JSR     DSKY_BIN2SEG
+                      (   flexidedrv.asm):00611                 JSR     DSKY_SHOW
+                      (   flexidedrv.asm):00612           ENDC
+E2A0 39               (   flexidedrv.asm):00613 [5]             RTS
+                      (   flexidedrv.asm):00614         
+                      (   flexidedrv.asm):00615         
+                      (   flexidedrv.asm):00616         ;-------------------------------------------------------------------------------
+                      (   flexidedrv.asm):00617         
+                      (   flexidedrv.asm):00618         ; LOW LEVEL I/O TO THE DRIVE.  THESE ARE THE ROUTINES THAT TALK
+                      (   flexidedrv.asm):00619         ; DIRECTLY TO THE DRIVE, VIA THE 8255 CHIP.  NORMALLY A MAIN
+                      (   flexidedrv.asm):00620         ; PROGRAM WOULD NOT CALL TO THESE.
+                      (   flexidedrv.asm):00621         
+                      (   flexidedrv.asm):00622                 ;DO A READ BUS CYCLE TO THE DRIVE, USING THE 8255.
+                      (   flexidedrv.asm):00623                 ;INPUT A = IDE REGSITER ADDRESS
+                      (   flexidedrv.asm):00624                 ;OUTPUT X = WORD READ FROM IDE DRIVE
+E2A1                  (   flexidedrv.asm):00625         IDE_READ:
+E2A1 BDE2E8           (   flexidedrv.asm):00626 [8]             JSR         SET_PPI_RD          ; SETUP FOR A READ CYCLE
+E2A4                  (   flexidedrv.asm):00627         IDE_READ_NO_SETUP:
+E2A4 B7FE62           (   flexidedrv.asm):00628 [5]             STA         PPIDECNTRL          ;DRIVE ADDRESS ONTO CONTROL LINES
+E2A7 8A40             (   flexidedrv.asm):00629 [2]             ORA         #PPIDE_RD_LINE      ; ASSERT RD PIN
+E2A9 B7FE62           (   flexidedrv.asm):00630 [5]             STA         PPIDECNTRL
+E2AC 3402             (   flexidedrv.asm):00631 [5+1]       PSHS    A
+E2AE F6FE60           (   flexidedrv.asm):00632 [5]             LDB         PPIDELO                     ; READ LOWER BYTE
+E2B1 B6FE61           (   flexidedrv.asm):00633 [5]             LDA         PPIDEHI                     ; READ UPPER BYTE
+E2B4 1F01             (   flexidedrv.asm):00634 [6]         TFR     D,X
+E2B6 3502             (   flexidedrv.asm):00635 [5+1]           PULS    A                               ; RESTORE REGISTER VALUE
+E2B8 B7FE62           (   flexidedrv.asm):00636 [5]             STA         PPIDECNTRL          ;DRIVE ADDRESS ONTO CONTROL LINES
+E2BB 8840             (   flexidedrv.asm):00637 [2]             EORA    #PPIDE_RD_LINE  ; ASSERT RD PIN
+E2BD B7FE62           (   flexidedrv.asm):00638 [5]             STA         PPIDECNTRL
+E2C0 8600             (   flexidedrv.asm):00639 [2]             LDA         #$00
+E2C2 B7FE62           (   flexidedrv.asm):00640 [5]             STA         PPIDECNTRL          ;DEASSERT ALL CONTROL PINS
+E2C5 39               (   flexidedrv.asm):00641 [5]             RTS
+                      (   flexidedrv.asm):00642         
+                      (   flexidedrv.asm):00643                 ;DO A WRITE BUS CYCLE TO THE DRIVE, VIA THE 8255
+                      (   flexidedrv.asm):00644                 ;INPUT A = IDE REGISTER ADDRESS
+                      (   flexidedrv.asm):00645                 ;INPUT REGISTER X = WORD TO WRITE
+                      (   flexidedrv.asm):00646                 ;
+                      (   flexidedrv.asm):00647         
+E2C6                  (   flexidedrv.asm):00648         IDE_WRITE:
+E2C6 BDE2F6           (   flexidedrv.asm):00649 [8]             JSR         SET_PPI_WR          ; SETUP FOR A WRITE CYCLE
+E2C9 3402             (   flexidedrv.asm):00650 [5+1]       PSHS    A
+E2CB 1F10             (   flexidedrv.asm):00651 [6]         TFR     X,D
+E2CD F7FE60           (   flexidedrv.asm):00652 [5]             STB         PPIDELO                     ; WRITE LOWER BYTE
+E2D0 B7FE61           (   flexidedrv.asm):00653 [5]             STA         PPIDEHI                     ; WRITE UPPER BYTE
+E2D3 3502             (   flexidedrv.asm):00654 [5+1]           PULS    A                               ; RESTORE REGISTER VALUE
+E2D5 B7FE62           (   flexidedrv.asm):00655 [5]             STA         PPIDECNTRL          ;DRIVE ADDRESS ONTO CONTROL LINES
+E2D8 8A20             (   flexidedrv.asm):00656 [2]             ORA         #PPIDE_WR_LINE              ; ASSERT WRITE PIN
+E2DA B7FE62           (   flexidedrv.asm):00657 [5]             STA         PPIDECNTRL
+E2DD 8820             (   flexidedrv.asm):00658 [2]             EORA    #PPIDE_WR_LINE          ; DE ASSERT WR PIN
+E2DF B7FE62           (   flexidedrv.asm):00659 [5]             STA             PPIDECNTRL
+E2E2 8600             (   flexidedrv.asm):00660 [2]             LDA         #$00
+E2E4 B7FE62           (   flexidedrv.asm):00661 [5]             STA         PPIDECNTRL          ;DEASSERT ALL CONTROL PINS
+E2E7 39               (   flexidedrv.asm):00662 [5]             RTS
+                      (   flexidedrv.asm):00663         
+                      (   flexidedrv.asm):00664         
+                      (   flexidedrv.asm):00665         ;-----------------------------------------------------------------------------------
+                      (   flexidedrv.asm):00666         ; PPI SETUP ROUTINE TO CONFIGURE THE APPROPRIATE PPI MODE
+                      (   flexidedrv.asm):00667         ;
+                      (   flexidedrv.asm):00668         ;------------------------------------------------------------------------------------
+                      (   flexidedrv.asm):00669         
+E2E8                  (   flexidedrv.asm):00670         SET_PPI_RD:
+E2E8 3402             (   flexidedrv.asm):00671 [5+1]           PSHS    A
+E2EA 8600             (   flexidedrv.asm):00672 [2]             LDA         #$00
+E2EC B7FE62           (   flexidedrv.asm):00673 [5]             STA         PPIDECNTRL          ;DEASSERT ALL CONTROL PINS
+E2EF 8692             (   flexidedrv.asm):00674 [2]             LDA     #PPRD_IDE_8255
+E2F1 B7FE63           (   flexidedrv.asm):00675 [5]             STA     PPIDEPPIC                               ;CONFIG 8255 CHIP, READ MODE
+E2F4 3582             (   flexidedrv.asm):00676 [5+3]           PULS    A,PC
+                      (   flexidedrv.asm):00677         
+E2F6                  (   flexidedrv.asm):00678         SET_PPI_WR:
+E2F6 3402             (   flexidedrv.asm):00679 [5+1]           PSHS    A
+E2F8 8600             (   flexidedrv.asm):00680 [2]             LDA         #$00
+E2FA B7FE62           (   flexidedrv.asm):00681 [5]             STA         PPIDECNTRL          ;DEASSERT ALL CONTROL PINS
+E2FD 8680             (   flexidedrv.asm):00682 [2]             LDA     #PPWR_IDE_8255
+E2FF B7FE63           (   flexidedrv.asm):00683 [5]             STA     PPIDEPPIC                               ;CONFIG 8255 CHIP, WRITE MODE
+E302 3582             (   flexidedrv.asm):00684 [5+3]           PULS    A,PC
+                      (   flexidedrv.asm):00685         
+E304                  (   flexidedrv.asm):00686         OUTHEXA:
+E304 3402             (   flexidedrv.asm):00687 [5+1]           PSHS    A
+E306 3402             (   flexidedrv.asm):00688 [5+1]           PSHS    A
+E308 BDCFD8           (   flexidedrv.asm):00689 [8]             JSR     OUTHL
+E30B 3502             (   flexidedrv.asm):00690 [5+1]           PULS    A
+E30D BDCFDC           (   flexidedrv.asm):00691 [8]             JSR     OUTHR
+E310 3582             (   flexidedrv.asm):00692 [5+3]           PULS    A,PC
+                      (   flexidedrv.asm):00693         
+E312 5050494445203A   (   flexidedrv.asm):00694         MESSAGE1    FCC     "PPIDE :"
+E319 04               (   flexidedrv.asm):00695                     FCB     EOT
+E31A 20494F3D3078     (   flexidedrv.asm):00696         MESSAGE2    FCC     " IO=0x"
+E320 04               (   flexidedrv.asm):00697                     FCB     EOT
+E321 204E4F5420505245 (   flexidedrv.asm):00698         MESSAGE3    FCC     " NOT PRESENT"
      53454E54
-E319 04               (   flexidedrv.asm):00687                     FCB     EOT
-E31A 205050494445303A (   flexidedrv.asm):00688         MESSAGE4    FCC     " PPIDE0: BLOCKS="
+E32D 04               (   flexidedrv.asm):00699                     FCB     EOT
+E32E 205050494445303A (   flexidedrv.asm):00700         MESSAGE4    FCC     " PPIDE0: BLOCKS="
      20424C4F434B533D
-E32A 04               (   flexidedrv.asm):00689                     FCB     EOT
-E32B 205050494445313A (   flexidedrv.asm):00690         MESSAGE5    FCC     " PPIDE1: BLOCKS="
+E33E 04               (   flexidedrv.asm):00701                     FCB     EOT
+E33F 205050494445313A (   flexidedrv.asm):00702         MESSAGE5    FCC     " PPIDE1: BLOCKS="
      20424C4F434B533D
-E33B 04               (   flexidedrv.asm):00691                     FCB     EOT
-E33C 3078             (   flexidedrv.asm):00692         MESSAGE6    FCC     "0x"
-E33E 04               (   flexidedrv.asm):00693                     FCB     EOT
-                      (   flexidedrv.asm):00694         
-                      (   flexidedrv.asm):00695         
-                      (   flexidedrv.asm):00696         ;ALLOCATE THE FOLLOWING DATA AREAS TO UNUSED RAM SPACE
-E33F 00               (   flexidedrv.asm):00697         CDEBCYLL:       .BYTE 0         ; DEBLOCKED CYLINDER LSB
-E340 00               (   flexidedrv.asm):00698         CDEBCYLM:       .BYTE 0         ; DEBLOCKED CYLINDER MSB
-E341 00               (   flexidedrv.asm):00699         CDEBSEHD:       .BYTE 0         ; DEBLOCKED SECTOR AND HEAD (HS)
-E342 00               (   flexidedrv.asm):00700         DEBCYLL:        .BYTE 0         ; DEBLOCKED CYLINDER LSB
-E343 00               (   flexidedrv.asm):00701         DEBCYLM:        .BYTE 0         ; DEBLOCKED CYLINDER MSB
-E344 00               (   flexidedrv.asm):00702         DEBSEHD:        .BYTE 0         ; DEBLOCKED SECTOR AND HEAD (HS)
-E345 00               (   flexidedrv.asm):00703         PPIDETMP:       .BYTE 0         ; TEMP
+E34F 04               (   flexidedrv.asm):00703                     FCB     EOT
+E350 3078             (   flexidedrv.asm):00704         MESSAGE6    FCC     "0x"
+E352 04               (   flexidedrv.asm):00705                     FCB     EOT
+                      (   flexidedrv.asm):00706         
+                      (   flexidedrv.asm):00707         
+                      (   flexidedrv.asm):00708         ;ALLOCATE THE FOLLOWING DATA AREAS TO UNUSED RAM SPACE
+E353 00               (   flexidedrv.asm):00709         CDEBCYLL:       .BYTE 0         ; DEBLOCKED CYLINDER LSB
+E354 00               (   flexidedrv.asm):00710         CDEBCYLM:       .BYTE 0         ; DEBLOCKED CYLINDER MSB
+E355 00               (   flexidedrv.asm):00711         CDEBSEHD:       .BYTE 0         ; DEBLOCKED SECTOR AND HEAD (HS)
+E356 00               (   flexidedrv.asm):00712         DEBCYLL:        .BYTE 0         ; DEBLOCKED CYLINDER LSB
+E357 00               (   flexidedrv.asm):00713         DEBCYLM:        .BYTE 0         ; DEBLOCKED CYLINDER MSB
+E358 00               (   flexidedrv.asm):00714         DEBSEHD:        .BYTE 0         ; DEBLOCKED SECTOR AND HEAD (HS)
+E359 00               (   flexidedrv.asm):00715         PPIDETMP:       .BYTE 0         ; TEMP
                       (      drivers.asm):00513         
                       (      drivers.asm):00514         
                       (      drivers.asm):00515         
                       (      drivers.asm):00516         
                       (      drivers.asm):00517         ;_____________________________________________________________________________________________________
                       (      drivers.asm):00518         
-E346                  (      drivers.asm):00519         HSTBUF:         RMB     512
+E35A                  (      drivers.asm):00519         HSTBUF:         RMB     512
                       (        flex9.asm):00011                         include "../software/monitor.asm"
                       (../software/monit):00001             PRAGMA CD
                       (../software/monit):00002         
@@ -5381,9 +5393,9 @@ Symbol Table:
 [ G] BYTE                             FD2C
 [ G] BYTECT                           FDAF
 [ G] C1                               FCC4
-[ G] CDEBCYLL                         E33F
-[ G] CDEBCYLM                         E340
-[ G] CDEBSEHD                         E341
+[ G] CDEBCYLL                         E353
+[ G] CDEBCYLM                         E354
+[ G] CDEBSEHD                         E355
 [ G] CHANGE                           FC64
 [ G] CHAR                             CC18
 [ G] CHKNXT                           DE7D
@@ -5453,9 +5465,9 @@ Symbol Table:
 [ G] DCLASS                           CD21
 [ G] DDOCMD                           CD4B
 [ G] DDRIVE                           DF33
-[ G] DEBCYLL                          E342
-[ G] DEBCYLM                          E343
-[ G] DEBSEHD                          E344
+[ G] DEBCYLL                          E356
+[ G] DEBCYLM                          E357
+[ G] DEBSEHD                          E358
 [ G] DELC                             0018
 [ G] DELDEV                           DE9A
 [ G] DELET2                           DC1C
@@ -5643,41 +5655,42 @@ Symbol Table:
 [ G] GETS2                            DDC4
 [ G] GO                               FC59
 [ G] GOTFIL                           CC4C
-[ G] HSTBUF                           E346
+[ G] HSTBUF                           E35A
 [ G] ICER                             0001
 [ G] IDE_ABORT                        DFAB
-[ G] IDE_CONVERT_SECTOR               E269
+[ G] IDE_CONVERT_SECTOR               E27D
 [ G] IDE_INITA                        DFCD
 [ G] IDE_PPIDETECT                    E077
 [ G] IDE_PRINT_INFO                   DFB4
-[ G] IDE_READ                         E28D
-[ G] IDE_READ_BUFFER                  E1EA
+[ G] IDE_READ                         E2A1
+[ G] IDE_READ_BUFFER                  E1FE
 [ G] IDE_READ_INFO                    E01C
 [ G] IDE_READ_INFO_ABORT              E065
 [ G] IDE_READ_INFO_OK                 E071
-[ G] IDE_READ_NO_SETUP                E290
-[ G] IDE_READ_RAW_SECTOR              E0B4
+[ G] IDE_READ_NO_SETUP                E2A4
+[ G] IDE_READ_RAW_SECTOR              E0B8
 [ G] IDE_READ_SECTOR                  E085
-[ G] IDE_READ_SECTOR_DIRTY            E0D2
-[ G] IDE_READ_SECTOR_DIRTY1           E0D7
-[ G] IDE_READ_SECTOR_DIRTY_ERROR      E0FF
-[ G] IDE_READ_SECTOR_ERROR            E0B3
-[ G] IDE_SETUP_LBA                    E226
-[ G] IDE_WAIT_DRQ                     E1BA
-[ G] IDE_WAIT_DRQ1                    E1C4
-[ G] IDE_WAIT_DRQ2                    E1E6
-[ G] IDE_WAIT_DRQ3                    E1E8
-[ G] IDE_WAIT_DRQE                    E1E1
-[ G] IDE_WAIT_NOT_BUSY                E191
-[ G] IDE_WAIT_NOT_BUSY1               E19B
-[ G] IDE_WAIT_NOT_BUSY2               E1B5
-[ G] IDE_WAIT_NOT_BUSY3               E1B7
-[ G] IDE_WRITE                        E2B2
-[ G] IDE_WRITE_BUFFER                 E208
-[ G] IDE_WRITE_SECTOR                 E102
-[ G] IDE_WRITE_SECTOR_ERROR           E159
-[ G] IDEBUFRD                         E1EE
-[ G] IDEBUFWT                         E20C
+[ G] IDE_READ_SECTOR_DIRTY            E0D6
+[ G] IDE_READ_SECTOR_DIRTY1           E0DB
+[ G] IDE_READ_SECTOR_DIRTY_ERROR      E103
+[ G] IDE_READ_SECTOR_ERROR            E0B4
+[ G] IDE_SETUP_LBA                    E23A
+[ G] IDE_WAIT_DRQ                     E1CE
+[ G] IDE_WAIT_DRQ1                    E1D8
+[ G] IDE_WAIT_DRQ2                    E1FA
+[ G] IDE_WAIT_DRQ3                    E1FC
+[ G] IDE_WAIT_DRQE                    E1F5
+[ G] IDE_WAIT_NOT_BUSY                E1A5
+[ G] IDE_WAIT_NOT_BUSY1               E1AF
+[ G] IDE_WAIT_NOT_BUSY2               E1C9
+[ G] IDE_WAIT_NOT_BUSY3               E1CB
+[ G] IDE_WRITE                        E2C6
+[ G] IDE_WRITE_BUFFER                 E21C
+[ G] IDE_WRITE_SECTOR                 E106
+[ G] IDE_WRITE_SECTOR_ERROR           E16A
+[ G] IDE_WRITE_SECTOR_ERROR1          E168
+[ G] IDEBUFRD                         E202
+[ G] IDEBUFWT                         E220
 [ G] IFER                             000D
 [ G] IHDONE                           DE8D
 [ G] IHNDLR                           DE7A
@@ -5751,12 +5764,12 @@ Symbol Table:
 [ G] MAPUP                            CC49
 [ G] MAXSP                            007F
 [ G] MEMEND                           CC2B
-[ G] MESSAGE1                         E2FE
-[ G] MESSAGE2                         E306
-[ G] MESSAGE3                         E30D
-[ G] MESSAGE4                         E31A
-[ G] MESSAGE5                         E32B
-[ G] MESSAGE6                         E33C
+[ G] MESSAGE1                         E312
+[ G] MESSAGE2                         E31A
+[ G] MESSAGE3                         E321
+[ G] MESSAGE4                         E32E
+[ G] MESSAGE5                         E33F
+[ G] MESSAGE6                         E350
 [ G] MEXIT                            D356
 [ G] MEXIT2                           D35F
 [ G] MLOAD                            FC38
@@ -5835,7 +5848,7 @@ Symbol Table:
 [ G] OUTDI8                           CFCA
 [ G] OUTDIG                           CF9F
 [ G] OUTHEX                           CFD0
-[ G] OUTHEXA                          E2F0
+[ G] OUTHEXA                          E304
 [ G] OUTHL                            CFD8
 [ G] OUTHR                            CFDC
 [ G] OUTHR1                           FD55
@@ -5899,7 +5912,7 @@ Symbol Table:
 [ G] PPIDE_PROBE_FAIL                 E019
 [ G] PPIDE_PROBE_SUCCESS              E01B
 [ G] PPIDE_RD_LINE                    0040
-[ G] PPIDE_RESET                      E166
+[ G] PPIDE_RESET                      E17A
 [ G] PPIDE_RST_LINE                   0080
 [ G] PPIDE_SEC_CNT                    000A
 [ G] PPIDE_STATUS                     000F
@@ -5910,7 +5923,7 @@ Symbol Table:
 [ G] PPIDELO                          FE60
 [ G] PPIDEPPIC                        FE63
 [ G] PPIDETIMEOUT                     DF76
-[ G] PPIDETMP                         E345
+[ G] PPIDETMP                         E359
 [ G] PPIDEWORKVAR                     DF78
 [ G] PPRD_IDE_8255                    0092
 [ G] PPRMPT                           CC4E
@@ -6014,7 +6027,7 @@ Symbol Table:
 [ G] RRER                             0018
 [ G] RS                               0004
 [ G] RSC                              0007
-[ G] RST_DLY                          E184
+[ G] RST_DLY                          E198
 [ G] RSTNA2                           DDCA
 [ G] RSTNAM                           DDC5
 [ G] RSTRIO                           CD2A
@@ -6030,8 +6043,8 @@ Symbol Table:
 [ G] SEEKIDE                          DF12
 [ G] SERIAL_INCHW1                    FD9E
 [ G] SERIALINIT                       FD8C
-[ G] SET_PPI_RD                       E2D4
-[ G] SET_PPI_WR                       E2E2
+[ G] SET_PPI_RD                       E2E8
+[ G] SET_PPI_WR                       E2F6
 [ G] SETEX4                           D0FB
 [ G] SETEX5                           D104
 [ G] SETEX6                           D10B
