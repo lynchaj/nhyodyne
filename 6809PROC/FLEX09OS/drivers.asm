@@ -27,16 +27,17 @@ UART7	       	equ    	$FE6F           ; SCRATCH REG.
 ;_____________________________________________________________________________________________________
                 ORG     $DE00
 
-DREAD           JMP     >READ       * DE00    READ      Read a single sector
-DWRITE          JMP     >WRITE      * DE03    WRITE     Write a single sector
-DVERFY          JMP     >VERIFY     * DE06    VERIFY    Verify last sector written
-DRESTOR         JMP     >RESTORE    * DE09    RESTORE   Restore head to track #0
-DDRIVE          JMP     >DRIVE      * DE0C    DRIVE     Select the specified drive
-DCHECK          JMP     >CHKRDY     * DE0F    CHKRDY    Check for drive ready
-DQUICK          JMP     >QUICK      * DE12    QUICK     Quick check for drive ready
-DINIT           JMP     >CINIT      * DE15    CINIT     Driver initialize (cold start)
-DWARM           JMP     >WARM       * DE18    WARM      Driver initialize (warm start)
-DSEEK           JMP     >SEEK       * DE1B    SEEK      Seek to specified track
+READ            JMP     >DREAD       * DE00    READ      Read a single sector
+WRITE           JMP     >DWRITE      * DE03    WRITE     Write a single sector
+VERIFY          JMP     >DVERIFY     * DE06    VERIFY    Verify last sector written
+RESTORE         JMP     >DRESTORE    * DE09    RESTORE   Restore head to track #0
+DRIVE           JMP     >DDRIVE      * DE0C    DRIVE     Select the specified drive
+CHKRDY          JMP     >DCHKRDY     * DE0F    CHKRDY    Check for drive ready
+QUICK           JMP     >DQUICK      * DE12    QUICK     Quick check for drive ready
+CINIT           JMP     >DCINIT      * DE15    CINIT     Driver initialize (cold start)
+WARM            JMP     >DWARM       * DE18    WARM      Driver initialize (warm start)
+SEEK            JMP     >DSEEK       * DE1B    SEEK      Seek to specified track
+
 
 ;_____________________________________________________________________________________________________
 ; Temp Storage Area
@@ -52,7 +53,7 @@ DRVTYPES        FCB     $02,$02,$02,$02
                 ;   $00 - INVALID
                 ;   $01 - Floppy
                 ;   $02 - IDE
-DRVADDRESS      FCB     $00,$00,$00,$00
+DRVADDRESS      FCB     $01,$01,$01,$01
 DRVSLICE        FDB     $0000,$0000,$0000,$0000
 
 ;_____________________________________________________________________________________________________
@@ -249,13 +250,8 @@ TAPPTR          fdb     0                   no terminal input redirection
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-READ            PSHS     A
-
-	PSHS 	A
-	LDA 	#'R
-	JSR 	VOUTCH
-	PULS 	A
-
+DREAD
+                PSHS     A
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     READFLOPPY
@@ -265,19 +261,8 @@ READERR:        LDB     #$1F
                 ASRB
                 PULS    PC,A
 READFLOPPY:
-	PSHS 	A
-	LDA 	#'F
-	JSR 	VOUTCH
-	PULS 	A
-
                 BRA     READERR
 READIDE:
-
-	PSHS 	A
-	LDA 	#'R
-	JSR 	VOUTCH
-	PULS 	A
-
                 PULS    A
                 JMP     IDE_READ_SECTOR
 
@@ -298,13 +283,8 @@ READIDE:
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-WRITE           PSHS     A
-
-	PSHS 	A
-	LDA 	#'W
-	JSR 	VOUTCH
-	PULS 	A
-
+DWRITE
+                PSHS     A
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     WRITEFLOPPY
@@ -332,12 +312,7 @@ WRITEIDE:
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-VERIFY
-	PSHS 	A
-	LDA 	#'V
-	JSR 	VOUTCH
-	PULS 	A
-
+DVERIFY
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     VERIFYFLOPPY
@@ -365,11 +340,7 @@ VERIFYIDE:
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-SEEK
-	PSHS 	A
-	LDA 	#'S
-	JSR 	VOUTCH
-	PULS 	A
+DSEEK
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     SEEKFLOPPY
@@ -394,9 +365,7 @@ SEEKIDE:
 ;
 ;           EXIT - A, B, X, Y, and U may be destroyed
 ;_____________________________________________________________________________________________________
-CINIT
-	LDA 	#'I
-	JSR 	VOUTCH
+DCINIT
                 JSR     PPIDE_INIT
                 RTS
 
@@ -414,9 +383,7 @@ CINIT
 ;
 ;           EXIT - A, B, X, Y, and U may be destroyed
 ;_____________________________________________________________________________________________________
-WARM
-	LDA 	#'w
-	JSR 	VOUTCH
+DWARM
                 JSR     PPIDE_RESET
                 RTS
 
@@ -436,10 +403,8 @@ WARM
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-RESTORE
-	LDA 	#'r
-	JSR 	VOUTCH
-                BSR     DRIVE
+DRESTORE
+                BSR     DDRIVE
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     RESTOREFLOPPY
@@ -471,18 +436,14 @@ RESTOREIDE:
 ;                   (C) = 0 if no error
 ;                       = 1 if an error
 ;_____________________________________________________________________________________________________
-DRIVE:
-
-	LDA 	#'D
-	JSR 	VOUTCH
-
+DDRIVE:
                 LDA     3,X             ; DETERMINE IF DRIVE#>4, IF SO SET ERROR AND EXIT.
                 CMPA    #4
                 BCS     DRIVE1
 DRIVEERR:
                 LDB     #$1F
                 ASRB
-                PULS    PC,X
+                RTS
 
 DRIVE1          LDX     #DRVTYPES
                 LEAX    A,X             ; GET DRIVE ENTRY FOR SELECTED DRIVE
@@ -534,12 +495,8 @@ DRIVE1          LDX     #DRVTYPES
 ;                   (C) = 0 if drive ready
 ;                       = 1 if not ready
 ;_____________________________________________________________________________________________________
-CHKRDY
-	PSHS 	A
-	LDA 	#'C
-	JSR 	VOUTCH
-	PULS 	A
-                BRA     DRIVE
+DCHKRDY
+            RTS
 
 ;_____________________________________________________________________________________________________
 ;   QUICK   This routine performs a "quick" drive ready check. Its
@@ -548,13 +505,8 @@ CHKRDY
 ;           condition on the first check, a not ready condition is
 ;           immediately returned. Entry and exit are as above.
 ;_____________________________________________________________________________________________________
-QUICK
-	PSHS 	A
-	LDA 	#'Q
-	JSR 	VOUTCH
-	PULS 	A
-                BRA     DRIVE
-
+DQUICK
+            RTS
 
 ;_____________________________________________________________________________________________________
                 INCLUDE "flexidedrv.asm"

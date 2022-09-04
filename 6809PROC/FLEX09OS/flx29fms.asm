@@ -154,15 +154,15 @@ RMER    equ     25          ;RECORD MATCH ERROR
 LD3E1           FDB     ADDDEV      ; add an IRQ handler to table
                 FDB     DELDEV      ; delete an IRQ handler from table
 
-                FDB     INCHNE      ; INPUT CHARACTER W/O ECHO
+INCHNEP         FDB     INCHNE      ; INPUT CHARACTER W/O ECHO
 IHNDLRP         FDB     IHNDLR      ; IRQ INTERRUPT HANDLER
 SWIVECP         FDB     SWIVEC      ; SWI3 VECTOR LOCATION
 IRQVECP         FDB     IRQVEC      ; IRQ VECTOR LOCATION
                 FDB     TMOFF       ; TIMER OFF ROUTINE
                 FDB     TMON        ; TIMER ON ROUTINE
                 FDB     TMINT       ; TIMER INITIALIZATION
-                FDB     MONITR      ; MONITOR ENTRY ADDRESS
-                FDB     TINIT       ; TERMINAL INITIALIZATION
+MONITRP         FDB     MONITR      ; MONITOR ENTRY ADDRESS
+TINITP          FDB     TINIT       ; TERMINAL INITIALIZATION
                 FDB     STAT        ; CHECK TERMINAL STATUS
                 FDB     VOUTCH      ; OUTPUT CHARACTER
                 FDB     VINCH       ; INPUT CHARACTER W/ ECHO
@@ -216,7 +216,7 @@ DRVINFO fcb     $00,$00,$00,$00
 * NO ERRORS CAN OCCUR FROM THIS ROUTINE
 * AND THE SYSTEM ASSUMES NO FILES ARE OPEN.
 
-INIT    jsr     DINIT       ;INITIALIZE DRIVERS
+INIT    jsr     CINIT       ;INITIALIZE DRIVERS
         ldx     #FCBBAS     ;SET POINTER
         ldb     #10         ;SET COUNT
         bsr     INIT4       ;CLEAR SPACE
@@ -381,7 +381,7 @@ REMFCB  bsr     FNDFCB      ;FIND FCB
         orcc    #1          ;SEC SHOW ERROR
         rts                 ;
                             ;
-REMFC2  ldd     [0,x]       ;GET NEXT LINK
+REMFC2  ldd     [,x]       ;GET NEXT LINK
         std     ,x         ;SAVE NEW VALUE
         andcc   #$FE        ;CLC CLEAR ERRORS
         rts
@@ -678,7 +678,7 @@ READSS  bsr     CLRTRY      ;CLEAR TRY COUNTERS
         bcs     READS6      ;
                             ;
 READS2  bsr     GETCUR      ;GET DISK ADDRESS
-        jsr     DREAD       ;GO READ RECORD
+        jsr     READ        ;GO READ RECORD
         bne     READS4      ;ERRORS?
         andcc   #$FE        ;CLC CLEAR ERROR
         rts                 ;
@@ -749,7 +749,7 @@ RETRY2  clr     ETRIES      ;CLEAR COUNTER
         beq     RETRY6      ;
         stb     STRIES      ;SAVE COUNTER
         ldx     FCBSTR      ;
-        jsr     DRESTOR      ;GO RESTORE
+        jsr     RESTORE     ;GO RESTORE
                             ;
 RETRY4  andcc   #$FE        ;CLC CLEAR ERROR
         rts                 ;
@@ -773,7 +773,7 @@ WRITSS  bsr     CLRTRY      ;CLEAR TRY COUNTERS
                             ;
 WRITS2  ldx     FCBSTR      ;SET POINTER
         bsr     GETCUR      ;GET CURRENT SEC
-        jsr     DWRITE      ;DO ACTUAL WRITE
+        jsr     WRITE      ;DO ACTUAL WRITE
         bne     WRITS4      ;ERRORS?
                             ;
         lda     VRFYFG      ;VERIFY SECTOR?
@@ -1052,12 +1052,12 @@ OPNCUD  ldx     CUD         ;GET CUD
         stx     CLD         ;SAVE AS LOOKUP
                             ;
 * -------                   ;
-                            ;
+
+OPNDIR:                     ;
 OPNCLD  ldb     CLD         ;GET TRACK
         pshs    b           ;SAVE IT
         ldb     CLD+1       ;GET SECTOR
                             ;
-OPNDIR  equ     OPNCLD      ;
                             ;
 OPNIR   ldx     FCBSTR      ;SET FCB POINTER
         stb     FSB+1,x     ;SAVE SECTOR
@@ -1162,7 +1162,8 @@ FNDN04  cmpx    #MAIND      ;IS IT MAIN?
         stx     CLD         ;SET CLD
         bra     FNDN04      ;REPEAT
                             ;
-FNDN06  ldx     FCBSTR      ;SET POINTER
+FNDN06
+        ldx     FCBSTR      ;SET POINTER
         lda     FRI,x       ;RESTORE DN
         sta     FDN,x       ;
         bpl     FNDNA1      ;DRIVE SPECIFIC?
@@ -1310,7 +1311,8 @@ WRTDI4  rts                 ;ERROR RETURN
 *   EXIT:  CS IF ERROR (IN B)
 *          REGISTERS CHANGED
 
-OPNRD   jsr     SETFCB      ;SET FCB POINTER
+OPNRD
+        jsr     SETFCB      ;SET FCB POINTER
         bcs     OPNRD2      ;ERROR?
         jsr     FNDNAM      ;LOOK UP NAME
         bcs     OPNRD2      ;ERRORS?
@@ -1345,7 +1347,8 @@ OPNR12  pshs    b           ;SAVE COUNT
         stb     FDI,x       ;
                             ;
 OPNR15  andcc   #$FE        ;CLC CLEAR ERRORS
-OPNRD2  rts                 ;
+OPNRD2
+        rts                 ;
                             ;
 OPNRD3  ldb     #ADER       ;READ ACC DENIED
         bra     OPNERR      ;
@@ -1752,7 +1755,7 @@ WRTER4  rts
 *   EXIT:  ALL CHANGED
 *          CS IF ERROR
 
-DELETE  jsr     GETAVL      ;GET SEC MAP
+DELETE   jsr     GETAVL      ;GET SEC MAP
         bcs     DELET6      ;ERROR?
         bsr     SWPNM2      ;FIND NAME
         bcs     DELET6      ;ERROR?
@@ -2029,9 +2032,9 @@ NXTRDY  ldx     FCBSTR      ;GET FCB
         bhs     NXTRD6      ;
         sta     FDN,x       ;SAVE NEW NUMBER
         bne     NXTRD2      ;DRIVE 0 ?
-        jsr     DCHECK       ;CHECK IF READY
+        jsr     CHKRDY      ;CHECK IF READY
         bra     NXTRD4      ;
-NXTRD2  jsr     DQUICK      ;QUICK CHECK
+NXTRD2  jsr     QUICK       ;QUICK CHECK
 NXTRD4  bcs     NXTRDY      ;CHECK NEXT DRIVE
         rts                 ;RETURN
 NXTRD6  ldb     #NRER       ;SET ERROR

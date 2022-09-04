@@ -34,7 +34,7 @@ ENDOFFLEX	equ	$DEFF
 ;ZD0F0   equ     $D0F0
 ;ZD0F1   equ     $D0F1
 
-;STIME   equ     $D370
+STIME   equ     $D370
 
 ;IHNDLR  equ     $D3E7
 ;TIMOFF  equ     $D3ED
@@ -83,7 +83,10 @@ STAR0   lda     #$39            ;SET UP RTS
         sta     >TSTSTR          ;disable re-entry to this code
         ldd     #$CD03          ;setup 'escape routine' address
         std     >RETRNR         ;ESCRTN
-                                ;
+
+        LDD     #$BFFF
+        STD     MEMEND
+;
 ;        ldd     >TRMCHK         ;get address of terminal status check routine
 ;        std     >DSTAT+1         ;set in FLEX status check jump
 ;                                ;
@@ -94,46 +97,49 @@ STAR0   lda     #$39            ;SET UP RTS
 ;        ldd     >TIMINE         ;get address of terminal input routine
 ;        std     >INCH+1         ;set in FLEX in char jump
 ;        std     >INCH2+1        ;set in FLEX alt in char jump
-                       ;
-        jsr     TINIT           ;do terminal init
+;
+
+        jsr     [TINITP]         ;do terminal init
 
         ldx     #ZC810          ;point to Flex version signon
         jsr     >PSTRNG         ;print to terminal
         jsr     >DPCRLF         ;and CRLF
-                               ;
-ZC43A   ;ldd     >PPRMPT         ;PROMPT get  current prompt pointer
-        ;pshs    b,a             ;save it
-        ;ldx     #ZC82E          ;request for date - PROMPT FOR IT
-        ;stx     >PPRMPT         ;set new prompt pointer
-        ;jsr     >PSTRNG         ;do prompt
-        ;jsr     >DINBUF         ;get date
-        ;puls    b,a             ;restore prompt pointer
-        ;std     >PPRMPT         ;
-        ;ldy     #SYSMTH         ;SMONTH point Y reg to date regs
-        ;bsr     ZC4A0           ;convert month from ascii
-        ;bcs     ZC43A           ;no good - retry
-        ;                        ;
-        ;bsr     ZC4A0           ;convert day from ascii
-        ;bcs     ZC43A           ;no good - retry
-        ;                        ;
-        ;bsr     ZC4A0           ;convert year from ascii
-        ;bcs     ZC43A           ;no good - retry
-        ;                        ;
-        ;ldy     #STIME          ;point Y reg to system time regs
-        ;bsr     ZC4A0           ;
-        ;bcs     ZC43A           ;no good - retry
-        ;                        ;
-        ;bsr     ZC4A0           ;
-        ;bcs     ZC43A           ;no good - retry
-        ;                        ;
-        ;bsr     ZC4A0           ;
-        ;bcs     ZC43A           ;no good - retry
-        ;clr     STIME+3         ;clear tick counter
+                                ;
+
+ZC43A   ldd     >PPRMPT         ;PROMPT get  current prompt pointer
+        pshs    b,a             ;save it
+        ldx     #ZC82E          ;request for date - PROMPT FOR IT
+        stx     >PPRMPT         ;set new prompt pointer
+        jsr     >PSTRNG         ;do prompt
+        jsr     >DINBUF         ;get date
+        puls    b,a             ;restore prompt pointer
+        std     >PPRMPT         ;
+        ldy     #SYSMTH         ;SMONTH point Y reg to date regs
+        bsr     ZC4A0           ;convert month from ascii
+        bcs     ZC43A           ;no good - retry
+                                ;
+        bsr     ZC4A0           ;convert day from ascii
+        bcs     ZC43A           ;no good - retry
+                                ;
+        bsr     ZC4A0           ;convert year from ascii
+        bcs     ZC43A           ;no good - retry
+                                ;
+        ldy     #STIME          ;point Y reg to system time regs
+        bsr     ZC4A0           ;
+        bcs     ZC43A           ;no good - retry
+                                ;
+        bsr     ZC4A0           ;
+        bcs     ZC43A           ;no good - retry
+                                ;
+        bsr     ZC4A0           ;
+        bcs     ZC43A           ;no good - retry
+        clr     STIME+3         ;clear tick counter
+
         jsr     >DPCRLF         ;do CRLF
 
-        jsr     >DINIT          ;init the disk drivers
+        jsr     >WARM          ;init the disk drivers
         ldx     #SYSFCB         ;point to STARTUP.TXT FCB
-        jsr     >DCHECK         ;do disk check
+        jsr     >CHKRDY         ;do disk check
         lda     #$01            ;set for read operation
         sta     ,x              ;
         jsr     >FMS         	;D406
@@ -161,7 +167,7 @@ ZC488   jsr     >FMS            ;get byte from startup.txt
                                 ;
         lda     #$04            ;yes - close file
         sta     ,x              ;
-        jsr     >FMS         ;
+        jsr     >FMS            ;
 
         jmp     >RENTER         ;re-enter FLEX with command in line buffer
                                 ;

@@ -61,6 +61,8 @@ PPIDEWORKVAR:	.BYTE	$00,$00
 ;____________________________________________________________________________________________________
 ;
 PPIDE_INIT:
+	    JSR     >PCRLF         ; AND CRLF
+	    JSR     >PCRLF         ; AND CRLF
         LDX     #MESSAGE1
         JSR     >PDATA1         ; DO PROMPT
        	JSR     >PCRLF         ; AND CRLF
@@ -181,10 +183,14 @@ IDE_READ_INFO:
 		JSR	    IDE_READ_BUFFER		; GRAB THE 256 WORDS FROM THE BUFFER
         LDX     #MESSAGE6
         JSR     >PDATA1
-		LDX 	#HSTBUF+122
-		JSR 	OUTADR
-		LDX 	#HSTBUF+120
-		JSR 	OUTADR
+		LDA 	HSTBUF+123
+		JSR 	OUTHEXA
+		LDA 	HSTBUF+122
+		JSR 	OUTHEXA
+		LDA 	HSTBUF+121
+		JSR 	OUTHEXA
+		LDA 	HSTBUF+120
+		JSR 	OUTHEXA
 		JMP 	IDE_READ_INFO_OK
 IDE_READ_INFO_ABORT:
         LDX     #MESSAGE3
@@ -237,17 +243,22 @@ IDE_PPIDETECT:
 ;*____________________________________________________________________________________________________
 IDE_READ_SECTOR:
 	;	PRTDBG "IDE READ SECTOR$"
-        PSHS    Y
+		DECB							; WE LOSE ONE SECTOR PER TRACK BASED ON FLEX
+		STA 	PPIDETMP				; USING 1 BASED SECTOR COUNTING
+		SUBB 	PPIDETMP				;
+		BCC 	>						;
+		DECA							;
+!										;
         PSHS    X
-        TFR     B,Y                     ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
+		STB 	PPIDETMP                ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
 		JSR 	IDE_READ_RAW_SECTOR
         PULS    X
         BNE     IDE_READ_SECTOR_ERROR
-
-        TFR     Y,A
+        LDA 	PPIDETMP
         ANDA    #$01
         LDB     #$00
         TFR     D,Y                    ; Y NOW HAS HSTBUF OFFSET
+
         LDB     #$00                   ; DEBLOCK TO ADDRESS IN "X"
 !
         LDA     HSTBUF,Y
@@ -257,7 +268,7 @@ IDE_READ_SECTOR:
         CMPB    #$00
         BNE <
 IDE_READ_SECTOR_ERROR:
-        PULS    PC,Y
+        RTS
 
 IDE_READ_RAW_SECTOR:
 	;	PRTDBG "IDE READ RAW SECTOR$"
@@ -314,16 +325,21 @@ IDE_READ_SECTOR_DIRTY_ERROR:
 ;                       = 0 if an error
 ;*____________________________________________________________________________________________________
 IDE_WRITE_SECTOR:
-        PSHS    Y
-
+		PSHS 	Y
+		DECB							; WE LOSE ONE SECTOR PER TRACK BASED ON FLEX
+		STA 	PPIDETMP				; USING 1 BASED SECTOR COUNTING
+		SUBB 	PPIDETMP				;
+		BCC 	>						;
+		DECA							;
+!										;
         PSHS    X
-        TFR     B,Y                     ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
+        STB		PPIDETMP                ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
 
 	;	PRTDBG "IDE WRITE SECTOR$"
 	  	JSR	    IDE_READ_RAW_SECTOR	    ; DETERMINE PHYSICAL SECTOR
         BNE     IDE_WRITE_SECTOR_ERROR
 
-        TFR     Y,A
+        LDA		PPIDETMP
         ANDA    #$01
         LDB     #$00
         TFR     D,Y                    ; Y NOW HAS HSTBUF OFFSET
@@ -351,13 +367,13 @@ IDE_WRITE_SECTOR:
 		STA	    CDEBCYLL		;
 		STA	    CDEBCYLM		;
 		LDB	    #$00			; ZERO ON RETURN = OPERATION OK
-		PULS    PC,Y
+		PULS 	Y,PC
 IDE_WRITE_SECTOR_ERROR:
 		LDB	    #$FF			; 1 ON RETURN = OPERATION FAIL
         STB	    CDEBSEHD		;
 		STB	    CDEBCYLL		;
 		STB	    CDEBCYLM		;
-		PULS    PC,Y
+		PULS 	Y,PC
 
 ;*__PPIDE_RESET____________________________________________________________________________________
 ;*
@@ -468,8 +484,10 @@ IDE_READ_BUFFER:
 IDEBUFRD:
 		LDA	    #PPIDE_DATA
 		JSR	    IDE_READ_NO_SETUP
-		STX	    HSTBUF,Y		;
+		TFR 	X,D
+		STB	    HSTBUF,Y		;
         INY
+		STA	    HSTBUF,Y		;
         INY
 		CMPY   	#$0200			;
 		BNE	    IDEBUFRD		;
@@ -483,9 +501,11 @@ IDEBUFRD:
 IDE_WRITE_BUFFER:
 		LDY    	#$0000			; INDEX
 IDEBUFWT:
-		LDX     HSTBUF,Y		; SECTORS ARE BIG ENDIAN
+		LDB     HSTBUF,Y		; SECTORS ARE LITTLE ENDIAN
 		INY			        	;
+		LDA     HSTBUF,Y		; SECTORS ARE LITTLE ENDIAN
 		INY
+		TFR 	D,X
 		LDA	    #PPIDE_DATA
 		JSR	    IDE_WRITE
 		CMPY   	#$0200			;
@@ -651,6 +671,14 @@ SET_PPI_WR:
 	STA	PPIDEPPIC				;CONFIG 8255 CHIP, WRITE MODE
 	PULS    A,PC
 
+OUTHEXA:
+	PSHS 	A
+	PSHS 	A
+	JSR 	OUTHL
+	PULS 	A
+	JSR 	OUTHR
+	PULS 	A,PC
+
 MESSAGE1    FCC     "PPIDE :"
             FCB     EOT
 MESSAGE2    FCC     " IO=0x"
@@ -672,3 +700,4 @@ CDEBSEHD:	.BYTE 0		; DEBLOCKED SECTOR AND HEAD (HS)
 DEBCYLL:	.BYTE 0		; DEBLOCKED CYLINDER LSB
 DEBCYLM:	.BYTE 0		; DEBLOCKED CYLINDER MSB
 DEBSEHD:	.BYTE 0		; DEBLOCKED SECTOR AND HEAD (HS)
+PPIDETMP:	.BYTE 0		; TEMP

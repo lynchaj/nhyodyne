@@ -36,7 +36,7 @@ CHPR    equ     $C700
 
 SYSFCB
 		fcb     $FF,0,0,0
-                fcc     "startup"	; SYSTEM HANGS WHEN TRYING TO EXECUTE STARTUP.TXT
+                fcc     "rtartup"	; SYSTEM HANGS WHEN TRYING TO EXECUTE STARTUP.TXT
 		fcb		0
 		fcc		"txt"
 		fcb		0
@@ -58,17 +58,12 @@ LBL     equ     128         ;LINE BUFFER LENGTH
 TTYBS   fcb     $08         ;$CC00   ;BACK SPACE (^H)
 TTYDEL  fcb     $18         ;$CC01   ;DELETE CHARACTER (^X)
 TTYEOL  fcb     $3A         ;$CC02   ;END OF LINE CHAR (:)
-;TTYDP   fcb     $00         ;$CC03   ;LINES PER SCREEN
 TTYDP   fcb     24         ;$CC03   ;LINES PER SCREEN
-;COLCNT  fcb     $00         ;$CC04   ;COLUMNS PER LINE
 COLCNT  fcb     80         ;$CC04   ;COLUMNS PER LINE
-;TTYNL   fcb     $06         ;$CC05   ;LINE PADDING NULLS
 TTYNL   fcb     $00         ;$CC05   ;LINE PADDING NULLS
 TTYTB   fcb     $00         ;$CC06   ;TAB CHARACTER
-;TTYBE   fcb     $00         ;$CC07   ;BACK SPACE ECHO
 TTYBE   fcb     $08         ;$CC07   ;BACK SPACE ECHO
 TTYEJ   fcb     $00         ;$CC08   ;EJECT LENGTH
-;TTYPS   fcb     $FF         ;$CC09   ;PAUSE CONTROL
 TTYPS   fcb     $00         ;$CC09   ;PAUSE CONTROL
 TTYESC  fcb     $1B         ;$CC0A   ;ESCAPE CHARACTER
 SYSDRV  fcb     $00         ;$CC0B   ;SYSTEM DRIVE
@@ -96,6 +91,7 @@ FILIN   fdb     $0000       ;$CC26   ;INPUT FILE ADDRESS
 CMFLG   fcb     $00         ;$CC28   ;COMMAND FLAG
 COLMN   fcb     $00         ;$CC29   ;CURRENT OUTPUT COL.
 TMRFLG  fcb     $00         ;$CC2A   ;TIMER FLAG UNUSED NOW
+MEMEND  FDB      $0000      ;$CC2B   MEMORY END
 ERRVEC  fdb     $0000       ;$CC2D   ;ERROR NAME VECTOR
 FILEKO  fcb     $01         ;$CC2F   ;FILE INPUT ECHO
 FMSBSY  fcb     $00         ;$CC30   ;FMS IS BUSY FLAG
@@ -168,13 +164,13 @@ POUT    rts
 PR0     fcb     $01,$00,$00,$00
 PR1     fcb     $00,$00,$00,$00
 
-COLDS   jmp     INITI        ;GO INITIALIZE
+COLDS   jmp     INITI       ;GO INITIALIZE
 WARMS   jmp     ENTRY       ;WARM ENTRY POINT
 RENTER  jmp     DOS3        ;RE-ENTER DOS
-INCH    jmp     INCHNE      ;INCHNE           ;INPUT ROUTINE
-INCH2   jmp     INCHNE      ;TERMINAL INPUT
-OUTCH   jmp     VOUTCH      ;VOUTCH           ;OUTPUT CHARACTER
-OUTCH2  jmp     VOUTCH           ;TERMINAL OUTPUT
+INCH    jmp     VINCH       ;INPUT ROUTINE
+INCH2   jmp     VINCH       ;TERMINAL INPUT
+OUTCH   jmp     VOUTCH      ;OUTPUT CHARACTER
+OUTCH2  jmp     VOUTCH      ;TERMINAL OUTPUT
 DGETCH  jmp     GETCHR      ;GET CHARACTER
 DPUTCH  jmp     PUTCHR      ;PUT CHARACTER
 DINBUF  jmp     INBUF       ;INPUT TO BUFFER
@@ -217,7 +213,7 @@ INIT1   clr     LSTTRM      ;CLEAR TERM BYTE
 * THE STACK IS RESET HERE.
 
 ENTRY   lds     #STACK      ;SET STACK
-        jsr     DWARM       ;DO USER WARMSTART ROUTINE
+        jsr     WARM        ;DO USER WARMSTART ROUTINE
         ldx     #WARMS      ;POINT TO WARM START
         stx     RETRNR      ;SET RETURN REG
         ldx     #CHPR       ;SET SWI3 VECTOR
@@ -402,13 +398,13 @@ PDATA1  lda     ,x         ;GET A CHARACTER
 BREAK   jsr     DSTAT       ;ANY INPUT CHARACTER?
         beq     PCRLF9      ;EXIT IF NOT
                             ;
-        jsr     INCH        ;ELSE, GET THE CHARACTER
+        jsr     [INCHNEP]   ;ELSE, GET THE CHARACTER
         anda    #$7F        ;STRIP UPPER BIT
         cmpa    TTYESC      ;AN ESCAPE?
         bne     PCRLF9      ;EXIT IF NOT
                             ;
 BREAK1  clr     LINE        ;CLEAR LINE COUNT
-BREAK2  jsr     INCH        ;WAIT FOR A CHARACTER
+BREAK2  jsr     [INCHNEP]   ;WAIT FOR A CHARACTER
         anda    #$7F        ;STRIP UPPER BIT
         cmpa    TTYESC      ;AN ESCAPE?
         beq     PCRLF9      ;CONTINUE IF SO
@@ -568,13 +564,13 @@ PUTC75  puls    a           ;RESTORE CHAR
 OUTDEC  clr     OUTNUM      ;CLEAR FLAG
         stb     XFR         ;SET SUP FLAG
         lda     #4          ;SET COUNTER
-        sta     TEMP        ;SAVE IT
+        sta     Temp        ;SAVE IT
         ldd     ,x         ;GET VALUE
         ldx     #CONTBL     ;POINT TO CONSTANTS
                             ;
 OUTDE4  bsr     OUTDIG      ;OUTPUT DIGIT
         leax    2,x         ;BUMP TO NEXT CONST.
-        dec     TEMP        ;DEC THE COUNT
+        dec     Temp        ;DEC THE COUNT
         bne     OUTDE4      ;
         tfr     b,a         ;GET LS DIGIT
         bra     OUTHR       ;OUTPUT IT
@@ -590,9 +586,9 @@ OUTDE4  bsr     OUTDIG      ;OUTPUT DIGIT
 *   EXIT:  alL REGISTERS PRESERVED
 
 OUTDIG  clr     COUNT       ;CLEAR COUNTER
-OUTDI2  cmpd    0,x         ;COMPARE NUMBER
+OUTDI2  cmpd    ,x          ;COMPARE NUMBER
         bcs     OUTDI5      ;
-        subd    0,x         ;SUB VALUE
+        subd    ,x          ;SUB VALUE
         inc     COUNT       ;BUMP COUNTER
         bra     OUTDI2      ;REPEAT
                             ;
@@ -628,9 +624,9 @@ OUTADR  bsr     OUTHEX      ;OUT 2 DIGITS
 *   ENTRy: x POINTS TO BYTE
 *   EXIT:  b PRESERVED
 
-OUTHEX  lda     0,x         ;GET MSB
+OUTHEX  lda     ,x          ;GET MSB
         bsr     OUTHL       ;OUTPUT IT
-        lda     0,x         ;DO LSB
+        lda     ,x          ;DO LSB
         bra     OUTHR       ;OUTPUT IT
                             ;
 OUTHL   lsra                ;GET MSB TO LSB
@@ -695,7 +691,7 @@ NXTCH3  lda     ,x+        ;GET THE CHARACTER
         stx     BUFPNT      ;SAVE NEW POSITION
         cmpa    #$20        ;CHECK FOR SPACE
         bne     NXTCH4      ;
-        cmpa    0,x         ;NEXT CHAR SPACE?
+        cmpa    ,x          ;NEXT CHAR SPACE?
         beq     NXTCH3      ;SKIP IF SO
                             ;
 NXTCH4  bsr     CLASS       ;GO CLASSIFY
@@ -811,7 +807,7 @@ PRTM7   tstb                ;CHECK COUNT
 SKPSPC  stx     CRSAVE      ;SAVE INDEX
         ldx     BUFPNT      ;GET POINTER
                             ;
-SKPSP2  lda     0,x         ;GET CHARACTER
+SKPSP2  lda      ,x          ;GET CHARACTER
         cmpa    #$20        ;IS IT SPACE?
         bne     SKPSP4      ;
                             ;
@@ -836,7 +832,8 @@ SETEXT  pshs    x,y         ;SAVE REGISTERS
         ldb     12,x        ;GET FIRST EXT
         bne     SETEX6      ;NULL?
                             ;
-        leay    >EXTTBL,pc  ;POINT TO TABLE
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;leay    <EXTTBL,pc  ;POINT TO TABLE
+        FCB     $31,$8C,$1D             ; ASSEMBLER ERROR??
         cmpa    #$0F        ;CHECK RANGE
         bhi     SETEX6      ;
         ldb     #3          ;GET TO DESIRED EXT.
@@ -1031,7 +1028,7 @@ DOFMS   ldx     #SYSFCB     ;POINT TO FCB
                             ;
         leas    2,s         ;FIX STACK
         lda     #4          ;SET CMND
-        sta     0,x         ;
+        sta     ,x          ;
         jsr     FMS         ;CALL FMS
         bne     DOFMS6      ;ERROR?
                             ;
@@ -1117,7 +1114,7 @@ GETOP2  ldx     #SYSFCB     ;POINT TO FCB
         jsr     SETEXT      ;SET EXTENSION
         ldx     #SYSFCB     ;POINT TO FCB
         lda     #1          ;SET OPEN CODE
-        sta     0,x         ;SET COMMAND
+        sta     ,x          ;SET COMMAND
         jsr     DOFMS       ;GO DO FMS
         lbcs    NONMER      ;REPORT ANY ERROR
         lda     #$FF        ;SET NEG
@@ -1154,7 +1151,7 @@ RPTER1  ldx     #SYSFCB     ;POINT TO FCB
         beq     RPTER2      ;
                             ;
         lda     #4          ;CLOSE FILE IN FCB
-        sta     0,x         ;
+        sta     ,x          ;
         jsr     FMS         ;CALL FMS
         bne     RPTER4      ;
                             ;
@@ -1165,7 +1162,7 @@ RPTER2  ldx     #SYSFCB-8   ;SET TO FCB
         lda     SYSDRV      ;SET ALL DRIVES ** CHANGED TO SYS ** 2-25-79
         sta     3,x         ;
         lda     #1          ;SET EXTENSION
-        sta     0,x         ;OPEN FOR READ
+        sta     ,x          ;OPEN FOR READ
         jsr     FMS         ;
         bne     RPTER4      ;ERROR?
                             ;
@@ -1177,7 +1174,7 @@ RPTER2  ldx     #SYSFCB-8   ;SET TO FCB
         clr     32,x        ;SET LRN IN FCB
         sta     33,x        ;
         lda     #21         ;
-        sta     0,x         ;DO POSITION
+        sta     ,x          ;DO POSITION
         jsr     FMS         ;
         beq     RPTER7      ;
                             ;
@@ -1186,7 +1183,7 @@ RPTER4  ldx     #DSKERS     ;POINT TO STRING
         ldx     CRSAVE      ;RESTORE TO FCB
         lda     ERRTYP      ;GET ERR NUM
         sta     1,x         ;
-        clr     0,x         ;
+        clr     ,x          ;
         clrb                ;
         jsr     OUTDEC      ;OUTPUT NUMBER
                             ;
@@ -1213,7 +1210,7 @@ RPTE85  jsr     FMS         ;GET CHARACTER
         bne     RPTE85      ;REPEAT
                             ;
         lda     #4          ;CLOSE FILE
-        sta     0,x         ;
+        sta     ,x          ;
         jsr     FMS         ;CALL FMS
         bra     RPTE44      ;EXIT
                             ;
@@ -1259,7 +1256,7 @@ ADDBX   abx
 
 MEXIT   tst     PR1         ;CHECK PROCESS 1
         bne     MEXIT2      ;
-        jmp     [MONITR]    ;JUMP TO MONITOR
+        jmp     [MONITRP]    ;JUMP TO MONITOR
                             ;
 MEXIT2  ldx     #SYSFCB     ;POINT TO FCB
         lda     #27         ;
