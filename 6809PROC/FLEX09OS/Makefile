@@ -15,11 +15,13 @@ loader.s19:    loader.asm
 flex.sys:   flex9.s19
 	srec_cat  flex9.s19 -offset -0xC400 -o flex.sys -binary
 	truncate flex.sys -s 15360
+	cp flex.sys ../bin/
 
 flex09.com:   loader.s19 flex9.s19
 	cat loader.s19 flex9.s19 >flex.s
 	srec_cat  flex.s -offset -0xC3E0 -o flex09.com -binary
 	truncate flex09.com -s 15392
+	cp flex09.com ../bin/
 
 clean:
 	@rm -f *.bin

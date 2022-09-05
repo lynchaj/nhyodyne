@@ -36,7 +36,7 @@ CHPR    equ     $C700
 
 SYSFCB
 		fcb     $FF,0,0,0
-                fcc     "rtartup"	; SYSTEM HANGS WHEN TRYING TO EXECUTE STARTUP.TXT
+                fcc     "startup"	; SYSTEM HANGS WHEN TRYING TO EXECUTE STARTUP.TXT
 		fcb		0
 		fcc		"txt"
 		fcb		0

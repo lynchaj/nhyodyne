@@ -7,6 +7,7 @@ scream.com: scream.asm
 	srec_cat  scream.s -offset -0xEFE0 -o scream.com -binary
 	@rm scream.s
 	truncate scream.com -s 4130
+	cp scream.com ../bin/
 
 monitor.com: monitor.asm
 	lwasm --6809 monitor.asm -s --list=monitor.lst --map=monitor.map --output=monitor.s --format=srec
@@ -14,6 +15,7 @@ monitor.com: monitor.asm
 	srec_cat  monitor.s -offset -0xEFE0 -o monitor.com -binary
 	@rm monitor.s
 	truncate monitor.com -s 4130
+	cp monitor.com ../bin/
 
 clean:
 	@rm -f *.o
