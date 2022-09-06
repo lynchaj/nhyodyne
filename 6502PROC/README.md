@@ -1,6 +1,29 @@
 # MBC65C02
 65C02 processor board (hardware and software) for the Nhyodyne computer system
 
+## BUGS
+
+* The 6502 board cannot co-exist with the 6809 board.  I am guessing it has to do with the way _BUSACK is used to toggle the activation of both boards.
+
+* the WDC 65C02 cannot be used in the board, it needs to be an older chip.  I recently found a document from a builder that was working on a PET clone that (I believe) may give a clue to resolving this issue.
+
+> . . . s. Additionally, although for all
+practical purposes here the W65C02 is, functionally, entirely equivalent to the original 6502,
+it is not a direct drop-in replacement. It has slightly different pin functions, different, more
+stringent timing requirements due to its ability to run several times faster than the original
+NMOS 6502 and it is a CMOS part with CMOS-level, rather than TTL-level compatible I/O
+thresholds. The potential timing incompatibility mostly relates to memory write operations and how
+briefly (only 10 ns) valid data is guaranteed to remain on the data bus upon the falling edge of
+the system clock (time THW). If your memory write strobe decoding doesn’t have time to react
+before the data disappears from the data bus you’re going to have trouble with memory write
+operations! If you peruse my circuit diagrams you’ll notice that a pair of 74HCT244 driver
+chips directly buffer the W65C02S’s data I/O pins to the systems data bus. These chips
+provide CMOS-level to TTL-level threshold conversion and add critical, delayed time
+extension to THW. To doubly ensure that the memory write strobe is available well ahead of
+schedule, it is decoded by a super-fast 74AC family device. . . . .
+
+
+
 # JUMPER SETTINGS
 ## General
         J1 - Enable
