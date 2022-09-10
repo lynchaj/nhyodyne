@@ -11,7 +11,7 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 33406)
+    (start_pass_no 28238)
     (layer_rule F.Cu
       (active on)
       (preferred_direction horizontal)
@@ -77,7 +77,7 @@
     "Net-(D5-Pad2)" "Net-(D5-Pad1)" "Net-(D6-Pad2)" "Net-(D6-Pad1)" "Net-(D7-Pad2)" "Net-(D7-Pad1)" "Net-(U11-Pad2)" "Net-(U12-Pad3)"
     ICLK 6502IO "Net-(U4-Pad11)" "Net-(U12-Pad6)" "Net-(R9-Pad1)" "Net-(R10-Pad1)" "Net-(U12-Pad8)" "Net-(U3-Pad3)"
     "Net-(U12-Pad10)" "_6502WR" "Net-(RN4-Pad9)" "Net-(RN4-Pad8)" "Net-(RN4-Pad7)" "Net-(RN4-Pad6)" "Net-(RN4-Pad5)" "Net-(RN4-Pad4)"
-    "Net-(RN4-Pad3)" "Net-(RN4-Pad2)" 6502RST "Net-(U4-Pad3)"
+    "Net-(RN4-Pad3)" "Net-(RN4-Pad2)" 6502RST "Net-(U4-Pad3)" 6502QENABLE "Net-(U11-Pad12)" "_6502ACTIVE"
     (clearance_class "kicad_default")
     (via_rule kicad_default)
     (rule
@@ -88,7 +88,7 @@
     )
   )
   (class power
-    VCC
+    GND VCC
     (clearance_class default)
     (via_rule default)
     (rule
@@ -99,7 +99,6 @@
     )
   )
   (class ground
-    GND
     (clearance_class default)
     (via_rule default)
     (rule

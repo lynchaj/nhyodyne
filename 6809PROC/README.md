@@ -1,6 +1,10 @@
 # MBC6809
 6809 processor board (hardware and software) for the Nhyodyne computer system
 
+
+# Bugs
+* The 6502 board cannot co-exist with the 6809 board. I am guessing it has to do with the way _BUSACK is used to toggle the activation of both boards.
+
 # JUMPER SETTINGS
 ## General
         J1 - Enable
@@ -266,7 +270,7 @@ MEMORY MAP:
 * CREATE BIN DIRECTORY WITH IMAGES
 * PPIDE WRITE IS BROKEN (needs read following write to work?!?!?)
 * ADD CPM COMMAND
-* INSTRUCTIONS FOR DRIVE CONFIGURATION
+* INSTRUCTIONS FOR DRIVE AND DSKY CONFIGURATION
 * FLOPPY DRIVERS
 * AUTOBOOT
 * RTC
