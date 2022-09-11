@@ -513,7 +513,7 @@ DQUICK
 
 ;_____________________________________________________________________________________________________
                 INCLUDE "flexidedrv.asm"
-
+                INCLUDE "flexflpy.asm"
 	IF USEDSKYNG = 1
 	        	INCLUDE "flxdsky.asm"
 	ENDC
