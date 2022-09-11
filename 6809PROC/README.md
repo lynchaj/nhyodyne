@@ -1,6 +1,10 @@
 # MBC6809
 6809 processor board (hardware and software) for the Nhyodyne computer system
 
+
+# Bugs
+* The 6502 board cannot co-exist with the 6809 board. I am guessing it has to do with the way _BUSACK is used to toggle the activation of both boards.
+
 # JUMPER SETTINGS
 ## General
         J1 - Enable
@@ -178,8 +182,9 @@ MEMORY MAP:
           I     Input Buffer
  C100  -------
           I
-          I
           I     Utility Area
+          I
+ C400  -------  Startup Code
           I
           I
  C700  -------
@@ -197,19 +202,15 @@ MEMORY MAP:
           I     (FLEX Initialize at CA00)
           I
  CC00  -------
-          I     System Variables
- CCC0  -------
-          I     Printer Drivers
- CCF8  -------
-          I     System Variables
+          I
+          I     Flex CCP
+          I
  CD00  -------
           I
           I
           I     Disk Operating System
           I
           I
- D370  -------
-          I     Driver Code
  D3E1  -------
           I     Driver Vector Table
                 D3E1 ADDDEV      * add an IRQ handler to table
@@ -226,8 +227,7 @@ MEMORY MAP:
                 D3F7 STAT        * CHECK TERMINAL STATUS
                 D3F9 VOUTCH      * OUTPUT CHARACTER
                 D3FB VINCH       * INPUT CHARACTER W/ ECHO
- D3FC  -------
-          I     Driver Code
+          I
  D400  -------
           I
           I
@@ -265,3 +265,12 @@ MEMORY MAP:
                 FFFE    RESET VECTOR
  FFFF  -------
 ```
+
+### FLEX09 OPERATING SYSTEM TODO LIST
+* CREATE BIN DIRECTORY WITH IMAGES
+* PPIDE WRITE IS BROKEN (needs read following write to work?!?!?)
+* ADD CPM COMMAND
+* INSTRUCTIONS FOR DRIVE AND DSKY CONFIGURATION
+* FLOPPY DRIVERS
+* AUTOBOOT
+* RTC

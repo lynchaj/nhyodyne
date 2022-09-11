@@ -2,6 +2,10 @@
                 PAG
                 PRAGMA CD
 
+USEDSKYNG       EQU     1
+USEDSKYKB       EQU     1
+
+
 ;_____________________________________________________________________________________________________
 ; File Name   : DRIVERS.ASM
 ;_____________________________________________________________________________________________________
@@ -18,51 +22,23 @@ UART5          	equ    	$FE6D           ; LINE STATUS
 UART6          	equ    	$FE6E           ; MODEM STATUS
 UART7	       	equ    	$FE6F           ; SCRATCH REG.
 
-
-PSTRNG          EQU     $CD1E
-PRCRLF          EQU     $CD24
-
-;
-; CONSOLE I/O DRIVER VECTOR TABLE
-;_____________________________________________________________________________________________________
-                ORG     $D3E1       * TABLE STARTS AT $D3E1
-
-LD3E1           FDB     ADDDEV      ; add an IRQ handler to table
-                FDB     DELDEV      ; delete an IRQ handler from table
-
-                FDB     INCHNE      ; INPUT CHARACTER W/O ECHO
-                FDB     IHNDLR      ; IRQ INTERRUPT HANDLER
-                FDB     SWIVEC      ; SWI3 VECTOR LOCATION
-                FDB     IRQVEC      ; IRQ VECTOR LOCATION
-                FDB     TMOFF       ; TIMER OFF ROUTINE
-                FDB     TMON        ; TIMER ON ROUTINE
-                FDB     TMINT       ; TIMER INITIALIZATION
-                FDB     MONITR      ; MONITOR ENTRY ADDRESS
-                FDB     TINIT       ; TERMINAL INITIALIZATION
-                FDB     STAT        ; CHECK TERMINAL STATUS
-                FDB     VOUTCH      ; OUTPUT CHARACTER
-                FDB     VINCH       ; INPUT CHARACTER W/ ECHO
-;_____________________________________________________________________________________________________
-;   Default ISRs.  Will be changed by OS Setup
-SWIVEC:
-IRQVEC:
-                rti
 ;_____________________________________________________________________________________________________
 ;
 ; DISK DRIVER ROUTINE JUMP TABLE
 ;_____________________________________________________________________________________________________
                 ORG     $DE00
 
-DREAD           JMP     >READ       * DE00    READ      Read a single sector
-DWRITE          JMP     >WRITE      * DE03    WRITE     Write a single sector
-DVERFY          JMP     >VERIFY     * DE06    VERIFY    Verify last sector written
-DRESTOR         JMP     >RESTORE    * DE09    RESTORE   Restore head to track #0
-DDRIVE          JMP     >DRIVE      * DE0C    DRIVE     Select the specified drive
-DCHECK          JMP     >CHKRDY     * DE0F    CHKRDY    Check for drive ready
-DQUICK          JMP     >QUICK      * DE12    QUICK     Quick check for drive ready
-DINIT           JMP     >INIT       * DE15    INIT      Driver initialize (cold start)
-DWARM           JMP     >WARM       * DE18    WARM      Driver initialize (warm start)
-DSEEK           JMP     >SEEK       * DE1B    SEEK      Seek to specified track
+READ            JMP     >DREAD       * DE00    READ      Read a single sector
+WRITE           JMP     >DWRITE      * DE03    WRITE     Write a single sector
+VERIFY          JMP     >DVERIFY     * DE06    VERIFY    Verify last sector written
+RESTORE         JMP     >DRESTORE    * DE09    RESTORE   Restore head to track #0
+DRIVE           JMP     >DDRIVE      * DE0C    DRIVE     Select the specified drive
+CHKRDY          JMP     >DCHKRDY     * DE0F    CHKRDY    Check for drive ready
+QUICK           JMP     >DQUICK      * DE12    QUICK     Quick check for drive ready
+CINIT           JMP     >DCINIT      * DE15    CINIT     Driver initialize (cold start)
+WARM            JMP     >DWARM       * DE18    WARM      Driver initialize (warm start)
+SEEK            JMP     >DSEEK       * DE1B    SEEK      Seek to specified track
+
 
 ;_____________________________________________________________________________________________________
 ; Temp Storage Area
@@ -74,11 +50,11 @@ CURDRVTYP       FCB     $00
 CURDRVADDRESS   FCB     $00
 CURDRVSLICE     FDB     $0000
 
-DRVTYPES        FCB     $00,$00,$00,$00
+DRVTYPES        FCB     $02,$02,$02,$02
                 ;   $00 - INVALID
                 ;   $01 - Floppy
                 ;   $02 - IDE
-DRVADDRESS      FCB     $00,$00,$00,$00
+DRVADDRESS      FCB     $01,$01,$01,$01
 DRVSLICE        FDB     $0000,$0000,$0000,$0000
 
 ;_____________________________________________________________________________________________________
@@ -275,7 +251,8 @@ TAPPTR          fdb     0                   no terminal input redirection
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-READ            PSHS     A
+DREAD
+                PSHS     A
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     READFLOPPY
@@ -307,7 +284,8 @@ READIDE:
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-WRITE           PSHS     A
+DWRITE
+                PSHS     A
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     WRITEFLOPPY
@@ -335,7 +313,7 @@ WRITEIDE:
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-VERIFY
+DVERIFY
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     VERIFYFLOPPY
@@ -363,7 +341,7 @@ VERIFYIDE:
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-SEEK
+DSEEK
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     SEEKFLOPPY
@@ -388,8 +366,11 @@ SEEKIDE:
 ;
 ;           EXIT - A, B, X, Y, and U may be destroyed
 ;_____________________________________________________________________________________________________
-INIT
+DCINIT
                 JSR     PPIDE_INIT
+	IF USEDSKYNG = 1
+	        	JSR     DSKY_INIT
+	ENDC
                 RTS
 
 ;_____________________________________________________________________________________________________
@@ -406,8 +387,7 @@ INIT
 ;
 ;           EXIT - A, B, X, Y, and U may be destroyed
 ;_____________________________________________________________________________________________________
-WARM
-                JSR     PPIDE_RESET
+DWARM
                 RTS
 
 ;_____________________________________________________________________________________________________
@@ -426,7 +406,8 @@ WARM
 ;                   (Z) = 1 if no error
 ;                       = 0 if an error
 ;_____________________________________________________________________________________________________
-RESTORE         BSR     DRIVE
+DRESTORE
+                BSR     DDRIVE
                 LDA     CURDRVTYP
                 CMPA    #$01
                 BEQ     RESTOREFLOPPY
@@ -458,21 +439,21 @@ RESTOREIDE:
 ;                   (C) = 0 if no error
 ;                       = 1 if an error
 ;_____________________________________________________________________________________________________
-DRIVE:          PSHS    X
+DDRIVE:
                 LDA     3,X             ; DETERMINE IF DRIVE#>4, IF SO SET ERROR AND EXIT.
                 CMPA    #4
                 BCS     DRIVE1
 DRIVEERR:
                 LDB     #$1F
                 ASRB
-                PULS    PC,X
+                RTS
 
 DRIVE1          LDX     #DRVTYPES
                 LEAX    A,X             ; GET DRIVE ENTRY FOR SELECTED DRIVE
                 LDB     ,X
                 CMPB    #$01            ; IF $01, OK
                 BEQ     >
-                CMPB    #$02            ; IF $01, OK
+                CMPB    #$02            ; IF $02, OK
                 BEQ     >
                 BRA     DRIVEERR
 !               STB     CURDRVTYP
@@ -490,7 +471,7 @@ DRIVE1          LDX     #DRVTYPES
                 LDB     ,X
                 STB     CURDRVSLICE+1
                 LDB     #$00
-                PULS    PC,X
+                RTS
 
 ;_____________________________________________________________________________________________________
 ;   CHKRDY  Check for a drive ready condition. The drive number is found
@@ -517,20 +498,8 @@ DRIVE1          LDX     #DRVTYPES
 ;                   (C) = 0 if drive ready
 ;                       = 1 if not ready
 ;_____________________________________________________________________________________________________
-CHKRDY
-                LDA     3,X
-                CMPA    #$01
-                BEQ     CHKRDYFLOPPY
-                CMPA    #$02
-                BEQ     CHKRDYIDE
-CHKRDYERR:      LDB     #$1F
-                ASRB
-                RTS
-CHKRDYFLOPPY:
-                BRA     CHKRDYERR
-CHKRDYIDE:
-                LDB     #$00
-                RTS
+DCHKRDY
+            RTS
 
 ;_____________________________________________________________________________________________________
 ;   QUICK   This routine performs a "quick" drive ready check. Its
@@ -539,40 +508,19 @@ CHKRDYIDE:
 ;           condition on the first check, a not ready condition is
 ;           immediately returned. Entry and exit are as above.
 ;_____________________________________________________________________________________________________
-QUICK           LDA     3,X
-                CMPA    #$01
-                BEQ     QUICKFLOPPY
-                CMPA    #$02
-                BEQ     QUICKIDE
-QUICKERR:       LDB     #$1F
-                ASRB
-                RTS
-QUICKFLOPPY:
-                BRA     QUICKERR
-QUICKIDE:
-                LDB     #$00
-                RTS
-
-
-;_____________________________________________________________________________________________________
-;_____________________________________________________________________________________________________
-
-PRTHEXBYTE:
-                PSHS    A
-                JSR     $cfd8       ; OUTHL       OUTPUT IT
-                PULS    A
-                JSR     $CFDC       ; OUTHR
-                RTS
-
+DQUICK
+            RTS
 
 ;_____________________________________________________________________________________________________
                 INCLUDE "flexidedrv.asm"
+
+	IF USEDSKYNG = 1
+	        	INCLUDE "flxdsky.asm"
+	ENDC
+
+
 
 
 ;_____________________________________________________________________________________________________
 
 HSTBUF:         RMB     512
-
-
-
-                END

@@ -1377,15 +1377,15 @@ _6502EN
 $Comp
 L power:GND #PWR0123
 U 1 1 6277E8F9
-P 950 5450
-F 0 "#PWR0123" H 950 5200 50  0001 C CNN
-F 1 "GND" H 955 5277 50  0000 C CNN
-F 2 "" H 950 5450 50  0001 C CNN
-F 3 "" H 950 5450 50  0001 C CNN
-	1    950  5450
+P 1200 5450
+F 0 "#PWR0123" H 1200 5200 50  0001 C CNN
+F 1 "GND" H 1205 5277 50  0000 C CNN
+F 2 "" H 1200 5450 50  0001 C CNN
+F 3 "" H 1200 5450 50  0001 C CNN
+	1    1200 5450
 	1    0    0    -1  
 $EndComp
-Text GLabel 950  5350 0    50   Input ~ 0
+Text GLabel 1200 5350 0    50   Input ~ 0
 _6502EN
 $Comp
 L 74xx:74LS74 U11
@@ -1418,22 +1418,22 @@ _BUSRQ
 $Comp
 L Connector:Conn_01x03_Male J1
 U 1 1 6283E9F1
-P 1250 5350
-F 0 "J1" H 1222 5282 50  0000 R CNN
-F 1 "6502 ONLY" H 1222 5373 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Horizontal" H 1250 5350 50  0001 C CNN
-F 3 "~" H 1250 5350 50  0001 C CNN
-	1    1250 5350
+P 1500 5350
+F 0 "J1" H 1472 5282 50  0000 R CNN
+F 1 "6502 ONLY" H 1472 5373 50  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Horizontal" H 1500 5350 50  0001 C CNN
+F 3 "~" H 1500 5350 50  0001 C CNN
+	1    1500 5350
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	950  5350 1050 5350
-Text GLabel 950  5250 0    50   Input ~ 0
+	1200 5350 1300 5350
+Text GLabel 7800 4650 0    50   Input ~ 0
 _BUSACK
 Wire Wire Line
-	950  5250 1050 5250
+	1200 5250 1300 5250
 Wire Wire Line
-	950  5450 1050 5450
+	1200 5450 1300 5450
 Wire Wire Line
 	10800 3450 10800 3900
 Wire Wire Line
@@ -1942,13 +1942,13 @@ $EndComp
 $Comp
 L 74xx:74LS74 U11
 U 2 1 63624957
-P 8850 4250
-F 0 "U11" H 8850 4731 50  0000 C CNN
-F 1 "74LS74" H 8850 4640 50  0000 C CNN
-F 2 "Package_DIP:DIP-14_W7.62mm_Socket_LongPads" H 8850 4250 50  0001 C CNN
-F 3 "74xx/74hc_hct74.pdf" H 8850 4250 50  0001 C CNN
-	2    8850 4250
-	1    0    0    -1  
+P 8400 3900
+F 0 "U11" H 8400 4381 50  0000 C CNN
+F 1 "74LS74" H 8400 4290 50  0000 C CNN
+F 2 "Package_DIP:DIP-14_W7.62mm_Socket_LongPads" H 8400 3900 50  0001 C CNN
+F 3 "74xx/74hc_hct74.pdf" H 8400 3900 50  0001 C CNN
+	2    8400 3900
+	1    0    0    1   
 $EndComp
 $Comp
 L 74xx:74LS74 U11
@@ -1983,8 +1983,6 @@ F 3 "" H 10100 5550 50  0001 C CNN
 	1    10100 5550
 	1    0    0    -1  
 $EndComp
-NoConn ~ 8550 4250
-NoConn ~ 8550 4150
 $Comp
 L 74xx:74LS04 U4
 U 7 1 63791A5B
@@ -2102,7 +2100,7 @@ F 3 "~" H 2550 1750 50  0001 C CNN
 $EndComp
 Text Notes 2100 2000 0    50   ~ 0
 1&2 - stand alone\n2&3 - secondary CPU
-Text Notes 1100 5650 0    50   ~ 0
+Text Notes 750  5850 0    50   ~ 0
 1&2 - stand alone\n2&3 - secondary CPU
 Text Notes 2500 2250 0    50   ~ 0
 CLK/2
@@ -2163,12 +2161,12 @@ $EndComp
 $Comp
 L 74xx:74LS32 U12
 U 4 1 61E88AF0
-P 8100 4200
-F 0 "U12" H 8300 4350 50  0000 C CNN
-F 1 "74LS32" H 8300 4050 50  0000 C CNN
-F 2 "Package_DIP:DIP-14_W7.62mm_Socket_LongPads" H 8100 4200 50  0001 C CNN
-F 3 "http://www.ti.com/lit/gpn/sn74LS32" H 8100 4200 50  0001 C CNN
-	4    8100 4200
+P 8200 4750
+F 0 "U12" H 8400 4900 50  0000 C CNN
+F 1 "74LS32" H 8400 4600 50  0000 C CNN
+F 2 "Package_DIP:DIP-14_W7.62mm_Socket_LongPads" H 8200 4750 50  0001 C CNN
+F 3 "http://www.ti.com/lit/gpn/sn74LS32" H 8200 4750 50  0001 C CNN
+	4    8200 4750
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -2182,9 +2180,6 @@ F 3 "http://www.ti.com/lit/gpn/sn74LS32" H 11000 5150 50  0001 C CNN
 	5    11000 5150
 	1    0    0    -1  
 $EndComp
-NoConn ~ 7800 4100
-NoConn ~ 7800 4300
-NoConn ~ 8400 4200
 $Comp
 L power:VCC #PWR01
 U 1 1 6218A1D8
@@ -2267,10 +2262,6 @@ Text GLabel 3550 7700 2    50   Input ~ 0
 ICLK
 Wire Wire Line
 	3550 7700 3500 7700
-NoConn ~ 8850 3950
-NoConn ~ 9150 4150
-NoConn ~ 9150 4350
-NoConn ~ 8850 4550
 Wire Wire Line
 	6850 5450 7000 5450
 Wire Wire Line
@@ -2310,16 +2301,6 @@ Wire Wire Line
 	3250 3650 2650 3650
 Wire Wire Line
 	8300 5450 8400 5450
-Wire Notes Line
-	9250 4650 7550 4650
-Wire Notes Line
-	7550 4650 7550 3550
-Wire Notes Line
-	7550 3550 9250 3550
-Wire Notes Line
-	9250 3550 9250 4650
-Text Notes 7600 4600 0    50   ~ 0
-Spares\n
 $Comp
 L power:PWR_FLAG #FLG0101
 U 1 1 62891135
@@ -2348,8 +2329,8 @@ $EndComp
 Connection ~ 10950 6400
 Wire Wire Line
 	10950 6400 10800 6400
-Text Notes 10500 7300 0    50   ~ 0
-V1.1 1/17/2022\n
+Text Notes 7050 6750 0    50   ~ 0
+V1.3 9/6/2022\n
 Wire Wire Line
 	3700 2700 3650 2700
 $Comp
@@ -2742,4 +2723,49 @@ F 3 "" H 8400 5150 50  0001 C CNN
 	1    8400 5150
 	1    0    0    -1  
 $EndComp
+Text GLabel 7950 3900 0    50   Input ~ 0
+65TOGGLE
+Text GLabel 8750 4200 2    50   Input ~ 0
+_RESET
+Wire Wire Line
+	8400 4200 8750 4200
+Wire Wire Line
+	8700 3800 8900 3800
+Wire Wire Line
+	8900 3800 8900 3250
+Wire Wire Line
+	8900 3250 7450 3250
+Wire Wire Line
+	7450 3250 7450 4000
+Wire Wire Line
+	7450 4000 8100 4000
+$Comp
+L power:VCC #PWR0140
+U 1 1 633CD953
+P 8400 3600
+F 0 "#PWR0140" H 8400 3450 50  0001 C CNN
+F 1 "VCC" H 8415 3773 50  0000 C CNN
+F 2 "" H 8400 3600 50  0001 C CNN
+F 3 "" H 8400 3600 50  0001 C CNN
+	1    8400 3600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7950 3900 8100 3900
+Text GLabel 8950 4000 2    50   Input ~ 0
+_6502ACTIVE
+Wire Wire Line
+	8700 4000 8950 4000
+Text GLabel 7800 4850 0    50   Input ~ 0
+_6502ACTIVE
+Text GLabel 8600 4750 2    50   Input ~ 0
+6502QENABLE
+Text GLabel 1200 5250 0    50   Input ~ 0
+6502QENABLE
+Wire Wire Line
+	8500 4750 8600 4750
+Wire Wire Line
+	7800 4650 7900 4650
+Wire Wire Line
+	7800 4850 7900 4850
 $EndSCHEMATC

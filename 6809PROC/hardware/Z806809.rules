@@ -11,7 +11,7 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 29890)
+    (start_pass_no 34799)
     (layer_rule F.Cu
       (active on)
       (preferred_direction horizontal)
@@ -59,8 +59,8 @@
     Power "Via[0-1]_800:400_um-Power"
   )
   (class default
-    "Net-(C1-Pad1)" "Net-(D2-Pad2)" ~{6809EN} ~{BUSACK} CLKO CLK "Net-(J2-Pad7)" "Net-(J2-Pad5)"
-    "Net-(J2-Pad3)" "Net-(J2-Pad1)" ~{RESET} ~{6809RST} 6809EN ~{RFSH} ~{M1} "_NMI"
+    "Net-(C17-Pad1)" "Net-(D2-Pad2)" ~{6809EN} ~{BUSACK} CLKO CLK "Net-(D1-Pad2)" "Net-(D2-Pad1)"
+    "Net-(J1-Pad1)" "Net-(J1-Pad3)" ~{RESET} ~{6809RST} 6809EN ~{RFSH} ~{M1} "_NMI"
     ~{BUSRQ} "_INT" ~{WAIT} D1 ~{HALT} D0 ~{WR} D7
     ~{MREQ} D2 A0 D6 A1 D5 A2 D3
     A3 D4 A4 A5 A15 A6 A14 A7
@@ -68,17 +68,16 @@
     "Net-(RN2-Pad8)" "Net-(RN2-Pad7)" "Net-(RN2-Pad6)" "Net-(RN2-Pad5)" "Net-(RN2-Pad4)" "Net-(RN2-Pad3)" "Net-(RN2-Pad2)" "Net-(RN3-Pad9)"
     "Net-(RN3-Pad8)" "Net-(RN3-Pad7)" "Net-(RN3-Pad6)" "Net-(RN3-Pad5)" "Net-(RN3-Pad4)" "Net-(RN3-Pad3)" "Net-(RN3-Pad2)" ~{RD}
     ~{IORQ} "unconnected-(J4-Pad41)" "unconnected-(J4-Pad44)" "unconnected-(J4-Pad45)" "Net-(U10-Pad8)" "unconnected-(J4-Pad46)" "unconnected-(J4-Pad47)" "unconnected-(J4-Pad48)"
-    "unconnected-(J4-Pad49)" "unconnected-(J4-Pad50)" "Net-(R3-Pad1)" "Net-(R4-Pad1)" "Net-(R5-Pad1)" "Net-(R6-Pad1)" 68TOGGLE ~{6809NMI}
+    "unconnected-(J4-Pad49)" "unconnected-(J4-Pad50)" "Net-(R3-Pad1)" "Net-(R4-Pad1)" "Net-(J1-Pad5)" "Net-(J1-Pad7)" 68TOGGLE ~{6809NMI}
     "Net-(U10-Pad17)" "Net-(U10-Pad15)" "Net-(U10-Pad13)" "Net-(U10-Pad11)" "Net-(D3-Pad2)" "Net-(D3-Pad1)" "Net-(D4-Pad2)" "Net-(D4-Pad1)"
-    "Net-(D5-Pad2)" "Net-(D5-Pad1)" "Net-(D6-Pad2)" "Net-(D6-Pad1)" "Net-(D7-Pad2)" "Net-(D7-Pad1)" ~{6809INT} "Net-(RN4-Pad10)"
-    "CPU_~{WR}" "unconnected-(U2-Pad3)" "CPU_~{RD}" "unconnected-(U2-Pad5)" 6809IO ~{6809IO} "unconnected-(U2-Pad15)" "unconnected-(U2-Pad17)"
+    "Net-(D5-Pad2)" "Net-(D5-Pad1)" "Net-(D6-Pad2)" "Net-(D6-Pad1)" ~{6809QENABLE} "Net-(R1-Pad1)" ~{6809INT} "Net-(RN4-Pad10)"
+    "CPU_~{WR}" "Net-(R2-Pad1)" "CPU_~{RD}" "Net-(U1-Pad5)" 6809IO ~{6809IO} "unconnected-(U1-Pad8)" "unconnected-(U1-Pad9)"
     RD{slash}~{WR} E "Net-(RN4-Pad9)" "Net-(RN4-Pad8)" "Net-(RN4-Pad7)" "Net-(RN4-Pad6)" "Net-(RN4-Pad5)" "Net-(RN4-Pad4)"
-    "Net-(RN4-Pad3)" "Net-(U3-Pad5)" "unconnected-(U3-Pad8)" "unconnected-(U3-Pad9)" "unconnected-(U3-Pad10)" "unconnected-(U3-Pad11)" "unconnected-(U3-Pad12)" "unconnected-(U3-Pad13)"
-    "Net-(U4-Pad1)" "unconnected-(U5-Pad11)" "unconnected-(U5-Pad12)" "unconnected-(U5-Pad13)" "Net-(U6-Pad3)" "Net-(U10-Pad23)" "Net-(U13-Pad17)" "Net-(U11-Pad19)"
-    "Net-(U8-Pad2)" "unconnected-(U8-Pad8)" "unconnected-(U8-Pad9)" "unconnected-(U8-Pad10)" "unconnected-(U8-Pad11)" "unconnected-(U8-Pad12)" "unconnected-(U8-Pad13)" "unconnected-(U10-Pad5)"
-    "unconnected-(U10-Pad6)" "Net-(U10-Pad9)" "Net-(U10-Pad10)" "Net-(U10-Pad12)" "Net-(U10-Pad14)" "Net-(U10-Pad16)" "Net-(U10-Pad18)" "Net-(U10-Pad19)"
-    "Net-(U10-Pad20)" "Net-(U10-Pad21)" "Net-(U10-Pad22)" "unconnected-(U10-Pad35)" "unconnected-(U5-Pad1)" "unconnected-(U5-Pad2)" "unconnected-(U5-Pad3)" "unconnected-(U5-Pad8)"
-    "unconnected-(U5-Pad9)" "unconnected-(U5-Pad10)"
+    "Net-(RN4-Pad3)" "unconnected-(U1-Pad10)" "unconnected-(U1-Pad11)" "unconnected-(U1-Pad12)" "unconnected-(U1-Pad13)" "unconnected-(U3-Pad3)" "unconnected-(U3-Pad5)" "unconnected-(U3-Pad15)"
+    "unconnected-(U3-Pad17)" ~{6809ACTIVE} "unconnected-(U4-Pad4)" "unconnected-(U4-Pad5)" "unconnected-(U4-Pad6)" "unconnected-(U4-Pad8)" "unconnected-(U4-Pad9)" "unconnected-(U4-Pad10)"
+    "unconnected-(U4-Pad11)" "unconnected-(U4-Pad12)" "unconnected-(U4-Pad13)" "Net-(U6-Pad3)" "Net-(U12-Pad17)" "Net-(U11-Pad3)" "Net-(U6-Pad11)" "unconnected-(U8-Pad5)"
+    "unconnected-(U8-Pad6)" "Net-(U10-Pad2)" "Net-(U10-Pad4)" "Net-(U10-Pad6)" "Net-(U12-Pad2)" "Net-(U12-Pad4)" "Net-(U12-Pad6)" "Net-(U12-Pad8)"
+    "Net-(U12-Pad11)" "Net-(U12-Pad13)" "Net-(U12-Pad15)" "unconnected-(U8-Pad35)" "Net-(U13-Pad2)" "Net-(U13-Pad12)"
     (clearance_class default)
     (via_rule default)
     (rule
@@ -103,7 +102,7 @@
     (clearance_class Power)
     (via_rule Power)
     (rule
-      (width 1000.0)
+      (width 800.0)
     )
     (circuit 
       (use_layer F.Cu B.Cu)
