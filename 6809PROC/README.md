@@ -55,41 +55,41 @@
 
 # BOM
 
-Ref|Value|Part|
+Item|Qty|Reference(s)|Value
 --- | --- | ---
-5|C1, C2, C16, C17, C18|10uf Electrolytic
-11|C3, C4, C5, C6, C7, C8, C9, C10, C12, C13, C14|0.1uf
-1|D1|1N4148
-1|D2|LED
-1|D3|LED
-1|D4|LED
-1|D5|LED
-1|D6|LED
-1|D7|LED
-1|J1|Header 1x3  (Right Angle)
-1|J2|Header 2x4  (Right Angle)
-1|J3|Header 1x3  (Right Angle)
-1|J4|Header 2x25 (Right Angle)
-1|JP1|Header 1x2  (Right Angle)
-1|R1|10ohm
-1|R2|10Kohm
-5|R3, R4, R5, R6, R13|1Kohm
-6|R7, R8, R9, R10, R11, R12|470ohm
-1|RN1|4700ohm Bussed 9 resistors
-2|RN2, RN3|1Kohm Bussed 8 resistors
-1|RN4|2.2kohm Bussed 9 resistors
-1|SW1|8 pos dip switch
-1|SW2|Tact Switch
-1|SW3|8 pos dip switch
-1|U1|74LS93
-3|U2, U12, U13|74LS244
-1|U3|74LS00
-2|U4, U11|74LS688
-1|U6|74LS07
-1|U7|74LS04
-1|U8|74LS74
-1|U9|74LS245
-1|U10|MC6809 (or 68B09 preferred)
+1|5|C1, C14, C15, C16, C17|10µf electrolytic
+2|12|C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13|0.1µf
+3|1|D1|Device:LED
+4|1|D2|Device:LED
+5|1|D3|Device:LED
+6|1|D4|Device:LED
+7|1|D5|Device:LED
+8|1|D6|Device:LED
+9|1|D7|1N4148
+10|1|J1|Connecto 02x04 Male Right Angle
+11|1|J2|Connector 01x03  Male Right Angle
+12|1|J3|Connector 01x03  Male Right Angle
+13|1|J4|Connector 02x25  Male Right Angle
+14|1|JP1|Jumper  01x02 Male Right Angle
+15|6|R1, R2, R3, R4, R6, R7|470 ohm
+16|1|R5|10 ohm
+17|1|R8|10K ohm
+18|1|RN1|4700 ohm Network 9
+19|2|RN2, RN4|1K ohm Network 8
+20|1|RN3|1k ohm Network 9
+21|1|RN5|2.2k ohm Network 9
+22|1|SW1|Switch:SW_DIP_x08
+23|1|SW2|Switch:SW_DIP_x08
+24|1|SW3|Switch:SW_Push
+25|1|U1|74LS93
+26|3|U2, U8, U10|74LS244
+27|1|U3|74LS04
+28|2|U4, U7|74LS688
+29|1|U5|74LS245
+30|1|U6|MC6809 (68B09 Preferred)
+31|1|U9|74LS00
+32|1|U11|74LS74
+33|1|U12|74LS07
 
 
 # SOFTWARE
