@@ -442,7 +442,7 @@ $EndComp
 Text Notes 3650 5375 1    60   ~ 0
 IO CHIP SELECT
 $Comp
-L conn:CONN_13X2 P5
+L Z80-6502IO-rescue:CONN_13X2-conn P5
 U 1 1 606F3EBC
 P 12925 1875
 F 0 "P5" H 12925 2696 60  0000 C CNN
@@ -1236,7 +1236,7 @@ $EndComp
 NoConn ~ 10925 5700
 NoConn ~ 10925 5900
 $Comp
-L conn:CONN_6 P3
+L Z80-6502IO-rescue:CONN_6-conn P3
 U 1 1 62A77BA6
 P 10375 8850
 F 0 "P3" H 10503 8893 60  0000 L CNN
@@ -1295,7 +1295,7 @@ RxD
 Text GLabel 10025 9000 0    60   Output ~ 0
 TxD
 $Comp
-L conn:CONN_2 P4
+L Z80-6502IO-rescue:CONN_2-conn P4
 U 1 1 62AC8F2D
 P 10950 10150
 F 0 "P4" H 11078 10178 40  0000 L CNN
@@ -1358,7 +1358,7 @@ F 3 "http://www.6502.org/documents/datasheets/mos/mos_6581_sid.pdf" H 13825 6975
 	1    0    0    -1  
 $EndComp
 $Comp
-L Maxim:MAX662ACPA+ U11
+L Z80-6502IO-rescue:MAX662ACPA+-Maxim U11
 U 1 1 6223EEBC
 P 13925 4075
 F 0 "U11" H 13925 4845 50  0000 C CNN
@@ -1417,7 +1417,7 @@ Wire Wire Line
 Wire Wire Line
 	13225 4425 13225 4175
 $Comp
-L Device:CP_Small C17
+L Z80-6502IO-rescue:CP_Small-Device C17
 U 1 1 622FD18D
 P 14725 3575
 F 0 "C17" V 14950 3575 50  0000 C CNN
@@ -1429,7 +1429,7 @@ F 3 "~" H 14725 3575 50  0001 C CNN
 $EndComp
 Connection ~ 14625 3575
 $Comp
-L Device:CP_Small C14
+L Z80-6502IO-rescue:CP_Small-Device C14
 U 1 1 622FF010
 P 14625 4125
 F 0 "C14" H 14713 4171 50  0000 L CNN
@@ -1607,7 +1607,7 @@ Wire Wire Line
 Wire Wire Line
 	15425 6475 15425 6125
 $Comp
-L Device:CP_Small C18
+L Z80-6502IO-rescue:CP_Small-Device C18
 U 1 1 623F8FDE
 P 15525 6125
 F 0 "C18" V 15750 6125 50  0000 C CNN
@@ -1643,7 +1643,7 @@ $EndComp
 Wire Wire Line
 	15625 6525 15625 6425
 $Comp
-L RAC_Custom:RCJ-014 J1
+L Z80-6502IO-rescue:RCJ-014-RAC_Custom J1
 U 1 1 6242A141
 P 16125 6225
 F 0 "J1" H 16300 6450 50  0000 R CNN
@@ -1927,7 +1927,7 @@ Text GLabel 7700 9725 0    60   3State ~ 0
 SPARE9
 NoConn ~ 7700 9725
 $Comp
-L conn:CONN_1 P1
+L Z80-6502IO-rescue:CONN_1-conn P1
 U 1 1 622D9D75
 P 6550 4625
 F 0 "P1" H 6608 4625 40  0000 L CNN
