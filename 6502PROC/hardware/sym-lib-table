@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "Z8065C02-rescue")(type "Legacy")(uri "${KIPRJMOD}/Z8065C02-rescue.lib")(options "")(descr ""))
+)

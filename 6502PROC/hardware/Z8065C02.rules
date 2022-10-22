@@ -11,7 +11,7 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 28238)
+    (start_pass_no 28801)
     (layer_rule F.Cu
       (active on)
       (preferred_direction horizontal)
@@ -53,6 +53,23 @@
     "kicad_default" "Via[0-1]_800:400_um-kicad_default"
   )
   (class default
+    "Net-(C2-Pad1)" "Net-(D1-Pad2)" "_BUSACK" "_6502EN" CLKO CLK "Net-(J2-Pad7)" "Net-(J2-Pad5)"
+    "Net-(J2-Pad3)" "Net-(J2-Pad1)" "_IORQ" "_RD" "_MREQ" "_WR" "_HALT" "_NMI"
+    "_WAIT" "_INT" "_BUSRQ" D1 "_RESET" D0 "_M1" D7
+    "_RFSH" D2 A0 D6 A1 D5 A2 D3
+    A3 D4 A4 A5 A15 A6 A14 A7
+    A13 A8 A12 A9 A11 A10 "Net-(JP1-Pad1)" "Net-(RN2-Pad9)"
+    "Net-(RN2-Pad8)" "Net-(RN2-Pad7)" "Net-(RN2-Pad6)" "Net-(RN2-Pad5)" "Net-(RN2-Pad4)" "Net-(RN2-Pad3)" "Net-(RN2-Pad2)" "unconnected-(J4-Pad50)"
+    "unconnected-(J4-Pad49)" "unconnected-(J4-Pad48)" "unconnected-(J4-Pad47)" "unconnected-(J4-Pad46)" "unconnected-(J4-Pad45)" "unconnected-(J4-Pad44)" "Net-(RN3-Pad2)" "_6502INT"
+    "_6502IO" "_6502NMI" 65TOGGLE 6502EN "unconnected-(J4-Pad41)" "Net-(R1-Pad1)" "Net-(RN5-Pad9)" "Net-(RN5-Pad8)"
+    "Net-(U6-Pad16)" "Net-(U6-Pad15)" "Net-(U6-Pad14)" "Net-(U6-Pad13)" "Net-(U6-Pad12)" "Net-(U6-Pad11)" "Net-(U6-Pad10)" "Net-(U6-Pad9)"
+    "Net-(RN5-Pad7)" "Net-(RN5-Pad6)" "Net-(RN5-Pad5)" "Net-(RN5-Pad4)" "Net-(D3-Pad2)" "Net-(D3-Pad1)" "Net-(D4-Pad2)" "Net-(D4-Pad1)"
+    "Net-(D5-Pad2)" "Net-(D5-Pad1)" "Net-(D6-Pad2)" "Net-(D6-Pad1)" "Net-(D7-Pad2)" "Net-(D7-Pad1)" "Net-(U11-Pad2)" "Net-(RN5-Pad3)"
+    ICLK 6502IO "Net-(RN5-Pad2)" "unconnected-(U1-Pad17)" "unconnected-(U1-Pad15)" "unconnected-(U1-Pad5)" "Net-(U1-Pad4)" "unconnected-(U1-Pad3)"
+    "Net-(U1-Pad2)" "_6502WR" "Net-(RN4-Pad9)" "Net-(RN4-Pad8)" "Net-(RN4-Pad7)" "Net-(RN4-Pad6)" "Net-(RN4-Pad5)" "Net-(RN4-Pad4)"
+    "Net-(RN4-Pad3)" "Net-(RN4-Pad2)" 6502RST "Net-(U4-Pad3)" "Net-(U3-Pad12)" "Net-(U11-Pad12)" "_6502ACTIVE" "Net-(U3-Pad6)"
+    "Net-(U3-Pad10)" "Net-(U10-Pad19)" "Net-(U4-Pad4)" "Net-(U6-Pad20)" "unconnected-(U6-Pad39)" "Net-(U6-Pad19)" "Net-(U6-Pad18)" "Net-(U6-Pad17)"
+    "unconnected-(U6-Pad36)" "unconnected-(U6-Pad35)" "unconnected-(U6-Pad7)" "unconnected-(U6-Pad5)" "Net-(U6-Pad24)" "Net-(U6-Pad23)" "Net-(U6-Pad22)" "Net-(U11-Pad5)"
     (clearance_class default)
     (via_rule default)
     (rule
@@ -63,21 +80,6 @@
     )
   )
   (class "kicad_default"
-    "Net-(C1-Pad1)" "Net-(D2-Pad2)" "_BUSACK" "_6502EN" CLKO CLK "Net-(J2-Pad7)" "Net-(J2-Pad5)"
-    "Net-(J2-Pad3)" "Net-(J2-Pad1)" "_IORQ" "_RD" "_MREQ" "_WR" "_HALT" "_NMI"
-    "_WAIT" "_INT" "_BUSRQ" D1 "_RESET" D0 "_M1" D7
-    "_RFSH" D2 A0 D6 A1 D5 A2 D3
-    A3 D4 A4 A5 A15 A6 A14 A7
-    A13 A8 A12 A9 A11 A10 "Net-(JP1-Pad1)" "Net-(RN2-Pad9)"
-    "Net-(RN2-Pad8)" "Net-(RN2-Pad7)" "Net-(RN2-Pad6)" "Net-(RN2-Pad5)" "Net-(RN2-Pad4)" "Net-(RN2-Pad3)" "Net-(RN2-Pad2)" "Net-(RN3-Pad9)"
-    "Net-(RN3-Pad8)" "Net-(RN3-Pad7)" "Net-(RN3-Pad6)" "Net-(RN3-Pad5)" "Net-(RN3-Pad4)" "Net-(RN3-Pad3)" "Net-(RN3-Pad2)" "_6502INT"
-    "_6502IO" "_6502NMI" 65TOGGLE 6502EN "Net-(U10-Pad8)" "Net-(U10-Pad6)" "Net-(U10-Pad4)" "Net-(U10-Pad2)"
-    "Net-(U6-Pad16)" "Net-(U6-Pad15)" "Net-(U6-Pad14)" "Net-(U6-Pad13)" "Net-(U6-Pad12)" "Net-(U6-Pad11)" "Net-(U6-Pad10)" "Net-(U6-Pad9)"
-    "Net-(U10-Pad17)" "Net-(U10-Pad15)" "Net-(U10-Pad13)" "Net-(U10-Pad11)" "Net-(D3-Pad2)" "Net-(D3-Pad1)" "Net-(D4-Pad2)" "Net-(D4-Pad1)"
-    "Net-(D5-Pad2)" "Net-(D5-Pad1)" "Net-(D6-Pad2)" "Net-(D6-Pad1)" "Net-(D7-Pad2)" "Net-(D7-Pad1)" "Net-(U11-Pad2)" "Net-(U12-Pad3)"
-    ICLK 6502IO "Net-(U4-Pad11)" "Net-(U12-Pad6)" "Net-(R9-Pad1)" "Net-(R10-Pad1)" "Net-(U12-Pad8)" "Net-(U3-Pad3)"
-    "Net-(U12-Pad10)" "_6502WR" "Net-(RN4-Pad9)" "Net-(RN4-Pad8)" "Net-(RN4-Pad7)" "Net-(RN4-Pad6)" "Net-(RN4-Pad5)" "Net-(RN4-Pad4)"
-    "Net-(RN4-Pad3)" "Net-(RN4-Pad2)" 6502RST "Net-(U4-Pad3)" 6502QENABLE "Net-(U11-Pad12)" "_6502ACTIVE"
     (clearance_class "kicad_default")
     (via_rule kicad_default)
     (rule
@@ -89,16 +91,6 @@
   )
   (class power
     GND VCC
-    (clearance_class default)
-    (via_rule default)
-    (rule
-      (width 800.0)
-    )
-    (circuit 
-      (use_layer F.Cu B.Cu)
-    )
-  )
-  (class ground
     (clearance_class default)
     (via_rule default)
     (rule

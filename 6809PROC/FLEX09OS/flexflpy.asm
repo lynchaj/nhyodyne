@@ -14,10 +14,11 @@
 ;*
 FDC_MSR		=	$FE30		; ADDRESS OF MAIN STATUS REGISTER
 FDC_DATA	=	$FE31		; FLOPPY DATA REGISTER
+FDC_TC		=	$FE32		; TERMINAL COUNT
 FDC_RESET	=	$FE33		; FLOPPY RESET
 FDC_DCR		=	$FE35		; LOAD CONTROL REGISTER
 FDC_DOR		=   $FE36		; CONFIGURATION CONTROL REGISTER
-FDC_TC		=	$FE37		; TERMINAL COUNT
+
 
 ;
 ; FDC COMMANDS
@@ -145,7 +146,7 @@ FL_SETUP:
         LDX     #FLOPPYMESSAGE4
         JSR     >PDATA1         ; DO PROMPT
         JSR     >PCRLF          ; AND CRLF
-    	LDA	    #DOR_BR250	    ; RESET SETTINGS
+    	LDA	    #DOR_INIT	    ; RESET SETTINGS
 	    STA	    FDC_DOR_STORE	; SAVE SETTINGS
 	    STA	    FDC_DOR
 
@@ -164,11 +165,24 @@ FL_SETUP:
 	    JSR	    CHECKINT		;
 	    JSR	    CHECKINT		;
 
+
+        LDA     #01
+        STA	    CURDRVADDRESS
 	    JSR	    RECAL			;
 
 	    LDA	    #39			    ;
 	    STA	    debcyl			;
 	    JSR	    SETTRACK
+        JSR	    RECAL			;
+
+        LDA     #00
+        STA	    CURDRVADDRESS
+	    JSR	    RECAL			;
+
+	    LDA	    #39			    ;
+	    STA	    debcyl			;
+	    JSR	    SETTRACK
+
 	    JMP	    RECAL			;
 
 
@@ -189,6 +203,14 @@ FL_SETUP:
 ;
 ;
 FL_READ_SECTOR:
+
+        PSHS    A,B,X,y
+		STD 	FLOPPYWORKVAR
+		LDX 	#FLOPPYWORKVAR
+	    JSR	    OUTADR		    ; PRINT BASE PORT
+        JSR     >PCRLF          ; AND CRLF
+        PULS    A,B,X,Y
+
         PSHS    A
         LDA     HARDWARE_DETCT
         CMPA    #$00
@@ -226,11 +248,22 @@ FL_READ_SECTOR_ERROR:
 FL_READ_SECTOR_RAW:
         JSR     SETUP_FD_CHS
       ;  DBGFLAG 'A'
+        PSHS    A,B,X,Y
+        LDA     #'A
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
+
 	    LDA	    FDC_DOR_STORE		; POINT TO FDC_DOR
 	    ORA	    #FDMOTOR_ON		    ; SET MOTOR ON
 	    STA	    FDC_DOR_STORE		; POINT TO FDC_DOR
 	    STA	    FDC_DOR			    ; OUTPUT TO CONTROLLER
      ;   DBGFLAG 'B'
+        PSHS    A,B,X,Y
+        LDA     #'B
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
     ;    DBGFLAG 'C'
 	    LDA	    debhead			    ;
 	    CMPA    Cdebhead		    ;
@@ -243,10 +276,20 @@ FL_READ_SECTOR_RAW:
 	    BNE	    READFL_DIRTY
                                     ; SECTOR ALREADY IN CACHE, DEBLOCK
      ;   DBGFLAG 'D'
+        PSHS    A,B,X,Y
+        LDA     #'D
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
 	    LDA	    #$00
 	    RTS
 READFL_DIRTY:
      ;   DBGFLAG 'E'
+        PSHS    A,B,X,Y
+        LDA     #'E
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
 	    LDA	    debhead	            ; STORE CURRENT PARMS
 	    STA	    Cdebhead		    ;
 	    LDA	    debcyl			    ;
@@ -256,9 +299,20 @@ READFL_DIRTY:
 
 READFL1:
       ;  DBGFLAG 'F'
+        PSHS    A,B,X,Y
+        LDA     #'F
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
 	    LDA	    #CFD_READ|CFD_MFM	; BIT 6 SETS MFM, 06H IS READ COMMAND
 	    STA	    FCMD                ; SET COMMAND
 	    JSR	    DSKOP               ; DO DISK OPERATION
+
+      ;  DBGFLAG '!'
+        PSHS    A,B,X,Y
+        LDA     #'!
+        JSR     VOUTCH
+        PULS    A,B,X,Y
 
 	    CMPA	#$00
 	    BEQ	    READFLDONE          ; OPERATION SUCCESSFUL
@@ -280,9 +334,21 @@ READFL1:
 	    STA	    Cdebcyl			    ;
 	    STA	    Cdebsec			    ;
       ;  DBGFLAG 'G'
-	    RTS				            ; A = $FF ON RETURN = OPERATION ERROR
+        PSHS    A,B,X,Y
+        LDA     #'G
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
+        LDB     #$1F
+        ASRB
+	    RTS				            ; A = $1F ON RETURN = OPERATION ERROR
 READFLDONE:
      ;   DBGFLAG 'H'
+        PSHS    A,B,X,Y
+        LDA     #'H
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
 	    LDA	    #$00			    ; A = 0 ON RETURN = OPERATION OK
 	    RTS
 
@@ -312,6 +378,7 @@ FL_WRITE_SECTOR_ERROR:
         ASRB
         RTS
 !
+        PULS    A
         PSHS    X
 		STB 	FLOPPYWORKVAR                ; KEEP SECTOR NUMBER HERE FOR DEBLOCKING
 		JSR 	FL_READ_SECTOR_RAW
@@ -362,7 +429,10 @@ WRITEFL1:
 	    STA	    Cdebhead		;
 	    STA	    Cdebcyl			;
 	    STA	    Cdebsec			;
-	    RTS	        			; A = $FF ON RETURN = OPERATION ERROR
+        LDB     #$1F
+        ASRB
+	    RTS	        			; A = $1F ON RETURN = OPERATION ERROR
+
 WRITEFLDONE:
 	    LDA	    #$00			; A = 0 ON RETURN = OPERATION OK
 	    RTS
@@ -391,11 +461,11 @@ SETUP_FD_CHS:
   	;PRTDBG "DSKY OUTPUT 1$"
   	    LDA	    CURDRV
   	    STA	    DSKY_HEXBUF
- 	    LDA	    DEBCYLM
+ 	    LDA	    debhead
   	    STA	    DSKY_HEXBUF+1
- 	    LDA	    DEBCYLL
+ 	    LDA	    debcyl
   	    STA	    DSKY_HEXBUF+2
-   	    LDA	    DEBSEHD
+   	    LDA	    debsec
   	    STA	    DSKY_HEXBUF+3
   	    JSR	    DSKY_BIN2SEG
     	JSR	    DSKY_SHOW
@@ -409,12 +479,22 @@ SETUP_FD_CHS:
 ;
 DSKOP:
         ;DBGFLAG 'I'
-	    SEI
-	    JSR	    CHECKINT		; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
-	    CMPA	#$FF			; DID IT RETURN WITH ERROR CODE?
-	    BEQ	    DSKEXIT			; IF YES, EXIT WITH ERROR CODE
+        PSHS    A,B,X,Y
+        LDA     #'I
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
+	  ;  SEI
+	  ;  JSR	    CHECKINT		; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
+	  ;  CMPA	#$FF			; DID IT RETURN WITH ERROR CODE?
+	  ;  BEQ	    DSKEXIT			; IF YES, EXIT WITH ERROR CODE
 					            ;
         ;DBGFLAG 'J'
+        PSHS    A,B,X,Y
+        LDA     #'J
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
 	    LDA	    FDC_DOR_STORE	; POINT TO FLATCH
 	    ORA	    #FDMOTOR_ON		; SET MOTOR ON
 	    STA	    FDC_DOR_STORE	; POINT TO FLATCH
@@ -422,6 +502,10 @@ DSKOP:
 					            ;
 	    JSR	    SETTRACK		; PERFORM SEEK TO TRACK
         ;DBGFLAG 'K'
+        PSHS    A,B,X,Y
+        LDA     #'K
+        JSR     VOUTCH
+        PULS    A,B,X,Y
 					            ;
 	    LDA	    FCMD			; WHAT COMMAND IS PENDING?
 	    CMPA	#CFD_READ|CFD_MFM	; IS IT A READ COMMAND?
@@ -439,7 +523,6 @@ DSKEXIT:
 	    RTS
 
 SNDFDWR:
-        ;DBGFLAG 'L'
 	    CLC
 	    LDA	    CURDRVADDRESS	; GET DISK UNIT NUMBER
 	    ANDA	#$03			; MASK FOR FOUR DRIVES.
@@ -452,53 +535,44 @@ SNDFDWR:
 	    STA	    UNIT			; STORE IN UNIT
 	    LDA	    FCMD			;
 	    JSR	    PFDATA			; PUSH COMMAND TO I8272
-                ;DBGFLAG 'm'
 	    LDA	    UNIT			;
 	    JSR	    PFDATA			;
-                ;DBGFLAG 'n'
 	    LDA	    debcyl			;
 	    JSR	    PFDATA			;
-                ;DBGFLAG 'o'
 	    LDA	    debhead			;
 	    JSR	    PFDATA			;
-                ;DBGFLAG 'p'
 	    LDA	    debsec			;
-	    INCA
 	    JSR	    PFDATA			;
-                ;DBGFLAG 'q'
 	    LDA	    #$02			;
 	    JSR	    PFDATA			; WHAT DENSITY
-                ;DBGFLAG 'r'
 	    LDA	    #$09			;
 	    JSR	    PFDATA			; ASSUME SC (SECTOR COUNT)  EOT
-                ;DBGFLAG 's'
 	    LDA	    #$1B			;
 	    JSR	    PFDATA			; WHAT GAP IS NEEDED
-                ;DBGFLAG 't'
 	    LDA	    #$FF			; DTL, IS THE LAST COMMAND BYTE TO I8272
 	    JSR	    PFDATAS
 	    RTS
 ; PERFORM READ
-; FROM READ TO READ MUST NOT EXCEED 25US WORST CASE MIN. (AT 2MHZ IS 2,000,000 CYCLES PER SECOND == 50 CYCLE BUDGET.)
-;
+; FROM READ TO READ MUST NOT EXCEED 27US WORST CASE MIN.
+; AT  4MHZ is 1us/c, 6Mhz is .667us/c,  8mhz is .5 us/c
+; 27/40/54 CYCLE BUDGET -- read currently takes 32 cycles !!!
+; These can be doubled if FM mode is chosen -- which MAY be necessary for a 4mHz 6809
 RDD_POLL:
-   	    LDY	    #HSTBUF         ; SET DESTINATION BUFFER
-        LDX     #$0200          ; TIMEOUT
+        PSHS    A,B,X,Y
+        LDA     #'<
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
+   	    LDX	    #HSTBUF         ; SET DESTINATION BUFFER
+        LDY	    #$0200          ; SET SECTOR LENGTH
    	    JSR	    SNDFDWR			;
-RDS1:	LDA	    FDC_MSR			; GET STATUS
-	    ;BPL	RDS1            ; FDC IS NOT READY, WAIT FOR IT
-        ;ANDA	#%00100000	    ; EXECUTION MODE?
-        ;BEQ	DSKOPEND	    ; NO, ERROR
-        CMPA    #$F0            ;
-	    BEQ	    RDS1A			; READY TO GO
-        DEX
-        BNE     RDS1            ; NOT READY TO GO
-       	JMP	    DSKOPEND		; ERROR
-RDS1A:
+RDS1:   LDA	    FDC_MSR			; GET STATUS
+        BPL     RDS1            ; FDC IS NOT READY, WAIT FOR IT
+        BITA	#%00100000	    ; EXECUTION MODE?
+        BEQ	    DSKOPEND	    ; NO, ERROR
 	    LDA	    FDC_DATA		; GET DATA
-	    STA	    ,Y		        ; WRITE IT
-	    INY                     ;
-        CMPY    #HSTBUF+$0200   ;
+	    STA	    ,X+		        ; WRITE IT
+	    LEAY    -1,Y            ;
 	    BNE	    RDS1			; KEEP GOING
 DSKOPEND:
                     ;DBGFLAG 'Y'
@@ -531,17 +605,18 @@ RESUL3:
 	    RTS
 
 WRR_POLL:
-   	    LDY	    #HSTBUF         ; SET DESTINATION BUFFER
+   	    LDX	    #HSTBUF         ; SET DESTINATION BUFFER
+        LDY	    #$0200          ; SET SECTOR LENGTH
 	    JSR	    SNDFDWR			;
-WRS1:		        			;
+WRS1:
+        LDB     ,X+	    	    ; GET DATA
+WRS2:
 	    LDA	    FDC_MSR			; GET STATUS
-	    BPL	    WRS1			; NOT READY
-	    ANDA	#%00100000		; EXECUTION MODE?
+	    BPL	    WRS2			; NOT READY
+	    BITA	#%00100000		; EXECUTION MODE?
 	    BEQ	    WRS3			; NO, ERROR
-	    LDA     ,Y	    	    ; WRITE IT
 	    STA	    FDC_DATA		; WRITE TO FDC
-	    INY
-        CMPY    #HSTBUF+$0200   ;
+	    LEAY    -1,Y            ;
 	    BNE	    WRS1			; DO NEXT
 WRS3:
 	    JMP	    DSKOPEND		;
@@ -559,8 +634,8 @@ SETTRACK:
 	    STA	    FDC_DOR_STORE	; POINT TO FLATCH
 	    STA	    FDC_DOR			; OUTPUT TO CONTROLLER
 
-					; ANY INTERUPT PENDING
-					; IF YES FIND OUT WHY/CLEAR
+					            ; ANY INTERUPT PENDING
+					            ; IF YES FIND OUT WHY/CLEAR
 	    JSR	    CHECKINT		; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
 	    CMPA    #$FF			; DID IT RTSURN WITH ERROR CODE?
 	    BNE	    SETTRK1
@@ -568,6 +643,10 @@ SETTRACK:
 
 					;
 SETTRK1:
+	    LDA	    FDC_DOR_STORE	; POINT TO DOR
+	    ORA	    #FDMOTOR_ON		; SET MOTOR ON
+	    STA	    FDC_DOR_STORE	; POINT TO DOR
+        STA	    FDC_DOR			; OUTPUT TO CONTROLLER
 	    LDA	    debcyl			; GET TRACK
 	    CMPA	#$00			;
 	    BEQ	    RECAL			; IF 0 PERFORM RECAL INSTEAD OF SEEK
@@ -632,6 +711,7 @@ WRF1:
 	    ANDB	#$40			; TEST DIO BIT
 	    BNE	    WRF2			; FDC IS OUT OF SYNC
 	    PULS    A				; RESTORE DATA
+
 	    STA	    FDC_DATA		; WRITE TO FDC
         JSR     FDDELAY
         JSR     FDDELAY
@@ -669,6 +749,10 @@ WRF1S:
 	    RTS
 ; FDC IS OUT OF SYNC CLEAR IT OUT AND RE-TRY
 WRF2S:
+        PSHS    A,B,X,Y
+        LDA     #'~
+        JSR     VOUTCH
+        PULS    A,B,X,Y
 	    LDA	    FDC_DATA		; READ DATA REGISTER
 	    JMP	    WRF1S			; AND CONTINUE
 
@@ -730,7 +814,9 @@ SENDINT:
 	    JSR	    GFDATA			; GET ANOTHER (STATUS CODE 1)
 	    LDA	    ST0 			; GET FIRST ONE
 	    ANDA	#$C0			; MASK OFF ALL BUT INTERRUPT CODE 00 IS NORMAL
+        RTS
 ENDSENDINT:
+        LDA	    #$FF			; RETURN ERROR CODE -1
 	    RTS				; ANYTHING ELSE IS AN ERROR
 
 
@@ -773,10 +859,15 @@ FD_DETECT:
 	; BLINDLY RESET FDC (WHICH MAY OR MAY NOT EXIST)
 	    LDA     #DOR_INIT	    ; MAKE SURE INITIAL DOR VALUE IS SETUP
         STA	    FDC_DOR_STORE	; AND PUT IN SHADOW REGISTER
+        STA	    FDC_DOR     	;
 
 	    JSR	    FC_RESETFDC	    ; RESET FDC
-
 	    LDA 	FDC_MSR	        ; READ MSR
+
+                PSHS    A,B,X,y
+                JSR     OUTHEXA
+                PULS A,B,X,Y
+
 	    CMPA	#$80
 	    BEQ 	FD_DETECT1  	; $80 IS OK
 	    CMPA	#$D0
@@ -786,12 +877,19 @@ FD_DETECT:
         RTS
 ;
 FD_DETECT1:
-	    LDX     #100
+	    LDX     #$1000
         JSR     FDVDELAY	    ; WAIT A BIT FOR FDC
 	    LDA	    FDC_MSR 	    ; READ MSR AGAIN
+
+                PSHS    A,B,X,y
+                JSR     OUTHEXA
+                PULS A,B,X,Y
+
 	    CMPA	#$80
 	    BEQ 	>             	; $80 IS OK
 	    CMPA	#$D0
+        BEQ 	>             	; $D0 IS OK
+
         LDA     #$FF            ; NOT OK
         STA     HARDWARE_DETCT
         RTS
@@ -802,16 +900,16 @@ FD_DETECT1:
 
 FC_RESETFDC:
         LDA     FDC_RESET
-        LDA     FDC_RESET
-	    LDX     #150
-        JSR     FDVDELAY	; WAIT A BIT FOR FDC
-
+	    LDX     #$0200
+        JSR     FDVDELAY	    ; WAIT A BIT FOR FDC
 	    LDA     #FDRESETL
        	STA     FDC_DOR
-	    JSR	    FDDELAY
-	    LDA     FDC_DOR_STORE
-       	STA     FDC_DOR
-	    LDX	    #150			;
+	    LDX     #$0200
+        JSR     FDVDELAY	    ; WAIT A BIT FOR FDC
+	    LDA     #DOR_INIT	    ; MAKE SURE INITIAL DOR VALUE IS SETUP
+        STA	    FDC_DOR_STORE	; AND PUT IN SHADOW REGISTER
+        STA     FDC_DOR
+        LDX	    #$0200  	    ;
 	    JSR	    FDVDELAY
 	    RTS
 
@@ -823,11 +921,9 @@ FDDELAY:
         PULS    A
         RTS
 FDVDELAY:
-        PSHS    A
-        PULS    A
-        PSHS    A
-        PULS    A
         DEX
+        CMPX    #$00
+        CMPX    #$00
         CMPX    #$00
         BNE     FDVDELAY
         RTS

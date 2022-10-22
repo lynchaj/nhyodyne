@@ -72,65 +72,45 @@ schedule, it is decoded by a super-fast 74AC family device. . . . .
 
 
 
-# BOM
+# BOM (V1.4)
 
-Ref|Value|Part|
+Qty|Reference(s)|Value
 --- | --- | ---
-C1|	10u|	Electrolytic Capacitor
-C2|	0.1u|	Capacitor
-C3|	0.1u|	Capacitor
-C4|	0.1u|	Capacitor
-C5|	0.1u|	Capacitor
-C6|	0.1u|	Capacitor
-C7|	0.1u|	Capacitor
-C8|	0.1u|	Capacitor
-C9|	0.1u|	Capacitor
-C10|	0.1u|	Capacitor
-C11|	0.1u|	Capacitor
-C12|	10u|	Electrolytic Capacitor
-C13|	10u|	Electrolytic Capacitor
-C14|	0.1u|	Capacitor
-C15|	0.1u|	Capacitor
-C16|	0.1u|	Capacitor
-D1|	1N4148|	Diode
-D2|	POWER|	LED
-D3|	VP|	LED
-D4|	ML|	LED
-D5|	INT|	LED
-D6|	NMI|	LED
-D7|	6502|	LED
-J1|	6502 ONLY|	Pin header 01x03
-J2|	CLOCK DIVIDER|	Pin header 02x05
-J3|	MBC Bus Connector|	Pin header Right Angle 02x25
-J4|	6502 RESET|	Pin header 01x03
-JP1|	RESET|	Pin header 0x02
-R1|	10|	Resistor
-R2|	10K|	Resistor
-R3|	470|	Resistor
-R4|	470|	Resistor
-R5|	470|	Resistor
-R6|	470|	Resistor
-R7|	470|	Resistor
-R8|	470|	Resistor
-RN1|	4700|	Resistor Network 09
-RN2|	1K|	Resistor Network 08
-RN3|	1K|	Resistor Network 08
-SW1|	IO PAGE SELECT|	Switch DIP x08
-SW2|	RESET	|Switch Push
-SW3|	IO ADDRESS SELECT|	Switch DIP x08
-U1|	74LS93|	74LS93
-U2|	74LS244|	74LS244
-U3|	74LS07|	74LS07
-U4|	74LS04|	74LS04
-U5|	74LS688|	74LS688
-U6|	W65C02SxP|	65C02 WDC or Rockwell
-U7|	74LS245|	74LS245
-U8|	74LS244|	74LS244
-U9|	74LS688|	74LS688
-U10|	74LS244|	74LS244
-U11|	74LS74|	74LS74
-U12|	74LS32|	74LS32
-U13|	74LS04|	74LS04
+5|C1, C2, C16, C17, C18|10�F electrolytic
+13|C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15|0.1�F
+1|D1|Device:LED
+1|D2|1N4148
+1|D3|Device:LED
+1|D4|Device:LED
+1|D5|Device:LED
+1|D6|Device:LED
+1|D7|Device:LED
+1|J1|Connector 01x03 Male  Rt angle
+1|J2|Connector 02x04 Male  Rt angle
+1|J3|Connector  01x03 Male  Rt angle
+1|J4|Connector 02x25 Male Rt angle
+1|JP1|Jumperx2
+1|R1|3.3K
+1|R2|10
+6|R3, R5, R6, R7, R8, R9|470
+1|R4|10K
+1|RN1|4700 Network 09
+2|RN2, RN5|1K Network 08
+1|RN3|1K Network 05
+1|RN4|2.2K Network 09
+1|SW1|Switch:SW_DIP_x08
+1|SW2|Switch:SW_DIP_x08
+1|SW3|Switch:SW_Push
+3|U1, U8, U9|74LS244
+1|U2|74LS93
+1|U3|74LS32
+1|U4|74LS04
+2|U5, U10|74LS688
+1|U6|65CE02
+1|U7|74LS245
+1|U11|74LS74
+1|U12|74LS07
+
 
 # SOFTWARE
 ### HI

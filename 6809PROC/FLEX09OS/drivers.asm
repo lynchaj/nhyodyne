@@ -50,11 +50,11 @@ CURDRVTYP       FCB     $00
 CURDRVADDRESS   FCB     $00
 CURDRVSLICE     FDB     $0000
 
-DRVTYPES        FCB     $02,$02,$02,$02
+DRVTYPES        FCB     $02,$02,$01,$01
                 ;   $00 - INVALID
                 ;   $01 - Floppy
                 ;   $02 - IDE
-DRVADDRESS      FCB     $01,$01,$01,$01
+DRVADDRESS      FCB     $01,$01,$00,$01
 DRVSLICE        FDB     $0000,$0000,$0000,$0000
 
 ;_____________________________________________________________________________________________________
@@ -262,7 +262,8 @@ READERR:        LDB     #$1F
                 ASRB
                 PULS    PC,A
 READFLOPPY:
-                BRA     READERR
+                PULS    A
+                JMP     FL_READ_SECTOR
 READIDE:
                 PULS    A
                 JMP     IDE_READ_SECTOR
@@ -295,7 +296,9 @@ WRITEERR:       LDB     #$1F
                 ASRB
                 PULS    PC,A
 WRITEFLOPPY:
-                BRA     WRITEERR
+                PULS    A
+                JMP     FL_WRITE_SECTOR
+
 WRITEIDE:
                 PULS    A
                 JMP     IDE_WRITE_SECTOR
@@ -371,6 +374,7 @@ DCINIT
 	IF USEDSKYNG = 1
 	        	JSR     DSKY_INIT
 	ENDC
+                JSR     FL_SETUP
                 RTS
 
 ;_____________________________________________________________________________________________________
