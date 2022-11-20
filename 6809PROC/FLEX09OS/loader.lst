@@ -17,7 +17,7 @@ C3E1 01003C           (       loader.asm):00016                         FCB     
 C3E4 110044           (       loader.asm):00017                         FCB             $11,$00,$44             ;LD     DE,$4400 -DESTINATION ADDRESS (6809 IS !A15)
 C3E7 212001           (       loader.asm):00018                         FCB             $21,$20,$01             ;LD     HL,$0120 -SOURCE ADDRESS
 C3EA EDB0             (       loader.asm):00019                         FCB             $ED,$B0                 ;LDIR            -COPY RAM
-C3EC DBFE             (       loader.asm):00020                         FCB             $DB,$FE                 ;IN     A,$FE    -ENABLE 6809
+C3EC DBF0             (       loader.asm):00020                         FCB             $DB,$F0                 ;IN     A,$F0    -ENABLE 6809
 C3EE 0E00             (       loader.asm):00021                         FCB             $0E,$00                 ;LD     C,00H    -CP/M SYSTEM RESET CALL
 C3F0 CD0500           (       loader.asm):00022                         FCB             $CD,$05,$00                     ;CALL   0005H    -RETURN TO PROMPT
                       (       loader.asm):00023         ;
