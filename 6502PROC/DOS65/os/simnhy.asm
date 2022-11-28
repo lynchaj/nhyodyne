@@ -104,9 +104,9 @@ boot:
 	sta farfunct
 	JSR DO_FARCALL
 
-; lda #25 ;FD_INIT
-; sta farfunct
-; JSR DO_FARCALL
+ 	lda #25 					 ;FD_INIT
+	sta farfunct
+	JSR DO_FARCALL
 
 	lda #04                      ;PPIDE_INIT
 	sta farfunct
@@ -258,15 +258,15 @@ read:
 	JSR DO_FARCALL
 	JMP MOVEBUFTODMA
 :
-	;; CMP #$20
-	;; BNE : + ; not floppy drive
+	CMP #$20
+	BNE :+ 			; not floppy drive
 	;FD
-	;;; lda #23 ;FD_READ_SECTOR
-	;; sta farfunct
-	;; JSR DO_FARCALL
-	;; JMP MOVEBUFTODMA
-	;; RTS ;
-	;:
+	lda #23 ;FD_READ_SECTOR
+	sta farfunct
+	JSR DO_FARCALL
+	JMP MOVEBUFTODMA
+	RTS ;
+:
 	CMP #$30
 	BNE :+                       ; invalid drive
 	;PPIDE
@@ -296,13 +296,13 @@ write:
 	sta farfunct
 	jmp DO_FARCALL
 :
-	;; CMP #$20
-	;; BNE : + ; not floppy drive
+	CMP #$20
+	BNE :+ 						; not floppy drive
 	;FD
-	;; lda #24 ;FD_WRITE_SECTOR
-	;; sta farfunct
-	;; JMP DO_FARCALL
-	;:
+	lda #24 ;FD_WRITE_SECTOR
+	sta farfunct
+	JMP DO_FARCALL
+:
 	CMP #$30
 	BNE writex                   ; not ppide
 	;PPIDE
@@ -402,6 +402,18 @@ GET_DRIVE_DEVICE:
 	asl a                        ; DOUBLE NUMBER FOR TABLE LOOKUP
 	TAX                          ; MOVE TO X REGISTER
 	LDA dskcfg, X                ; GET device
+								 ; SETUP FLOPPY CONTROL WHILE WE ARE HERE
+	AND #$01
+	CMP #$00
+	BNE	:+
+	LDA #%00010000
+	STA DSKUNIT
+	JMP GET_DRIVE_DEVICE_1
+:
+	LDA #%00100001
+	STA DSKUNIT
+GET_DRIVE_DEVICE_1:
+	LDA dskcfg, X                ; GET device
 	PLX
 	RTS
 
@@ -422,12 +434,12 @@ DSPL_DSK_CFG_1:
 	CLC
 	ADC #'A'
 	JSR conwrt
-LDA #':'
+	LDA #':'
 	JSR conwrt
 	LDA #'='
 	JSR conwrt
 	JSR prtdevice                ; PRINT DEVICE NAME FROM TABLE (X)
-LDA #':'
+	LDA #':'
 	JSR conwrt
 	INX                          ; WANT SECOND BYTE OF ENTRY
 	LDA dskcfg, x                ; GET SLICE
@@ -561,23 +573,23 @@ dcbc: .word 2047              ;max block number
 	.word almpc                  ;address of map for C
 	.byte 0                      ;do checksums
 	.word ckmp                   ;checksum map
-dcbd: .word 2047              ;max block number
-	.word 64                     ;sectors per track
-	.word 16                     ;number system tracks
-	.byte 2                      ;block size = 4096
-	.word 511                    ;max directory number
+dcbd: .word 350              ;max block number
+	.word 36                     ;sectors per track
+	.word 4                      ;number system tracks
+	.byte 1                      ;block size = 2048
+	.word 127                    ;max directory number
 	.word almpd                  ;address of map for d
 	.byte 0                      ;do checksums
 	.word ckmp                   ;checksum map
-dcbe: .word 2047              ;max block number
-	.word 64                     ;sectors per track
-	.word 16                     ;number system tracks
-	.byte 2                      ;block size = 4096
-	.word 511                    ;max directory number
+dcbe: .word 350		             ;max block number
+	.word 36                     ;sectors per track
+	.word 4                      ;number system tracks
+	.byte 1                      ;block size = 2048
+	.word 127                    ;max directory number
 	.word almpe                  ;address of map for e
 	.byte 0                      ;do checksums
 	.word ckmp                   ;checksum map
-dcbf: .word 2047              ;max block number
+dcbf: .word 2047                 ;max block number
 	.word 64                     ;sectors per track
 	.word 16                     ;number system tracks
 	.byte 2                      ;block size = 4096
@@ -585,7 +597,7 @@ dcbf: .word 2047              ;max block number
 	.word almpf                  ;address of map for f
 	.byte 0                      ;do checksums
 	.word ckmp                   ;checksum map
-dcbg: .word 2047              ;max block number
+dcbg: .word 2047                 ;max block number
 	.word 64                     ;sectors per track
 	.word 16                     ;number system tracks
 	.byte 2                      ;block size = 4096
@@ -593,7 +605,7 @@ dcbg: .word 2047              ;max block number
 	.word almpg                  ;address of map for g
 	.byte 0                      ;do checksums
 	.word ckmp                   ;checksum map
-dcbh: .word 2047              ;max block number
+dcbh: .word 2047                 ;max block number
 	.word 64                     ;sectors per track
 	.word 16                     ;number system tracks
 	.byte 2                      ;block size = 4096
@@ -625,9 +637,9 @@ ckmp: .res 128
 dftdskcfg:
 	.byte $00, $00               ; disk A: unit, slice (invalid for floppy and RAM disks)
 	.byte $01, $00               ; disk B: unit, slice (invalid for floppy and RAM disks)
-	.byte $30, $00               ; disk C: unit, slice
-	.byte $30, $01               ; disk D: unit, slice
-	.byte $30, $02               ; disk E: unit, slice
+	.byte $30, $06               ; disk C: unit, slice
+	.byte $20, $00               ; disk D: unit, slice
+	.byte $21, $00               ; disk E: unit, slice
 	.byte $30, $03               ; disk F: unit, slice
 	.byte $30, $04               ; disk G: unit, slice
-	.byte $30, $06               ; disk H: unit, slice
+	.byte $30, $00               ; disk H: unit, slice

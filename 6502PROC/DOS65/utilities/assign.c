@@ -14,8 +14,8 @@ char romdcb[9]={0xbf,0x00,0x40,0x00,0x00,0x00,0x01,0xff,0x00};
 void prtusage();
 void prtdevice(char);
 void prttable(char *);
-int parsecmd(char *, char *, char *);
-void mapdrive(char *, char *, char *);
+int parsecmd(char *, char *, char *, char *);
+void mapdrive(char *, char *, char *, char *);
 void updatedosmap(char , char[]);
 void toupper(char *);
 
@@ -24,9 +24,9 @@ int main()
   unsigned int **dskcfgptr = DISKCFG;
   char **cmdlineptr = CMDLINE;
   int result;
-  char token1[30], token2[30];
+  char token1[30], token2[30], flags[30];
 
-  result = parsecmd((unsigned char *)CMDLINE, token1, token2);
+  result = parsecmd((unsigned char *)CMDLINE, token1, token2,flags);
 
   switch (result)
   {
@@ -37,25 +37,33 @@ int main()
     prtusage();
     break;
   case 2:
-    mapdrive((unsigned char *)dskcfgptr, token1, token2);
+    mapdrive((unsigned char *)dskcfgptr, token1, token2, flags);
     break;
   }
 
   return (0);
 }
 
-int parsecmd(char *cmdline, char *token1, char *token2)
+int parsecmd(char *cmdline, char *token1, char *token2,char *flags)
 {
   int r = 0;
   unsigned char Mx = *(cmdline - 1);
   char *token;
+   char *flag;
   *(token1) = 0; // null terminate tokens
   *(token2) = 0;
+  *(flags) = 0;
   if (Mx > 127)
     Mx = 127;
   *(cmdline + Mx) = 0; // let's null terminate the string
   token = strtok(cmdline, " ");
   token = strtok(NULL, " "); // discard the "Assign" token
+  flag = strtok(NULL, " "); // any flags?
+  if (flag != NULL)
+  {
+    strncpy(flags, flag, 5);
+  }
+
   if (token != NULL)
   {
     token = strtok(token, "=");
@@ -96,6 +104,9 @@ void prtdevice(char dev)
   case 0x10:
     cputs("UNKNOWN");
     return;
+  case 0x20:
+    cputs("FD");
+    break;
   case 0x30:
     cputs("PPIDE");
     break;
@@ -109,7 +120,7 @@ void prtdevice(char dev)
 void prtusage()
 {
   cputs(" Usage: \n\r");
-  cputs("    ASSIGN D:=[{D:|<device>[<unitnum>]:[<slicenum>]}] \n\r");
+  cputs("    ASSIGN D:=[{D:|<device>[<unitnum>]:[<slicenum>]}] {/flags} \n\r");
   cputs("      ex: ASSIGN		(display all active drive assignments) \n\r");
   cputs("          ASSIGN /?		(display version and usage) \n\r");
   cputs("          ASSIGN C:=FD0:	(assign C: to floppy unit 0) \n\r");
@@ -117,8 +128,13 @@ void prtusage()
   cputs("\n\r POSSIBLE DEVICES:\n\r");
   cputs("          MD0:    RAM DISK\n\r");
   cputs("          MD1:    ROM DISK\n\r");
+  cputs("          FD0:    FLOPPY DISK UNIT 0\n\r");
+  cputs("          FD1:    FLOPPY DISK UNIT 1\n\r");
   cputs("          PPIDE0: PRIMARY PPIDE FIXED DISK\n\r");
   cputs("          PPIDE1: SECONDARY PPIDE FIXED DISK\n\r");
+  cputs("\n\r POSSIBLE FLAGS:\n\r");
+  cputs("          /35     3.5 INCH FLOPPY (DEFAULT)\n\r");
+  cputs("          /525    5.25 INCH FLOPPY\n\r");
 }
 
 void toupper(char *name)
@@ -131,12 +147,13 @@ void toupper(char *name)
   }
 }
 
-void mapdrive(char *bytes, char *token1, char *token2)
+void mapdrive(char *bytes, char *token1, char *token2, char *flags)
 {
   char drive = (token1[0] & 0x5F) - 65;
   char newdevice = 0xff;
   char *token, *rtoken;
   unsigned char slice = 0x00;
+
 
   if ((drive < 0) || (drive > 7))
   {
@@ -158,6 +175,24 @@ void mapdrive(char *bytes, char *token1, char *token2)
     newdevice = 0x01;
     updatedosmap(drive,romdcb);
   }
+  if (!strncmp(token2, "FD0:", 4))
+   {
+    newdevice = 0x20;
+    updatedosmap(drive,floppy35720dcb);
+    if (!strncmp(flags, "/525", 4))
+    {
+      updatedosmap(drive,floppy525360dcb);
+    }
+   }
+  if (!strncmp(token2, "FD1:", 4))
+   {
+    newdevice = 0x21;
+    updatedosmap(drive,floppy35720dcb);
+    if (!strncmp(flags, "/525", 4))
+    {
+      updatedosmap(drive,floppy525360dcb);
+    }
+   }
   if (!strncmp(token2, "PPIDE0:", 7))
    {
     newdevice = 0x30;
@@ -185,7 +220,16 @@ void mapdrive(char *bytes, char *token1, char *token2)
 
   cprintf("Changed to:  %c:=", drive + 65);
   prtdevice(*(bytes + (drive * 2)));
-  cprintf(":%u \n\r", *(bytes + (drive * 2) + 1));
+  cprintf(":%u ", *(bytes + (drive * 2) + 1));
+   if (!strncmp(flags, "/525", 4))
+    {
+      cputs("(360K)");
+    }
+    else
+    {
+      cputs("(720K)");
+    }
+  cputs("\n\r");
   return;
 }
 

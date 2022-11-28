@@ -98,7 +98,7 @@ Qty|Reference(s)|Value
 ### MONITOR
 This is a simple monitor program, see the "monitor" section of this document for usage instructions. "Monitor" requires that the UART is properly initialized.
 
-It assumes that the 6809 board is set for IOPage $F0.
+It assumes that the 6809 board is set for IOPage $FE.
         * remember that bit A15 is inverted on the board
 
 If the SBC is the only CPU in the system, ensure that jumpers J1 and J4 are set for 1&2, then burn monitor.hex into EPROM. (note that this monitor does not initialize the UART yet, so this is broken at the moment)

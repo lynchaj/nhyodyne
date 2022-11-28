@@ -35,7 +35,7 @@ debcylm         =	    $0511           ; DEBLOCKED CYLINDER MSB
 debsehd         =	    $0512           ; DEBLOCKED SECTOR AND HEAD (HS)
 sekdsk          =       $0513           ; seek disk number
 dskcfg          =       $0514           ; 16 bytes disk configuration table
-
+DSKUNIT         =       $0525           ; seek disk number
 
 
 tea	=	$800		;tea start

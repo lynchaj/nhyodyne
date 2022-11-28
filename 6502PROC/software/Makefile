@@ -1,4 +1,4 @@
-all:  	monitor.com scream.com hi.com
+all:  	tstflop.s19 monitor.com scream.com hi.com
 
 monitor.com: monitor.asm
 	ca65 monitor.asm -l monitor.lst
@@ -11,6 +11,13 @@ monitor.com: monitor.asm
 	@rm monitor.s
 	@rm monitor.out
 	@rm monitor.o
+
+tstflop.s19: tstflop.asm
+	ca65 tstflop.asm -l tstflop.lst
+	ld65 tstflop.o -m tstflop.map -C mbc.cfg -o tstflop.out
+	srec_cat  tstflop.out -binary -offset 0x1000 -exclude 0x1700 0xFFFF  -o  tstflop.s19  -data-only
+	@rm tstflop.out
+	@rm tstflop.o
 
 scream.com: scream.asm
 	ca65 scream.asm -l scream.lst
