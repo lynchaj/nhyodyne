@@ -6,36 +6,36 @@
 ;________________________________________________________________________________________________________________________________
 
 ;base addresses and definitions
-btejmp	        =	$0100		;warm boot jump
-pemjmp	        =	$0103		;jump to pem
-iostat	        =	$0106		;i/o status
-dflfcb	        =	$0107		;default fcb
-dflbuf	        =	$0128		;default buffer
+btejmp	        =	$0100		; warm boot jump
+pemjmp	        =	$0103		; jump to pem
+iostat	        =	$0106		; i/o status
+dflfcb	        =	$0107		; default fcb
+dflbuf	        =	$0128		; default buffer
 memmovr         =	$0200		; 0200-02ff subr to move data from ram/rom disks
-MD_PAGERA       =       $0200           ; PAGE DRIVER ADDRESS
+MD_PAGERA       =   $0200       ; PAGE DRIVER ADDRESS
 
-IO              =       $0300           ; 0300-03FF Memory mapped IO
-MPCL_ROM	=	$037C		; ROM MAPPER
-MPCL_RAM	=	$0378		; RAM MAPPER
+IO              =   $0300       ; 0300-03FF Memory mapped IO
+MPCL_ROM	    =	$037C		; ROM MAPPER
+MPCL_RAM	    =	$0378		; RAM MAPPER
 
-MD_PAGEBU       =       $0400           ; 0400-04FF PAGE BUFFER ADDRESS
-MD_PAGESE       =       pointr          ; PAGE SECTOR STORAGE
+MD_PAGEBU       =   $0400       ; 0400-04FF PAGE BUFFER ADDRESS
+MD_PAGESE       =   pointr      ; PAGE SECTOR STORAGE
 
 ;
 ; DRIVER WORKING STORAGE
 ;
 DSKY_BUF        =       $0500	        ; Eight Bytes DSKY display buffer
-DSKY_BUFLEN	=       8               ;
+DSKY_BUFLEN	    =       8               ;
 DSKY_HEXBUF     =       $0508           ; Four Bytes DSKY hex buffer
 DSKY_HEXBUFLEN	=       4               ;
-sektrk          =       $050C		; seek track number
-seksec          =       $050E		; seek sector number
+sektrk          =       $050C		    ; seek track number
+seksec          =       $050E		    ; seek sector number
 debcyll         =       $0510	        ; DEBLOCKED CYLINDER LSB
-debcylm         =	$0511           ; DEBLOCKED CYLINDER MSB
-debsehd         =	$0512           ; DEBLOCKED SECTOR AND HEAD (HS)
+debcylm         =	    $0511           ; DEBLOCKED CYLINDER MSB
+debsehd         =	    $0512           ; DEBLOCKED SECTOR AND HEAD (HS)
 sekdsk          =       $0513           ; seek disk number
 dskcfg          =       $0514           ; 16 bytes disk configuration table
-
+DSKUNIT         =       $0525           ; seek disk number
 
 
 tea	=	$800		;tea start
@@ -71,8 +71,8 @@ stksav	=	$2C			;save stack register
 frstsc	=	$2D			;first sector number of disk
 dskcfpc	=	$2E			;pointer to disk configuration table
 cmdlnp	=	$30			;pointer to command line buffer
-farfunct=       $32                     ;function to call in driver area
-farpointer=     $33                     ;WORD POINTER to call in driver area
+farfunct=   $32         ;function to call in driver area
+farpointer= $33         ;WORD POINTER to call in driver area
 lastzp	=	$35
 
 ;pem constants on entry to write
@@ -81,16 +81,16 @@ wrdir	=	1		;write to directory
 wrual	=	2		;write to unallocated
 
 ;page zero and system ram assignments
-DEST	 =	$EC		;pointer for OutMsg
-SRC	 =	$EE		;pointer for OutMsg
-OUTMSG_W =	$F0		;pointer for OutMsg
+DEST	=	$EC		;pointer for OutMsg
+SRC	    =	$EE		;pointer for OutMsg
+OUTMSG_W=	$F0		;pointer for OutMsg
 mvepnt	=	$f2		;host buffer location
 dmaadr	=	$f4		;pointer for r/w
 
 ;fixed parameters
-lf	=	$a		;linefeeed
-cr	=	$d		;return
-eof	=	$1a		;end of file
+lf	    =	$a		;linefeeed
+cr	    =	$d		;return
+eof	    =	$1a		;end of file
 null	=	0		;null
 ctlc	=	3		;abort
 ctle	=	5		;physical cr lf
@@ -115,10 +115,10 @@ USEDSKY 	= 	0	; SEND INFO TO DSKY
 USEDSKYNG 	= 	1	; SEND INFO TO DSKYNG
 DSKY_KBD	=	1	; USE DSKY KEYBOARD?
 DEFDRV  	=	2	; SET TO DEFAULT DRIVE LETTER
-USEDISKIOV1     = 	0	; Floppy and IDE card is  DISK IO V1
-USEDISKIOV3     = 	0	; Floppy and IDE card is  DISK IO V3
+USEDISKIOV1 = 	0	; Floppy and IDE card is  DISK IO V1
+USEDISKIOV3 = 	0	; Floppy and IDE card is  DISK IO V3
 
 FLPA35		=	0	; set to 1 if floppy a is A 3.5" 80 track drive (0= 5.25" 40 track drive)
 FLPB35		=	0	; set to 1 if floppy a is B 3.5" 80 track drive (0= 5.25" 40 track drive)
 
-DSKYOSC         =	100000
+DSKYOSC     =	100000

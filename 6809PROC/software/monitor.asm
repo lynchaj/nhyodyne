@@ -32,7 +32,7 @@ MONUART7      	equ    	$FE6F           ; SCRATCH REG.
 		FCB		$11,$00,$70    		;LD	DE,$7000 -DESTINATION ADDRESS (6809 IS !A15)
 		FCB		$21,$20,$01	    	;LD	HL,$0120 -SOURCE ADDRESS
 		FCB		$ED,$B0       		;LDIR  		 -COPY RAM
-		FCB		$DB,$FE       		;IN 	A,$FF    -ENABLE 6809
+		FCB		$DB,$F0       		;IN 	A,$F0    -ENABLE 6809
 		FCB		$0E,$00       		;LD	C,00H    -CP/M SYSTEM RESET CALL
 		FCB		$CD,$05,$00			;CALL	0005H	 -RETURN TO PROMPT
 ;

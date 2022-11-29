@@ -40,12 +40,12 @@
         SW2 - Reset
 
         SW2 - 6809 toggle address
-                This setting sets the IO port that toggles the 6809 in and out of control when it is a secondary CPU.  When it is the only CPU in the system this setting has no effect. Most test applications for this board expect an IO address of $FE.   Reading this IO port will toggle the 6809 active/inactive.
+                This setting sets the IO port that toggles the 6809 in and out of control when it is a secondary CPU.  When it is the only CPU in the system this setting has no effect. Most test applications for this board expect an IO address of $F0.   Reading this IO port will toggle the 6809 active/inactive.
                 Leading to a default setting of:
                 1-on
-                2-off
-                3-off
-                4-off
+                2-on
+                3-on
+                4-on
                 5-off
                 6-off
                 7-off
@@ -104,7 +104,7 @@ It assumes that the 6809 board is set for IOPage $FE.
 If the SBC is the only CPU in the system, ensure that jumpers J1 and J4 are set for 1&2, then burn monitor.hex into EPROM. (note that this monitor does not initialize the UART yet, so this is broken at the moment)
 
 
-If the SBC is secondary to a Z80, the monitor.com file can be run from CP/M or the monitor.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6809 toggle IO address is set for $FE and the 6809 board is set for IOPage $FE.
+If the SBC is secondary to a Z80, the monitor.com file can be run from CP/M or the monitor.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6809 toggle IO address is set for $F0 and the 6809 board is set for IOPage $FE.
         * remember that bit A15 is inverted on the board
 
 
@@ -122,7 +122,7 @@ Then load the .HEX file.
 
 Finally transfer control to the 6809 by reading the toggle register
 ```
->I FF
+>I F0
 ```
 
 ### SCREAM
@@ -133,7 +133,7 @@ It assumes that the 6809 board is set for IOPage $FE.
 
 If the SBC is the only CPU in the system, ensure that jumpers J1 and J4 are set for 1&2, then burn scream.hex into EPROM.  (note that this monitor does not initialize the UART yet, so this is broken at the moment)
 
-If the SBC is secondary to a Z80, the scrm.com file can be run from CP/M or the scream.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6809 toggle IO address is set for $FE and the 6809 board is set for IOPage $FE.
+If the SBC is secondary to a Z80, the scrm.com file can be run from CP/M or the scream.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6809 toggle IO address is set for $F0 and the 6809 board is set for IOPage $FE.
         * remember that bit A15 is inverted on the board
 
 
@@ -151,7 +151,7 @@ Then load the .HEX file.
 
 Finally transfer control to the 6809 by reading the toggle register
 ```
->I FF
+>I F0
 ```
 
 The '09 should reset and run this program
