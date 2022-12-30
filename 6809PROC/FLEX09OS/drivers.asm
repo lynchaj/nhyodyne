@@ -54,7 +54,7 @@ DRVTYPES        FCB     $02,$02,$01,$01
                 ;   $00 - INVALID
                 ;   $01 - Floppy
                 ;   $02 - IDE
-DRVADDRESS      FCB     $01,$01,$00,$01
+DRVADDRESS      FCB     $01,$01,$01,$01
 DRVSLICE        FDB     $0000,$0000,$0000,$0000
 
 ;_____________________________________________________________________________________________________
@@ -254,8 +254,8 @@ TAPPTR          fdb     0                   no terminal input redirection
 DREAD
                 PSHS     A
                 LDA     CURDRVTYP
-;                CMPA    #$01
-;                BEQ     READFLOPPY
+                CMPA    #$01
+                BEQ     READFLOPPY
                 CMPA    #$02
                 BEQ     READIDE
 READERR:        LDB     #$1F
@@ -288,8 +288,8 @@ READIDE:
 DWRITE
                 PSHS     A
                 LDA     CURDRVTYP
-;                CMPA    #$01
-;                BEQ     WRITEFLOPPY
+                CMPA    #$01
+                BEQ     WRITEFLOPPY
                 CMPA    #$02
                 BEQ     WRITEIDE
 WRITEERR:       LDB     #$1F
@@ -374,7 +374,7 @@ DCINIT
 	IF USEDSKYNG = 1
 	        	JSR     DSKY_INIT
 	ENDC
-;                JSR     FL_SETUP
+                JSR     FL_SETUP
                 RTS
 
 ;_____________________________________________________________________________________________________

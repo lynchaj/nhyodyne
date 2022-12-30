@@ -121,4 +121,4 @@ USEDISKIOV3 = 	0	; Floppy and IDE card is  DISK IO V3
 FLPA35		=	0	; set to 1 if floppy a is A 3.5" 80 track drive (0= 5.25" 40 track drive)
 FLPB35		=	0	; set to 1 if floppy a is B 3.5" 80 track drive (0= 5.25" 40 track drive)
 
-DSKYOSC     =	100000
+DSKYOSC     =	1000000
