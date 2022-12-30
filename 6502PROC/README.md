@@ -252,9 +252,7 @@ Monitor Supports the following Commands:
         run.CO6- DOS/65 Basic-E run time
 
 # Items left on the DOS/65 To Do list:
-        * clean up the make file
-        * correct bugs in sedit
         * Hardware support for RTC
-        * Hardware support for Floppy Drive
+        * Floppy Format Utility
         * Hardware Support for VDC/Keyboard
         * Hardware support for Dual Serial
