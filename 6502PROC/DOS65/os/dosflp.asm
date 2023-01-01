@@ -1,6 +1,6 @@
 ;__FLOPPY DRIVERS________________________________________________________________________________________________________________
 ;
-; 	DOS/65 floppy drivers for direct attached disk-io V3 card
+; 	DOS/65 floppy drivers for MBC FDC card
 ;
 ;	Entry points:
 ;		FL_SETUP        - called during OS init

@@ -253,6 +253,5 @@ Monitor Supports the following Commands:
 
 # Items left on the DOS/65 To Do list:
         * Hardware support for RTC
-        * Floppy Format Utility
         * Hardware Support for VDC/Keyboard
         * Hardware support for Dual Serial
