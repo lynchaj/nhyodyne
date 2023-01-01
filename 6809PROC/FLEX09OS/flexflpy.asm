@@ -14,10 +14,10 @@
 ;*
 FDC_MSR		=	$FE30		; ADDRESS OF MAIN STATUS REGISTER
 FDC_DATA	=	$FE31		; FLOPPY DATA REGISTER
-FDC_TC		=	$FE32		; TERMINAL COUNT
 FDC_RESET	=	$FE33		; FLOPPY RESET
 FDC_DCR		=	$FE35		; LOAD CONTROL REGISTER
-FDC_DOR		=   $FE36		; CONFIGURATION CONTROL REGISTER
+FDC_DOR		=	$FE36		; CONFIGURATION CONTROL REGISTER
+FDC_TC		=	$FE37		; TERMINAL COUNT
 
 
 ;
@@ -71,36 +71,9 @@ CFD_MFM	        =	%01000000	;
 ;   STEP RATE: 3ms (6ms FOR ALL 41mm OR 720K DRIVES)
 ;   HEAD LOAD TIME: 15ms
 
-
-
-; DOR BITS (3AH)
-;
-;	DISKIO			    250KBPS		500KBPS
-;	-------			    -------		-------
-;D7	/DC/RDY			    1 (N/A)		1 (N/A)
-;D6	/REDWC (DENSITY)	0 (DD)		1 (HD)
-;D5	P0* (PRECOMP BIT 0)	1 \		    0 \
-;D4	P1* (PRECOMP BIT 1)	0 (125NS)	1 (125NS)
-;D3	P2* (PRECOMP BIT 2)	0 /		    0 /
-;D2	MINI (BITRATE)		1 (250KBPS)	0 (500KBPS)
-;D1	/MOTOR (ACTIVE LO)	1 (OFF)		1 (OFF)
-;D0	TC (TERMINAL COUNT)	0 (OFF)		0 (OFF)
-;
-FDREADY		=	%10000000	; BIT PATTERN IN LATCH TO FLOPPY READY (P-34):
-FDDENSITY	=	%01000000	; BIT PATTERN IN LATCH TO FLOPPY LOW DENSITY (HIGH IS 1)
-FDPRECOMP	=	%00100000	; BIT PATTERN IN LATCH TO SET WRITE PRECOMP
-FDPRECOMP1	=	%00010000	; BIT PATTERN IN LATCH TO SET WRITE PRECOMP
-FDPRECOMP2	=	%00001000	; BIT PATTERN IN LATCH TO SET WRITE PRECOMP
-FDMINI		=	%00000100	; BIT PATTERN IN LATCH TO SET MINI MODE FDC9229 LOW DENS=1, HIGH DENS=0
-FDMOTOR_ON	=	%00000010	; BIT PATTERN IN LATCH FOR MOTOR CONTROL (ON)
-FDTERMCN	=	%00000001	; BIT PATTERN IN LATCH TO WRITE A TC STROBE
-FDRESETL	=	%00000000	; BIT PATTERN IN LATCH TO RESET ALL BITS
-
-FDMOTOR_OFF	=	%11111101	; BIT PATTERN IN LATCH FOR MOTOR CONTROL (OFF)
-
-DOR_BR250	=	FDREADY|FDPRECOMP|FDMINI
-DOR_BR500	=	FDREADY|FDDENSITY|FDPRECOMP1
-DOR_INIT        =       DOR_BR250
+DOR_INIT	=	%00001100	; SOFT RESET INACTIVE, DMA ENABLED
+DOR_BR250	=	DOR_INIT
+DOR_BR500	=	DOR_INIT
 
 FLOPPY_RETRIES  =       6               ; HOW ABOUT SIX RETIRES?
 FLOPPY_RETRIES1 =       2               ; TWO ITERATIONS OF RECAL?
@@ -111,14 +84,14 @@ FLOPPY_RETRIES1 =       2               ; TWO ITERATIONS OF RECAL?
 ;________________________________________________________________________________________________________________________________
 ;
 FL_SETUP:
-	    LDA	    #$00            ; RESET TRACK/CYL/SEC STORAGE
-	    STA	    debhead         ;
-	    STA	    debcyl          ;
-	    STA	    debsec          ;
-	    LDA	    #$FF			; SET CACHE TO INVALID
-	    STA	    Cdebhead		;
-	    STA	    Cdebcyl			;
-	    STA	    Cdebsec			;
+		LDA		#$00            ; RESET TRACK/CYL/SEC STORAGE
+		STA		debhead         ;
+		STA		debcyl          ;
+		STA		debsec          ;
+		LDA		#$FF			; SET CACHE TO INVALID
+		STA		Cdebhead		;
+		STA		Cdebcyl			;
+		STA		Cdebsec			;
 
 
         LDX     #FLOPPYMESSAGE1
@@ -147,7 +120,6 @@ FL_SETUP:
         JSR     >PDATA1         ; DO PROMPT
         JSR     >PCRLF          ; AND CRLF
     	LDA	    #DOR_INIT	    ; RESET SETTINGS
-	    STA	    FDC_DOR_STORE	; SAVE SETTINGS
 	    STA	    FDC_DOR
 
 	    JSR	    CHECKINT	    ;
@@ -165,23 +137,95 @@ FL_SETUP:
 	    JSR	    CHECKINT		;
 	    JSR	    CHECKINT		;
 
+  		PSHS    A,B,X,Y
+        LDA     #'<
+        JSR     VOUTCH
+        PULS    A,B,X,Y
 
-        LDA     #01
+        LDA     #00
         STA	    CURDRVADDRESS
 	    JSR	    RECAL			;
+
+  		PSHS    A,B,X,Y
+        LDA     #'>
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
 
 	    LDA	    #39			    ;
 	    STA	    debcyl			;
 	    JSR	    SETTRACK
         JSR	    RECAL			;
 
+  		PSHS    A,B,X,Y
+        LDA     #'<
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
         LDA     #00
         STA	    CURDRVADDRESS
 	    JSR	    RECAL			;
 
+  		PSHS    A,B,X,Y
+        LDA     #'>
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
 	    LDA	    #39			    ;
 	    STA	    debcyl			;
 	    JSR	    SETTRACK
+
+  		PSHS    A,B,X,Y
+        LDA     #'<
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+	    JSR	    RECAL			;
+
+
+
+  		PSHS    A,B,X,Y
+        LDA     #'<
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
+        LDA     #01
+        STA	    CURDRVADDRESS
+	    JSR	    RECAL			;
+
+  		PSHS    A,B,X,Y
+        LDA     #'>
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
+
+	    LDA	    #39			    ;
+	    STA	    debcyl			;
+	    JSR	    SETTRACK
+        JSR	    RECAL			;
+
+  		PSHS    A,B,X,Y
+        LDA     #'<
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
+        LDA     #00
+        STA	    CURDRVADDRESS
+	    JSR	    RECAL			;
+
+  		PSHS    A,B,X,Y
+        LDA     #'>
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
+	    LDA	    #39			    ;
+	    STA	    debcyl			;
+	    JSR	    SETTRACK
+
+  		PSHS    A,B,X,Y
+        LDA     #'<
+        JSR     VOUTCH
+        PULS    A,B,X,Y
+
 
 	    JMP	    RECAL			;
 
@@ -254,10 +298,9 @@ FL_READ_SECTOR_RAW:
         PULS    A,B,X,Y
 
 
-	    LDA	    FDC_DOR_STORE		; POINT TO FDC_DOR
-	    ORA	    #FDMOTOR_ON		    ; SET MOTOR ON
-	    STA	    FDC_DOR_STORE		; POINT TO FDC_DOR
-	    STA	    FDC_DOR			    ; OUTPUT TO CONTROLLER
+		LDA	    #DOR_INIT			; POINT TO FDC_DOR
+		ORA 	CURDRVADDRESS
+		STA	    FDC_DOR			    ; OUTPUT TO CONTROLLER
      ;   DBGFLAG 'B'
         PSHS    A,B,X,Y
         LDA     #'B
@@ -341,7 +384,7 @@ READFL1:
 
         LDB     #$1F
         ASRB
-	    RTS				            ; A = $1F ON RETURN = OPERATION ERROR
+	    RTS				            ; B = $1F ON RETURN = OPERATION ERROR
 READFLDONE:
      ;   DBGFLAG 'H'
         PSHS    A,B,X,Y
@@ -349,7 +392,7 @@ READFLDONE:
         JSR     VOUTCH
         PULS    A,B,X,Y
 
-	    LDA	    #$00			    ; A = 0 ON RETURN = OPERATION OK
+	    LDB	    #$00			    ; B = 0 ON RETURN = OPERATION OK
 	    RTS
 
 ;__FL_WRITE_SECTOR_______________________________________________________________________________________________________________
@@ -431,10 +474,10 @@ WRITEFL1:
 	    STA	    Cdebsec			;
         LDB     #$1F
         ASRB
-	    RTS	        			; A = $1F ON RETURN = OPERATION ERROR
+	    RTS	        			; B = $1F ON RETURN = OPERATION ERROR
 
 WRITEFLDONE:
-	    LDA	    #$00			; A = 0 ON RETURN = OPERATION OK
+	    LDA	    #$00			; B = 0 ON RETURN = OPERATION OK
 	    RTS
 
 
@@ -478,34 +521,12 @@ SETUP_FD_CHS:
 ;________________________________________________________________________________________________________________________________
 ;
 DSKOP:
-        ;DBGFLAG 'I'
-        PSHS    A,B,X,Y
-        LDA     #'I
-        JSR     VOUTCH
-        PULS    A,B,X,Y
-
-	  ;  SEI
-	  ;  JSR	    CHECKINT		; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
-	  ;  CMPA	#$FF			; DID IT RETURN WITH ERROR CODE?
-	  ;  BEQ	    DSKEXIT			; IF YES, EXIT WITH ERROR CODE
-					            ;
-        ;DBGFLAG 'J'
-        PSHS    A,B,X,Y
-        LDA     #'J
-        JSR     VOUTCH
-        PULS    A,B,X,Y
-
-	    LDA	    FDC_DOR_STORE	; POINT TO FLATCH
-	    ORA	    #FDMOTOR_ON		; SET MOTOR ON
-	    STA	    FDC_DOR_STORE	; POINT TO FLATCH
-	    STA	    FDC_DOR			; OUTPUT TO CONTROLLER
+	    SEI
+	    JSR	    CHECKINT		; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
+	    CMPA	#$FF			; DID IT RETURN WITH ERROR CODE?
+	    BEQ	    DSKEXIT			; IF YES, EXIT WITH ERROR CODE
 					            ;
 	    JSR	    SETTRACK		; PERFORM SEEK TO TRACK
-        ;DBGFLAG 'K'
-        PSHS    A,B,X,Y
-        LDA     #'K
-        JSR     VOUTCH
-        PULS    A,B,X,Y
 					            ;
 	    LDA	    FCMD			; WHAT COMMAND IS PENDING?
 	    CMPA	#CFD_READ|CFD_MFM	; IS IT A READ COMMAND?
@@ -514,9 +535,7 @@ DSKOP:
 GWRR_POLL:
 	    JMP	    WRR_POLL		;
 DSKEXIT:
-	    LDA	    FDC_DOR_STORE	; POINT TO FLATCH
-	    ANDA	#FDMOTOR_OFF	; SET MOTOR OFF
-	    STA	    FDC_DOR_STORE	; POINT TO FLATCH
+	    LDA	    #$00			; SET MOTOR OFF
 	    STA	    FDC_DOR			; OUTPUT TO CONTROLLER
 	    LDA	    #$FF			; SET IF ERROR
 	    CLI
@@ -576,21 +595,8 @@ RDS1:   LDA	    FDC_MSR			; GET STATUS
 	    BNE	    RDS1			; KEEP GOING
 DSKOPEND:
                     ;DBGFLAG 'Y'
-	    LDA	    FDC_DOR_STORE	; POINT TO FLATCH
-	    ORA	    #%00000001		;
-	    STA	    FDC_DOR_STORE	; SET TC
-	    STA	    FDC_DOR			; OUTPUT TO CONTROLLER
+	    LDA	    FDC_TC
         JSR     FDDELAY
-	    LDA	    FDC_DOR_STORE	; POINT TO FLATCH
-	    ANDA	#%11111110		;
-	    STA	    FDC_DOR_STORE	; CLEAR TC
-	    STA	    FDC_DOR			; OUTPUT TO CONTROLLER
-        JSR     FDDELAY
-	    LDA	    FDC_DOR_STORE	; POINT TO FLATCH
-	    ANDA	#%11111101		; SET MOTOR OFF
-	    STA	    FDC_DOR_STORE	; POINT TO FLATCH
-	    STA	    FDC_DOR			; OUTPUT TO CONTROLLER					;
-		            			;
 	    JSR	    GFDATA			;GET ERROR TYPE
 	    STA	    FLERR
                 ;DBGFLAG '('
@@ -629,9 +635,8 @@ WRS3:
 ;________________________________________________________________________________________________________________________________
 ;
 SETTRACK:
-	    LDA 	FDC_DOR_STORE	; POINT TO FLATCH
-	    ORA	    #FDMOTOR_ON		; SET MOTOR ON
-	    STA	    FDC_DOR_STORE	; POINT TO FLATCH
+	    LDA 	#DOR_INIT
+	    ORA	    CURDRVADDRESS 	; SET MOTOR ON
 	    STA	    FDC_DOR			; OUTPUT TO CONTROLLER
 
 					            ; ANY INTERUPT PENDING
@@ -643,28 +648,25 @@ SETTRACK:
 
 					;
 SETTRK1:
-	    LDA	    FDC_DOR_STORE	; POINT TO DOR
-	    ORA	    #FDMOTOR_ON		; SET MOTOR ON
-	    STA	    FDC_DOR_STORE	; POINT TO DOR
-        STA	    FDC_DOR			; OUTPUT TO CONTROLLER
 	    LDA	    debcyl			; GET TRACK
 	    CMPA	#$00			;
 	    BEQ	    RECAL			; IF 0 PERFORM RECAL INSTEAD OF SEEK
 	    LDA	    #CFD_SEEK		; SEEK COMMAND
 	    JSR	    PFDATA			; PUSH COMMAND
 	    LDA	    CURDRVADDRESS	; SAY WHICH UNIT
+		ANDA 	#$01
 	    JSR	    PFDATA			; SEND THAT
 	    LDA	    debcyl			; TO WHAT TRACK
 	    JSR	    PFDATA			; SEND THAT TOO
 	    JMP	    WAINT			; WAIT FOR INTERRUPT SAYING DONE
 RECAL:
-	    LDA	    FDC_DOR_STORE	; POINT TO DOR
-	    ORA	    #FDMOTOR_ON		; SET MOTOR ON
-	    STA	    FDC_DOR_STORE	; POINT TO DOR
-        STA	    FDC_DOR			; OUTPUT TO CONTROLLER
+	    LDA 	#DOR_INIT
+	    ORA	    CURDRVADDRESS 	; SET MOTOR ON
+	    STA	    FDC_DOR			; OUTPUT TO CONTROLLER
 	    LDA	    #CFD_RECAL		; RECAL TO TRACK 0
 	    JSR	    PFDATA			; SEND IT
 	    LDA	    CURDRVADDRESS   ; WHICH UNIT
+		ANDA 	#$01
 	    JSR	    PFDATA			; SEND THAT TOO
 ;
 WAINT:
@@ -858,15 +860,10 @@ GFDATA1:
 FD_DETECT:
 	; BLINDLY RESET FDC (WHICH MAY OR MAY NOT EXIST)
 	    LDA     #DOR_INIT	    ; MAKE SURE INITIAL DOR VALUE IS SETUP
-        STA	    FDC_DOR_STORE	; AND PUT IN SHADOW REGISTER
         STA	    FDC_DOR     	;
 
 	    JSR	    FC_RESETFDC	    ; RESET FDC
 	    LDA 	FDC_MSR	        ; READ MSR
-
-                PSHS    A,B,X,y
-                JSR     OUTHEXA
-                PULS A,B,X,Y
 
 	    CMPA	#$80
 	    BEQ 	FD_DETECT1  	; $80 IS OK
@@ -880,10 +877,6 @@ FD_DETECT1:
 	    LDX     #$1000
         JSR     FDVDELAY	    ; WAIT A BIT FOR FDC
 	    LDA	    FDC_MSR 	    ; READ MSR AGAIN
-
-                PSHS    A,B,X,y
-                JSR     OUTHEXA
-                PULS A,B,X,Y
 
 	    CMPA	#$80
 	    BEQ 	>             	; $80 IS OK
@@ -900,14 +893,14 @@ FD_DETECT1:
 
 FC_RESETFDC:
         LDA     FDC_RESET
+        LDA     FDC_RESET
 	    LDX     #$0200
         JSR     FDVDELAY	    ; WAIT A BIT FOR FDC
-	    LDA     #FDRESETL
+	    LDA     #$00
        	STA     FDC_DOR
 	    LDX     #$0200
-        JSR     FDVDELAY	    ; WAIT A BIT FOR FDC
+        JSR     FDDELAY	    ; WAIT A BIT FOR FDC
 	    LDA     #DOR_INIT	    ; MAKE SURE INITIAL DOR VALUE IS SETUP
-        STA	    FDC_DOR_STORE	; AND PUT IN SHADOW REGISTER
         STA     FDC_DOR
         LDX	    #$0200  	    ;
 	    JSR	    FDVDELAY
@@ -941,7 +934,6 @@ FLERR:	        .BYTE	$00	;
 UNIT:	        .BYTE	$00	;
 FCMD:	        .BYTE	0	; COMMAND READ OR WRITE,
 ST0:	        .BYTE	0	; COMMAND READ OR WRITE,
-FDC_DOR_STORE:  .BYTE	00
 FLRETRY:        .BYTE	00
 FLRETRY1:       .BYTE	00
 FLOPPYMESSAGE1:	FCC     "FD: MODE=MBC"

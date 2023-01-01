@@ -1,7 +1,7 @@
 
 all:  	cpm.co6 assign.co6 alloc.co6 asm.co6 \
 	bcompile.co6 compare.co6 copy.co6 debug.co6 edit.co6 run.co6 sedit.co6 \
-	dbasic.co6
+	dbasic.co6 format.co6
 
 
 cpm.out: cpm.asm
@@ -54,6 +54,9 @@ sedit.out: sedit.asm
 	ca65 --cpu 65sc02 sedit.asm -lsedit.lst
 	ld65 sedit.o  -m sedit.map -C dos65.cfg -o sedit.out
 
+format.out: format.asm
+	ca65 --cpu 65sc02 format.asm -lformat.lst
+	ld65 format.o  -m format.map -C dos65.cfg -o format.out
 
 alloc.co6: alloc.out
 	srec_cat  alloc.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  alloc.s19  -data-only
@@ -124,6 +127,13 @@ sedit.co6: sedit.out
 	srec_cat  seditA.s -o sedit.co6  -BINARY
 	@rm -f seditA.s
 	cp sedit.co6 ../bin/
+
+format.co6: format.out
+	srec_cat  format.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  format.s19  -data-only
+	srec_cat  format.s19  -offset -0x0800  -o  formatA.s  -data-only
+	srec_cat  formatA.s -o format.co6  -BINARY
+	@rm -f formatA.s
+	cp format.co6 ../bin/
 
 cpm.co6: cpm.out
 	srec_cat  cpm.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  cpm.s19  -data-only
