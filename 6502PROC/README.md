@@ -2,9 +2,6 @@
 65C02 processor board (hardware and software) for the Nhyodyne computer system
 
 ## BUGS
-
-* The 6502 board cannot co-exist with the 6809 board.  I am guessing it has to do with the way _BUSACK is used to toggle the activation of both boards.
-
 * the WDC 65C02 cannot be used in the board, it needs to be an older chip.  I recently found a document from a builder that was working on a PET clone that (I believe) may give a clue to resolving this issue.
 
 > . . . s. Additionally, although for all
@@ -140,36 +137,6 @@ Finally transfer control to the 65C02 by reading the toggle register
 ```
 
 
-### MONITOR
-This is a simple monitor program, see the "monitor" section of this document for usage instructions. "Monitor" requires that the UART is properly initialized.
-
-It assumes that the 65C02 board is set for IOPage 03.
-        * remember that bit A15 is inverted on the board so the dip switch is set to $83.
-
-If the SBC is the only CPU in the system, ensure that jumpers J1 and J4 are set for 1&2, then burn monrom.hex into EPROM. (note that this monitor does not initialize the UART yet, so this is broken at the moment)
-
-
-If the SBC is secondary to a Z80, the monitor.com file can be run from CP/M or the monitor.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6502 toggle IO address is set for $FF and the 65C02 board is set for IOPage 03.
-        * remember that bit A15 is inverted on the board so the dip switch is set to $83.
-
-
-To run from the MBC Z80 monitor
-
-first set the MPCL to allow RAM in the low bank
-```
->O 7C 80
->O 78 80
-```
-Then load the .HEX file.
-```
->L
-```
-
-Finally transfer control to the 65C02 by reading the toggle register
-```
->I FF
-```
-
 ### SCREAM
 This is a quick program that can be put on a ROM to test the 65C02 board. It will output a continuous stream of "A" at 9600 baud from the UART. It does not require the stack to be available and is pretty much the simplest code imaginable. :)
 "SCREAM" initializes the UART for 9600,n,8,1.
@@ -177,9 +144,7 @@ This is a quick program that can be put on a ROM to test the 65C02 board. It wil
 It assumes that the 65C02 board is set for IOPage 03.
         * remember that bit A15 is inverted on the board so the dip switch is set to $83.
 
-If the SBC is the only CPU in the system, ensure that jumpers J1 and J4 are set for 1&2, then burn scrmrom.hex into EPROM.
-
-If the SBC is secondary to a Z80, the scrm.com file can be run from CP/M or the scream.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6502 toggle IO address is set for $FF and the 65C02 board is set for IOPage 03.
+The scrm.com file can be run from CP/M or the scream.hex file can be loaded from the monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6502 toggle IO address is set for $FF and the 65C02 board is set for IOPage 03.
         * remember that bit A15 is inverted on the board so the dip switch is set to $83.
 
  ** Note that this program will change the baud rate to 9600.
@@ -204,9 +169,35 @@ Finally transfer control to the 65C02 by reading the toggle register
 
 The '02 should reset and run this program
 
+### MONITOR
+This is a simple monitor program, see the "monitor" section of this document for usage instructions. "Monitor" requires that the UART is properly initialized as it would be when the SBC is secondary to the Z80 proc board.  If you are running this board as the primary CPU, see the Firmware section.
 
-## MONITOR Program
+It assumes that the 65C02 board is set for IOPage 03.
+        * remember that bit A15 is inverted on the board so the dip switch is set to $83.
 
+The monitor.com file can be run from CP/M or the monitor.hex file can be loaded from the Z80 monitor. Ensure that jumpers J1 and J4 are set for 2&3, the 6502 toggle IO address is set for $FF and the 65C02 board is set for IOPage 03.
+        * remember that bit A15 is inverted on the board so the dip switch is set to $83.
+
+To run from the MBC Z80 monitor
+
+first set the MPCL to allow RAM in the low bank
+```
+>O 7C 80
+>O 78 80
+```
+Then load the .HEX file.
+```
+>L
+```
+
+Finally transfer control to the 65C02 by reading the toggle register
+```
+>I FF
+```
+
+
+
+## Using the 6502 MONITOR
 Monitor is a simple machine language monitor that will allow you to view and manipulate the 6502 operating environment.
 
 Monitor Supports the following Commands:
@@ -222,12 +213,10 @@ Monitor Supports the following Commands:
 	* ASSEMBLE XXXX - Begin Assembling a program from XXXX
 ```
 
-# DOS65
-        TODO: Real DOS/65 docs -- this is here as a reminder
+## Using DOS65
+        DOS/65 is provided as the operating system for the Nhyodyne 65C02 board.  See the DOS/65 documentation for more information on how to use DOS/65.
 
-        DOS/65 is provided as the operating system for the Nhyodyne 65C02 board
-
-        The CP/M program DOS65.com will load DOS/65 and transition control from Z80 CP/M to 65c02 DOS/65.
+        If you are running the 6502 board as a secondary CPU, the CP/M program DOS65.com will load DOS/65 and transition control from Z80 CP/M to 65c02 DOS/65.  DOS65.COM also requires DOS65DRV.SYS on the same drive as it contains all of the device drivers that are loaded into another RAM bank.
 
         DOS/65 will read and write from HD_512 style ROMWBW slices and CP/M images. HD_1024 images are not supported.
 
@@ -240,6 +229,7 @@ Monitor Supports the following Commands:
         ASSIGN.CO6 - dynamically adjust drive mapping
         SEDIT.CO6 - Text editor (only partially working)
         DBASIC.CO6 - ehBasic for DOS/65
+        FORMAT.CO6 - Utility to format floppy disks for DOS/65
 
         The following utilities are from the DOS/65 distribution and are documented in the DOS/65 documentation.
         alloc.CO6 - DOS/65 drive utility
@@ -250,6 +240,18 @@ Monitor Supports the following Commands:
         bcompile.CO6- DOS/65 Basic-E compiler
         copy.CO6- DOS/65 file copy utility
         run.CO6- DOS/65 Basic-E run time
+
+# 6502 ROM
+If the 6502 processor board is the only CPU board in your Nhyodyne system ensure J1 is set for 1&2 (Only CPU) and J4 is set for 1&2 (Only CPU).   The ROM.BIN file can be placed in ROM to bring the system up to the ROM monitor.
+TO BOOT DOS/65 FROM A PRIMARY 6502 CPU:
+   LOAD LOWMON
+   GO 1000 ( TO RUN LOWMON)
+   ENTER 037C 80
+   ENTER 0378 8E
+   LOAD DOS65RR
+   GO D000
+
+
 
 # Items left on the DOS/65 To Do list:
         * Hardware support for RTC

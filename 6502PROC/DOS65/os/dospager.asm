@@ -16,10 +16,10 @@
 ;       A15 IS INVERTED FOR THE NYHODYNE 65C02 CPU . . .
 ;	7 6 5 4  3 2 1 0      APPLICABLE TO THE UPPER MEMORY PAGE $8000-$FFFF
 ;	^ ^ ^ ^  ^ ^ ^ ^
-;	: : : :  : : : :--0 = A15 ROM ONLY ADDRESS LINE DEFAULT IS 0
+;	: : : :  : : : :--0 = A15 ROM ONLY ADDRESS LINE DEFAULT IS 0 x
 ;	: : : :  : : :----0 = A16 ROM ONLY ADDRESS LINE DEFAULT IS 0
 ;	: : : :  : :------0 = A17 ROM ONLY ADDRESS LINE DEFAULT IS 0
-;	: : : :  :--------0 = A18 ROM ONLY ADDRESS LINE DEFAULT IS 0
+;	: : : :  :--------0 = A18 ROM ONLY ADDRESS LINE DEFAULT IS 0 X
 ;	: : : :-----------0 = A19 ROM ONLY ADDRESS LINE DEFAULT IS 0
 ;	: : :-------------0 = A20 ROM ONLY ADDRESS LINE DEFAULT IS 0
 ;	: :---------------0 = ROM BOOT OVERRIDE DEFAULT IS 0
@@ -63,6 +63,7 @@ PAGER_INIT:
 ;       A= bank
 ;       Y= page
 ;
+  .IF RAMDRIVERS=1
 md_pagecode:
         PHA
         STY     MD_PAGESE+1     ; setup copy from pointer
@@ -131,8 +132,98 @@ MD_PAGE_WRITE:
         nop
         nop
         RTS
+  .ENDIF
+  .IF ROMDRIVERS=1 || ROMRAMDRIVERS=1
+md_pagecode:
+        PHA
+        STY     MD_PAGESE+1     ; setup copy from pointer
+        TXA
+        AND     #$80
+        TAY
+        STY     MD_PAGESE
+        TXA
+        AND     #%00100000
+        CMP     #$00
+        BNE     MD_PAGE_WRITE
+; PERFORM READ HERE
+        TXA
+        AND     #%01000000
+        CMP     #$00
+        BNE     MD_PAGE_ROREAD
+; DO RAM READ
+        LDA     #$80
+        STA     MPCL_ROM
+        PLA
+        ORA     #$80
+        STA     MPCL_RAM
+        BRA     MD_PAGE_COPYFRM
+MD_PAGE_ROREAD:
+        LDA     #$00
+        STA     MPCL_RAM
+        PLA
+        AND     #$7F
+        STA     MPCL_ROM
+MD_PAGE_COPYFRM:
+; DO THE COPY
+        LDX     #$00
+        LDY     #$00
+:
+        LDA     (MD_PAGESE),Y
+        STA     MD_PAGEBU,X
+        INX
+        INY
+        CPX     #$80
+        BNE     :-
+        LDA     #$00
+        STA     MPCL_RAM
+        NOP
+        NOP
+        LDA     #$0D
+        STA     MPCL_ROM
+        nop
+        nop
+        RTS
+MD_PAGE_WRITE:
+        PLA
+        ORA     #%10000000
+        STA     MPCL_RAM
+; DO THE COPY
+        LDX     #$00
+        LDY     #$00
+:
+        LDA     MD_PAGEBU,X
+        STA     (MD_PAGESE),Y
+        INX
+        INY
+        CPX     #$80
+        BNE     :-
+        LDA     #$00
+        STA     MPCL_RAM
+        NOP
+        NOP
+        LDA     #$0D
+        STA     MPCL_ROM
+        nop
+        nop
+        RTS
+  .ENDIF
 md_pagecodeend:
 farcall:
+  .IF ROMDRIVERS=1
+        PHA
+        LDA     #$0D
+        STA     MPCL_ROM
+        nop
+        nop
+        PLA
+        JSR     BANKED_DRIVER_DISPATCHER
+        pha
+        LDA     #$00
+        STA     MPCL_ROM
+        pla
+        RTS
+  .ENDIF
+  .IF RAMDRIVERS=1
         PHA
         LDA     #$8C
         STA     MPCL_RAM
@@ -145,3 +236,26 @@ farcall:
         STA     MPCL_RAM
         pla
         RTS
+  .ENDIF
+  .IF ROMRAMDRIVERS=1
+        PHA
+        LDA     #$00
+        STA     MPCL_RAM
+        nop
+        nop
+        LDA     #$0D
+        STA     MPCL_ROM
+        nop
+        nop
+        PLA
+        JSR     BANKED_DRIVER_DISPATCHER
+        pha
+        LDA     #$80
+        STA     MPCL_ROM
+        nop
+        nop
+        LDA     #$8E
+        STA     MPCL_RAM
+        pla
+        RTS
+  .ENDIF

@@ -1,9 +1,15 @@
-all:  	tstflop.s19 monitor.com scream.com hi.com
+all:  	tstflop.s19 monitor.com scream.com hi.com rom.bin lowmon.s19
 
-monitor.com: monitor.asm
+lowmon.s19: lowmon.asm moncode.asm assmb.asm
+	ca65 lowmon.asm -l lowmon.lst
+	ld65 lowmon.o -m lowmon.map -C mbc.cfg -o lowmon.out
+	srec_cat  lowmon.out -binary -offset 0x1000 -exclude 0x1b00 0xffff -o  lowmon.s19  -data-only
+	@rm lowmon.out
+	@rm lowmon.o
+
+monitor.com: monitor.asm moncode.asm assmb.asm
 	ca65 monitor.asm -l monitor.lst
 	ld65 monitor.o -m monitor.map -C mbc.cfg -o monitor.out
-	srec_cat  monitor.out -binary -offset 0x8000 -exclude 0xEFE0 0xEFFF -o  monrom.hex -intel -address-length=2
 	srec_cat  monitor.out -binary -offset 0x0000  -o  monitor.s  -data-only
 	srec_cat  monitor.s -exclude 0x0000 0x6fff -o  monitor.hex  -intel -address-length=2
 	srec_cat  monitor.s -offset -0x6fe0 -o monitor.com -binary
@@ -42,8 +48,19 @@ hi.com: hi.asm
 	@rm hi.out
 	@rm hi.o
 
+rom.bin: rom.asm ../DOS65/os/dos65drv.rom  moncode.asm assmb.asm ../DOS65/os/dospager.asm
+	ca65 rom.asm -l rom.lst
+	ld65 rom.o -m rom.map -C mbc.cfg -o rom.out
+	srec_cat  rom.out -binary -offset 0x0000  -o  rom.s  -data-only
+	@cat rom.s ../DOS65/os/dos65drv.rom > romB.s
+	srec_cat  romB.s -o rom.bin -binary
+	@rm rom.s
+	@rm rom.o
+	@rm romB.s
+
 
 clean:
+	@rm -f *.bin
 	@rm -f *.o
 	@rm -f *.out
 	@rm -f *.com

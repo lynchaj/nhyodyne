@@ -1,7 +1,7 @@
 ;________________________________________________________________________________________________________________________________
 ;
 ;	Nhyodyne dos/65 banked driver code
-;       Intended for RAM BANK $0D
+;       Intended for RAM BANK $0C
 ;
 ;  DWERNER 04/24/2022 	Initial
 ;________________________________________________________________________________________________________________________________
@@ -14,9 +14,10 @@
 ; RAM BANK $0C is RAM area for Drivers
 ; RAM BANK $0E is operating bank for DOS/65 $8000-$FFFF
 ; RAM BANK $0F is fixed bank $0000-$7FFF
-; ROM BANKS $00 and $0C-$0F are reserved for ROMWBW code
+; ROM BANKS $00 and $0C-$0F are reserved for ROMWBW code (AS A SECONDARY CPU)
 
-;       Area from $0D:8000 to $0D:8800 reserved for work RAM for drivers
+;       Area from $0C:8000 to $0C:8800 reserved for work RAM for drivers (FOR SECONDARY CPU, UNDER ROMWBW)
+;       Area from $0C:8000 to $0C:8800 reserved for ROM for drivers (FOR PRIMARY CPU, NO ROMWBW)
 ;
 
 ;__DISPATCHER________________________________________________________________________________________

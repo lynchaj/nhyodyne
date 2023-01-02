@@ -73,7 +73,9 @@ dskcfpc	=	$2E			;pointer to disk configuration table
 cmdlnp	=	$30			;pointer to command line buffer
 farfunct=   $32         ;function to call in driver area
 farpointer= $33         ;WORD POINTER to call in driver area
-lastzp	=	$35
+IRQVECTOR=	$35   		; VECTOR FOR USER IRQ RTN
+NMIVECTOR=	$37   		; VECTOR FOR USER NMI RTN
+lastzp	=	$39
 
 ;pem constants on entry to write
 wrall	=	0		;write to allocated
