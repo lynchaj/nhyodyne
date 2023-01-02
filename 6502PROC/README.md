@@ -244,12 +244,15 @@ Monitor Supports the following Commands:
 # 6502 ROM
 If the 6502 processor board is the only CPU board in your Nhyodyne system ensure J1 is set for 1&2 (Only CPU) and J4 is set for 1&2 (Only CPU).   The ROM.BIN file can be placed in ROM to bring the system up to the ROM monitor.
 TO BOOT DOS/65 FROM A PRIMARY 6502 CPU:
-   LOAD LOWMON
+   LOAD LOWMON.S19
    GO 1000 ( TO RUN LOWMON)
    ENTER 037C 80
    ENTER 0378 8E
-   LOAD DOS65RR
+   LOAD DOS65.S19
    GO D000
+
+   TODO: COMPLETE DOS/65 STORE AND BOOT FUNCTIONS.
+                * IDE IS WRITTEN, DOES NOT WORK.
 
 
 

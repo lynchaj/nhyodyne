@@ -63,7 +63,6 @@ PAGER_INIT:
 ;       A= bank
 ;       Y= page
 ;
-  .IF RAMDRIVERS=1
 md_pagecode:
         PHA
         STY     MD_PAGESE+1     ; setup copy from pointer
@@ -132,98 +131,31 @@ MD_PAGE_WRITE:
         nop
         nop
         RTS
-  .ENDIF
-  .IF ROMDRIVERS=1 || ROMRAMDRIVERS=1
-md_pagecode:
-        PHA
-        STY     MD_PAGESE+1     ; setup copy from pointer
-        TXA
-        AND     #$80
-        TAY
-        STY     MD_PAGESE
-        TXA
-        AND     #%00100000
-        CMP     #$00
-        BNE     MD_PAGE_WRITE
-; PERFORM READ HERE
-        TXA
-        AND     #%01000000
-        CMP     #$00
-        BNE     MD_PAGE_ROREAD
-; DO RAM READ
-        LDA     #$80
-        STA     MPCL_ROM
-        PLA
-        ORA     #$80
-        STA     MPCL_RAM
-        BRA     MD_PAGE_COPYFRM
-MD_PAGE_ROREAD:
-        LDA     #$00
-        STA     MPCL_RAM
-        PLA
-        AND     #$7F
-        STA     MPCL_ROM
-MD_PAGE_COPYFRM:
-; DO THE COPY
-        LDX     #$00
-        LDY     #$00
-:
-        LDA     (MD_PAGESE),Y
-        STA     MD_PAGEBU,X
-        INX
-        INY
-        CPX     #$80
-        BNE     :-
-        LDA     #$00
-        STA     MPCL_RAM
-        NOP
-        NOP
-        LDA     #$0D
-        STA     MPCL_ROM
-        nop
-        nop
-        RTS
-MD_PAGE_WRITE:
-        PLA
-        ORA     #%10000000
-        STA     MPCL_RAM
-; DO THE COPY
-        LDX     #$00
-        LDY     #$00
-:
-        LDA     MD_PAGEBU,X
-        STA     (MD_PAGESE),Y
-        INX
-        INY
-        CPX     #$80
-        BNE     :-
-        LDA     #$00
-        STA     MPCL_RAM
-        NOP
-        NOP
-        LDA     #$0D
-        STA     MPCL_ROM
-        nop
-        nop
-        RTS
-  .ENDIF
 md_pagecodeend:
 farcall:
-  .IF ROMDRIVERS=1
+  .IF USEROM=1
         PHA
-        LDA     #$0D
+        LDA     #$80
         STA     MPCL_ROM
+        NOP
+        NOP
+        LDA     #$8C
+        STA     MPCL_RAM
         nop
         nop
         PLA
         JSR     BANKED_DRIVER_DISPATCHER
         pha
         LDA     #$00
+        STA     MPCL_RAM
+        NOP
+        NOP
         STA     MPCL_ROM
+        NOP
+        NOP
         pla
         RTS
-  .ENDIF
-  .IF RAMDRIVERS=1
+   .ELSE
         PHA
         LDA     #$8C
         STA     MPCL_RAM
@@ -236,26 +168,4 @@ farcall:
         STA     MPCL_RAM
         pla
         RTS
-  .ENDIF
-  .IF ROMRAMDRIVERS=1
-        PHA
-        LDA     #$00
-        STA     MPCL_RAM
-        nop
-        nop
-        LDA     #$0D
-        STA     MPCL_ROM
-        nop
-        nop
-        PLA
-        JSR     BANKED_DRIVER_DISPATCHER
-        pha
-        LDA     #$80
-        STA     MPCL_ROM
-        nop
-        nop
-        LDA     #$8E
-        STA     MPCL_RAM
-        pla
-        RTS
-  .ENDIF
+   .ENDIF

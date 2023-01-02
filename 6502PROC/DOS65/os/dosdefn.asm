@@ -75,8 +75,8 @@ farfunct=   $32         ;function to call in driver area
 farpointer= $33         ;WORD POINTER to call in driver area
 IRQVECTOR=	$35   		; VECTOR FOR USER IRQ RTN
 NMIVECTOR=	$37   		; VECTOR FOR USER NMI RTN
-lastzp	=	$39
-
+zptemp	=	$39
+lastzp	=	$3A
 ;pem constants on entry to write
 wrall	=	0		;write to allocated
 wrdir	=	1		;write to directory
@@ -124,3 +124,4 @@ FLPA35		=	0	; set to 1 if floppy a is A 3.5" 80 track drive (0= 5.25" 40 track d
 FLPB35		=	0	; set to 1 if floppy a is B 3.5" 80 track drive (0= 5.25" 40 track drive)
 
 DSKYOSC     =	1000000
+USEROM		=	0

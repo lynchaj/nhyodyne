@@ -368,6 +368,7 @@ IDE_WRITE_SECTOR:
 		JSR	IDE_WAIT_NOT_BUSY	;MAKE SURE DRIVE IS READY
 		BCS 	IDE_WRITE_SECTOR_ERROR	; IF TIMEOUT, REPORT NO IDE PRESENT
 		JSR 	GET_DRIVE_DEVICE
+IDE_WRITE_SECTOR_RAW:
 		JSR	IDE_SETUP_LBA		;TELL IT WHICH SECTOR WE WANT
 		LDA	#PPIDE_COMMAND
 		LDX	#PPIDE_CMD_WRITE
@@ -703,6 +704,124 @@ IDE_CONVERT_SECTOR:
   .ENDIF
 	RTS
 
+
+;*__IDE_STORE_BOOT_IMAGE______________________________________________________________________________
+;*
+;*  WRITE Boot image to block 0 of device
+;*
+;*  YA points to:
+;* 			DB 	Device Unit
+;*			DB 	RAM Page
+;*			DW 	Source Address
+;* 			DB	Image Length (Pages)
+;*____________________________________________________________________________________________________
+IDE_STORE_BOOT_IMAGE:
+
+		STA 	pointr			; SET POINTR TO INFO BLOCK
+		STY 	pointr+1
+		LDA 	#<BOOTUNIT
+		STA 	room
+		LDA 	#>BOOTUNIT
+		STA 	room+1
+		LDY 	#$00			; COPY PARAMETERS TO USEFUL AREA
+:
+		LDA 	(pointr),Y
+		STA 	(room),Y
+		INY
+		CPY 	#05
+		BNE 	:-
+
+		LDA 	#$00
+		STA    	debcylm
+		STA    	debcyll			;
+		STA    	debsehd			;
+
+		JSR 	INIT_PAGE_COPY	; COPY PAGE COPY CODE TO LORAM
+		LDA 	BOOTSOURCE		; SETUP SOURCE POINTER
+		STA 	pointr
+		LDA 	BOOTSOURCE+1
+		STA 	pointr+1
+
+:
+		LDA 	BOOTRAMPAGE
+		JSR 	COPY_PAGE_TO_HSTBUF	; COPY 512 BYTES AT POINTR TO HSTBUF (AND INC POINTER)
+		JSR		IDE_WAIT_NOT_BUSY	;MAKE SURE DRIVE IS READY
+		LDA 	BOOTUNIT
+		JSR 	IDE_WRITE_SECTOR_RAW
+		CMP		#$FF
+		BEQ 	IDE_STORE_BOOT_IMAGE_ERROR
+		INC 	debsehd
+		DEC 	BOOTLENGTH
+		LDA 	BOOTLENGTH
+		CMP 	#$00
+		BNE 	:-
+		LDA		#$00			; ZERO ON RETURN = OPERATION OK
+		RTS
+IDE_STORE_BOOT_IMAGE_ERROR:
+		LDA	#$FF				; 1 ON RETURN = OPERATION FAIL
+		RTS
+
+;*__IDE_RESTORE_BOOT_IMAGE____________________________________________________________________________
+;*
+;*  READ Boot image from block 0 of device
+;*
+;*  YA points to:
+;* 			DB 	Device Unit
+;*			DB 	RAM Page
+;*			DW 	Source Address
+;* 			DB	Image Length (Pages)
+;*____________________________________________________________________________________________________
+IDE_RESTORE_BOOT_IMAGE:
+
+		STA 	pointr			; SET POINTR TO INFO BLOCK
+		STY 	pointr+1
+		LDA 	#<BOOTUNIT
+		STA 	room
+		LDA 	#>BOOTUNIT
+		STA 	room+1
+		LDY 	#$00			; COPY PARAMETERS TO USEFUL AREA
+:
+		LDA 	(pointr),Y
+		STA 	(room),Y
+		INY
+		CPY 	#05
+		BNE 	:-
+
+		LDA 	#$00
+		STA    	debcylm
+		STA    	debcyll			;
+		STA    	debsehd			;
+
+		JSR 	INIT_PAGE_COPY	; COPY PAGE COPY CODE TO LORAM
+		LDA 	BOOTSOURCE		; SETUP SOURCE POINTER
+		STA 	pointr
+		LDA 	BOOTSOURCE+1
+		STA 	pointr+1
+
+:
+		LDA 	BOOTRAMPAGE
+		JSR 	COPY_HSTBUF_TOPAGE	; COPY 512 BYTES FROM HSTBUF TO POINTR HSTBUF (AND INC POINTER)
+		JSR		IDE_WAIT_NOT_BUSY	;MAKE SURE DRIVE IS READY
+		LDA 	BOOTUNIT
+		JSR 	IDE_READ_SECTOR_DIRTY1
+		CMP		#$FF
+		BEQ 	IDE_RESTORE_BOOT_IMAGE_ERROR
+		INC 	debsehd
+		DEC 	BOOTLENGTH
+		LDA 	BOOTLENGTH
+		CMP 	#$00
+		BNE 	:-
+		LDA		#$00			; ZERO ON RETURN = OPERATION OK
+		RTS
+IDE_RESTORE_BOOT_IMAGE_ERROR:
+		LDA	#$FF				; 1 ON RETURN = OPERATION FAIL
+		RTS
+
+
+BOOTUNIT:		.BYTE 00
+BOOTRAMPAGE:	.BYTE 00
+BOOTSOURCE:		.BYTE 00,00
+BOOTLENGTH:		.BYTE 00
 
 ;-------------------------------------------------------------------------------
 

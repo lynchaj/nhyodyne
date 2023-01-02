@@ -96,6 +96,65 @@ COPY_DOS_SECTOR1:
 	PLY
 	RTS
 
+;___INIT_PAGE_COPY_______________________________________________________________________________________
+;
+;	COPY PAGE COPY CODE TO LORAM AT "MD_PAGEBU"
+;
+;________________________________________________________________________________________________________
+INIT_PAGE_COPY:
 
+		LDY 	#$00
+:
+		LDA 	INIT_PAGE_COPY_1,Y
+		STA 	MD_PAGEBU,Y
+		INY
+		CPY 	#$00
+		BNE 	:-
+		RTS
+INIT_PAGE_COPY_1:
+						; COPY_PAGE_TO_HSTBUF
+		STA		zptemp
+		LDX 	#$02
+		LDY 	#$00
+:
+        LDA		zptemp
+        STA     MPCL_RAM	; SET PAGE TO SOURCE
+		LDA 	(pointr),Y
+        LDA     #$8C		; SET PAGE TO DRIVERSPACE
+        STA     MPCL_RAM
+		STA 	hstbuf,Y
+		INY
+		CPY 	#$00
+		BNE 	:-
+		INC 	pointr+1
+		DEX
+		CPX 	#$00
+		BNE 	:-
+		RTS
+INIT_PAGE_COPY_2:
+						; COPY_HSTBUF_TO_PAGE
+		STA		zptemp
+		LDX 	#$02
+		LDY 	#$00
+:
+		LDA 	hstbuf,Y
+		PHA
+        LDA		zptemp
+        STA     MPCL_RAM	; SET PAGE TO DESTINATION
+		PLA
+		STA 	(pointr),Y
+        LDA     #$8C		; SET PAGE TO DRIVERSPACE
+        STA     MPCL_RAM
+		INY
+		CPY 	#$00
+		BNE 	:-
+		INC 	pointr+1
+		DEX
+		CPX 	#$00
+		BNE 	:-
+		RTS
+
+COPY_PAGE_TO_HSTBUF	= MD_PAGEBU
+COPY_HSTBUF_TOPAGE	= MD_PAGEBU+INIT_PAGE_COPY_2-INIT_PAGE_COPY_1
 ;deblocking buffer for dba
 hstbuf:		.res	512		;256 or 512 byte sectors

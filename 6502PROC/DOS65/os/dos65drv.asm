@@ -42,36 +42,41 @@
 
 
 DISPATCHTABLE:
-		.WORD 	WRSER1			; FUNCTION 00 - WRITE SERIAL PORT
-		.WORD 	RDSER1			; FUNCTION 01 - READ SERIAL PORT
-		.WORD 	RDSER1W			; FUNCTION 02 - READ SERIAL PORT (BLOCKING)
+		.WORD 	WRSER1				; FUNCTION 00 - WRITE SERIAL PORT
+		.WORD 	RDSER1				; FUNCTION 01 - READ SERIAL PORT
+		.WORD 	RDSER1W				; FUNCTION 02 - READ SERIAL PORT (BLOCKING)
 		.WORD 	SERIALSTATUS		; FUNCTION 03 - GET SERIAL STATUS
 
 		.WORD 	PPIDE_INIT   		; FUNCTION 04 - called during OS init
 		.WORD 	IDE_READ_SECTOR 	; FUNCTION 05 - read a sector from drive
 		.WORD 	IDE_WRITE_SECTOR	; FUNCTION 06 - write a sector to drive
 
-		.WORD 	DSKY_INIT		; FUNCTION 07 -
-		.WORD 	DSKY_SHOW		; FUNCTION 08 -
+		.WORD 	DSKY_INIT			; FUNCTION 07 -
+		.WORD 	DSKY_SHOW			; FUNCTION 08 -
 		.WORD 	DSKY_BIN2SEG		; FUNCTION 09 -
-		.WORD 	DSKY_RESET		; FUNCTION 10 -
-		.WORD 	DSKY_STAT		; FUNCTION 11 -
-		.WORD 	DSKY_GETKEY		; FUNCTION 12 -
-		.WORD 	DSKY_BEEP		; FUNCTION 13 -
-		.WORD 	DSKY_L1ON		; FUNCTION 14 -
-		.WORD 	DSKY_L2ON		; FUNCTION 15 -
-		.WORD 	DSKY_L1OFF		; FUNCTION 16 -
-		.WORD 	DSKY_L2OFF		; FUNCTION 17 -
-		.WORD 	DSKY_PUTLED		; FUNCTION 18 -
-		.WORD 	DSKY_BLANK		; FUNCTION 19 -
+		.WORD 	DSKY_RESET			; FUNCTION 10 -
+		.WORD 	DSKY_STAT			; FUNCTION 11 -
+		.WORD 	DSKY_GETKEY			; FUNCTION 12 -
+		.WORD 	DSKY_BEEP			; FUNCTION 13 -
+		.WORD 	DSKY_L1ON			; FUNCTION 14 -
+		.WORD 	DSKY_L2ON			; FUNCTION 15 -
+		.WORD 	DSKY_L1OFF			; FUNCTION 16 -
+		.WORD 	DSKY_L2OFF			; FUNCTION 17 -
+		.WORD 	DSKY_PUTLED			; FUNCTION 18 -
+		.WORD 	DSKY_BLANK			; FUNCTION 19 -
 
 		.WORD 	MD_READ_SECTOR 		; FUNCTION 20 - read a sector from memory device
 		.WORD 	MD_WRITE_SECTOR		; FUNCTION 21 - write a sector to memory device
-		.WORD 	MD_SHOW			; FUNCTION 22 - md show information
+		.WORD 	MD_SHOW				; FUNCTION 22 - md show information
 
 		.WORD 	FL_READ_SECTOR 		; FUNCTION 23 - read a sector from floppy device
 		.WORD 	FL_WRITE_SECTOR		; FUNCTION 24 - write a sector to floppy device
-		.WORD 	FL_SETUP		; FUNCTION 25 - init floppy device
+		.WORD 	FL_SETUP			; FUNCTION 25 - init floppy device
+		.WORD 	FL_READ_SECTOR 		; FUNCTION 26 - read a sector from floppy device
+		.WORD 	FL_WRITE_SECTOR		; FUNCTION 27 - write a sector to floppy device
+
+		.WORD 	IDE_STORE_BOOT_IMAGE	; FUNCTION 28 - save a boot image to a ppide device
+		.WORD 	IDE_RESTORE_BOOT_IMAGE	; FUNCTION 29 - restore a boot image from a ppide device
 
 
 ;__DRIVERS___________________________________________________________________________________________

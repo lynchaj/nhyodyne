@@ -1,7 +1,7 @@
 
 all:  	cpm.co6 assign.co6 alloc.co6 asm.co6 \
 	bcompile.co6 compare.co6 copy.co6 debug.co6 edit.co6 run.co6 sedit.co6 \
-	dbasic.co6 format.co6
+	dbasic.co6 format.co6 mksys.co6
 
 
 cpm.out: cpm.asm
@@ -57,6 +57,10 @@ sedit.out: sedit.asm
 format.out: format.asm
 	ca65 --cpu 65sc02 format.asm -lformat.lst
 	ld65 format.o  -m format.map -C dos65.cfg -o format.out
+
+mksys.out: mksys.asm
+	ca65 --cpu 65sc02 mksys.asm -lmksys.lst
+	ld65 mksys.o  -m mksys.map -C dos65.cfg -o mksys.out
 
 alloc.co6: alloc.out
 	srec_cat  alloc.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  alloc.s19  -data-only
@@ -134,6 +138,13 @@ format.co6: format.out
 	srec_cat  formatA.s -o format.co6  -BINARY
 	@rm -f formatA.s
 	cp format.co6 ../bin/
+
+mksys.co6: mksys.out
+	srec_cat  mksys.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  mksys.s19  -data-only
+	srec_cat  mksys.s19  -offset -0x0800  -o  mksysA.s  -data-only
+	srec_cat  mksysA.s -o mksys.co6  -BINARY
+	@rm -f mksysA.s
+	cp mksys.co6 ../bin/
 
 cpm.co6: cpm.out
 	srec_cat  cpm.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  cpm.s19  -data-only

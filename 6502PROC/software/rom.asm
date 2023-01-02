@@ -69,9 +69,7 @@ memmovr     =	$0500		; 0200-02ff subr to move data from ram/rom disks
 MD_PAGERA   =   $0500       ; PAGE DRIVER ADDRESS
 MD_PAGESE   =   $14	      	; PAGE SECTOR STORAGE
 BANKED_DRIVER_DISPATCHER=$8800  ; LOCATION OF DRIVER DISPATCHER
-ROMDRIVERS 	= 1
-RAMDRIVERS 	= 0
-ROMRAMDRIVERS 	= 0
+USEROM		=	1
 
 ; UART 16C550 SERIAL -- Assumes IO is in page $03 -- DIP Switch settings $83
 UART0       =  	$0368       ; DATA IN/OUT
@@ -107,6 +105,8 @@ COLD_START:
 
 		JSR INIT_SERIAL
 		JSR PAGER_INIT
+
+		JSR RELOCATE_DRIVERS
 
 	  	LDA #<STARTUP		; OUTPUT STARTUP STRING
         STA STRPTR			;
@@ -225,8 +225,8 @@ OUTCH:
 	pla
 	jmp DO_FARCALL
 
+
 Z80:
-		LDA 	$03FF
 		BRK
 	.BYTE 00,00,00
 
@@ -234,6 +234,67 @@ Z80:
 	.INCLUDE"../DOS65/os/dospager.asm"
 
 DO_FARCALL = farcall - md_pagecode + $0500
+
+;__RELOCATE_DRIVERS______________________________________________________________________________________
+;
+; MOVE ROM BIOS HARDWARE DRIVERS FROM ROM PAGE 0D TO RAM PAGE 0C PERFORM CONSOLE WRITE
+;________________________________________________________________________________________________________
+RELOCATE_DRIVERS:
+
+							; MOVE RELCODE TO LOWRAM
+		LDX 	#$00
+:
+        LDA     RELCODE,X
+        STA     $0600,X
+        INX
+        CPX     #$00
+        BNE     :-
+
+		JMP 	$0600		; RUN IT
+
+RELCODE:
+		LDA     #$00
+		STA 	TEMPWORD
+		LDA     #$88
+		STA 	TEMPWORD+1
+		LDY 	#$00
+:
+		LDA     #$00
+        STA     MPCL_RAM
+		NOP
+		NOP
+		LDA     #$0D
+        STA     MPCL_ROM
+		NOP
+		NOP
+		LDA 	(TEMPWORD),Y
+		PHA
+		LDA     #$80
+        STA     MPCL_ROM
+		NOP
+		NOP
+		LDA     #$8C
+        STA     MPCL_RAM
+		PLA
+		STA 	(TEMPWORD),Y
+
+		INC 	TEMPWORD
+		LDA 	TEMPWORD
+		CMP 	#$00
+		BNE 	:-
+		INC 	TEMPWORD+1
+		LDA 	TEMPWORD+1
+		CMP 	#$FF
+		BNE 	:-
+
+		LDA     #$00
+        STA     MPCL_RAM
+		NOP
+		NOP
+		LDA     #$00
+        STA     MPCL_ROM
+
+		RTS
 
 ; START BANNER
 STARTUP: 	.BYTE   $0D,$0A
