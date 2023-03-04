@@ -1,0 +1,1584 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : lowmon.asm
+Current file: lowmon.asm
+
+000000r 1               
+000000r 1               ;__LOWMON__________________________________________________________________________________________
+000000r 1               ; This is a simple monitor program that can loaded into low ram
+000000r 1               ; for debugging.
+000000r 1               ;
+000000r 1               ; It assumes that the 65C02 board is set for IOPage 03.
+000000r 1               ; remember that bit A15 is inverted on the board so the dip switch is set to $83.
+000000r 1               ;
+000000r 1               ;
+000000r 1               ;__________________________________________________________________________________________________
+000000r 1               ;
+000000r 1               ; DATA CONSTANTS
+000000r 1               ;__________________________________________________________________________________________________
+000000r 1               ;REGISTER		IO PORT		; FUNCTION
+000000r 1               IRQVECTOR   =  	$35   		; VECTOR FOR USER IRQ RTN
+000000r 1               NMIVECTOR   =  	$37   		; VECTOR FOR USER IRQ RTN
+000000r 1               WORKPTR		=  	$39			; WORK POINTER FOR COMMAND PROCESSOR
+000000r 1               JUMPPTR		=	$3B			; JUMP VECTOR FOR LOOKUP TABLE
+000000r 1               TEMPWORD	=	$3D			;
+000000r 1               TEMPWORD1	=  	$3F			;
+000000r 1               TEMPWORD2	=  	$40			;
+000000r 1               
+000000r 1               TEMPBYTE	=	$42			;
+000000r 1               ACC      	=  	$43			; ACC STORAGE
+000000r 1               XREG     	=  	$44 		; X REG STORAGE
+000000r 1               YREG     	=  	$45 		; Y REG STORAGE
+000000r 1               PREG     	=  	$46 		; CURRENT STACK POINTER
+000000r 1               PCL      	=  	$47 		; PROGRAM COUNTER LOW
+000000r 1               PCH      	=  	$48 		; PROGRAM COUNTER HIGH
+000000r 1               SPTR     	=  	$49 		; CPU STATUS REGISTER
+000000r 1               CKSM		=	$4A			; CHECKSUM
+000000r 1               BYTECT		=	$4B			; BYTE COUNT
+000000r 1               STRPTR	 	=	$4C			;
+000000r 1               COUNTER	 	=	$4E			;
+000000r 1               SRC	 		=	$50			;
+000000r 1               DEST	 	=	$52			;
+000000r 1               INBUFFER	=	$0200		;
+000000r 1               
+000000r 1               ; UART 16C550 SERIAL -- Assumes IO is in page $03 -- DIP Switch settings $83
+000000r 1               UART0       =  	$0368       ; DATA IN/OUT
+000000r 1               UART1       =  	$0369       ; CHECK RX
+000000r 1               UART2       =  	$036A       ; INTERRUPTS
+000000r 1               UART3       =  	$036B       ; LINE CONTROL
+000000r 1               UART4       =  	$036C       ; MODEM CONTROL
+000000r 1               UART5       =  	$036D       ; LINE STATUS
+000000r 1               UART6       =  	$036E       ; MODEM STATUS
+000000r 1               UART7	    =  	$036F       ; SCRATCH REG.
+000000r 1               
+000000r 1               
+000000r 1               
+000000r 1                               .org $1000
+001000  1               
+001000  1               
+001000  1  A9 89        	  	LDA #<STARTUP		; OUTPUT STARTUP STRING
+001002  1  85 4C                STA STRPTR			;
+001004  1  A9 19                LDA #>STARTUP		;
+001006  1  85 4D                STA STRPTR+1		;
+001008  1  20 EE 13             JSR OUTSTR			;
+00100B  1               
+00100B  1  A9 00        		LDA #$00			;
+00100D  1  8D 00 02     		STA INBUFFER		; MAKE SURE INPUT BUFFER IS EMPTY
+001010  1               							;
+001010  1  4C 7E 10             JMP   COMMAND_PROCESSOR 	; START THE MONITOR
+001013  1               
+001013  1               
+001013  1               Z80:
+001013  1  60           		rts
+001014  1               
+001014  1               	.include"moncode.asm"
+001014  2               
+001014  2               ;__MONITOR_______________________________________________________
+001014  2               ; This is a simple monitor program.
+001014  2               ;
+001014  2               ; It is used in:
+001014  2               ;
+001014  2               ;
+001014  2               ; * lowmon - monitor program loaded in low memory for debugging
+001014  2               ; * monitor - monitor program used to boot the 6502 board from a Z80 master
+001014  2               ; * rom  - rom code for stand alone 6502 BIOS
+001014  2               ;
+001014  2               ;__PRINT_REG____________________________________________________
+001014  2               ;
+001014  2               ; PRINT OUT REGISTERS ON THE DISPLAY
+001014  2               ;
+001014  2               ;_______________________________________________________________
+001014  2               PRINT_REG:
+001014  2  A9 1D        	  	LDA #<REGDATA		; OUTPUT HEADER STRING
+001016  2  85 4C                STA STRPTR			;
+001018  2  A9 19            	LDA #>REGDATA		;
+00101A  2  85 4D             	STA STRPTR+1		;
+00101C  2  20 EE 13            	JSR OUTSTR			;
+00101F  2  A5 48               	LDA PCH				; OUTPUT PROGRAM COUNTER HIGH BYTE
+001021  2  20 66 13            	JSR PRINT_BYTE		;
+001024  2  A5 47               	LDA PCL				; OUTPUT PROGRAM COUNTER LOW BYTE
+001026  2  20 66 13            	JSR PRINT_BYTE		;
+001029  2  A9 20               	LDA #$20			; OUTPUT SPACE
+00102B  2  20 7A 19            	JSR OUTCH			;
+00102E  2  A5 43               	LDA ACC				; OUTPUT ACCUMULATOR
+001030  2  20 66 13            	JSR PRINT_BYTE		;
+001033  2  A9 20               	LDA #$20			; OUTPUT 2 SPACES
+001035  2  20 7A 19            	JSR OUTCH			;
+001038  2  A9 20               	LDA #$20			;
+00103A  2  20 7A 19            	JSR OUTCH			;
+00103D  2  A5 44        	   	LDA XREG			; OUTPUT X REGISTER
+00103F  2  20 66 13     	   	JSR PRINT_BYTE			;
+001042  2  A9 20               	LDA #$20			; OUTPUT 2 SPACES
+001044  2  20 7A 19            	JSR OUTCH			;
+001047  2  A9 20               	LDA #$20			;
+001049  2  20 7A 19            	JSR OUTCH			;
+00104C  2  A5 45        	   	LDA YREG			; OUTPUT Y REGISTER
+00104E  2  20 66 13     	   	JSR PRINT_BYTE		;
+001051  2  A9 20               	LDA #$20			; OUTPUT 2 SPACES
+001053  2  20 7A 19            	JSR OUTCH       	;
+001056  2  A9 20               	LDA #$20			;
+001058  2  20 7A 19            	JSR OUTCH			;
+00105B  2  A5 49               	LDA SPTR			; OUTPUT STACK POINTER
+00105D  2  20 66 13     	   	JSR PRINT_BYTE		;
+001060  2  A9 20               	LDA #$20			; OUTPUT 2 SPACES
+001062  2  20 7A 19            	JSR OUTCH     		;
+001065  2  A9 20               	LDA #$20			;
+001067  2  20 7A 19            	JSR OUTCH			;
+00106A  2  A5 46               	LDA PREG			; OUTPUT STATUS REGISTER
+00106C  2  20 66 13     	   	JSR PRINT_BYTE		; OUTPUT IN HEX
+00106F  2  A9 2D               	LDA #$2D			; OUTPUT '-'
+001071  2  20 7A 19            	JSR OUTCH			;
+001074  2  A5 46               	LDA PREG			; OUTPUT STATUS REGISTER
+001076  2  20 81 13     	   	JSR PRINT_BIN_BYTE	; OUTPUT IN BINARY
+001079  2  A9 0D               	LDA #$0D			; PRINT NEW LINE
+00107B  2  4C 7A 19            	JMP OUTCH           ;
+00107E  2               
+00107E  2               ;__COMMAND_PROCESSOR____________________________________________
+00107E  2               ;
+00107E  2               ; PROMPT FOR, INPUT, AND PROCESS INCOMMING USER COMMANDS
+00107E  2               ;
+00107E  2               ;_______________________________________________________________
+00107E  2               COMMAND_PROCESSOR:
+00107E  2               
+00107E  2  20 C8 12     	 	JSR DISPLAY_PROMPT	; PRINT PROMPT STRING
+001081  2  A9 00        	    LDA #<INBUFFER		; SETUP INPUT COMMAND BUFFER
+001083  2  85 4C             	STA STRPTR			;
+001085  2  A9 02             	LDA #>INBUFFER		;
+001087  2  85 4D             	STA STRPTR +1 		;
+001089  2               
+001089  2  20 FE 13          	JSR INSTR			; GET A STRING FROM THE CONSOLE
+00108C  2               
+00108C  2  A9 0D             	LDA #$0D			;
+00108E  2  20 7A 19          	JSR OUTCH			;
+001091  2  A9 0A             	LDA #$0A			;
+001093  2  20 7A 19          	JSR OUTCH			;
+001096  2               
+001096  2               
+001096  2  A0 00        		LDY #$00			; SET INDEX = 0
+001098  2               
+001098  2  A9 A3        	    LDA #<COMMAND_LOOKUP_TABLE 	; SETUP INPUT COMMAND POINTER
+00109A  2  85 39             	STA WORKPTR			;
+00109C  2  A9 18             	LDA #>COMMAND_LOOKUP_TABLE	;
+00109E  2  85 3A             	STA WORKPTR +1 		;
+0010A0  2  B9 00 02             LDA INBUFFER,Y		; MOVE FIRST BYTE OF COMMAND BUFFER TO ACC
+0010A3  2  C9 00                CMP #$00			; IS NULL?
+0010A5  2  F0 D7                BEQ COMMAND_PROCESSOR		; YES, GET NEXT COMMAND
+0010A7  2               
+0010A7  2               COMMAND_PROCESSOR_CMP:
+0010A7  2  A2 00               	LDX #$00			; X=0
+0010A9  2  B9 00 02     		LDA INBUFFER,Y		; ACC= NEXT BYTE OF INPUT BUFFER
+0010AC  2  C1 39        		CMP (WORKPTR,X)		; DOES NEXT BYTE OF INPUT BUFFER MATCH NEXT BYTE OF LOOKUP TABLE
+0010AE  2  D0 1A        		BNE CMD_PROCESOR_NEXT_CMD	; NO, GO TO NEXT COMMAND IN LOOKUP TABLE
+0010B0  2  C8           		INY					; YES, Y=Y+1
+0010B1  2  B9 00 02     		LDA INBUFFER,Y		; LOAD NEXT BYTE OF INPUT BUFFER
+0010B4  2  C9 20        		CMP #$20			; IS IT A SPACE (SINGALING END OF COMMAND)
+0010B6  2  F0 33        		BEQ CMD_PROCESSOR_MATCH_FOUND	; YES, POSSIBLE MATCH FOUND
+0010B8  2  C9 00        		CMP #$00			; IS IT A NULL (SINGALING END OF COMMAND)
+0010BA  2  F0 2F        		BEQ CMD_PROCESSOR_MATCH_FOUND	; YES, POSSIBLE MATCH FOUND
+0010BC  2  20 D3 12     		JSR INCWORKPTR		; NO, INCREMENT POINTER TO LOOKUP TABLE
+0010BF  2  A2 00        		LDX #$00			;
+0010C1  2  A1 39        	   	LDA (WORKPTR,X)		; A= NEXT BYTE OF LOOKUP TABLE
+0010C3  2  C9 00        		CMP #$00			; IS IT A NULL? (SIGNALING END OF TABLE ENTRY)
+0010C5  2  F0 0E        		BEQ CMD_PROCESOR_NEXT_CMD1	; YES, ADVANCE TO NEXT COMMAND IN TABLE
+0010C7  2  4C A7 10     		JMP COMMAND_PROCESSOR_CMP	; LOOP TO CHECK NEXT CHAR
+0010CA  2               
+0010CA  2               CMD_PROCESOR_NEXT_CMD:
+0010CA  2  20 D3 12     		JSR INCWORKPTR		; INCREMENT POINTER TO LOOKUP TABLE
+0010CD  2  A2 00        		LDX #$00			;
+0010CF  2  A1 39        	   	LDA (WORKPTR,X)		; A = NEXT BYTE OF LOOKUP TABLE
+0010D1  2  C9 00        		CMP #$00			; IS IT A NULL?
+0010D3  2  D0 F5        		BNE CMD_PROCESOR_NEXT_CMD	; NO, LOOP
+0010D5  2               
+0010D5  2               CMD_PROCESOR_NEXT_CMD1:
+0010D5  2  20 D3 12     		JSR INCWORKPTR		; INCREMENT POINTER TO LOOKUP TABLE
+0010D8  2  20 D3 12     		JSR INCWORKPTR		; INCREMENT POINTER TO LOOKUP TABLE
+0010DB  2  20 D3 12     		JSR INCWORKPTR		; INCREMENT POINTER TO LOOKUP TABLE
+0010DE  2  A2 00        	   	LDX #$00			;
+0010E0  2  A1 39        	   	LDA (WORKPTR,X)		; A = NEXT BYTE OF LOOKUP TABLE
+0010E2  2  C9 01        		CMP #$01			; IS IT $01 (SINGALING END OF LOOKUP TABLE)
+0010E4  2  F0 28        		BEQ CMD_PROCESOR_NOT_FOUND	; YES, DISPLAY NOT FOUND MESSAGE
+0010E6  2  A0 00        		LDY #$00			; NO RESET INPUT BUFFER COUNTER
+0010E8  2  4C A7 10     		JMP COMMAND_PROCESSOR_CMP	; LOOP
+0010EB  2               
+0010EB  2               CMD_PROCESSOR_MATCH_FOUND:
+0010EB  2  20 D3 12     		JSR INCWORKPTR		; INCREMENT POINTER TO LOOKUP TABLE
+0010EE  2  A2 00        	   	LDX #$00			;
+0010F0  2  A1 39        	   	LDA (WORKPTR,X)		; A = NEXT BYTE OF LOOKUP TABLE
+0010F2  2  C9 00        		CMP #$00			; IS IT A NULL?
+0010F4  2  D0 D4        		BNE CMD_PROCESOR_NEXT_CMD	; NO, TRY NEXT COMMAND
+0010F6  2  20 D3 12     		JSR INCWORKPTR		; YES, INCREMENT POINTER TO LOOKUP TABLE
+0010F9  2  A2 00        		LDX #$00			;
+0010FB  2  A1 39        		LDA (WORKPTR,X)		; A = NEXT BYTE OF LOOKUP TABLE
+0010FD  2  85 3B        		STA JUMPPTR			; STORE A INTO LOW BYTE OF JUMP VECTOR
+0010FF  2  20 D3 12     		JSR INCWORKPTR		; INCREMENT POINTER TO LOOKUP TABLE
+001102  2  A2 00        		LDX #$00			;
+001104  2  A1 39        		LDA (WORKPTR,X)		; A = NEXT BYTE OF LOOKUP TABLE
+001106  2  85 3C        		STA JUMPPTR+1		; INCREMENT POINTER TO LOOKUP TABLE
+001108  2  20 1C 11     		JSR CMD_PROCESOR_RUN		; RUN COMMAND
+00110B  2  4C 7E 10     		JMP COMMAND_PROCESSOR		; GET NEXT COMMAND
+00110E  2               
+00110E  2               CMD_PROCESOR_NOT_FOUND:
+00110E  2  A9 EE        		LDA #<ERROR 		; LOAD LOW BYTE OF ERROR STRING
+001110  2  85 4C             	STA STRPTR			; STORE IN POINTER LOW BYTE
+001112  2  A9 18             	LDA #>ERROR		    ; LOAD HIGH BYTE OF ERROR STRING
+001114  2  85 4D             	STA STRPTR +1 		; STORE IN POINTER HIGH BYTE
+001116  2               
+001116  2  20 EE 13          	JSR OUTSTR			; OUTPUT THE STRING
+001119  2  4C 7E 10     		JMP COMMAND_PROCESSOR		;
+00111C  2               CMD_PROCESOR_RUN:
+00111C  2  6C 3B 00     		JMP (JUMPPTR)		; JUMP TO COMMAND VECTOR
+00111F  2               
+00111F  2               
+00111F  2               ;__LOAD_________________________________________________________
+00111F  2               
+00111F  2               ; LOAD A MOTOROLA FORMATTED HEX FILE
+00111F  2               ;
+00111F  2               ;_______________________________________________________________
+00111F  2               LOAD:
+00111F  2  20 5F 19     		JSR	IOF_CONINW			;
+001122  2  C9 53        		CMP	#'S'				;
+001124  2  D0 F9        		BNE	LOAD				; FIRST CHAR NOT (S)
+001126  2  20 5F 19     		JSR	IOF_CONINW			; READ CHAR
+001129  2  C9 39        		CMP	#'9'				;
+00112B  2  F0 2C        		BEQ	LOAD21				;
+00112D  2  C9 31        		CMP	#'1'				;
+00112F  2  D0 EE        		BNE	LOAD				; SECOND CHAR NOT (1)
+001131  2  A9 00        		LDA	#$00				;
+001133  2  85 4A        		STA	CKSM				; ZERO CHECKSUM
+001135  2  20 5A 11     		JSR	GETBYTE				; READ BYTE
+001138  2  E9 01        		SBC	#$01				;
+00113A  2  85 4B        		STA	BYTECT				; BYTE COUNT
+00113C  2  20 87 11     		JSR	BADDR				; BUILD ADDRESS
+00113F  2  A0 00        		LDY	#$00				;
+001141  2               LOAD11:
+001141  2  20 5A 11     		JSR	GETBYTE				;
+001144  2  C6 4B        		DEC	BYTECT				;
+001146  2  F0 08        		BEQ	LOAD15				; ZERO BYTE COUNT
+001148  2  91 3F        		STA	(TEMPWORD1),Y		; STORE DATA
+00114A  2  20 DA 12     		JSR 	INCTEMPWORD		;
+00114D  2  4C 41 11     		JMP	LOAD11				;
+001150  2               
+001150  2               LOAD15:
+001150  2  E6 4A        		INC	CKSM				;
+001152  2  F0 CB        		BEQ	LOAD				;
+001154  2               LOAD19:
+001154  2  A9 3F        		LDA	#'?'				;
+001156  2  20 7A 19     		JSR	OUTCH				;
+001159  2               LOAD21:
+001159  2  60           		RTS
+00115A  2               GETBYTE:
+00115A  2  20 72 11     		JSR	INHEX				; GET HEX CHAR
+00115D  2  0A           		ASL						;
+00115E  2  0A           		ASL						;
+00115F  2  0A           		ASL						;
+001160  2  0A           		ASL						;
+001161  2  85 42        		STA	TEMPBYTE			;
+001163  2  20 72 11     		JSR	INHEX				;
+001166  2  29 0F        		AND	#$0F				; MASK TO 4 BITS
+001168  2  05 42        		ORA	TEMPBYTE			;
+00116A  2  48           		PHA						;
+00116B  2  18           		CLC						;
+00116C  2  65 4A        		ADC	CKSM				;
+00116E  2  85 4A        		STA	CKSM				;
+001170  2  68           		PLA						;
+001171  2  60           		RTS						;
+001172  2               ; INPUT HEX CHAR
+001172  2               INHEX:
+001172  2  20 5F 19     		JSR	IOF_CONINW			;
+001175  2  48           		PHA						;
+001176  2  20 7A 19     		JSR	OUTCH				;
+001179  2  68           		PLA						;
+00117A  2  C9 3A            	CMP #$3A  				; LESS THAN 9?
+00117C  2  B0 02              	BCS INHEX_BIG  			; NO, SKIP NEXT
+00117E  2  E9 2F              	SBC #$2F  				; CONVERT 0-9
+001180  2               INHEX_BIG:
+001180  2  C9 41        		CMP #$41  				; A OR MORE?
+001182  2  90 02              	BCC INHEX_SMALL 		; NO, SKIP NEXT
+001184  2  E9 37              	SBC #$37  				; CONVERT A-F
+001186  2               INHEX_SMALL:
+001186  2  60           		RTS						;
+001187  2               
+001187  2               ; BUILD ADDRESS
+001187  2               BADDR:
+001187  2  20 5A 11     		JSR	GETBYTE				; READ 2 FRAMES
+00118A  2  85 40        		STA	TEMPWORD1+1			;
+00118C  2  20 5A 11     		JSR	GETBYTE				;
+00118F  2  85 3F        		STA	TEMPWORD1			;
+001191  2  60           		RTS
+001192  2               
+001192  2               
+001192  2               ;__GO______________________________________________________
+001192  2               ;
+001192  2               ; GO COMMAND
+001192  2               ;
+001192  2               ; GO XXXX
+001192  2               ;_______________________________________________________________
+001192  2               GO:
+001192  2               
+001192  2  A9 00        	    LDA #<INBUFFER 		   	; SETUP WORK BUFFER
+001194  2  85 39                STA WORKPTR				;
+001196  2  A9 02                LDA #>INBUFFER		    ;
+001198  2  85 3A                STA WORKPTR +1 			;
+00119A  2               
+00119A  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "G"
+00119D  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "O"
+0011A0  2               
+0011A0  2  20 57 13     		JSR EATWHITESPACE		; SKIP OVER THE WHITESPACE
+0011A3  2  20 03 13     		JSR GETNUMBER			; GET THE STARTING ADDRESS
+0011A6  2  B0 53        		BCS DUMP_ERROR			; IF NOT A NUMBER, REPORT ERROR
+0011A8  2               
+0011A8  2  6C 3D 00     		JMP (TEMPWORD)			;
+0011AB  2               
+0011AB  2               
+0011AB  2               
+0011AB  2               
+0011AB  2               ;__DUMPMEM______________________________________________________
+0011AB  2               ;
+0011AB  2               ; DUMP MEMORY COMMAND
+0011AB  2               ;
+0011AB  2               ; DUMP XXXX (XXXX)
+0011AB  2               ;_______________________________________________________________
+0011AB  2               DUMP:
+0011AB  2               
+0011AB  2  A9 00        	    LDA #<INBUFFER 		   	; SETUP WORK BUFFER
+0011AD  2  85 39                STA WORKPTR				;
+0011AF  2  A9 02                LDA #>INBUFFER		    ;
+0011B1  2  85 3A                STA WORKPTR +1 			;
+0011B3  2               
+0011B3  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "D"
+0011B6  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "U"
+0011B9  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "M"
+0011BC  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "P"
+0011BF  2               
+0011BF  2  20 57 13     		JSR EATWHITESPACE		; SKIP OVER THE WHITESPACE
+0011C2  2  20 03 13     		JSR GETNUMBER			; GET THE STARTING ADDRESS
+0011C5  2  B0 34        		BCS DUMP_ERROR			; IF NOT A NUMBER, REPORT ERROR
+0011C7  2               
+0011C7  2  A5 3D        		LDA TEMPWORD			; STORE STARTING ADDRESS IN WORD POINTER (TEMPWORD1)
+0011C9  2  85 3F        		STA TEMPWORD1			;
+0011CB  2  A5 3E        		LDA TEMPWORD+1			;
+0011CD  2  85 40        		STA TEMPWORD1+1			;
+0011CF  2               
+0011CF  2  20 57 13     		JSR EATWHITESPACE		; SKIP OVER ANY WHITESPACE
+0011D2  2  20 03 13     		JSR GETNUMBER			; GET THE ENDING ADDRESS
+0011D5  2  B0 24        		BCS DUMP_ERROR			; IF NOT A NUMBER, REPORT ERROR
+0011D7  2               
+0011D7  2  A5 3F        		LDA TEMPWORD1			; STORE ENDING ADDRESS IN WORD POINTER (WORKPTR)
+0011D9  2  85 39        		STA WORKPTR				;
+0011DB  2  A5 40        		LDA TEMPWORD1+1			;
+0011DD  2  85 3A        		STA WORKPTR+1			;
+0011DF  2               DUMP_LOOP:
+0011DF  2  20 87 12     	    JSR PRINT_MEM_LINE		;
+0011E2  2  A9 0D        	    LDA #$0D				;
+0011E4  2  20 7A 19     	    JSR OUTCH				;
+0011E7  2  A9 0A        	    LDA #$0A				;
+0011E9  2  20 7A 19     	    JSR OUTCH				;
+0011EC  2  A5 3A                LDA WORKPTR+1  			; COMPARE HIGH BYTES
+0011EE  2  C5 3E                CMP TEMPWORD+1
+0011F0  2  90 ED                BCC DUMP_LOOP 			; IF NUM1H < NUM2H THEN NUM1 < NUM2
+0011F2  2  D0 06                BNE DUMP_DONE			; IF NUM1H <> NUM2H THEN NUM1 > NUM2 (SO NUM1 >= NUM2)
+0011F4  2  A5 39                LDA WORKPTR  			; COMPARE LOW BYTES
+0011F6  2  C5 3D                CMP TEMPWORD
+0011F8  2  90 E5                BCC DUMP_LOOP			; IF NUM1L < NUM2L THEN NUM1 < NUM2
+0011FA  2               DUMP_DONE:
+0011FA  2  60           		RTS
+0011FB  2               DUMP_ERROR:
+0011FB  2  4C F8 12     		JMP INVALID_NUMBER_ERROR
+0011FE  2               
+0011FE  2               
+0011FE  2               
+0011FE  2               ;__ENTERMEM_____________________________________________________
+0011FE  2               ;
+0011FE  2               ; ENTER MEMORY COMMAND
+0011FE  2               ;
+0011FE  2               ; ENTER XXXX (XX XX XX XX XX XX XX XX XX XX XX XX XX XX )
+0011FE  2               ;_______________________________________________________________
+0011FE  2               ENTERMEM:
+0011FE  2               
+0011FE  2  A9 00        	    LDA #<INBUFFER 			; SETUP WORK BUFFER
+001200  2  85 39                STA WORKPTR				;
+001202  2  A9 02                LDA #>INBUFFER		    ;
+001204  2  85 3A                STA WORKPTR +1 			;
+001206  2               
+001206  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "E"
+001209  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "N"
+00120C  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "T"
+00120F  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "E"
+001212  2  20 D3 12     		JSR INCWORKPTR			; JUMP OVER "R"
+001215  2               
+001215  2  20 57 13     		JSR EATWHITESPACE		; SKIP OVER ANY WHITESPACE
+001218  2  20 03 13     		JSR GETNUMBER			; GET NUMBER
+00121B  2  B0 67        		BCS ENTER_ERROR			; IF NOT A NUMBER REPORT ERROR
+00121D  2               
+00121D  2  A5 3D        		LDA TEMPWORD			; STORE ADDRESS INTO WORD POINTER (TEMPWORD1)
+00121F  2  85 3F        		STA TEMPWORD1			;
+001221  2  A5 3E        		LDA TEMPWORD+1			;
+001223  2  85 40        		STA TEMPWORD1+1			;
+001225  2  A0 00        		LDY #$00				; RESET COUNTER TO 0
+001227  2               ENTERLOOP:
+001227  2  A2 00        		LDX #$00				;
+001229  2  A1 39        		LDA (WORKPTR,X)			; GET NEXT BYTE FROM BUFFER
+00122B  2  C9 00        		CMP #$00				; IS NULL?
+00122D  2  F0 10        		BEQ ENTER_DONE			; YES, WE'RE DONE
+00122F  2  20 57 13     		JSR EATWHITESPACE		; SKIP OVER ANY WHITESPACE
+001232  2  20 03 13     		JSR GETNUMBER			; GET NEXT NUMBER
+001235  2  B0 4D        		BCS ENTER_ERROR			; IF NOT A NUMBER REPORT ERROR
+001237  2  A5 3D        		LDA TEMPWORD			; STORE BYTE IN ADDRESS (INDEXED BY Y)
+001239  2  91 3F        		STA (TEMPWORD1),Y		;
+00123B  2  C8           		INY						; GO TO NEXT BYTE
+00123C  2  4C 27 12     		JMP ENTERLOOP			; LOOP
+00123F  2               ENTER_DONE:
+00123F  2  C0 00        		CPY #$00				; WAS LINE BLANK?
+001241  2  D0 01        		BNE ENTER_CONTINUE		; NO, PREPARE FOR NEXT LINE
+001243  2  60           		RTS						; YES, END DATA ENTRY
+001244  2               ENTER_CONTINUE:
+001244  2  A9 0D        		LDA #$0D				;
+001246  2  20 7A 19     		JSR OUTCH				;
+001249  2  A9 0A        		LDA #$0A				;
+00124B  2  20 7A 19     		JSR OUTCH
+00124E  2  A9 3A        		LDA #$3A				; OUTPUT ":" TO SCREEN
+001250  2  20 7A 19     		JSR OUTCH				;
+001253  2  18           		CLC						; CLEAR CARRY
+001254  2  98           		TYA						; A=Y (LAST COUNTER)
+001255  2  65 3F        		ADC TEMPWORD1			; ADD LAST COUNT TO BEGINNING POINTER
+001257  2  85 3F        		STA TEMPWORD1			; STORE RESULT IN BEGINNING POINTER
+001259  2  D0 02        		BNE ENTER_INCREMENT		; NOT ZERO?, DONE
+00125B  2  E6 40        		INC TEMPWORD1+1			; ZERO, INC HIGH BYTE
+00125D  2               ENTER_INCREMENT:
+00125D  2  A5 40        		LDA TEMPWORD1+1			; PRINTOUT STARTING ADDRESS TO SCREEN
+00125F  2  20 66 13     		JSR PRINT_BYTE			; (HIGH)
+001262  2  A5 3F        		LDA TEMPWORD1			;
+001264  2  20 66 13     		JSR PRINT_BYTE			; (LOW)
+001267  2  A9 20        		LDA #$20				; OUTPUT SPACE TO SCREEN
+001269  2  20 7A 19     		JSR OUTCH				;
+00126C  2  A9 00        	    LDA #<INBUFFER 		   	; SETUP INPUT COMMAND BUFFER
+00126E  2  85 4C                STA STRPTR				;
+001270  2  A9 02                LDA #>INBUFFER 		 	;
+001272  2  85 4D                STA STRPTR +1 			;
+001274  2  20 FE 13             JSR INSTR				; GET A STRING FROM THE CONSOLE
+001277  2  A9 00        	    LDA #<INBUFFER 		   	; SETUP WORK BUFFER
+001279  2  85 39                STA WORKPTR				;
+00127B  2  A9 02                LDA #>INBUFFER 		    ;
+00127D  2  85 3A                STA WORKPTR +1 			;
+00127F  2  A0 00                LDY #$00 				;
+001281  2  4C 27 12             JMP ENTERLOOP			; LOOP
+001284  2               
+001284  2               
+001284  2               ENTER_ERROR:
+001284  2  4C F8 12     		JMP INVALID_NUMBER_ERROR
+001287  2               
+001287  2               ;__PRINT_MEM_LINE_______________________________________________
+001287  2               ;
+001287  2               ; PRINT MEMORY DUMP LINE
+001287  2               ;
+001287  2               ; PRINT 16 HEX LOCATIONS STARTING WITH ADDRESS WORKPTR
+001287  2               ;_______________________________________________________________
+001287  2               PRINT_MEM_LINE:
+001287  2  A9 3A        		LDA #$3A				; LOAD ':' INTO ACC
+001289  2  20 7A 19     		JSR OUTCH				; PRINT ':'
+00128C  2  A5 3A            	LDA WORKPTR+1			; PRINT ADDRESS
+00128E  2  20 66 13     	    JSR PRINT_BYTE			;
+001291  2  A5 39              	LDA WORKPTR				;
+001293  2  20 66 13     	    JSR PRINT_BYTE			;
+001296  2  A9 2D         	    LDA #$2D				; LOAD '-'
+001298  2  20 7A 19     	    JSR OUTCH				; PRINT '-'
+00129B  2  A0 00        	    LDY #$00				;
+00129D  2               PRINT_MEM_LINE_LOOP:
+00129D  2  B1 39        		LDA (WORKPTR),Y			; LOAD NEXT BYTE
+00129F  2  20 66 13     		JSR PRINT_BYTE	       	; PRINT BYTE
+0012A2  2  A9 20         	    LDA #$20				; LOAD ' '
+0012A4  2  20 7A 19     	    JSR OUTCH				; PRINT ' '
+0012A7  2  C8           	    INY						; INCREMENT COUNTER
+0012A8  2  C0 10        	    CPY #$10				; HAVE WE PRINTED 16 ADDRESSES
+0012AA  2  D0 F1        	    BNE PRINT_MEM_LINE_LOOP	; NO, LOOP
+0012AC  2  A9 3A        		LDA #$3A				; LOAD ':' INTO ACC
+0012AE  2  20 7A 19     		JSR OUTCH				; PRINT ':'
+0012B1  2  A2 00                LDX #$00				;
+0012B3  2  A0 00        		LDY #$00				;
+0012B5  2               PRINT_MEM_LINE_LOOP_ASCII:
+0012B5  2  A1 39        		LDA (WORKPTR,X)			; GET NEXT BYTE
+0012B7  2  20 E8 12     		JSR OUTASCII			; PRINT ASCII VALUE OF BYTE
+0012BA  2  C8           		INY						; INCREMENT COUNTER
+0012BB  2  20 D3 12     		JSR INCWORKPTR			; INCREMENT BUFFER POINTER
+0012BE  2  C0 10        	    CPY #$10				; HAVE WE PRINTED 16 ADDRESSES
+0012C0  2  D0 F3        	    BNE PRINT_MEM_LINE_LOOP_ASCII	; NO, LOOP
+0012C2  2  A9 0D        	    LDA #$0D				; YES, PRINT CR
+0012C4  2  20 7A 19     	    JSR OUTCH				;
+0012C7  2  60           	    RTS						; RETURN
+0012C8  2               
+0012C8  2               
+0012C8  2               
+0012C8  2               ;__DISPLAY_PROMPT______________________________________________
+0012C8  2               ;
+0012C8  2               ; DISPLAY THE INPUT PROMPT ON THE SCREEN
+0012C8  2               ;
+0012C8  2               ;______________________________________________________________
+0012C8  2               DISPLAY_PROMPT:
+0012C8  2  A9 EA        		LDA #<PROMPT 			; LOAD LOW BYTE OF PROMPT STRING
+0012CA  2  85 4C                STA STRPTR				; STORE IN POINTER LOW BYTE
+0012CC  2  A9 18                LDA #>PROMPT 		    ; LOAD HOGH BYTE OF PROMPR STRING
+0012CE  2  85 4D                STA STRPTR +1 			; STORE IN POINTER HIGH BYTE
+0012D0  2               
+0012D0  2  4C EE 13             JMP OUTSTR				; OUTPUT THE STRING
+0012D3  2               
+0012D3  2               
+0012D3  2               ;__INCWORKPTR___________________________________________________
+0012D3  2               ; INCREMENT THE 16BIT WORK POINTER
+0012D3  2               ;
+0012D3  2               ;
+0012D3  2               ;
+0012D3  2               ;_______________________________________________________________
+0012D3  2               INCWORKPTR:
+0012D3  2  E6 39        		INC WORKPTR				; INCREMENT LOWBYTE
+0012D5  2  D0 02        		BNE INCWORKPTR_OUT		; NOT ZERO?, DONE
+0012D7  2  E6 3A        		INC WORKPTR+1			; ZERO, INC HIGH BYTE
+0012D9  2               INCWORKPTR_OUT:
+0012D9  2  60           		RTS						; RETURN
+0012DA  2               
+0012DA  2               
+0012DA  2               ;__INCTEMPWORD__________________________________________________
+0012DA  2               ;
+0012DA  2               ; INCREMENT THE 16BIT WORK POINTER
+0012DA  2               ;
+0012DA  2               ;_______________________________________________________________
+0012DA  2               INCTEMPWORD:
+0012DA  2  E6 3F        		INC TEMPWORD1			; INCREMENT LOWBYTE
+0012DC  2  D0 02        		BNE INCTEMPWORD_OUT		; NOT ZERO?, DONE
+0012DE  2  E6 40        		INC TEMPWORD1+1			; ZERO, INC HIGH BYTE
+0012E0  2               INCTEMPWORD_OUT:
+0012E0  2  60           		RTS						; RETURN
+0012E1  2               
+0012E1  2               ;__INCTEMPWORD2__________________________________________________
+0012E1  2               ;
+0012E1  2               ; INCREMENT THE 16BIT WORK POINTER
+0012E1  2               ;
+0012E1  2               ;
+0012E1  2               ;_______________________________________________________________
+0012E1  2               INCTEMPWORD2:
+0012E1  2  E6 40        		INC TEMPWORD2			; INCREMENT LOWBYTE
+0012E3  2  D0 02        		BNE INCTEMPWORD2_OUT	; NOT ZERO?, DONE
+0012E5  2  E6 41        		INC TEMPWORD2+1			; ZERO, INC HIGH BYTE
+0012E7  2               INCTEMPWORD2_OUT:
+0012E7  2  60           		RTS						; RETURN
+0012E8  2               
+0012E8  2               ;__OUTASCII_____________________________________________________
+0012E8  2               ;
+0012E8  2               ; PRINT CHAR IF VALID, ELSE PRINT '.'
+0012E8  2               ;
+0012E8  2               ;_______________________________________________________________
+0012E8  2               OUTASCII:
+0012E8  2  C9 20        		CMP #$20				; IS < 20
+0012EA  2  30 07        		BMI OUTASCII_DOT		; YES, SKIP
+0012EC  2  C9 7E        		CMP #$7E				; IS >7E
+0012EE  2  10 03        		BPL OUTASCII_DOT		; YES, SKIP
+0012F0  2  4C 7A 19     		JMP OUTCH				; NO, PRINT CHAR AND RETURN
+0012F3  2               OUTASCII_DOT:
+0012F3  2  A9 2E        		LDA #$2E				; A= '.'
+0012F5  2  4C 7A 19     		JMP OUTCH				; PRINT '.' AND RETURN
+0012F8  2               
+0012F8  2               ;__INVALID_NUMBER_ERROR__________________________________________
+0012F8  2               ;
+0012F8  2               ; PRINT "INVALID HEX NUMBER MESSAGE"
+0012F8  2               ;
+0012F8  2               ;_______________________________________________________________
+0012F8  2               INVALID_NUMBER_ERROR:
+0012F8  2  A9 05        		LDA #<INERROR 			; LOAD LOW BYTE OF ERROR STRING
+0012FA  2  85 4C                STA STRPTR				; STORE IN POINTER LOW BYTE
+0012FC  2  A9 19                LDA #>INERROR		    ; LOAD HOGH BYTE OF ERROR STRING
+0012FE  2  85 4D                STA STRPTR +1 			; STORE IN POINTER HIGH BYTE
+001300  2  4C EE 13             JMP OUTSTR				; OUTPUT THE STRING
+001303  2               
+001303  2               
+001303  2               ;__GETNUMBER______________________________________________________
+001303  2               ;
+001303  2               ; GET ASCII NUMBER FROM BUFFER AND PARSE INTO TEMPWORD
+001303  2               ;
+001303  2               ;_______________________________________________________________
+001303  2               GETNUMBER:
+001303  2  A9 00        		LDA #$00				;
+001305  2  85 3D        		STA TEMPWORD			; CLEAR OUT TEMPWORD (OUTPUT OF GETNUMBER)
+001307  2  85 3E        		STA TEMPWORD+1			;
+001309  2  A2 00        		LDX #$00				;
+00130B  2               GETNUMBER_LOOP:
+00130B  2  A1 39        		LDA (WORKPTR,X)			; GET NEXT BYTE FROM BUFFER
+00130D  2  C9 20        		CMP #$20				; IS SPACE?
+00130F  2  F0 31        		BEQ GETNUMBER_DONE		; YES, WE'RE DONE
+001311  2  C9 00        		CMP #$00				; IS NULL?
+001313  2  F0 2D        		BEQ GETNUMBER_DONE		; YES, WE'RE DONE
+001315  2  C9 2C        		CMP #$2C				; IS ","?
+001317  2  F0 29        		BEQ GETNUMBER_DONE		; YES, WE'RE DONE
+001319  2  C9 29        		CMP #$29				; IS ")"?
+00131B  2  F0 25        		BEQ GETNUMBER_DONE		; YES, WE'RE DONE
+00131D  2  20 44 13     		JSR HEXIN				; GET HEX DIGIT
+001320  2  B0 1E        		BCS GETNUMBER_ERROR		; IS INVALID DIGIT?, YES PRINT ERROR AND ABORT
+001322  2  18           		CLC						; CLEAR CARRY
+001323  2  26 3D        		ROL TEMPWORD			; MOVE WORD OVER 4 BITS TO LEFT
+001325  2  26 3E        		ROL TEMPWORD+1			;
+001327  2  18           		CLC						;
+001328  2  26 3D        		ROL TEMPWORD			;
+00132A  2  26 3E        		ROL TEMPWORD+1			;
+00132C  2  18           		CLC						;
+00132D  2  26 3D        		ROL TEMPWORD			;
+00132F  2  26 3E        		ROL TEMPWORD+1			;
+001331  2  18           		CLC						;
+001332  2  26 3D        		ROL TEMPWORD			;
+001334  2  26 3E        		ROL TEMPWORD+1			;
+001336  2  05 3D        		ORA TEMPWORD			; ADD IN NEW DIGIT
+001338  2  85 3D        		STA TEMPWORD			; STORE BACK TO TEMPWORD
+00133A  2  20 D3 12     		JSR INCWORKPTR			; INCREMENT BUFFER POINTER
+00133D  2  4C 0B 13     		JMP GETNUMBER_LOOP		; LOOP
+001340  2               GETNUMBER_ERROR:
+001340  2  38           		SEC						; SET ERROR FLAG (CARRY)
+001341  2  60           		RTS						; RETURN
+001342  2               GETNUMBER_DONE:
+001342  2  18           		CLC						; CLEAR ERROR FLAG (CARRY)
+001343  2  60           		RTS						; RETURN
+001344  2               
+001344  2               ;__HEXIN________________________________________________________
+001344  2               ;
+001344  2               ; GET NEXT CHAR FROM INPUT BUFFER AND CHANGE TO HEX DIGIT
+001344  2               ;
+001344  2               ; IF INVALID, SET CARRY FLAG
+001344  2               ;_______________________________________________________________
+001344  2               HEXIN:
+001344  2  A2 00        		LDX #$00				;
+001346  2  A1 39        		LDA (WORKPTR,X)			; GET NEXT CHAR FROM BUFFER
+001348  2  C9 3A              	CMP #$3A  				; LESS THAN 9?
+00134A  2  B0 02              	BCS HEXIN_BIG  			; NO, SKIP NEXT
+00134C  2  E9 2F              	SBC #$2F  				; CONVERT 0-9
+00134E  2               HEXIN_BIG:
+00134E  2  C9 41        		CMP #$41  				; A OR MORE?
+001350  2  90 02              	BCC HEXIN_SMALL 		; NO, SKIP NEXT
+001352  2  E9 37              	SBC #$37  				; CONVERT A-F
+001354  2               HEXIN_SMALL:
+001354  2  C9 10        		CMP #$10  				; RESULT TOO BIG?
+001356  2  60                 	RTS
+001357  2               
+001357  2               
+001357  2               ;__EATWHITESPACE___________________________________________________
+001357  2               ;
+001357  2               ; FORWARD THE BUFFER POINTER PAST ANY WHITE SPACE IN THE INPUT BUFFER
+001357  2               ;
+001357  2               ;_______________________________________________________________
+001357  2               EATWHITESPACE:
+001357  2  A2 00        		LDX #$00				;
+001359  2  A1 39        		LDA (WORKPTR,X)			; GET NEXT CHAR FROM BUFFER
+00135B  2  C9 20        		CMP #$20				; IS SPACE
+00135D  2  D0 06        		BNE EATWHITESPACE_OUT	; NO, DONE
+00135F  2  20 D3 12     		JSR INCWORKPTR			; YES, INCREMENT BUFFER POINTER
+001362  2  4C 57 13     		JMP EATWHITESPACE		; LOOP
+001365  2               EATWHITESPACE_OUT:
+001365  2  60           		RTS						; RETURN
+001366  2               
+001366  2               
+001366  2               ;__PRINT_BYTE__________________________________________________
+001366  2               ;
+001366  2               ; PRINT OUT ACCUMULATOR AS HEX NUMBER
+001366  2               ;
+001366  2               ;______________________________________________________________
+001366  2               PRINT_BYTE:
+001366  2  AA           		TAX						; SAVE A REGISTER
+001367  2  4A           		LSR 					; SHIFT HIGH NIBBLE TO LOW NIBBLE
+001368  2  4A           		LSR 					;
+001369  2  4A           		LSR 					;
+00136A  2  4A           		LSR 					;
+00136B  2  18           		CLC              		; CLEAR CARRY
+00136C  2  20 73 13     		JSR PRINT_DIGIT			; PRINT LOW NIBBLE
+00136F  2  8A           		TXA						; RESTORE ACCUMULATOR
+001370  2  4C 73 13     		JMP PRINT_DIGIT			; PRINT LOW NIBBLE
+001373  2               
+001373  2               ;__PRINT_DIGIT_________________________________________________
+001373  2               ;
+001373  2               ; PRINT OUT LOW NIBBLE OF ACCUMULATOR IN HEX
+001373  2               ;
+001373  2               ;______________________________________________________________
+001373  2               PRINT_DIGIT:
+001373  2  29 0F        		AND #$0F				; STRIP OFF HIGH NIBBLE
+001375  2  09 30        		ORA #$30				; ADD $30 TO PRODUCE ASCII
+001377  2  C9 3A        		CMP #$3A             	; IS GREATER THAN 9
+001379  2  30 03        		BMI PRINT_DIGIT_OUT		; NO, SKIP ADD
+00137B  2  18           		CLC						; CLEAR CARRY
+00137C  2  69 07        		ADC #$07				; ADD ON FOR LETTER VALUES
+00137E  2               PRINT_DIGIT_OUT:				;
+00137E  2  4C 7A 19     		JMP OUTCH           	; PRINT OUT CHAR
+001381  2               
+001381  2               
+001381  2               ;__PRINT_BIN_BYTE______________________________________________
+001381  2               ;
+001381  2               ; PRINT OUT BYTE IN BINARY
+001381  2               ;
+001381  2               ;______________________________________________________________
+001381  2               PRINT_BIN_BYTE:
+001381  2  0A           		ASL						; ROTATE BIT 7 INTO CARRY FLAG
+001382  2  90 06        		BCC PRINT_BIN8_0		;  IS ZERO?
+001384  2  20 DE 13     		JSR PRINT_1				;  NO, PRINT OUT A '1'
+001387  2  4C 8D 13     		JMP PRINT_BIN_BIT_7		;  JUMP TO NEXT BIT
+00138A  2               PRINT_BIN8_0:
+00138A  2  20 E6 13     		JSR PRINT_0				;  YES, PRINT A '0'
+00138D  2               PRINT_BIN_BIT_7:				;
+00138D  2  0A           		ASL						; ROTATE BIT 6 INTO CARRY FLAG
+00138E  2  90 06        		BCC PRINT_BIN7_0		;  IS ZERO?
+001390  2  20 DE 13     		JSR PRINT_1				;  NO, PRINT OUT A '1'
+001393  2  4C 99 13     		JMP PRINT_BIN_BIT_6		;  JUMP TO NEXT BIT
+001396  2               PRINT_BIN7_0:
+001396  2  20 E6 13     		JSR PRINT_0				;  YES, PRINT A '0'
+001399  2               PRINT_BIN_BIT_6:				;
+001399  2  0A           		ASL						; ROTATE BIT 5 INTO CARRY FLAG
+00139A  2  90 06        		BCC PRINT_BIN6_0		;  IS ZERO?
+00139C  2  20 DE 13     		JSR PRINT_1				;  NO, PRINT OUT A '1'
+00139F  2  4C A5 13     		JMP PRINT_BIN_BIT_5		;  JUMP TO NEXT BIT
+0013A2  2               PRINT_BIN6_0:					;
+0013A2  2  20 E6 13     		JSR PRINT_0				;  YES, PRINT A '0'
+0013A5  2               PRINT_BIN_BIT_5:				;
+0013A5  2  0A           		ASL						; ROTATE BIT 4 INTO CARRY FLAG
+0013A6  2  90 06        		BCC PRINT_BIN5_0		;  IS ZERO?
+0013A8  2  20 DE 13     		JSR PRINT_1				;  NO, PRINT OUT A '1'
+0013AB  2  4C B1 13     		JMP PRINT_BIN_BIT_4		;  JUMP TO NEXT BIT
+0013AE  2               PRINT_BIN5_0:					;
+0013AE  2  20 E6 13     		JSR PRINT_0				;  YES, PRINT A '0'
+0013B1  2               PRINT_BIN_BIT_4:				;
+0013B1  2  0A           		ASL						; ROTATE BIT 3 INTO CARRY FLAG
+0013B2  2  90 06        		BCC PRINT_BIN3_0		;  IS ZERO?
+0013B4  2  20 DE 13     		JSR PRINT_1				;  NO, PRINT OUT A '1'
+0013B7  2  4C BD 13     		JMP PRINT_BIN_BIT_2		;  JUMP TO NEXT BIT
+0013BA  2               PRINT_BIN3_0:					;
+0013BA  2  20 E6 13     		JSR PRINT_0				;  YES, PRINT A '0'
+0013BD  2               PRINT_BIN_BIT_2:				;
+0013BD  2  0A           		ASL						; ROTATE BIT 2 INTO CARRY FLAG
+0013BE  2  90 06        		BCC PRINT_BIN2_0		;  IS ZERO?
+0013C0  2  20 DE 13     		JSR PRINT_1				;  NO, PRINT OUT A '1'
+0013C3  2  4C C9 13     		JMP PRINT_BIN_BIT_1		;  JUMP TO NEXT BIT
+0013C6  2               PRINT_BIN2_0:					;
+0013C6  2  20 E6 13     		JSR PRINT_0				;  YES, PRINT A '0'
+0013C9  2               PRINT_BIN_BIT_1:				;
+0013C9  2  0A           		ASL						; ROTATE BIT 1 INTO CARRY FLAG
+0013CA  2  90 06        		BCC PRINT_BIN1_0		;  IS ZERO?
+0013CC  2  20 DE 13     		JSR PRINT_1				;  NO, PRINT OUT A '1'
+0013CF  2  4C D5 13     		JMP PRINT_BIN_BIT_0		;  JUMP TO NEXT BIT
+0013D2  2               PRINT_BIN1_0:					;
+0013D2  2  20 E6 13     		JSR PRINT_0				;  YES, PRINT A '0'
+0013D5  2               PRINT_BIN_BIT_0:				;
+0013D5  2  0A           		ASL						; ROTATE BIT 0 INTO CARRY FLAG
+0013D6  2  90 03        		BCC PRINT_BIN0_0		;  IS ZERO?
+0013D8  2  4C DE 13     		JMP PRINT_1				;  NO, PRINT OUT A '1'
+0013DB  2               PRINT_BIN0_0:					;
+0013DB  2  4C E6 13     		JMP PRINT_0				;   YES, PRINT A '0'
+0013DE  2               
+0013DE  2               
+0013DE  2               
+0013DE  2               ;__PRINT_1_____________________________________________________
+0013DE  2               ;
+0013DE  2               ; PRINT OUT A '1'
+0013DE  2               ;
+0013DE  2               ;______________________________________________________________
+0013DE  2               PRINT_1:
+0013DE  2  48           		PHA						; PUSH ACC TO STACK
+0013DF  2  A9 31        		LDA #$31				; LOAD '1'
+0013E1  2  20 7A 19     		JSR OUTCH				; OUTPUT CHAR TO SCREEN
+0013E4  2  68           		PLA						; PULL ACC FROM STACK
+0013E5  2  60           		RTS						; RETURN
+0013E6  2               
+0013E6  2               
+0013E6  2               ;__PRINT_0_____________________________________________________
+0013E6  2               ;
+0013E6  2               ; PRINT OUT A '0'
+0013E6  2               ;
+0013E6  2               ;______________________________________________________________
+0013E6  2               PRINT_0:
+0013E6  2  48           		PHA						; PUSH ACC TO STACK
+0013E7  2  A9 30        		LDA #$30				; LOAD '0'
+0013E9  2  20 7A 19     		JSR OUTCH				; OUTPUT CHAR TO SCREEN
+0013EC  2  68           		PLA						; PULL ACC FROM STACK
+0013ED  2  60           		RTS						; RETURN
+0013EE  2               
+0013EE  2               
+0013EE  2               ;__OUTSTR______________________________________________________
+0013EE  2               ;
+0013EE  2               ; OUTPUT THE STRING POINTED TO BU OUTSTR TO THE SCREEN
+0013EE  2               ;
+0013EE  2               ;______________________________________________________________
+0013EE  2               OUTSTR:
+0013EE  2  A0 00        		LDY   #$00				; LOAD $00 INTO Y
+0013F0  2               OUTSTRLP:
+0013F0  2  B1 4C        		LDA (STRPTR),Y    	 	; LOAD NEXT CHAR FROM STRING INTO ACC
+0013F2  2  C9 00        		CMP #$00				; IS NULL?
+0013F4  2  F0 07        		BEQ ENDOUTSTR			; YES, END PRINT OUT
+0013F6  2  20 7A 19     		JSR OUTCH  				; PRINT CHAR IN ACC
+0013F9  2  C8           		INY      				; Y=Y+1 (BUMP INDEX)
+0013FA  2  4C F0 13     		JMP OUTSTRLP			; DO NEXT CHAR
+0013FD  2               ENDOUTSTR:
+0013FD  2  60           		RTS						; RETURN
+0013FE  2               
+0013FE  2               ;__INSTR_______________________________________________________
+0013FE  2               ;
+0013FE  2               ; INPUT STRING FROM KEYBOARD INTO KEYBOARD BUFFER
+0013FE  2               ;
+0013FE  2               ;______________________________________________________________
+0013FE  2               INSTR:
+0013FE  2  A0 00        		LDY   #$00				; LOAD $00 INTO Y
+001400  2               INSTRLP:
+001400  2  20 5F 19     		JSR IOF_CONINW
+001403  2  C9 0D        		CMP #$0D				; IS CR?
+001405  2  F0 1E        		BEQ ENDINSTR			; YES, DONE WITH INPUT
+001407  2  C9 08        		CMP #$08				; IS BACKSPACE?
+001409  2  D0 10        		BNE INSTR_NOTBS			; NO, SKIP BACKSPACE RTN
+00140B  2  C0 00        		CPY #$00				; IS INDEX =0 ?
+00140D  2  F0 1B        		BEQ INSTR_EMPTY_BS		; YES, SKIP BACKSPACE
+00140F  2  20 7A 19     		JSR OUTCH     			; OUTPUT CHAR TO SCREEN
+001412  2  88           		DEY						; Y=Y-1
+001413  2  A9 00        		LDA #$00				;
+001415  2  91 4C        		STA (STRPTR),Y			; NULL TERMINATE INPUT BUFFER
+001417  2  88           		DEY						; Y=Y-1
+001418  2  4C 20 14     		JMP INSTR_SKIP_STORE    ; SKIP STORE OF CHAR TO INPUT BUFFER
+00141B  2               INSTR_NOTBS:
+00141B  2  91 4C        		STA (STRPTR),Y			; STORE CHAR IN KEYBAORD BUFFER
+00141D  2  20 7A 19     		JSR OUTCH     			; OUTPUT CHAR TO SCREEN
+001420  2               INSTR_SKIP_STORE:
+001420  2  C8           		INY						; Y=Y+1
+001421  2  C0 FF        		CPY #$FF				; DOES Y=$FF
+001423  2  D0 DB        		BNE INSTRLP         	; NO, LOOP FOR NEXT CHAR
+001425  2               ENDINSTR:
+001425  2  A9 00        		LDA #$00				; A=0
+001427  2  91 4C        		STA (STRPTR),Y			; NULL TERMINATE INPUT BUFFER
+001429  2  60           		RTS
+00142A  2               INSTR_EMPTY_BS:
+00142A  2  A9 00        		LDA #$00				; BLANK OUT KEYBOARD CHAR, TO SIGNAL READY FOR NEXT CHAR
+00142C  2  4C 00 14     		JMP INSTRLP				; JUMP TO INPUT LOOP
+00142F  2               
+00142F  2               	.include"assmb.asm"
+00142F  3               ;*
+00142F  3               ;* ASSEMBLER/DISSASSEMBLER
+00142F  3               ;*
+00142F  3               ;* Based on original source code by Jim Butterfield
+00142F  3               ;*
+00142F  3               ;* Mr. Butterfield inspired many of us with his work on the commodore series of computers.
+00142F  3               ;* May he rest in peace. (1936-2007)
+00142F  3               ;*
+00142F  3               
+00142F  3               
+00142F  3               savx	=	$1c
+00142F  3               tmpc	=	$1d
+00142F  3               length	=	$1f
+00142F  3               wrap	=	$26
+00142F  3               aflg	=	$28
+00142F  3               acmd	=	$2a
+00142F  3               nemo	=	$44
+00142F  3               tmp0	=	$c1
+00142F  3               tmp2	=	$c3
+00142F  3               stage	=	$0210
+00142F  3               
+00142F  3               
+00142F  3               ;__DISASSEMBLE_________________________________________________
+00142F  3               ;
+00142F  3               ; Disassemble assembly lines to screen
+00142F  3               ; USAGE:
+00142F  3               ;
+00142F  3               ; DISSASSEMBLE XXXX
+00142F  3               ;______________________________________________________________
+00142F  3               DISASSEMBLE:
+00142F  3               
+00142F  3  A9 00        	LDA #<INBUFFER             	; SETUP WORK BUFFER
+001431  3  85 39        	STA WORKPTR			;
+001433  3  A9 02        	LDA #>INBUFFER              	;
+001435  3  85 3A        	STA WORKPTR +1 			;
+001437  3               
+001437  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "D"
+00143A  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "I"
+00143D  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "S"
+001440  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "S"
+001443  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "A"
+001446  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "S"
+001449  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "S"
+00144C  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "E"
+00144F  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "M"
+001452  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "B"
+001455  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "L"
+001458  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "E"
+00145B  3               
+00145B  3  20 57 13     	JSR EATWHITESPACE		; SKIP OVER THE WHITESPACE
+00145E  3  20 03 13     	JSR GETNUMBER			; GET THE STARTING ADDRESS
+001461  3  B0 45        	BCS DISASSEMBLE_ERROR		; IF NOT A NUMBER, REPORT ERROR
+001463  3  A5 3D                LDA TEMPWORD
+001465  3  85 C1                STA tmp0
+001467  3  A5 3E                LDA TEMPWORD+1
+001469  3  85 C2                STA tmp0+1
+00146B  3  A9 0F        diss:	lda #$0f
+00146D  3  85 42                sta TEMPBYTE
+00146F  3  20 CD 14     dislp:  jsr diss1
+001472  3  20 30 15             jsr pcadj
+001475  3  85 C1                sta tmp0
+001477  3  84 C2                sty tmp0+1
+001479  3  C6 42                dec TEMPBYTE
+00147B  3  D0 F2                bne dislp
+00147D  3               
+00147D  3               
+00147D  3  A9 93        	LDA #<DISSASSEMBLE_TEXT         ; LOAD LOW BYTE OF PROMPT STRING
+00147F  3  85 4C        	STA STRPTR			; STORE IN POINTER LOW BYTE
+001481  3  A9 14        	LDA #>DISSASSEMBLE_TEXT         ; LOAD HOGH BYTE OF PROMPR STRING
+001483  3  85 4D        	STA STRPTR +1 			; STORE IN POINTER HIGH BYTE
+001485  3  20 EE 13     	JSR OUTSTR			; OUTPUT THE STRING
+001488  3               
+001488  3  20 5F 19           	JSR IOF_CONINW
+00148B  3  C9 59        	cmp #'Y'
+00148D  3  D0 03        	bne dissexit
+00148F  3  4C 6B 14     	jmp diss
+001492  3               dissexit:
+001492  3  60                   rts
+001493  3               DISSASSEMBLE_TEXT:
+001493  3  0D 0A        	.BYTE $0d,$0a
+001495  3  43 4F 4E 54  	.BYTE "CONTINUE? (Y/N) "
+001499  3  49 4E 55 45  
+00149D  3  3F 20 28 59  
+0014A5  3  0D 0A 00     	.BYTE $0d,$0a,$00
+0014A8  3               
+0014A8  3               DISASSEMBLE_ERROR:
+0014A8  3  4C F8 12     	JMP INVALID_NUMBER_ERROR
+0014AB  3               ENTER_BYTE:
+0014AB  3  AA           	TAX				; SAVE A REGISTER
+0014AC  3  4A           	LSR A				; SHIFT HIGH NIBBLE TO LOW NIBBLE
+0014AD  3  4A           	LSR A				;
+0014AE  3  4A           	LSR A				;
+0014AF  3  4A           	LSR A				;
+0014B0  3  18           	CLC               		; CLEAR CARRY
+0014B1  3  20 B8 14     	JSR ENTER_DIGIT			; PRINT LOW NIBBLE
+0014B4  3  8A           	TXA				; RESTORE ACCUMULATOR
+0014B5  3  4C B8 14     	JMP ENTER_DIGIT			; PRINT LOW NIBBLE
+0014B8  3               ENTER_DIGIT:
+0014B8  3  29 0F        	AND #$0F			; STRIP OFF HIGH NIBBLE
+0014BA  3  09 30        	ORA #$30			; ADD $30 TO PRODUCE ASCII
+0014BC  3  C9 3A        	CMP #$3A               		; IS GREATER THAN 9
+0014BE  3  30 03        	BMI ENTER_DIGIT_OUT		; NO, SKIP ADD
+0014C0  3  18           	CLC				; CLEAR CARRY
+0014C1  3  69 07        	ADC #$07			; ADD ON FOR LETTER VALUES
+0014C3  3               ENTER_DIGIT_OUT:			;
+0014C3  3  48           	PHA
+0014C4  3  20 7A 19     	JSR OUTCH                   	; PRINT OUT CHAR
+0014C7  3  68           	PLA
+0014C8  3  85 39        	STA WORKPTR
+0014CA  3  4C D3 12     	JMP INCWORKPTR
+0014CD  3               
+0014CD  3               
+0014CD  3               
+0014CD  3               
+0014CD  3               ;__diss1_______________________________________________________
+0014CD  3               ;
+0014CD  3               ; Disassemble 1 assembly line to screen
+0014CD  3               ; Parms:
+0014CD  3               ; tmp0 (WORD) Word Pointer to begin disassembly
+0014CD  3               ;______________________________________________________________
+0014CD  3               diss1:
+0014CD  3  20 BE 15              JSR crlf
+0014D0  3  A9 2E        	 lda #'.'
+0014D2  3  20 7A 19              jsr OUTCH
+0014D5  3  20 BA 15              jsr space
+0014D8  3  20 4A 17     diss1a:  jsr PRINT_WORD
+0014DB  3  20 BA 15              jsr space
+0014DE  3  A2 00                 ldx #0
+0014E0  3  A1 C1                 lda (tmp0,x)
+0014E2  3  20 3F 15              jsr instxx
+0014E5  3  48                    pha
+0014E6  3  20 85 15              jsr disvv
+0014E9  3  68                    pla
+0014EA  3  20 9B 15              jsr propxx
+0014ED  3  A2 06                 ldx #$06
+0014EF  3  E0 03        pradr1:  cpx #$03
+0014F1  3  D0 12                 bne pradr3
+0014F3  3  A4 1F                 ldy length
+0014F5  3  F0 0E                 beq pradr3
+0014F7  3  A5 2A        pradr2:  lda acmd
+0014F9  3  C9 E8                 cmp #$e8
+0014FB  3  B1 C1                 lda (tmp0),y
+0014FD  3  B0 1C                 bcs reladr
+0014FF  3  20 28 15              jsr prbyte
+001502  3  88                    dey
+001503  3  D0 F2                 bne pradr2
+001505  3  06 2A        pradr3:  asl acmd
+001507  3  90 0E                 bcc pradr4
+001509  3  BD 16 18              lda char1-1,x
+00150C  3  20 87 17              jsr chrout
+00150F  3  BD 1C 18              lda char2-1,x
+001512  3  F0 03                 beq pradr4
+001514  3  20 87 17              jsr chrout
+001517  3  CA           pradr4:  dex
+001518  3  D0 D5                 bne pradr1
+00151A  3  60                    rts
+00151B  3               ; ** print rel address **
+00151B  3  20 33 15     reladr:  jsr pcadj3
+00151E  3  AA                    tax
+00151F  3  E8                    inx
+001520  3  D0 01                 bne prntyx
+001522  3  C8                    iny
+001523  3               ; ** print word address **
+001523  3  98           prntyx:  tya
+001524  3  20 28 15              jsr prbyte
+001527  3  8A                    txa
+001528  3               ; ** print Byte **
+001528  3  86 1C        prbyte:  stx savx
+00152A  3  20 66 13              jsr PRINT_BYTE
+00152D  3  A6 1C                 ldx savx
+00152F  3  60                    rts
+001530  3               ; ** advance the program counter **
+001530  3  A5 1F        pcadj:   lda length
+001532  3  38                    sec
+001533  3  A4 C2        pcadj3:  ldy tmp0+1
+001535  3  AA                    tax
+001536  3  10 01                 bpl pcadj4
+001538  3  88                    dey
+001539  3  65 C1        pcadj4:  adc tmp0
+00153B  3  90 01                 bcc rts1
+00153D  3  C8                    iny
+00153E  3  60           rts1:    rts
+00153F  3               ; ** check inst valid, len **
+00153F  3  A8           instxx:  tay
+001540  3  4A                    lsr a
+001541  3  90 0B                 bcc ieven
+001543  3  4A                    lsr a
+001544  3  B0 17                 bcs err
+001546  3  C9 22                 cmp #$22
+001548  3  F0 13                 beq err
+00154A  3  29 07                 and #$07
+00154C  3  09 80                 ora #$80
+00154E  3  4A           ieven:   lsr a
+00154F  3  AA                    tax
+001550  3  BD C5 17              lda mode,x
+001553  3  B0 04                 bcs rtmode
+001555  3  4A                    lsr a
+001556  3  4A                    lsr a
+001557  3  4A                    lsr a
+001558  3  4A                    lsr a
+001559  3  29 0F        rtmode:  and #$0f
+00155B  3  D0 04                 bne getfmt
+00155D  3  A0 80        err:     ldy #$80
+00155F  3  A9 00                 lda #0
+001561  3               ; ** get addr mode, length **
+001561  3  AA           getfmt:  tax
+001562  3  BD 09 18              lda mode2,x
+001565  3  85 2A                 sta acmd
+001567  3  29 03                 and #$03
+001569  3  85 1F                 sta length
+00156B  3               ; ** extract intructn **
+00156B  3  98                    tya
+00156C  3  29 8F                 and #$8f
+00156E  3  AA                    tax
+00156F  3  98                    tya
+001570  3  A0 03                 ldy #$03
+001572  3  E0 8A                 cpx #$8a
+001574  3  F0 0B                 beq mnndx3
+001576  3  4A           mnndx1:  lsr a
+001577  3  90 08                 bcc mnndx3
+001579  3  4A                    lsr a
+00157A  3  4A           mnndx2:  lsr a
+00157B  3  09 20                 ora #$20
+00157D  3  88                    dey
+00157E  3  D0 FA                 bne mnndx2
+001580  3  C8                    iny
+001581  3  88           mnndx3:  dey
+001582  3  D0 F2                 bne mnndx1
+001584  3  60                    rts
+001585  3               ; print bytes
+001585  3  B1 C1        disvv:   lda (tmp0),y
+001587  3  20 28 15              jsr prbyte
+00158A  3  A2 01                 ldx #1
+00158C  3  20 80 17     disvl:   jsr spacd
+00158F  3  C4 1F                 cpy length
+001591  3  C8                    iny
+001592  3  90 F1                 bcc disvv
+001594  3  A2 03                 ldx #$03
+001596  3  C0 04                 cpy #4
+001598  3  90 F2                 bcc disvl
+00159A  3  60                    rts
+00159B  3               ; ** print mnemonic **
+00159B  3  A8           propxx:  tay
+00159C  3  B9 23 18              lda mneml,y
+00159F  3  85 28                 sta aflg
+0015A1  3  B9 63 18              lda mnemr,y
+0015A4  3  85 29                 sta aflg+1
+0015A6  3  A9 00        prmn1:   lda #0
+0015A8  3  A0 05                 ldy #$05
+0015AA  3  06 29        prmn2:   asl aflg+1
+0015AC  3  26 28                 rol aflg
+0015AE  3  2A                    rol a
+0015AF  3  88                    dey
+0015B0  3  D0 F8                 bne prmn2
+0015B2  3  69 3F                 adc #$3f
+0015B4  3  20 7A 19              jsr OUTCH
+0015B7  3  CA                    dex
+0015B8  3  D0 EC                 bne prmn1
+0015BA  3               ; ** print space **
+0015BA  3  A9 20        space:   lda #$20
+0015BC  3  D0 07                 bne flip
+0015BE  3               ; ** print cr, maybe lf **
+0015BE  3  A9 0D        crlf:    lda #$0d
+0015C0  3  20 7A 19              jsr OUTCH
+0015C3  3  A9 0A                 lda #$0a
+0015C5  3  4C 7A 19     flip:    jmp OUTCH
+0015C8  3               
+0015C8  3               
+0015C8  3               ;__ASSEMBLE____________________________________________________
+0015C8  3               ;
+0015C8  3               ; Assemble line from keyboard to memory
+0015C8  3               ;______________________________________________________________
+0015C8  3               ASSEMBLE:
+0015C8  3  A9 00                LDA #<INBUFFER                  ; SETUP WORK BUFFER
+0015CA  3  85 39        	STA WORKPTR			;
+0015CC  3  A9 02        	LDA #>INBUFFER                  ;
+0015CE  3  85 3A        	STA WORKPTR +1 			;
+0015D0  3               
+0015D0  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "A"
+0015D3  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "S"
+0015D6  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "S"
+0015D9  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "E"
+0015DC  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "M"
+0015DF  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "B"
+0015E2  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "L"
+0015E5  3  20 D3 12     	JSR INCWORKPTR			; JUMP OVER "E"
+0015E8  3               
+0015E8  3  20 57 13     	JSR EATWHITESPACE		; SKIP OVER ANY WHITESPACE
+0015EB  3  20 03 13     	JSR GETNUMBER			; GET NUMBER
+0015EE  3  B0 03        	BCS ASSEMBLE_ERROR		; IF NOT A NUMBER REPORT ERROR
+0015F0  3  4C F6 15             jmp asvald
+0015F3  3               ASSEMBLE_ERROR:
+0015F3  3  4C 7A 17     	jmp error
+0015F6  3               asvald:
+0015F6  3  A5 3D        	LDA TEMPWORD
+0015F8  3  85 C1        	STA tmp0
+0015FA  3  A5 3E        	LDA TEMPWORD+1
+0015FC  3  85 C2        	STA tmp0+1
+0015FE  3               asv1:
+0015FE  3  20 BE 15     	JSR crlf
+001601  3  A9 2E        	lda #'.'
+001603  3  20 7A 19             jsr OUTCH
+001606  3  20 BA 15             jsr space
+001609  3  20 4A 17             jsr PRINT_WORD
+00160C  3  20 BA 15             jsr space
+00160F  3  20 3A 17             JSR t2t2
+001612  3  8E 11 02             STX stage+1
+001615  3  A9 00         	LDA #<INBUFFER                 	; SETUP INPUT COMMAND BUFFER
+001617  3  85 4C        	STA STRPTR			;
+001619  3  85 39        	sta WORKPTR			;
+00161B  3  A9 02        	LDA #>INBUFFER              	;
+00161D  3  85 4D        	STA STRPTR +1 			;
+00161F  3  85 3A        	STA WORKPTR+1	             	;
+001621  3  20 FE 13     	JSR INSTR			; GET A STRING FROM THE CONSOLE
+001624  3  20 57 13     	jsr EATWHITESPACE
+001627  3  A2 03        	LDX #$03			; push opcode to stack
+001629  3  A0 00        	LDY #$00
+00162B  3  B1 39        apush:  LDA (WORKPTR),Y			; GET NEXT CHAR FROM BUFFER
+00162D  3  48           	pha
+00162E  3  20 D3 12     	JSR INCWORKPTR
+001631  3  CA           	dex
+001632  3  D0 F7        	bne apush
+001634  3               
+001634  3  A2 03                ldx #$03
+001636  3  68           apull:   pla
+001637  3  38                    sec
+001638  3  E9 3F                 sbc #$3f
+00163A  3  A0 05                 ldy #$05
+00163C  3  4A           acrun:   lsr a
+00163D  3  6E 11 02              ror stage+1
+001640  3  6E 10 02              ror stage
+001643  3  88                    dey
+001644  3  D0 F6                 bne acrun
+001646  3  CA                    dex
+001647  3  D0 ED                 bne apull
+001649  3  A2 02                 ldx #$02
+00164B  3  A0 00        ainp:    LDY #$00
+00164D  3  B1 39        	 LDA (WORKPTR),Y		; GET NEXT CHAR FROM BUFFER
+00164F  3  20 D3 12       	 JSR INCWORKPTR
+001652  3  C9 00                 cmp #$00
+001654  3  F0 1E                 beq aret
+001656  3  C9 20                 cmp #$20
+001658  3  F0 F1                 beq ainp
+00165A  3  20 31 17              jsr ahex
+00165D  3  B0 0F                 bcs stone
+00165F  3               
+00165F  3  20 A7 17              jsr rdob2
+001662  3  A4 C1                 ldy tmp0
+001664  3  84 C2                 sty tmp0+1
+001666  3  85 C1                 sta tmp0
+001668  3               
+001668  3  A9 30                 lda #$30
+00166A  3  9D 10 02              sta stage,x
+00166D  3  E8                    inx
+00166E  3  9D 10 02     stone:   sta stage,x
+001671  3  E8                    inx
+001672  3  D0 D7                 bne ainp
+001674  3  86 28        aret:    stx aflg
+001676  3  A2 00                 ldx #0
+001678  3  86 26                 stx wrap
+00167A  3  F0 04                 beq atry
+00167C  3  E6 26        abump:   inc wrap
+00167E  3  F0 75                 beq aerr
+001680  3  A2 00        atry:    ldx #0
+001682  3  86 1D                 stx tmpc
+001684  3  A5 26                 lda wrap
+001686  3  20 3F 15              jsr instxx
+001689  3  A6 2A                 ldx acmd
+00168B  3  86 29                 stx aflg+1
+00168D  3  AA                    tax
+00168E  3  BC 23 18              ldy mneml,x
+001691  3  BD 63 18              lda mnemr,x
+001694  3  20 1A 17              jsr achek2
+001697  3  D0 E3                 bne abump
+001699  3  A2 06                 ldx #$06
+00169B  3  E0 03        aoprnd:  cpx #$03
+00169D  3  D0 19                 bne ashf
+00169F  3  A4 1F                 ldy length
+0016A1  3  F0 15                 beq ashf
+0016A3  3  A5 2A        arsc:    lda acmd
+0016A5  3  C9 E8                 cmp #$e8
+0016A7  3  A9 30                 lda #$30
+0016A9  3  B0 21                 bcs arel1
+0016AB  3  20 20 17              jsr acheck
+0016AE  3  D0 CC                 bne abump
+0016B0  3  20 22 17              jsr achick
+0016B3  3  D0 C7                 bne abump
+0016B5  3  88                    dey
+0016B6  3  D0 EB                 bne arsc
+0016B8  3  06 2A        ashf:    asl acmd
+0016BA  3  90 0B                 bcc adex
+0016BC  3  BC 1C 18              ldy char2-1,x
+0016BF  3  BD 16 18              lda char1-1,x
+0016C2  3  20 1A 17              jsr achek2
+0016C5  3  D0 B5                 bne abump
+0016C7  3  CA           adex:    dex
+0016C8  3  D0 D1                 bne aoprnd
+0016CA  3  F0 0A                 beq ald
+0016CC  3  20 19 17     arel1:   jsr acdb1
+0016CF  3  D0 AB                 bne abump
+0016D1  3  20 19 17              jsr acdb1
+0016D4  3  D0 A6                 bne abump
+0016D6  3  A5 28        ald:     lda aflg
+0016D8  3  C5 1D                 cmp tmpc
+0016DA  3  D0 A0                 bne abump
+0016DC  3  20 3A 17              jsr t2t2
+0016DF  3  A4 1F                 ldy length
+0016E1  3  F0 28                 beq aopset
+0016E3  3  A5 29                 lda aflg+1
+0016E5  3  C9 9D                 cmp #$9d
+0016E7  3  D0 1A                 bne aopnd
+0016E9  3  20 57 17              jsr diffb
+0016EC  3  90 0A                 bcc abdown
+0016EE  3  98                    tya
+0016EF  3  D0 04                 bne aerr
+0016F1  3  A5 44                 lda nemo
+0016F3  3  10 0A                 bpl abran
+0016F5  3  4C 7A 17     aerr:    jmp error
+0016F8  3  C8           abdown:  iny
+0016F9  3  D0 FA                 bne aerr
+0016FB  3  A5 44                 lda nemo
+0016FD  3  10 F6                 bpl aerr
+0016FF  3  A4 1F        abran:   ldy length
+001701  3  D0 03                 bne abrel
+001703  3  B9 C2 00     aopnd:   lda tmp2-1,y
+001706  3  91 C1        abrel:   sta (tmp0),y
+001708  3  88                    dey
+001709  3  D0 F8                 bne aopnd
+00170B  3  A5 26        aopset:  lda wrap
+00170D  3  91 C1                 sta (tmp0),y
+00170F  3  20 30 15              jsr pcadj
+001712  3  85 C1                 sta tmp0
+001714  3  84 C2                 sty tmp0+1
+001716  3  4C FE 15              jmp asv1
+001719  3  A8           acdb1:   tay
+00171A  3  20 20 17     achek2:  jsr acheck
+00171D  3  D0 11                 bne acex
+00171F  3  98                    tya
+001720  3  F0 0E        acheck:  beq acex
+001722  3  86 1C        achick:  stx savx
+001724  3  A6 1D                 ldx tmpc
+001726  3  DD 10 02              cmp stage,x
+001729  3  08                    php
+00172A  3  E8                    inx
+00172B  3  86 1D                 stx tmpc
+00172D  3  A6 1C                 ldx savx
+00172F  3  28                    plp
+001730  3  60           acex:    rts
+001731  3  C9 30        ahex:    cmp #$30
+001733  3  90 03                 bcc asx
+001735  3  C9 47                 cmp #$47
+001737  3  60                    rts
+001738  3  38           asx:     sec
+001739  3  60                    rts
+00173A  3               
+00173A  3               
+00173A  3               
+00173A  3                                        ; ** swap tmp0, tmp2 **
+00173A  3  A2 02        t2t2:    ldx #$02
+00173C  3  B5 C0        t2t21:   lda tmp0-1,x
+00173E  3  48                    pha
+00173F  3  B5 C2                 lda tmp2-1,x
+001741  3  95 C0                 sta tmp0-1,x
+001743  3  68                    pla
+001744  3  95 C2                 sta tmp2-1,x
+001746  3  CA                    dex
+001747  3  D0 F3                 bne t2t21
+001749  3  60                    rts
+00174A  3               
+00174A  3               PRINT_WORD:
+00174A  3  48           	pha
+00174B  3  A5 C2        	lda tmp0+1
+00174D  3  20 28 15     	jsr prbyte
+001750  3  A5 C1        	lda tmp0
+001752  3  20 28 15     	jsr prbyte
+001755  3  68           	pla
+001756  3  60           	rts
+001757  3                                         ; ** calc tmp2-tmp0-2 **
+001757  3  A5 C3        diffb:   lda tmp2
+001759  3  A4 C4                 ldy tmp2+1
+00175B  3  38                    sec
+00175C  3  E9 02                 sbc #2
+00175E  3  B0 0E                 bcs deck
+001760  3  88                    dey
+001761  3  90 0B                 bcc deck
+001763  3                                         ; ** calc aflg-tmp0 **
+001763  3  A5 28        diffa:   lda aflg
+001765  3  A4 29                 ldy aflg+1
+001767  3  4C 6E 17              jmp deck
+00176A  3                                         ; ** calc tmp2-tmp0 **
+00176A  3  A5 C3        diffp:   lda tmp2
+00176C  3  A4 C4                 ldy tmp2+1
+00176E  3  38           deck:    sec
+00176F  3  E5 C1                 sbc tmp0
+001771  3  85 44                 sta nemo
+001773  3  98                    tya
+001774  3  E5 C2                 sbc tmp0+1
+001776  3  A8                    tay
+001777  3  05 44                 ora nemo
+001779  3  60                    rts
+00177A  3               
+00177A  3  A9 3F        error:   lda #$3f
+00177C  3  20 7A 19              jsr OUTCH
+00177F  3  60                    rts
+001780  3                                      ; ** print spaces **
+001780  3  20 BA 15     spacd:   jsr space
+001783  3  CA                    dex
+001784  3  D0 FA                 bne spacd
+001786  3  60                    rts
+001787  3  C5 28        chrout:  cmp aflg
+001789  3  F0 03                 beq caltrit
+00178B  3  20 7A 19              jsr OUTCH
+00178E  3  60           caltrit: rts
+00178F  3               
+00178F  3  98           altrit:  tya
+001790  3  48                    pha
+001791  3  20 BE 15              jsr crlf
+001794  3  68                    pla
+001795  3  20 7A 19              jsr OUTCH
+001798  3  A9 2E                 lda #$2e
+00179A  3  4C 7A 19              jmp OUTCH
+00179D  3               
+00179D  3                                         ; ** print hex byte **
+00179D  3  A5 C2        wroa:    lda tmp0+1
+00179F  3  20 66 13              jsr PRINT_BYTE
+0017A2  3  A5 C1                 lda tmp0
+0017A4  3  4C 66 13              jmp PRINT_BYTE
+0017A7  3               
+0017A7  3                                        ; ** read hex byte **
+0017A7  3  20 BC 17     rdob2:   jsr hexit
+0017AA  3  0A                    asl a
+0017AB  3  0A                    asl a
+0017AC  3  0A                    asl a
+0017AD  3  0A                    asl a
+0017AE  3  85 2A                 sta acmd
+0017B0  3  B1 39                 LDA (WORKPTR),Y			; GET NEXT CHAR FROM BUFFER
+0017B2  3  20 D3 12       	 JSR INCWORKPTR
+0017B5  3  20 BC 17     rdob3:   jsr hexit
+0017B8  3  05 2A                 ora acmd
+0017BA  3  38                    sec
+0017BB  3  60                    rts
+0017BC  3                                         ; ** convert from hex **
+0017BC  3  C9 3A        hexit:   cmp #$3a
+0017BE  3  90 02                 bcc hex08
+0017C0  3  69 08                 adc #$08
+0017C2  3  29 0F        hex08:   and #$0f
+0017C4  3  60                    rts
+0017C5  3               
+0017C5  3               
+0017C5  3                                         ; mode table... nybble organized
+0017C5  3                                         ; 0= err  4= implied  8= zer,x   c= zer,y
+0017C5  3                                         ; 1= imm  5= acc      9= abs,x   d= rel
+0017C5  3                                         ; 2= zer  6= (ind,x)  a= abs,y
+0017C5  3                                         ; 3= abs  7= (ind),y  b= (ind)
+0017C5  3  40 02 45 03  mode:    .byte $40,$02,$45,$03
+0017C9  3  D0 08 40 09           .byte $d0,$08,$40,$09
+0017CD  3  30 22 45 33           .byte $30,$22,$45,$33
+0017D1  3  D0 08 40 09           .byte $d0,$08,$40,$09
+0017D5  3  40 02 45 33           .byte $40,$02,$45,$33
+0017D9  3  D0 08 40 09           .byte $d0,$08,$40,$09
+0017DD  3  40 02 45 B3           .byte $40,$02,$45,$b3
+0017E1  3  D0 08 40 09           .byte $d0,$08,$40,$09
+0017E5  3  00 22 44 33           .byte $00,$22,$44,$33
+0017E9  3  D0 8C 44 00           .byte $d0,$8c,$44,$00
+0017ED  3  11 22 44 33           .byte $11,$22,$44,$33
+0017F1  3  D0 8C 44 9A           .byte $d0,$8c,$44,$9a
+0017F5  3  10 22 44 33           .byte $10,$22,$44,$33
+0017F9  3  D0 08 40 09           .byte $d0,$08,$40,$09
+0017FD  3  10 22 44 33           .byte $10,$22,$44,$33
+001801  3  D0 08 40 09           .byte $d0,$08,$40,$09
+001805  3  62 13 78 A9           .byte $62,$13,$78,$a9
+001809  3                                         ;master modes
+001809  3                                         ;six hi-order bits  mode options
+001809  3                                         ;two lo-order bits  operand length ready.
+001809  3  00 21 81 82  mode2:   .byte $00,$21,$81,$82
+00180D  3  00 00 59 4D           .byte $00,$00,$59,$4d
+001811  3  91 92 86 4A           .byte $91,$92,$86,$4a,$85,$9d
+001815  3  85 9D        
+001817  3  2C 29 2C 23  char1:   .byte $2c,$29,$2c,$23,$28,$24
+00181B  3  28 24        
+00181D  3  59 00 58 24  char2:   .byte $59,$00,$58,$24,$24,$00
+001821  3  24 00        
+001823  3                                         ; packed mnemonics
+001823  3  1C 8A 1C 23  mneml:   .byte $1c,$8a,$1c,$23
+001827  3  5D 8B 1B A1           .byte $5d,$8b,$1b,$a1
+00182B  3  9D 8A 1D 23           .byte $9d,$8a,$1d,$23
+00182F  3  9D 8B 1D A1           .byte $9d,$8b,$1d,$a1
+001833  3  00 29 19 AE           .byte $00,$29,$19,$ae
+001837  3  69 A8 19 23           .byte $69,$a8,$19,$23
+00183B  3  24 53 1B 23           .byte $24,$53,$1b,$23
+00183F  3  24 53 19 A1           .byte $24,$53,$19,$a1
+001843  3  00 1A 5B 5B           .byte $00,$1a,$5b,$5b
+001847  3  A5 69 24 24           .byte $a5,$69,$24,$24
+00184B  3  AE AE A8 AD           .byte $ae,$ae,$a8,$ad
+00184F  3  29 00 7C 00           .byte $29,$00,$7c,$00
+001853  3  15 9C 6D 9C           .byte $15,$9c,$6d,$9c
+001857  3  A5 69 29 53           .byte $a5,$69,$29,$53
+00185B  3  84 13 34 11           .byte $84,$13,$34,$11
+00185F  3  A5 69 23 A0           .byte $a5,$69,$23,$a0
+001863  3               
+001863  3  D8 62 5A 48  mnemr:   .byte $d8,$62,$5a,$48
+001867  3  26 62 94 88           .byte $26,$62,$94,$88
+00186B  3  54 44 C8 54           .byte $54,$44,$c8,$54
+00186F  3  68 44 E8 94           .byte $68,$44,$e8,$94
+001873  3  00 B4 08 84           .byte $00,$b4,$08,$84
+001877  3  74 B4 28 6E           .byte $74,$b4,$28,$6e
+00187B  3  74 F4 CC 4A           .byte $74,$f4,$cc,$4a
+00187F  3  72 F2 A4 8A           .byte $72,$f2,$a4,$8a
+001883  3  00 AA A2 A2           .byte $00,$aa,$a2,$a2
+001887  3  74 74 74 72           .byte $74,$74,$74,$72
+00188B  3  44 68 B2 32           .byte $44,$68,$b2,$32
+00188F  3  B2 00 22 00           .byte $b2,$00,$22,$00
+001893  3  1A 1A 26 26           .byte $1a,$1a,$26,$26
+001897  3  72 72 88 C8           .byte $72,$72,$88,$c8
+00189B  3  C4 CA 26 48           .byte $c4,$ca,$26,$48
+00189F  3  44 44 A2 C8           .byte $44,$44,$a2,$c8
+0018A3  3               
+0018A3  2               
+0018A3  2               ; COMMAND PROCESSOR JUMP TABLE
+0018A3  2               COMMAND_LOOKUP_TABLE:
+0018A3  2  52 45 47 49   		.BYTE "REGISTER",0,<PRINT_REG,>PRINT_REG
+0018A7  2  53 54 45 52  
+0018AB  2  00 14 10     
+0018AE  2  44 55 4D 50   		.BYTE "DUMP",0,<DUMP,>DUMP
+0018B2  2  00 AB 11     
+0018B5  2  45 4E 54 45   		.BYTE "ENTER",0,<ENTERMEM,>ENTERMEM
+0018B9  2  52 00 FE 11  
+0018BD  2  47 4F 00 92   		.BYTE "GO",0,<GO,>GO
+0018C1  2  11           
+0018C2  2  4C 4F 41 44   		.BYTE "LOAD",0,<LOAD,>LOAD
+0018C6  2  00 1F 11     
+0018C9  2  5A 38 30 00   		.BYTE "Z80",0,<Z80,>Z80
+0018CD  2  13 10        
+0018CF  2  44 49 53 41  		.BYTE "DISASSEMBLE",0,<DISASSEMBLE,>DISASSEMBLE
+0018D3  2  53 53 45 4D  
+0018D7  2  42 4C 45 00  
+0018DD  2  41 53 53 45  		.BYTE "ASSEMBLE",0,<ASSEMBLE,>ASSEMBLE
+0018E1  2  4D 42 4C 45  
+0018E5  2  00 C8 15     
+0018E8  2  01 00        		.BYTE 01,0
+0018EA  2               ; COMMAND PROMPT STRING
+0018EA  2  0D 0A 2E 00  PROMPT:  	.BYTE   $0D,$0A,".",0
+0018EE  2               ; ERROR STRING
+0018EE  2  0D 0A 3F 20  ERROR:	 	.BYTE   $0D,$0A,"? COMMAND NOT FOUND",$0D,0
+0018F2  2  43 4F 4D 4D  
+0018F6  2  41 4E 44 20  
+001905  2  0D 0A 3F 20  INERROR:	.BYTE   $0D,$0A,"? INVALID HEX NUMBER",$0D,0
+001909  2  49 4E 56 41  
+00190D  2  4C 49 44 20  
+00191D  2               ; STRINGS FOR REGISTER DISPLY
+00191D  2  0D 0A        REGDATA: 	.BYTE   $0D,$0A
+00191F  2  20 20 20 50  		.BYTE   "   PC  AC  XR  YR  SP  SR(NVRBDIZC)"
+001923  2  43 20 20 41  
+001927  2  43 20 20 58  
+001942  2  0D 0A 21 20  		.BYTE   $0D,$0A,"! ",0
+001946  2  00           
+001947  2               
+001947  1               
+001947  1               ;__________________________________________________________________________________________________________
+001947  1               ;
+001947  1               ;  AT SOME POINT, REPLACE THIS WITH 6502HBIOS CALLS
+001947  1               ;
+001947  1               
+001947  1               INIT_SERIAL:
+001947  1  A9 80        		LDA	#$80			;
+001949  1  8D 6B 03     		STA	UART3			; SET DLAB FLAG
+00194C  1  A9 0C        		LDA	#12				; SET TO 12 = 9600 BAUD
+00194E  1  8D 68 03     		STA	UART0			; save baud rate
+001951  1  A9 00        		LDA	#00				;
+001953  1  8D 69 03     		STA	UART1			;
+001956  1  A9 03        		LDA	#03				;
+001958  1  8D 6B 03     		STA	UART3			; SET 8 BIT DATA, 1 STOPBIT
+00195B  1  8D 6C 03     		STA	UART4			;
+00195E  1  60           		RTS
+00195F  1               
+00195F  1               
+00195F  1               IOF_CONINW:					;
+00195F  1               SERIAL_INCHW1:
+00195F  1  AD 6D 03     		LDA	UART5				; READ LINE STATUS REGISTER
+001962  1  29 01        		AND	#$01				; TEST IF DATA IN RECEIVE BUFFER
+001964  1  C9 00        		CMP 	#$00
+001966  1  F0 F7        		BEQ	SERIAL_INCHW1		; LOOP UNTIL DATA IS READY
+001968  1  AD 68 03     		LDA	UART0				; THEN READ THE CHAR FROM THE UART
+00196B  1               
+00196B  1  60           		RTS
+00196C  1               
+00196C  1               IOF_CONIN:						;
+00196C  1  AD 6D 03     		LDA	UART5				; READ LINE STATUS REGISTER
+00196F  1  29 01        		AND	#$01				; TEST IF DATA IN RECEIVE BUFFER
+001971  1  F0 04        		BEQ	SERIAL_INCH1		; NO CHAR FOUND
+001973  1  AD 68 03     		LDA	UART0				; THEN READ THE CHAR FROM THE UART
+001976  1  60           		RTS
+001977  1               SERIAL_INCH1:					;
+001977  1  A9 00        		LDA	#$00
+001979  1  60           		RTS						;
+00197A  1               
+00197A  1               OUTCH:							;
+00197A  1  48           		PHA						; STORE A
+00197B  1               TX_BUSYLP:
+00197B  1  AD 6D 03     		LDA	UART5				; READ LINE STATUS REGISTER
+00197E  1  29 20        		AND	#$20				; TEST IF UART IS READY TO SEND (BIT 5)
+001980  1  C9 00        		CMP 	#$00
+001982  1  F0 F7        		BEQ	TX_BUSYLP			; IF NOT REPEAT
+001984  1  68           		PLA						; RESTORE ACC
+001985  1  8D 68 03     		STA	UART0				; THEN WRITE THE CHAR TO UART
+001988  1  60           		RTS
+001989  1               
+001989  1               
+001989  1               ; START BANNER
+001989  1  0D 0A        STARTUP: 	.BYTE   $0D,$0A
+00198B  1               
+00198B  1  20 20 4E 68  		.BYTE   "  Nhyodyne",$0D,$0A
+00198F  1  79 6F 64 79  
+001993  1  6E 65 0D 0A  
+001997  1  20 20 20 5F  		.BYTE   "   __ _____  _____ ___ ___ ",$0D,$0A
+00199B  1  5F 20 5F 5F  
+00199F  1  5F 5F 5F 20  
+0019B4  1  20 20 2F 20     		.BYTE   "  / /| ____|/ ____/ _ \__ \ ",$0D,$0A
+0019B8  1  2F 7C 20 5F  
+0019BC  1  5F 5F 5F 7C  
+0019D2  1  20 2F 20 2F    		.BYTE   " / /_| |__ | |   | | | | ) | ",$0D,$0A
+0019D6  1  5F 7C 20 7C  
+0019DA  1  5F 5F 20 7C  
+0019F1  1  7C 20 27 5F   		.BYTE   "| '_ \___ \| |   | | | |/ / ",$0D,$0A
+0019F5  1  20 5C 5F 5F  
+0019F9  1  5F 20 5C 7C  
+001A0F  1  7C 20 28 5F   		.BYTE   "| (_) |__) | |___| |_| / /_ ",$0D,$0A
+001A13  1  29 20 7C 5F  
+001A17  1  5F 29 20 7C  
+001A2D  1  20 5C 5F 5F    		.BYTE   " \___/____/ \_____\___/____| ",$0D,$0A
+001A31  1  5F 2F 5F 5F  
+001A35  1  5F 5F 2F 20  
+001A4C  1  2A 20 4C 6F  		.BYTE   "* Low Memory ($1000-$2000) 65c02 MONITOR ",$0D,$0A,$00
+001A50  1  77 20 4D 65  
+001A54  1  6D 6F 72 79  
+001A78  1               
+001A78  1               	.END
