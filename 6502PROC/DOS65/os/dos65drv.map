@@ -1,0 +1,26 @@
+Modules list:
+-------------
+dos65drv.o:
+    DRIVERS           Offs=000000  Size=001261  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+DRIVERS               008800  009A60  001261  00001
+
+
+Exports list by name:
+---------------------
+
+
+
+Exports list by value:
+----------------------
+
+
+
+Imports list:
+-------------
+

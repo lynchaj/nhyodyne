@@ -50,6 +50,22 @@ dos65drv.sys: dos65drv.out
 	@rm -f dos65drvA.s
 	cp dos65drv.sys ../bin/
 
+
+pretty:
+	cp *.asm ./backup
+	pretty6502 -p1 -a0 -du -mu -l ./backup/dos65.asm dos65.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/ccmnhy.asm ccmnhy.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/pemnhy.asm pemnhy.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/simnhy.asm simnhy.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/dosdefn.asm dosdefn.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/dospager.asm dospager.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/dos65drv.asm dos65drv.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/dosser.asm dosser.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/dosmd.asm dosmd.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/dosdskyn.asm dosdskyn.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/dosflp.asm dosflp.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/doside.asm doside.asm
+
 clean:
 	@rm -f *.o
 	@rm -f *.bin

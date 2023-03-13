@@ -1,0 +1,26 @@
+Modules list:
+-------------
+mksys.o:
+    TEA               Offs=000000  Size=0001B2  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+TEA                   000800  0009B1  0001B2  00001
+
+
+Exports list by name:
+---------------------
+
+
+
+Exports list by value:
+----------------------
+
+
+
+Imports list:
+-------------
+

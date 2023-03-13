@@ -1,14 +1,14 @@
 Modules list:
 -------------
 lowmon.o:
-    CODE              Offs=000000  Size=000A78  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=000AC0  Align=00001  Fill=0000
 
 
 Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-CODE                  001000  001A77  000A78  00001
+CODE                  001000  001ABF  000AC0  00001
 
 
 Exports list by name:

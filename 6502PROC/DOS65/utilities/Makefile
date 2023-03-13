@@ -153,6 +153,21 @@ cpm.co6: cpm.out
 	@rm -f cpmA.s
 	cp cpm.co6 ../bin/
 
+pretty:
+	cp *.asm ./backup
+	pretty6502 -p1 -a0 -du -mu -l ./backup/cpm.asm cpm.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/alloc203.asm alloc203.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/compl203.asm compl203.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/asm211.asm asm211.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/compr202.asm compr202.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/copy201.asm copy201.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/dbasic.asm dbasic.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/debug202.asm debug202.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/edit203.asm edit203.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/run205.asm run205.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/sedit.asm sedit.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/format.asm format.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/mksys.asm mksys.asm
 
 clean:
 	@rm -f *.o

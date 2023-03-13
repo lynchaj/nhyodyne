@@ -1,6 +1,6 @@
 all:  	tstflop.s19 monitor.com scream.com hi.com rom.bin lowmon.s19
 
-lowmon.s19: lowmon.asm moncode.asm assmb.asm
+lowmon.s19: lowmon.asm supermon.asm assmb.asm
 	ca65 lowmon.asm -l lowmon.lst
 	ld65 lowmon.o -m lowmon.map -C mbc.cfg -o lowmon.out
 	srec_cat  lowmon.out -binary -offset 0x1000 -exclude 0x1b00 0xffff -o  lowmon.s19  -data-only
@@ -58,6 +58,17 @@ rom.bin: rom.asm ../DOS65/os/dos65drv.rom  moncode.asm assmb.asm ../DOS65/os/dos
 	@rm rom.o
 	@rm romB.s
 
+pretty:
+	cp *.asm ./backup
+	pretty6502 -p1 -a0 -du -mu -l ./backup/rom.asm rom.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/moncode.asm moncode.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/assmb.asm assmb.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/hi.asm hi.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/scream.asm scream.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/tstflop.asm tstflop.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/monitor.asm monitor.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/lowmon.asm lowmon.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/supermon.asm supermon.asm
 
 clean:
 	@rm -f *.bin
