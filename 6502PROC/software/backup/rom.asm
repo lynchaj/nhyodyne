@@ -284,8 +284,9 @@ STARTUP:
         .BYTE   " \___/____/ \_____\___/____| ",$0D,$0A
         .BYTE   "* 65c02 SuperMON ",$0D,$0A,$00
 
+        .SEGMENT "IVECTOR"
         .ORG    $FFF0
-        JMP     LOAD
+        JMP     LOADS19
 
         .SEGMENT "VECTORS"
 NNTVECTOR:

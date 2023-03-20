@@ -234,7 +234,7 @@ The Nhyodyne system now uses the SuperMON monitor.  It is a powerful machine lan
         run.CO6- DOS/65 Basic-E run time
 
 # 6502 ROM
-If the 6502 processor board is the only CPU board in your Nhyodyne system ensure J1 is set for 1&2 (Only CPU) and J4 is set for 1&2 (Only CPU).   The ROM.BIN file can be placed in ROM to bring the system up to the ROM monitor.
+If the 6502 processor board is the only CPU board in your Nhyodyne system ensure J1 is set for 1&2 (Only CPU) and J4 is set for 1&2 (Only CPU).   The ROM.BIN file can be placed in ROM (starting at 0000) to bring the system up to the ROM monitor.
 TO BOOT DOS/65 FROM A PRIMARY 6502 CPU:
    L (SEND FILE LOWMON.S19)
    G 1000 ( TO RUN LOWMON)
@@ -244,7 +244,6 @@ TO BOOT DOS/65 FROM A PRIMARY 6502 CPU:
    G D000 (OR W XX to write os to a specified device)
 
    TODO:
-        * WRITEOS CODE
         * COMPLETE DOS/65 STORE AND BOOT FUNCTIONS FOR FLOPPY.
 
 
@@ -252,6 +251,9 @@ TO BOOT DOS/65 FROM A PRIMARY 6502 CPU:
 
 # Items left on the DOS/65 To Do list:
         * Hardware support for RTC
+        * Hardware support for ORIGINAL DSKY
         * Hardware Support for VDC/Keyboard
         * Hardware support for Dual Serial
         * XMODEM
+        * DOCUMENTATION
+        * TEST HOSTED AND STAND ALONE (ALL FUNCTIONS, WITH ONE BUILD)

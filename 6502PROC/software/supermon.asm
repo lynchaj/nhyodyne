@@ -488,9 +488,18 @@ BOOT_IDE:
         STA     $02
         JMP     DO_FARRUN
 BOOT_FLOPPY:
+        LDA     #32
+        STA     farfunct
         LDY     #$18
         LDA     #00
-        JMP     STRT
+        JSR     DO_FARCALL
+        LDA     #$8E
+        STA     $00
+        LDA     #$00
+        STA     $01
+        LDA     #$D0
+        STA     $02
+        JMP     DO_FARRUN
 BOOTX:
         JMP     ERROR           ; back to main loop
 
@@ -524,8 +533,11 @@ WRITEOS_IDE:
         JSR     DO_FARCALL
         JMP     STRT
 WRITEOS_FLOPPY:
+        LDA     #31
+        STA     farfunct
         LDY     #08
         LDA     #00
+        JSR     DO_FARCALL
         JMP     STRT
 WRITEOSX:
         JMP     ERROR           ; back to main loop
@@ -1472,15 +1484,15 @@ STOP:
 
 ; -----------------------------------------------------------------------------
 ; LOAD A MOTOROLA FORMATTED HEX FILE
-LOAD:
+LOADS19:
         JSR     IOF_CONINW      ;
         CMP     #'S'            ;
-        BNE     LOAD            ; FIRST CHAR NOT (S)
+        BNE     LOADS19         ; FIRST CHAR NOT (S)
         JSR     IOF_CONINW      ; READ CHAR
         CMP     #'9'            ;
         BEQ     LOAD21          ;
         CMP     #'1'            ;
-        BNE     LOAD            ; SECOND CHAR NOT (1)
+        BNE     LOADS19         ; SECOND CHAR NOT (1)
         LDA     #$00            ;
         STA     CKSM            ; ZERO CHECKSUM
         JSR     GETBYTE         ; READ BYTE
@@ -1502,12 +1514,12 @@ LOAD11:
 
 LOAD15:
         INC     CKSM            ;
-        BEQ     LOAD            ;
+        BEQ     LOADS19         ;
 LOAD19:
         LDA     #'?'            ;
         JSR     OUTCH           ;
 LOAD21:
-        JMP     STRT            ; back to main loop
+        RTS
 GETBYTE:
         JSR     INHEX           ; GET HEX CHAR
         ASL                     ;
@@ -1546,6 +1558,11 @@ BADDR:
         JSR     GETBYTE         ;
         STA     LOADADR         ;
         RTS
+LOAD:
+        JSR     LOADS19
+        JMP     STRT            ; back to main loop
+
+
 
 
 ; -----------------------------------------------------------------------------

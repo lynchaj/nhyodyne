@@ -42,7 +42,7 @@ PPIDE:
         JMP     CONT
 
 FLOPPY:
-        LDA     #26
+        LDA     #31
         STA     FUNCTION
 
 
@@ -119,12 +119,8 @@ ENDOUTSTR:
 
 
 CIN:
-        PHX
-        PHY
         LDX     #1              ;
         JSR     PEM             ;
-        PLY
-        PLX
         RTS
 
 NEWLINE:
@@ -136,12 +132,8 @@ NEWLINE:
 
 OUT:
 conwrt:
-        PHX
-        PHY
         LDX     #2              ;
         JSR     PEM             ;
-        PLY
-        PLX
         RTS
 
 CONF:
@@ -165,7 +157,7 @@ UNIT:
         .BYTE   00
         .BYTE   $8E
         .BYTE   $00,$D0
-        .BYTE   $2F
+        .BYTE   $17
 
 FUNCTION:
         .BYTE   0

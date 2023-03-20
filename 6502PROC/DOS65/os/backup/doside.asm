@@ -883,7 +883,7 @@ clear_hstbuf:
 :
         LDA     #$e5
         STA     hstbuf,x
-        STA     hstbuf+100,x
+        STA     hstbuf+$100,x
         INX
         CPX     #$00
         BNE     :-

@@ -1,6 +1,6 @@
 ca65 V2.18 - Ubuntu 2.19-1
-Main file   : mksys.asm
-Current file: mksys.asm
+Main file   : writeos.asm
+Current file: writeos.asm
 
 000000r 1               ;__Make System___________________________________________________________________________________________________________________
 000000r 1               ;
@@ -28,7 +28,7 @@ Current file: mksys.asm
 000800  1               
 000800  1               
 000800  1               
-000800  1  A9 BC                LDA     #STR_BANNER &$FF
+000800  1  A9 B4                LDA     #STR_BANNER &$FF
 000802  1  A0 08                LDY     #STR_BANNER>>8 & $FF
 000804  1  20 6E 08             JSR     WRITESTR
 000807  1               
@@ -42,16 +42,16 @@ Current file: mksys.asm
 000815  1               
 000815  1               PPIDE:
 000815  1  A9 1C                LDA     #28
-000817  1  8D BB 08             STA     FUNCTION
+000817  1  8D B3 08             STA     FUNCTION
 00081A  1  4C 22 08             JMP     CONT
 00081D  1               
 00081D  1               FLOPPY:
-00081D  1  A9 1A                LDA     #26
-00081F  1  8D BB 08             STA     FUNCTION
+00081D  1  A9 1F                LDA     #31
+00081F  1  8D B3 08             STA     FUNCTION
 000822  1               
 000822  1               
 000822  1               CONT:
-000822  1  A9 0D                LDA     #STR_DRIVE &$FF
+000822  1  A9 05                LDA     #STR_DRIVE &$FF
 000824  1  A0 09                LDY     #STR_DRIVE>>8 & $FF
 000826  1  20 6E 08             JSR     WRITESTR
 000829  1               
@@ -70,21 +70,21 @@ Current file: mksys.asm
 00083B  1  A9 01                LDA     #$01
 00083D  1               
 00083D  1               :
-00083D  1  8D B6 08             STA     UNIT
+00083D  1  8D AE 08             STA     UNIT
 000840  1               
-000840  1  A9 39                LDA     #STR_INTRO &$FF
+000840  1  A9 31                LDA     #STR_INTRO &$FF
 000842  1  A0 09                LDY     #STR_INTRO>>8 & $FF
 000844  1  20 6E 08             JSR     WRITESTR
 000847  1               
-000847  1  A9 76                LDA     #STR_CONFIRM &$FF
+000847  1  A9 6E                LDA     #STR_CONFIRM &$FF
 000849  1  A0 09                LDY     #STR_CONFIRM>>8 & $FF
 00084B  1  20 6E 08             JSR     WRITESTR
 00084E  1               
-00084E  1  20 A1 08             JSR     CONF
+00084E  1  20 99 08             JSR     CONF
 000851  1               
-000851  1  AD BB 08             LDA     FUNCTION
+000851  1  AD B3 08             LDA     FUNCTION
 000854  1  85 32                STA     farfunct
-000856  1  A9 B6                LDA     #<PARAMETERS
+000856  1  A9 AE                LDA     #<PARAMETERS
 000858  1  A0 08                LDY     #>PARAMETERS
 00085A  1               
 00085A  1  48                   PHA
@@ -97,7 +97,7 @@ Current file: mksys.asm
 000866  1  A9 8E                LDA     #$8E
 000868  1  8D 78 03             STA     MPCL_RAM
 00086B  1               
-00086B  1  4C AD 08             JMP     EXIT
+00086B  1  4C A5 08             JMP     EXIT
 00086E  1               
 00086E  1               
 00086E  1               
@@ -112,7 +112,7 @@ Current file: mksys.asm
 000874  1  B1 F0                LDA     (OUTMSG_W),Y    ; LOAD NEXT CHAR FROM STRING INTO ACC
 000876  1  C9 24                CMP     #'$'            ; IS END?
 000878  1  F0 07                BEQ     ENDOUTSTR       ; YES, END PRINT OUT
-00087A  1  20 97 08             JSR     OUT             ; PRINT CHAR IN ACC
+00087A  1  20 93 08             JSR     OUT             ; PRINT CHAR IN ACC
 00087D  1  C8                   INY                     ; Y=Y+1 (BUMP INDEX)
 00087E  1  4C 74 08             JMP     WRITESTR1       ; DO NEXT CHAR
 000881  1               ENDOUTSTR:
@@ -123,92 +123,84 @@ Current file: mksys.asm
 000882  1               
 000882  1               
 000882  1               CIN:
-000882  1  DA                   PHX
-000883  1  5A                   PHY
-000884  1  A2 01                LDX     #1              ;
-000886  1  20 03 01             JSR     PEM             ;
-000889  1  7A                   PLY
-00088A  1  FA                   PLX
-00088B  1  60                   RTS
-00088C  1               
-00088C  1               NEWLINE:
-00088C  1  A9 0D                LDA     #$0D
-00088E  1  20 97 08             JSR     OUT             ; PRINT CHAR IN ACC
-000891  1  A9 0A                LDA     #$0A
-000893  1  20 97 08             JSR     OUT             ; PRINT CHAR IN ACC
-000896  1  60                   RTS
-000897  1               
-000897  1               OUT:
-000897  1               conwrt:
-000897  1  DA                   PHX
-000898  1  5A                   PHY
-000899  1  A2 02                LDX     #2              ;
-00089B  1  20 03 01             JSR     PEM             ;
-00089E  1  7A                   PLY
-00089F  1  FA                   PLX
-0008A0  1  60                   RTS
-0008A1  1               
-0008A1  1               CONF:
-0008A1  1  20 82 08             JSR     CIN
-0008A4  1  C9 1B                CMP     #$1B
-0008A6  1  F0 05                BEQ     EXIT
-0008A8  1  C9 0D                CMP     #$0D
-0008AA  1  D0 F5                BNE     CONF
-0008AC  1               
-0008AC  1  60                   RTS
-0008AD  1               
-0008AD  1               EXIT:
-0008AD  1               ; CLEAN UP AND RETURN TO OS
-0008AD  1  20 8C 08             JSR     NEWLINE
-0008B0  1  20 8C 08             JSR     NEWLINE
-0008B3  1  4C 00 01             JMP     $0100
-0008B6  1               
-0008B6  1               
-0008B6  1               PARAMETERS:
-0008B6  1               UNIT:
-0008B6  1  00                   .BYTE   00
-0008B7  1  8E                   .BYTE   $8E
-0008B8  1  00 D0                .BYTE   $00,$D0
-0008BA  1  2F                   .BYTE   $2F
-0008BB  1               
-0008BB  1               FUNCTION:
-0008BB  1  00                   .BYTE   0
-0008BC  1               
-0008BC  1               STR_BANNER:
-0008BC  1  0D 0A 4E 68          .BYTE   $0D,$0A,"Nhyodyne Boot System Generator v1.0"
-0008C0  1  79 6F 64 79  
-0008C4  1  6E 65 20 42  
-0008E1  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Drive type:",$0D,$0A
-0008E5  1  6F 6F 73 65  
-0008E9  1  20 44 72 69  
-0008F7  1  31 3E 20 50          .BYTE   "1> PPIDE",$0D,$0A
-0008FB  1  50 49 44 45  
-0008FF  1  0D 0A        
-000901  1  32 3E 20 66          .BYTE   "2> floppy",$0D,$0A,"$"
-000905  1  6C 6F 70 70  
-000909  1  79 0D 0A 24  
-00090D  1               STR_DRIVE:
-00090D  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Unit Id:",$0D,$0A
-000911  1  6F 6F 73 65  
-000915  1  20 55 6E 69  
-000920  1  31 3E 20 44          .BYTE   "1> DRIVE 0",$0D,$0A
-000924  1  52 49 56 45  
-000928  1  20 30 0D 0A  
-00092C  1  32 3E 20 44          .BYTE   "2> DRIVE 1",$0D,$0A,"$"
-000930  1  52 49 56 45  
-000934  1  20 31 0D 0A  
-000939  1               STR_INTRO:
-000939  1  0D 0A 0D 0A          .BYTE   $0D,$0A,$0D,$0A,"System track will be overwritten with DOS/65 in RAM!!!",$0D,$0A,"$"
-00093D  1  53 79 73 74  
-000941  1  65 6D 20 74  
-000976  1               STR_CONFIRM:
-000976  1  50 72 65 73          .BYTE   "Press <Enter> to continue, <Esc> to abort",$0D,$0A,"$"
-00097A  1  73 20 3C 45  
-00097E  1  6E 74 65 72  
-0009A2  1               
-0009A2  1               STR_ERR1:
-0009A2  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR.",$0D,$0A,"$"
-0009A6  1  53 4B 20 45  
-0009AA  1  52 52 4F 52  
-0009B2  1               
-0009B2  1                       .END
+000882  1  A2 01                LDX     #1              ;
+000884  1  20 03 01             JSR     PEM             ;
+000887  1  60                   RTS
+000888  1               
+000888  1               NEWLINE:
+000888  1  A9 0D                LDA     #$0D
+00088A  1  20 93 08             JSR     OUT             ; PRINT CHAR IN ACC
+00088D  1  A9 0A                LDA     #$0A
+00088F  1  20 93 08             JSR     OUT             ; PRINT CHAR IN ACC
+000892  1  60                   RTS
+000893  1               
+000893  1               OUT:
+000893  1               conwrt:
+000893  1  A2 02                LDX     #2              ;
+000895  1  20 03 01             JSR     PEM             ;
+000898  1  60                   RTS
+000899  1               
+000899  1               CONF:
+000899  1  20 82 08             JSR     CIN
+00089C  1  C9 1B                CMP     #$1B
+00089E  1  F0 05                BEQ     EXIT
+0008A0  1  C9 0D                CMP     #$0D
+0008A2  1  D0 F5                BNE     CONF
+0008A4  1               
+0008A4  1  60                   RTS
+0008A5  1               
+0008A5  1               EXIT:
+0008A5  1               ; CLEAN UP AND RETURN TO OS
+0008A5  1  20 88 08             JSR     NEWLINE
+0008A8  1  20 88 08             JSR     NEWLINE
+0008AB  1  4C 00 01             JMP     $0100
+0008AE  1               
+0008AE  1               
+0008AE  1               PARAMETERS:
+0008AE  1               UNIT:
+0008AE  1  00                   .BYTE   00
+0008AF  1  8E                   .BYTE   $8E
+0008B0  1  00 D0                .BYTE   $00,$D0
+0008B2  1  17                   .BYTE   $17
+0008B3  1               
+0008B3  1               FUNCTION:
+0008B3  1  00                   .BYTE   0
+0008B4  1               
+0008B4  1               STR_BANNER:
+0008B4  1  0D 0A 4E 68          .BYTE   $0D,$0A,"Nhyodyne Boot System Generator v1.0"
+0008B8  1  79 6F 64 79  
+0008BC  1  6E 65 20 42  
+0008D9  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Drive type:",$0D,$0A
+0008DD  1  6F 6F 73 65  
+0008E1  1  20 44 72 69  
+0008EF  1  31 3E 20 50          .BYTE   "1> PPIDE",$0D,$0A
+0008F3  1  50 49 44 45  
+0008F7  1  0D 0A        
+0008F9  1  32 3E 20 66          .BYTE   "2> floppy",$0D,$0A,"$"
+0008FD  1  6C 6F 70 70  
+000901  1  79 0D 0A 24  
+000905  1               STR_DRIVE:
+000905  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Unit Id:",$0D,$0A
+000909  1  6F 6F 73 65  
+00090D  1  20 55 6E 69  
+000918  1  31 3E 20 44          .BYTE   "1> DRIVE 0",$0D,$0A
+00091C  1  52 49 56 45  
+000920  1  20 30 0D 0A  
+000924  1  32 3E 20 44          .BYTE   "2> DRIVE 1",$0D,$0A,"$"
+000928  1  52 49 56 45  
+00092C  1  20 31 0D 0A  
+000931  1               STR_INTRO:
+000931  1  0D 0A 0D 0A          .BYTE   $0D,$0A,$0D,$0A,"System track will be overwritten with DOS/65 in RAM!!!",$0D,$0A,"$"
+000935  1  53 79 73 74  
+000939  1  65 6D 20 74  
+00096E  1               STR_CONFIRM:
+00096E  1  50 72 65 73          .BYTE   "Press <Enter> to continue, <Esc> to abort",$0D,$0A,"$"
+000972  1  73 20 3C 45  
+000976  1  6E 74 65 72  
+00099A  1               
+00099A  1               STR_ERR1:
+00099A  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR.",$0D,$0A,"$"
+00099E  1  53 4B 20 45  
+0009A2  1  52 52 4F 52  
+0009AA  1               
+0009AA  1                       .END

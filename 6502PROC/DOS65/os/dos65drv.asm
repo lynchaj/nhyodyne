@@ -8,6 +8,7 @@
 
         .SEGMENT "DRIVERS"
         .ORG    $8800
+        DRIVERS = 1
         .INCLUDE "DOSDEFN.ASM"  ; base addresses and definitions
 
 ; for Nhyodyne:
@@ -80,6 +81,9 @@ DISPATCHTABLE:
         .WORD   IDE_STORE_BOOT_IMAGE; FUNCTION 28 - save a boot image to a ppide device
         .WORD   IDE_RESTORE_BOOT_IMAGE; FUNCTION 29 - restore a boot image from a ppide device
         .WORD   IDE_CLEAR_TRACKS; FUNCTION 30 - clear tracks on a ppide device
+
+        .WORD   FL_STORE_BOOT_IMAGE; FUNCTION 31 - save a boot image to a ppide device
+        .WORD   FL_RESTORE_BOOT_IMAGE; FUNCTION 32 - restore a boot image from a ppide device
 
 
 ;__DRIVERS___________________________________________________________________________________________

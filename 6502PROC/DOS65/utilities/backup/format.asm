@@ -21,6 +21,7 @@ STACKA          = $3A
 DENS            = 2             ; DENSITY
 EOTSEC          = 09            ; LAST SECTOR OF TRACK
 
+DRIVERS         = 0
 
 ;MAIN PROGRAM
         .SEGMENT "TEA"
@@ -280,6 +281,7 @@ GETERR:
 
         .INCLUDE "../os/macro.asm"
         .INCLUDE "../os/dosflp.asm"
+
 
 
 

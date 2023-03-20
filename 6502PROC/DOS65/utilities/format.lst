@@ -25,6 +25,7 @@ Current file: format.asm
 000000r 1               DENS            = 2             ; DENSITY
 000000r 1               EOTSEC          = 09            ; LAST SECTOR OF TRACK
 000000r 1               
+000000r 1               DRIVERS         = 0
 000000r 1               
 000000r 1               ;MAIN PROGRAM
 000000r 1                       .SEGMENT "TEA"
@@ -32,12 +33,12 @@ Current file: format.asm
 000800  1               
 000800  1               
 000800  1               
-000800  1  A9 30                LDA     #STR_BANNER &$FF
+000800  1  A9 34                LDA     #STR_BANNER &$FF
 000802  1  A0 13                LDY     #STR_BANNER>>8 & $FF
-000804  1  20 F3 0E             JSR     WRITESTR
+000804  1  20 F7 0E             JSR     WRITESTR
 000807  1               
 000807  1               INLOOP:
-000807  1  20 07 0F             JSR     CIN
+000807  1  20 0B 0F             JSR     CIN
 00080A  1  C9 31                CMP     #'1'
 00080C  1  F0 07                BEQ     TRACK40
 00080E  1  C9 32                CMP     #'2'
@@ -46,26 +47,26 @@ Current file: format.asm
 000815  1               
 000815  1               TRACK40:
 000815  1  A9 28                LDA     #40
-000817  1  8D 2F 13             STA     MAXTRACK
+000817  1  8D 33 13             STA     MAXTRACK
 00081A  1  A9 50                LDA     #$50
-00081C  1  8D 26 0F             STA     FMTGAP          ; GAP FOR FORMAT 5.25=$50, 3.5=$54
+00081C  1  8D 2A 0F             STA     FMTGAP          ; GAP FOR FORMAT 5.25=$50, 3.5=$54
 00081F  1  4C 2F 08             JMP     FMTCONT
 000822  1               
 000822  1               TRACK80:
 000822  1  A9 50                LDA     #80
-000824  1  8D 2F 13             STA     MAXTRACK
+000824  1  8D 33 13             STA     MAXTRACK
 000827  1  A9 54                LDA     #$54
-000829  1  8D 26 0F             STA     FMTGAP          ; GAP FOR FORMAT 5.25=$50, 3.5=$54
+000829  1  8D 2A 0F             STA     FMTGAP          ; GAP FOR FORMAT 5.25=$50, 3.5=$54
 00082C  1  4C 2F 08             JMP     FMTCONT
 00082F  1               
 00082F  1               
 00082F  1               FMTCONT:
-00082F  1  A9 B4                LDA     #STR_DRIVE &$FF
+00082F  1  A9 B8                LDA     #STR_DRIVE &$FF
 000831  1  A0 13                LDY     #STR_DRIVE>>8 & $FF
-000833  1  20 F3 0E             JSR     WRITESTR
+000833  1  20 F7 0E             JSR     WRITESTR
 000836  1               
 000836  1               INLOOP1:
-000836  1  20 07 0F             JSR     CIN
+000836  1  20 0B 0F             JSR     CIN
 000839  1  C9 31                CMP     #'1'
 00083B  1  F0 07                BEQ     FMTCONT1
 00083D  1  C9 32                CMP     #'2'
@@ -74,52 +75,52 @@ Current file: format.asm
 000844  1               
 000844  1               FMTCONT1:
 000844  1  A9 00                LDA     #$00
-000846  1  8D 2C 0F             STA     sekdsk
+000846  1  8D 30 0F             STA     sekdsk
 000849  1  A9 11                LDA     #%00010001
-00084B  1  8D 2D 0F             STA     DSKUNIT
+00084B  1  8D 31 0F             STA     DSKUNIT
 00084E  1  4C 5E 08             JMP     FMTCONT3
 000851  1               
 000851  1               FMTCONT2:
 000851  1  A9 01                LDA     #$01
-000853  1  8D 2C 0F             STA     sekdsk
+000853  1  8D 30 0F             STA     sekdsk
 000856  1  A9 21                LDA     #%00100001
-000858  1  8D 2D 0F             STA     DSKUNIT
+000858  1  8D 31 0F             STA     DSKUNIT
 00085B  1  4C 5E 08             JMP     FMTCONT3
 00085E  1               
 00085E  1               
 00085E  1               FMTCONT3:
-00085E  1  A9 E5                LDA     #STR_INTRO &$FF
+00085E  1  A9 E9                LDA     #STR_INTRO &$FF
 000860  1  A0 13                LDY     #STR_INTRO>>8 & $FF
-000862  1  20 F3 0E             JSR     WRITESTR
+000862  1  20 F7 0E             JSR     WRITESTR
 000865  1               
-000865  1  A9 22                LDA     #STR_CONFIRM &$FF
+000865  1  A9 26                LDA     #STR_CONFIRM &$FF
 000867  1  A0 14                LDY     #STR_CONFIRM>>8 & $FF
-000869  1  20 F3 0E             JSR     WRITESTR
+000869  1  20 F7 0E             JSR     WRITESTR
 00086C  1               
-00086C  1  20 11 0F             JSR     CONF
+00086C  1  20 15 0F             JSR     CONF
 00086F  1               
-00086F  1  20 CB 0E             JSR     PC_CR
-000872  1  20 D3 0E             JSR     PC_LF
+00086F  1  20 CF 0E             JSR     PC_CR
+000872  1  20 D7 0E             JSR     PC_LF
 000875  1  A9 00                LDA     #$00
-000877  1  8D B0 0E             STA     debcyl
+000877  1  8D B4 0E             STA     debcyl
 00087A  1               
 00087A  1               FMTLOOP:
 00087A  1  A9 00                LDA     #$00
-00087C  1  8D AF 0E             STA     debhead
+00087C  1  8D B3 0E             STA     debhead
 00087F  1  20 A0 08             JSR     FMTCYL
 000882  1               
 000882  1  A9 01                LDA     #$01
-000884  1  8D AF 0E             STA     debhead
+000884  1  8D B3 0E             STA     debhead
 000887  1  20 A0 08             JSR     FMTCYL
 00088A  1               
-00088A  1  EE B0 0E             INC     debcyl
-00088D  1  AD B0 0E             LDA     debcyl
-000890  1  CD 2F 13             CMP     MAXTRACK
+00088A  1  EE B4 0E             INC     debcyl
+00088D  1  AD B4 0E             LDA     debcyl
+000890  1  CD 33 13             CMP     MAXTRACK
 000893  1  D0 E5                BNE     FMTLOOP
 000895  1               
 000895  1               DONE:
-000895  1  20 CB 0E             JSR     PC_CR
-000898  1  20 D3 0E             JSR     PC_LF
+000895  1  20 CF 0E             JSR     PC_CR
+000898  1  20 D7 0E             JSR     PC_LF
 00089B  1  A2 00                LDX     #$00
 00089D  1  4C 03 01             JMP     PEM
 0008A0  1               
@@ -130,67 +131,67 @@ Current file: format.asm
 0008A0  1               ;________________________________________________________________________________________________________________________________
 0008A0  1               ;
 0008A0  1               FMTCYL:
-0008A0  1  20 53 0D             JSR     SETTRACK        ; PERFORM SEEK TO TRACK
+0008A0  1  20 57 0D             JSR     SETTRACK        ; PERFORM SEEK TO TRACK
 0008A3  1  78                   SEI
-0008A4  1  20 F1 0D             JSR     CHECKINT        ; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
+0008A4  1  20 F5 0D             JSR     CHECKINT        ; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
 0008A7  1  C9 FF                CMP     #$FF            ; DID IT RETURN WITH ERROR CODE?
 0008A9  1  D0 0A                BNE     FMTGO           ; IF YES, EXIT WITH ERROR CODE
-0008AB  1  A9 4E                LDA     #STR_ERR1 &$FF
+0008AB  1  A9 52                LDA     #STR_ERR1 &$FF
 0008AD  1  A0 14                LDY     #STR_ERR1>>8 & $FF
-0008AF  1  20 F3 0E             JSR     WRITESTR
-0008B2  1  4C 8E 0C             JMP     DSKEXIT
+0008AF  1  20 F7 0E             JSR     WRITESTR
+0008B2  1  4C 92 0C             JMP     DSKEXIT
 0008B5  1               FMTGO:  ; 					;
 0008B5  1               FMT:    ; FORMAT TRACK COMMAND
 0008B5  1               ;
 0008B5  1  18                   CLC
-0008B6  1  AD 2C 0F             LDA     sekdsk          ; GET DISK UNIT NUMBER
+0008B6  1  AD 30 0F             LDA     sekdsk          ; GET DISK UNIT NUMBER
 0008B9  1  29 01                AND     #$01            ; MASK FOR TWO DRIVES.
-0008BB  1  8D B6 0E             STA     UNIT            ; PARK IT IN TEMP
-0008BE  1  AD AF 0E             LDA     debhead         ; GET HEAD SELECTION
+0008BB  1  8D BA 0E             STA     UNIT            ; PARK IT IN TEMP
+0008BE  1  AD B3 0E             LDA     debhead         ; GET HEAD SELECTION
 0008C1  1  29 01                AND     #$01            ; INSURE SINGLE BIT
 0008C3  1  0A                   ASL     A               ;
 0008C4  1  0A                   ASL     A               ; MOVE HEAD TO BIT 2 POSITION
-0008C5  1  0D B6 0E             ORA     UNIT            ; OR HEAD TO UNIT BYTE IN COMMAND BLOCK
-0008C8  1  8D B6 0E             STA     UNIT            ; STORE IN UNIT
+0008C5  1  0D BA 0E             ORA     UNIT            ; OR HEAD TO UNIT BYTE IN COMMAND BLOCK
+0008C8  1  8D BA 0E             STA     UNIT            ; STORE IN UNIT
 0008CB  1               ;
 0008CB  1  A9 4D                LDA     #$4D            ; BIT 6 SETS MFM, 0DH IS FORMAT COMMAND
-0008CD  1  20 AD 0D             JSR     PFDATA          ; PUSH FORMAT COMMAND TO I8272
-0008D0  1  AD B6 0E             LDA     UNIT            ;
-0008D3  1  20 AD 0D             JSR     PFDATA          ; WHICH DRIVE UNIT TO FORMAT
+0008CD  1  20 B1 0D             JSR     PFDATA          ; PUSH FORMAT COMMAND TO I8272
+0008D0  1  AD BA 0E             LDA     UNIT            ;
+0008D3  1  20 B1 0D             JSR     PFDATA          ; WHICH DRIVE UNIT TO FORMAT
 0008D6  1  A9 02                LDA     #DENS           ;
-0008D8  1  20 AD 0D             JSR     PFDATA          ; WHAT DENSITY
+0008D8  1  20 B1 0D             JSR     PFDATA          ; WHAT DENSITY
 0008DB  1  A9 09                LDA     #EOTSEC         ;
-0008DD  1  20 AD 0D             JSR     PFDATA          ; SECTOR COUNT
-0008E0  1  AD 26 0F             LDA     FMTGAP          ;
-0008E3  1  20 AD 0D             JSR     PFDATA          ; WHAT GAP IS NEEDED
+0008DD  1  20 B1 0D             JSR     PFDATA          ; SECTOR COUNT
+0008E0  1  AD 2A 0F             LDA     FMTGAP          ;
+0008E3  1  20 B1 0D             JSR     PFDATA          ; WHAT GAP IS NEEDED
 0008E6  1  A9 E5                LDA     #$E5            ;
-0008E8  1  20 D8 0D             JSR     PFDATAS         ; FILLER BYTE FOR SECTORS
+0008E8  1  20 DC 0D             JSR     PFDATAS         ; FILLER BYTE FOR SECTORS
 0008EB  1  A0 01                LDY     #$01            ; SET SECTOR#
 0008ED  1               
 0008ED  1               FMT1:
 0008ED  1  AD 30 03             LDA     FDC_MSR         ; GET STATUS
 0008F0  1  10 FB                BPL     FMT1
-0008F2  1  8D 2E 13             STA     temp            ;
+0008F2  1  8D 32 13             STA     temp            ;
 0008F5  1  29 20                AND     #%00100000      ; EXECUTION MODE?
 0008F7  1  F0 49                BEQ     DSKFMEND1       ; NO, ERROR
 0008F9  1               
-0008F9  1  AD B0 0E             LDA     debcyl          ; UPDATE I8272 DURING FORMAT
+0008F9  1  AD B4 0E             LDA     debcyl          ; UPDATE I8272 DURING FORMAT
 0008FC  1  8D 31 03             STA     FDC_DATA        ; SEND CYLINDER NUMBER
 0008FF  1               ;
 0008FF  1               ;
 0008FF  1               FMT1A:
 0008FF  1  AD 30 03             LDA     FDC_MSR         ; GET STATUS
 000902  1  10 FB                BPL     FMT1A
-000904  1  8D 2E 13             STA     temp            ;
+000904  1  8D 32 13             STA     temp            ;
 000907  1  29 20                AND     #%00100000      ; EXECUTION MODE?
 000909  1  F0 44                BEQ     DSKFMEND1A      ; NO, ERROR
-00090B  1  AD AF 0E             LDA     debhead         ; UPDATE I8272 DURING FORMAT
+00090B  1  AD B3 0E             LDA     debhead         ; UPDATE I8272 DURING FORMAT
 00090E  1  8D 31 03             STA     FDC_DATA        ; SEND HEAD NUMBER
 000911  1               
 000911  1               FMT1B:
 000911  1  AD 30 03             LDA     FDC_MSR         ; GET STATUS
 000914  1  10 FB                BPL     FMT1B
-000916  1  8D 2E 13             STA     temp            ;
+000916  1  8D 32 13             STA     temp            ;
 000919  1  29 20                AND     #%00100000      ; EXECUTION MODE?
 00091B  1  F0 3F                BEQ     DSKFMEND1B      ; NO, ERROR
 00091D  1               ;
@@ -201,7 +202,7 @@ Current file: format.asm
 000921  1               FMT1C:
 000921  1  AD 30 03             LDA     FDC_MSR         ; GET STATUS
 000924  1  10 FB                BPL     FMT1C
-000926  1  8D 2E 13             STA     temp            ;
+000926  1  8D 32 13             STA     temp            ;
 000929  1  29 20                AND     #%00100000      ; EXECUTION MODE?
 00092B  1  F0 3C                BEQ     DSKFMEND1C      ; NO, ERROR
 00092D  1               ;
@@ -216,33 +217,33 @@ Current file: format.asm
 000938  1               ;
 000938  1  C0 0A                CPY     #$0A            ; IS THIS PAST THE LAST SECTOR OF TRACK?
 00093A  1  D0 B1                BNE     FMT1            ; IF NO, SEND ANOTHER SECTOR
-00093C  1  20 C3 0E             JSR     PC_PERIOD
+00093C  1  20 C7 0E             JSR     PC_PERIOD
 00093F  1  4C 76 09             JMP     FMTEND
 000942  1               
 000942  1               
 000942  1               
 000942  1               DSKFMEND1:
-000942  1  A9 5F                LDA     #STR_ERR2 &$FF
+000942  1  A9 63                LDA     #STR_ERR2 &$FF
 000944  1  A0 14                LDY     #STR_ERR2>>8 & $FF
-000946  1  20 F3 0E             JSR     WRITESTR
+000946  1  20 F7 0E             JSR     WRITESTR
 000949  1  20 7F 09             JSR     GETERR
 00094C  1  4C 95 08             JMP     DONE
 00094F  1               DSKFMEND1A:
-00094F  1  A9 70                LDA     #STR_ERR3 &$FF
+00094F  1  A9 74                LDA     #STR_ERR3 &$FF
 000951  1  A0 14                LDY     #STR_ERR3>>8 & $FF
-000953  1  20 F3 0E             JSR     WRITESTR
+000953  1  20 F7 0E             JSR     WRITESTR
 000956  1  20 7F 09             JSR     GETERR
 000959  1  4C 95 08             JMP     DONE
 00095C  1               DSKFMEND1B:
-00095C  1  A9 81                LDA     #STR_ERR4 &$FF
+00095C  1  A9 85                LDA     #STR_ERR4 &$FF
 00095E  1  A0 14                LDY     #STR_ERR4>>8 & $FF
-000960  1  20 F3 0E             JSR     WRITESTR
+000960  1  20 F7 0E             JSR     WRITESTR
 000963  1  20 7F 09             JSR     GETERR
 000966  1  4C 95 08             JMP     DONE
 000969  1               DSKFMEND1C:
-000969  1  A9 92                LDA     #STR_ERR5 &$FF
+000969  1  A9 96                LDA     #STR_ERR5 &$FF
 00096B  1  A0 14                LDY     #STR_ERR5>>8 & $FF
-00096D  1  20 F3 0E             JSR     WRITESTR
+00096D  1  20 F7 0E             JSR     WRITESTR
 000970  1  20 7F 09             JSR     GETERR
 000973  1  4C 95 08             JMP     DONE
 000976  1               
@@ -250,35 +251,35 @@ Current file: format.asm
 000976  1               ;* CLEAR OUT ANY REMAINING DATA
 000976  1  A0 10                LDY     #$10
 000978  1               FMTEND_1:
-000978  1  20 3A 0E             JSR     GFDATA          ;GET ERROR TYPE
+000978  1  20 3E 0E             JSR     GFDATA          ;GET ERROR TYPE
 00097B  1  88                   DEY
 00097C  1  D0 FA                BNE     FMTEND_1
 00097E  1  60                   RTS
 00097F  1               
 00097F  1               GETERR:
-00097F  1  AD 2E 13             LDA     temp            ;GET ERROR TYPE
-000982  1  20 E6 0E             JSR     PRINT_BYTE
-000985  1  20 BB 0E             JSR     PC_SPACE
-000988  1  20 3A 0E             JSR     GFDATA          ;GET ERROR TYPE
-00098B  1  20 E6 0E             JSR     PRINT_BYTE
-00098E  1  20 BB 0E             JSR     PC_SPACE
-000991  1  20 3A 0E             JSR     GFDATA          ;GET ERROR TYPE
-000994  1  20 E6 0E             JSR     PRINT_BYTE
-000997  1  20 BB 0E             JSR     PC_SPACE
-00099A  1  20 3A 0E             JSR     GFDATA          ;GET ERROR TYPE
-00099D  1  20 E6 0E             JSR     PRINT_BYTE
-0009A0  1  20 BB 0E             JSR     PC_SPACE
-0009A3  1  20 3A 0E             JSR     GFDATA          ;GET ERROR TYPE
-0009A6  1  20 E6 0E             JSR     PRINT_BYTE
-0009A9  1  20 BB 0E             JSR     PC_SPACE
-0009AC  1  20 3A 0E             JSR     GFDATA          ;GET ERROR TYPE
-0009AF  1  20 E6 0E             JSR     PRINT_BYTE
-0009B2  1  20 BB 0E             JSR     PC_SPACE
-0009B5  1  20 3A 0E             JSR     GFDATA          ;GET ERROR TYPE
-0009B8  1  20 E6 0E             JSR     PRINT_BYTE
-0009BB  1  20 BB 0E             JSR     PC_SPACE
-0009BE  1  20 3A 0E             JSR     GFDATA          ;GET ERROR TYPE
-0009C1  1  20 E6 0E             JSR     PRINT_BYTE
+00097F  1  AD 32 13             LDA     temp            ;GET ERROR TYPE
+000982  1  20 EA 0E             JSR     PRINT_BYTE
+000985  1  20 BF 0E             JSR     PC_SPACE
+000988  1  20 3E 0E             JSR     GFDATA          ;GET ERROR TYPE
+00098B  1  20 EA 0E             JSR     PRINT_BYTE
+00098E  1  20 BF 0E             JSR     PC_SPACE
+000991  1  20 3E 0E             JSR     GFDATA          ;GET ERROR TYPE
+000994  1  20 EA 0E             JSR     PRINT_BYTE
+000997  1  20 BF 0E             JSR     PC_SPACE
+00099A  1  20 3E 0E             JSR     GFDATA          ;GET ERROR TYPE
+00099D  1  20 EA 0E             JSR     PRINT_BYTE
+0009A0  1  20 BF 0E             JSR     PC_SPACE
+0009A3  1  20 3E 0E             JSR     GFDATA          ;GET ERROR TYPE
+0009A6  1  20 EA 0E             JSR     PRINT_BYTE
+0009A9  1  20 BF 0E             JSR     PC_SPACE
+0009AC  1  20 3E 0E             JSR     GFDATA          ;GET ERROR TYPE
+0009AF  1  20 EA 0E             JSR     PRINT_BYTE
+0009B2  1  20 BF 0E             JSR     PC_SPACE
+0009B5  1  20 3E 0E             JSR     GFDATA          ;GET ERROR TYPE
+0009B8  1  20 EA 0E             JSR     PRINT_BYTE
+0009BB  1  20 BF 0E             JSR     PC_SPACE
+0009BE  1  20 3E 0E             JSR     GFDATA          ;GET ERROR TYPE
+0009C1  1  20 EA 0E             JSR     PRINT_BYTE
 0009C4  1  60                   RTS
 0009C5  1               
 0009C5  1               
@@ -406,7 +407,7 @@ Current file: format.asm
 0009E9  2  18                          CLC				; CLEAR CARRY
 0009EA  2  69 07                       ADC #$07				; ADD ON FOR LETTER VALUES
 0009EC  2               PRINT_DIGIT_OUT:					;
-0009EC  2  4C DB 0E                    JMP conwrt              		; PRINT OUT CHAR
+0009EC  2  4C DF 0E                    JMP conwrt              		; PRINT OUT CHAR
 0009EF  2               
 0009EF  2               NEWLINE:
 0009EF  2  48                           pha
@@ -415,9 +416,9 @@ Current file: format.asm
 0009F2  2  98                           TYA
 0009F3  2  48                           phA
 0009F4  2  A9 0D                        LDA #$0D
-0009F6  2  20 DB 0E                     JSR conwrt
+0009F6  2  20 DF 0E                     JSR conwrt
 0009F9  2  A9 0A                        LDA #$0A
-0009FB  2  20 DB 0E                     Jsr conwrt
+0009FB  2  20 DF 0E                     Jsr conwrt
 0009FE  2  68                           pla
 0009FF  2  A8                           TAY
 000A00  2  68                           pla
@@ -473,7 +474,7 @@ Current file: format.asm
 000A47  2               PrDecDigit1:
 000A47  2  8A                           TXA                     ;Save A, pass digit to A
 000A48  2  09 30                        ORA #'0'
-000A4A  2  20 DB 0E                     JSR  conwrt             ;Convert to character and print it
+000A4A  2  20 DF 0E                     JSR  conwrt             ;Convert to character and print it
 000A4D  2               PrDecDigit2:
 000A4D  2  68                           PLA
 000A4E  2  60                           RTS                     ;Restore A and return
@@ -567,13 +568,13 @@ Current file: format.asm
 000A4F  2               ;
 000A4F  2               FL_SETUP:
 000A4F  2  A9 00                LDA     #$00            ; RESET TRACK/CYL/SEC STORAGE
-000A51  2  8D AF 0E             STA     debhead         ;
-000A54  2  8D B0 0E             STA     debcyl          ;
-000A57  2  8D B1 0E             STA     debsec          ;
+000A51  2  8D B3 0E             STA     debhead         ;
+000A54  2  8D B4 0E             STA     debcyl          ;
+000A57  2  8D B5 0E             STA     debsec          ;
 000A5A  2  A9 FF                LDA     #$FF            ; SET CACHE TO INVALID
-000A5C  2  8D B2 0E             STA     Cdebhead        ;
-000A5F  2  8D B3 0E             STA     Cdebcyl         ;
-000A62  2  8D B4 0E             STA     Cdebsec         ;
+000A5C  2  8D B6 0E             STA     Cdebhead        ;
+000A5F  2  8D B7 0E             STA     Cdebcyl         ;
+000A62  2  8D B8 0E             STA     Cdebsec         ;
 000A65  2               
 000A65  2  48 8A 48 98          PRTS    "FD: MODE=MBC$"
 000A69  2  48 A2 00 BD  
@@ -586,7 +587,7 @@ Current file: format.asm
 000AB5  2  20 C5 09             JSR     PRTHEXBYTE
 000AB8  2  A9 30                LDA     #<FDC_MSR
 000ABA  2  20 C5 09             JSR     PRTHEXBYTE
-000ABD  2  20 53 0E             JSR     FD_DETECT       ; CHECK FOR FDC
+000ABD  2  20 57 0E             JSR     FD_DETECT       ; CHECK FOR FDC
 000AC0  2  C9 00                CMP     #$00
 000AC2  2  F0 30                BEQ     :+              ; CONTINUE IF FOUND
 000AC4  2  48 8A 48 98          PRTS    " NOT PRESENT$" ; NOT ZERO, H/W NOT PRESENT
@@ -603,40 +604,40 @@ Current file: format.asm
 000B1D  2  A9 0C                LDA     #DOR_INIT       ; RESET SETTINGS
 000B1F  2  8D 36 03             STA     FDC_DOR
 000B22  2               
-000B22  2  20 F1 0D             JSR     CHECKINT        ;
+000B22  2  20 F5 0D             JSR     CHECKINT        ;
 000B25  2  A9 03                LDA     #CFD_SPECIFY    ; SPECIFY COMMAND
-000B27  2  20 AD 0D             JSR     PFDATA          ; OUTPUT TO FDC
+000B27  2  20 B1 0D             JSR     PFDATA          ; OUTPUT TO FDC
 000B2A  2  A9 7F                LDA     #$7F            ; 6 MS STEP, 480 MS HEAD UNLOAD
-000B2C  2  20 AD 0D             JSR     PFDATA          ; OUTPUT TO FDC
+000B2C  2  20 B1 0D             JSR     PFDATA          ; OUTPUT TO FDC
 000B2F  2  A9 05                LDA     #$05            ; 508 MS HEAD LOAD, NON-DMA MODE
-000B31  2  20 AD 0D             JSR     PFDATA          ; OUTPUT TO FDC
+000B31  2  20 B1 0D             JSR     PFDATA          ; OUTPUT TO FDC
 000B34  2               
-000B34  2  20 F1 0D             JSR     CHECKINT        ; SEND SEVERAL INTERRUPTS TO ENSURE PROPER STATE
-000B37  2  20 F1 0D             JSR     CHECKINT        ;
-000B3A  2  20 F1 0D             JSR     CHECKINT        ;
-000B3D  2  20 F1 0D             JSR     CHECKINT        ;
-000B40  2  20 F1 0D             JSR     CHECKINT        ;
-000B43  2  20 F1 0D             JSR     CHECKINT        ;
+000B34  2  20 F5 0D             JSR     CHECKINT        ; SEND SEVERAL INTERRUPTS TO ENSURE PROPER STATE
+000B37  2  20 F5 0D             JSR     CHECKINT        ;
+000B3A  2  20 F5 0D             JSR     CHECKINT        ;
+000B3D  2  20 F5 0D             JSR     CHECKINT        ;
+000B40  2  20 F5 0D             JSR     CHECKINT        ;
+000B43  2  20 F5 0D             JSR     CHECKINT        ;
 000B46  2               
 000B46  2  A9 00                LDA     #$00
-000B48  2  8D 2C 0F             STA     sekdsk
+000B48  2  8D 30 0F             STA     sekdsk
 000B4B  2  A9 10                LDA     #%00010000
-000B4D  2  8D 2D 0F             STA     DSKUNIT
-000B50  2  20 82 0D             JSR     RECAL           ;
+000B4D  2  8D 31 0F             STA     DSKUNIT
+000B50  2  20 86 0D             JSR     RECAL           ;
 000B53  2  A9 27                LDA     #39             ;
-000B55  2  8D B0 0E             STA     debcyl          ;
-000B58  2  20 65 0D             JSR     SETTRK1
-000B5B  2  20 82 0D             JSR     RECAL           ;
+000B55  2  8D B4 0E             STA     debcyl          ;
+000B58  2  20 69 0D             JSR     SETTRK1
+000B5B  2  20 86 0D             JSR     RECAL           ;
 000B5E  2               
 000B5E  2  A9 01                LDA     #$01
-000B60  2  8D 2C 0F             STA     sekdsk
+000B60  2  8D 30 0F             STA     sekdsk
 000B63  2  A9 21                LDA     #%00100001
-000B65  2  8D 2D 0F             STA     DSKUNIT
-000B68  2  20 82 0D             JSR     RECAL           ;
+000B65  2  8D 31 0F             STA     DSKUNIT
+000B68  2  20 86 0D             JSR     RECAL           ;
 000B6B  2  A9 27                LDA     #39             ;
-000B6D  2  8D B0 0E             STA     debcyl          ;
-000B70  2  20 65 0D             JSR     SETTRK1
-000B73  2  20 82 0D             JSR     RECAL           ;
+000B6D  2  8D B4 0E             STA     debcyl          ;
+000B70  2  20 69 0D             JSR     SETTRK1
+000B73  2  20 86 0D             JSR     RECAL           ;
 000B76  2  A9 0C                LDA     #DOR_INIT       ; RESET SETTINGS
 000B78  2  8D 36 03             STA     FDC_DOR
 000B7B  2  60                   RTS
@@ -649,805 +650,941 @@ Current file: format.asm
 000B7C  2               ;
 000B7C  2               ;
 000B7C  2               FL_READ_SECTOR:
-000B7C  2  AD AE 0E             LDA     HARDWARE_DETCT
+000B7C  2  AD B2 0E             LDA     HARDWARE_DETCT
 000B7F  2  C9 00                CMP     #$00
 000B81  2  F0 01                BEQ     :+
 000B83  2  60                   RTS
 000B84  2               :
-000B84  2  8D B9 0E             STA     FLRETRY         ; BLANK RETRIES
-000B87  2  8D BA 0E             STA     FLRETRY1
-000B8A  2  20 93 0B             JSR     FL_READ_SECTOR_RAW
-000B8D  2  48                   PHA
-000B8E  2  20 E5 0E             JSR     DEBSECR512
-000B91  2  68                   PLA
-000B92  2  60                   RTS
-000B93  2               
-000B93  2               FL_READ_SECTOR_RAW:
-000B93  2  A9 0C                LDA     #DOR_INIT
-000B95  2  0D 2D 0F             ORA     DSKUNIT         ;
-000B98  2  8D 36 03             STA     FDC_DOR         ; OUTPUT TO CONTROLLER
-000B9B  2  20 5E 0C             JSR     SETUP_FD_CHS
-000B9E  2  AD AF 0E             LDA     debhead         ;
-000BA1  2  CD B2 0E             CMP     Cdebhead        ;
-000BA4  2  D0 13                BNE     READFL_DIRTY
-000BA6  2  AD B0 0E             LDA     debcyl          ;
-000BA9  2  CD B3 0E             CMP     Cdebcyl         ;
-000BAC  2  D0 0B                BNE     READFL_DIRTY
-000BAE  2  AD B1 0E             LDA     debsec          ;
-000BB1  2  CD B4 0E             CMP     Cdebsec         ;
-000BB4  2  D0 03                BNE     READFL_DIRTY
-000BB6  2               ; SECTOR ALREADY IN CACHE, DEBLOCK
-000BB6  2  A9 00                LDA     #$00
-000BB8  2  60                   RTS
-000BB9  2               READFL_DIRTY:
-000BB9  2  AD AF 0E             LDA     debhead         ; STORE CURRENT PARMS
-000BBC  2  8D B2 0E             STA     Cdebhead        ;
-000BBF  2  AD B0 0E             LDA     debcyl          ;
-000BC2  2  8D B3 0E             STA     Cdebcyl         ;
-000BC5  2  AD B1 0E             LDA     debsec          ;
-000BC8  2  8D B4 0E             STA     Cdebsec         ;
-000BCB  2               
-000BCB  2               READFL1:
-000BCB  2  A9 46                LDA     #CFD_READ|CFD_MFM; BIT 6 SETS MFM, 06H IS READ COMMAND
-000BCD  2  8D B7 0E             STA     FCMD            ; SET COMMAND
-000BD0  2  20 76 0C             JSR     DSKOP           ; DO DISK OPERATION
-000BD3  2               
-000BD3  2  C9 00                CMP     #$00
-000BD5  2  F0 2B                BEQ     READFLDONE      ; OPERATION SUCCESSFUL
-000BD7  2  EE B9 0E             INC     FLRETRY         ; LET'S RETRY
-000BDA  2  AD B9 0E             LDA     FLRETRY
-000BDD  2  C9 06                CMP     #FLOPPY_RETRIES
-000BDF  2  D0 EA                BNE     READFL1
-000BE1  2  20 82 0D             JSR     RECAL           ; AFTER X RETRIES, LET'S RECAL THE HEAD
-000BE4  2  20 53 0D             JSR     SETTRACK        ;
-000BE7  2  A9 00                LDA     #$00            ;
-000BE9  2  8D B9 0E             STA     FLRETRY         ; MORE RETRIES!
-000BEC  2  EE BA 0E             INC     FLRETRY1
-000BEF  2  AD BA 0E             LDA     FLRETRY1
-000BF2  2  C9 02                CMP     #FLOPPY_RETRIES1
-000BF4  2  D0 D5                BNE     READFL1
-000BF6  2               
-000BF6  2  A9 FF                LDA     #$FF            ; RETRIES FAILED, INVALIDATE CACHE AND REPORT ERROR
-000BF8  2  8D B2 0E             STA     Cdebhead        ;
-000BFB  2  8D B3 0E             STA     Cdebcyl         ;
-000BFE  2  8D B4 0E             STA     Cdebsec         ;
-000C01  2  60                   RTS                     ; A = $FF ON RETURN = OPERATION ERROR
-000C02  2               READFLDONE:
-000C02  2  A9 00                LDA     #$00            ; A = 0 ON RETURN = OPERATION OK
-000C04  2  60                   RTS
-000C05  2               
-000C05  2               ;__FL_WRITE_SECTOR_______________________________________________________________________________________________________________
-000C05  2               ;
-000C05  2               ; 	WRITE A FLOPPY SECTOR
-000C05  2               ;________________________________________________________________________________________________________________________________
-000C05  2               ;
-000C05  2               FL_WRITE_SECTOR:
-000C05  2  AD AE 0E             LDA     HARDWARE_DETCT
-000C08  2  C9 00                CMP     #$00
-000C0A  2  F0 01                BEQ     :+
-000C0C  2  60                   RTS
-000C0D  2               :
-000C0D  2  20 93 0B             JSR     FL_READ_SECTOR_RAW
-000C10  2  8D B9 0E             STA     FLRETRY         ; BLANK RETRIES
-000C13  2  8D BA 0E             STA     FLRETRY1
-000C16  2  20 E5 0E             JSR     BLKSECR512
-000C19  2               
-000C19  2  A9 FF                LDA     #$FF
-000C1B  2  8D B2 0E             STA     Cdebhead        ; INVALIDATE CACHE
-000C1E  2  8D B3 0E             STA     Cdebcyl         ;
-000C21  2  8D B4 0E             STA     Cdebsec         ;
-000C24  2               
-000C24  2               WRITEFL1:
-000C24  2  A9 45                LDA     #CFD_WRITE|CFD_MFM; BIT 6 SETS MFM, 05H IS WRITE COMMAND
-000C26  2  8D B7 0E             STA     FCMD
-000C29  2  20 76 0C             JSR     DSKOP
-000C2C  2               
-000C2C  2  C9 00                CMP     #$00
-000C2E  2  F0 2B                BEQ     WRITEFLDONE
-000C30  2  EE B9 0E             INC     FLRETRY
-000C33  2  AD B9 0E             LDA     FLRETRY
-000C36  2  C9 06                CMP     #FLOPPY_RETRIES
-000C38  2  D0 EA                BNE     WRITEFL1
-000C3A  2  20 82 0D             JSR     RECAL
-000C3D  2  20 53 0D             JSR     SETTRACK
-000C40  2  A9 00                LDA     #$00
-000C42  2  8D B9 0E             STA     FLRETRY
-000C45  2  EE BA 0E             INC     FLRETRY1
-000C48  2  AD BA 0E             LDA     FLRETRY1
-000C4B  2  C9 02                CMP     #FLOPPY_RETRIES1
-000C4D  2  D0 D5                BNE     WRITEFL1
-000C4F  2  A9 FF                LDA     #$FF            ; INVALIDATE CACHE
-000C51  2  8D B2 0E             STA     Cdebhead        ;
-000C54  2  8D B3 0E             STA     Cdebcyl         ;
-000C57  2  8D B4 0E             STA     Cdebsec         ;
-000C5A  2  60                   RTS                     ; A = $FF ON RETURN = OPERATION ERROR
-000C5B  2               WRITEFLDONE:
-000C5B  2  A9 00                LDA     #$00            ; A = 0 ON RETURN = OPERATION OK
-000C5D  2  60                   RTS
-000C5E  2               
-000C5E  2               
-000C5E  2               ;__SETUP_FD_CHS__________________________________________________________________________________________________________________
-000C5E  2               ;
-000C5E  2               ; 	TRANSFORM DOS65 CHS TO FLOPPY
-000C5E  2               ;________________________________________________________________________________________________________________________________
-000C5E  2               ;
-000C5E  2               SETUP_FD_CHS:
-000C5E  2  AD 28 0F             LDA     sektrk          ; LOAD TRACK # (LOW BYTE)
-000C61  2  29 01                AND     #$01            ; FILTER OUT HEAD
-000C63  2  8D AF 0E             STA     debhead         ; STORE HEAD
-000C66  2  AD 28 0F             LDA     sektrk          ; SAVE TRACK IN A
-000C69  2  4A                   LSR     A               ; REMOVE HEAD BIT
-000C6A  2  8D B0 0E             STA     debcyl          ; STORE IN TRACK
-000C6D  2  AD 2A 0F             LDA     seksec          ; LOAD SECTOR # (LOW BYTE)
-000C70  2  4A                   LSR     A               ;
-000C71  2  4A                   LSR     A               ; DIVIDE BY 4 (FOR BLOCKING)
-000C72  2  8D B1 0E             STA     debsec          ; STORE IN SECTOR
-000C75  2               
-000C75  2                       .IF     USEDSKY=1 || USEDSKYNG=1
-000C75  2                           PRTDBG  "DSKY OUTPUT 1$"
-000C75  2                           LDA     sekdsk
-000C75  2                           STA     DSKY_HEXBUF
-000C75  2                           LDA     debcyl
-000C75  2                           STA     DSKY_HEXBUF+1
-000C75  2                           LDA     debhead
-000C75  2                           STA     DSKY_HEXBUF+2
-000C75  2                           LDA     debsec
-000C75  2                           STA     DSKY_HEXBUF+3
-000C75  2                           JSR     DSKY_BIN2SEG
-000C75  2                           JSR     DSKY_SHOW
-000C75  2                       .ENDIF
-000C75  2               
-000C75  2  60                   RTS
-000C76  2               
-000C76  2               ;__DSKOP__________________________________________________________________________________________________________________________
-000C76  2               ;
-000C76  2               ; 	PERFORM A DISK OPERATION
-000C76  2               ;________________________________________________________________________________________________________________________________
-000C76  2               ;
-000C76  2               DSKOP:
-000C76  2  78                   SEI
-000C77  2  20 F1 0D             JSR     CHECKINT        ; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
-000C7A  2  C9 FF                CMP     #$FF            ; DID IT RETURN WITH ERROR CODE?
-000C7C  2  F0 10                BEQ     DSKEXIT         ; IF YES, EXIT WITH ERROR CODE
-000C7E  2               ;
-000C7E  2  20 53 0D             JSR     SETTRACK        ; PERFORM SEEK TO TRACK
-000C81  2               ;
-000C81  2  AD B7 0E             LDA     FCMD            ; WHAT COMMAND IS PENDING?
-000C84  2  C9 46                CMP     #CFD_READ|CFD_MFM; IS IT A READ COMMAND?
-000C86  2  D0 03                BNE     GWRR_POLL       ;
-000C88  2  4C E3 0C             JMP     RDD_POLL        ;
-000C8B  2               GWRR_POLL:
-000C8B  2  4C 29 0D             JMP     WRR_POLL        ;
-000C8E  2               DSKEXIT:
-000C8E  2  A9 00                LDA     #0              ; SET MOTOR OFF
-000C90  2  8D 36 03             STA     FDC_DOR         ; OUTPUT TO CONTROLLER
-000C93  2  A9 FF                LDA     #$FF            ; SET IF ERROR
-000C95  2  58                   CLI
-000C96  2  60                   RTS
-000C97  2               
-000C97  2               SNDFDWR:
-000C97  2  18                   CLC
-000C98  2  AD 2D 0F             LDA     DSKUNIT         ; GET DISK UNIT NUMBER
-000C9B  2  29 01                AND     #$01            ; MASK FOR TWO DRIVES.
-000C9D  2  8D B6 0E             STA     UNIT            ; PARK IT IN TEMP
-000CA0  2  AD AF 0E             LDA     debhead         ; GET HEAD SELECTION
-000CA3  2  29 01                AND     #$01            ; INSURE SINGLE BIT
-000CA5  2  0A                   ASL     A               ;
-000CA6  2  0A                   ASL     A               ; MOVE HEAD TO BIT 2 POSITION
-000CA7  2  0D B6 0E             ORA     UNIT            ; OR HEAD TO UNIT BYTE IN COMMAND BLOCK
-000CAA  2  8D B6 0E             STA     UNIT            ; STORE IN UNIT
-000CAD  2  AD B7 0E             LDA     FCMD            ;
-000CB0  2  20 AD 0D             JSR     PFDATA          ; PUSH COMMAND TO I8272
-000CB3  2  AD B6 0E             LDA     UNIT            ;
-000CB6  2  20 AD 0D             JSR     PFDATA          ;
-000CB9  2  AD B0 0E             LDA     debcyl          ;
-000CBC  2  20 AD 0D             JSR     PFDATA          ;
-000CBF  2  AD AF 0E             LDA     debhead         ;
-000CC2  2  20 AD 0D             JSR     PFDATA          ;
-000CC5  2  18                   CLC                     ;
-000CC6  2  AD B1 0E             LDA     debsec          ;
-000CC9  2  69 01                ADC     #$01            ;
-000CCB  2  20 AD 0D             JSR     PFDATA          ;
-000CCE  2  A9 02                LDA     #$02            ;
-000CD0  2  20 AD 0D             JSR     PFDATA          ; WHAT DENSITY
-000CD3  2  A9 09                LDA     #$09            ;
-000CD5  2  20 AD 0D             JSR     PFDATA          ; ASSUME SC (SECTOR COUNT)  EOT
-000CD8  2  A9 1B                LDA     #$1B            ;
-000CDA  2  20 AD 0D             JSR     PFDATA          ; WHAT GAP IS NEEDED
-000CDD  2  A9 FF                LDA     #$FF            ; DTL, IS THE LAST COMMAND BYTE TO I8272
-000CDF  2  20 D8 0D             JSR     PFDATAS
-000CE2  2  60                   RTS
-000CE3  2               
-000CE3  2               
-000CE3  2               ; PERFORM READ
-000CE3  2               ; FROM READ TO READ MUST NOT EXCEED 25US WORST CASE MIN. (AT 2MHZ IS 2,000,000 CYCLES PER SECOND == 50 CYCLE BUDGET.)
-000CE3  2               ;
-000CE3  2               RDD_POLL:
-000CE3  2  A2 00                LDX     #$00
-000CE5  2  A0 00                LDY     #$00
-000CE7  2  20 97 0C             JSR     SNDFDWR         ;
-000CEA  2               RDS1:
-000CEA  2  AD 30 03             LDA     FDC_MSR         ; GET STATUS  (4 CYCLES)
-000CED  2  10 FB                BPL     RDS1            ; FDC IS NOT READY, WAIT FOR IT (UP TO 4 CYCLES)
-000CEF  2  29 20                AND     #%00100000      ; EXECUTION MODE? (2 CYCLES)
-000CF1  2  F0 1D                BEQ     DSKOPEND        ; NO, ERROR
-000CF3  2               RDS1A:
-000CF3  2  AD 31 03             LDA     FDC_DATA        ; GET DATA (4 CYCLES)
-000CF6  2  99 2E 0F             STA     hstbuf,Y        ; WRITE IT (5 CYCLES)
-000CF9  2  C8                   INY                     ; (2 CYCLES)
-000CFA  2  D0 EE                BNE     RDS1            ; KEEP GOING (UP TO 4 CYCLES)   TOTAL =
-000CFC  2  A2 00                LDX     #$00
-000CFE  2               RDS2:
-000CFE  2  AD 30 03             LDA     FDC_MSR         ; GET STATUS
-000D01  2  10 FB                BPL     RDS2            ; FDC IS NOT READY, WAIT FOR IT (UP TO 4 CYCLES)
-000D03  2  29 20                AND     #%00100000      ; EXECUTION MODE?
-000D05  2  F0 09                BEQ     DSKOPEND        ; NO, ERROR
-000D07  2               RDS2A:
-000D07  2  AD 31 03             LDA     FDC_DATA        ; GET DATA
-000D0A  2  99 2E 10             STA     hstbuf+256,Y    ; WRITE IT
-000D0D  2  C8                   INY
-000D0E  2  D0 EE                BNE     RDS2            ; KEEP GOING
-000D10  2               DSKOPEND:
-000D10  2  AD 37 03             LDA     FDC_TC
-000D13  2  20 9F 0E             JSR     FDDELAY
-000D16  2               ;
-000D16  2  20 3A 0E             JSR     GFDATA          ;GET ERROR TYPE
-000D19  2  8D B5 0E             STA     FLERR
-000D1C  2               ;* CLEAR OUT ANY REMAINING DATA
-000D1C  2               RESUL3:
-000D1C  2  20 3A 0E             JSR     GFDATA          ;READ BYTE FROM FDC
-000D1F  2  C9 00                CMP     #$00
-000D21  2  D0 F9                BNE     RESUL3          ;CLEAR THEM ALL
-000D23  2  AD B5 0E             LDA     FLERR           ;
-000D26  2  29 C0                AND     #%11000000      ;
-000D28  2  60                   RTS
-000D29  2               
-000D29  2               
-000D29  2               WRR_POLL:
-000D29  2  20 97 0C             JSR     SNDFDWR         ;
-000D2C  2               WRS1:   ;
-000D2C  2  AD 30 03             LDA     FDC_MSR         ; GET STATUS
-000D2F  2  10 FB                BPL     WRS1            ; NOT READY
-000D31  2  29 20                AND     #%00100000      ; EXECUTION MODE?
-000D33  2  F0 1B                BEQ     WRS3            ; NO, ERROR
-000D35  2  B9 2E 0F             LDA     hstbuf,Y        ; WRITE IT
-000D38  2  8D 31 03             STA     FDC_DATA        ; WRITE TO FDC
-000D3B  2  C8                   INY
-000D3C  2  D0 EE                BNE     WRS1            ; DO NEXT
-000D3E  2               WRS2:   ;
-000D3E  2  AD 30 03             LDA     FDC_MSR         ; GET STATUS
-000D41  2  10 FB                BPL     WRS2            ; NOT READY
-000D43  2  29 20                AND     #%00100000      ; EXECUTION MODE?
-000D45  2  F0 09                BEQ     WRS3            ; NO, ERROR
-000D47  2  B9 2E 10             LDA     hstbuf+256,Y    ; WRITE IT
-000D4A  2  8D 31 03             STA     FDC_DATA        ; WRITE TO FDC
-000D4D  2  C8                   INY
-000D4E  2  D0 EE                BNE     WRS2            ; DO NEXT
-000D50  2               WRS3:
-000D50  2  4C 10 0D             JMP     DSKOPEND        ;
-000D53  2               
-000D53  2               
-000D53  2               ;__SETTRACK__________________________________________________________________________________________________________________________
-000D53  2               ;
-000D53  2               ; 	SEEK TO A TRACK ON GIVEN UNIT
-000D53  2               ; 	A: TRACK #
-000D53  2               ;________________________________________________________________________________________________________________________________
-000D53  2               ;
-000D53  2               SETTRACK:
-000D53  2  A9 0C                LDA     #DOR_INIT
-000D55  2  0D 2D 0F             ORA     DSKUNIT         ; SET MOTOR ON
-000D58  2  8D 36 03             STA     FDC_DOR         ; OUTPUT TO CONTROLLER
-000D5B  2               
-000D5B  2               ; ANY INTERUPT PENDING
-000D5B  2               ; IF YES FIND OUT WHY/CLEAR
-000D5B  2  20 F1 0D             JSR     CHECKINT        ; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
-000D5E  2  C9 FF                CMP     #$FF            ; DID IT RTSURN WITH ERROR CODE?
-000D60  2  D0 03                BNE     SETTRK1
-000D62  2  4C AC 0D             JMP     SETTRKEXIT      ;
-000D65  2               
-000D65  2               ;
-000D65  2               SETTRK1:
-000D65  2  AD B0 0E             LDA     debcyl          ; GET TRACK
-000D68  2  C9 00                CMP     #$00            ;
-000D6A  2  F0 16                BEQ     RECAL           ; IF 0 PERFORM RECAL INSTEAD OF SEEK
-000D6C  2  A9 0F                LDA     #CFD_SEEK       ; SEEK COMMAND
-000D6E  2  20 AD 0D             JSR     PFDATA          ; PUSH COMMAND
-000D71  2  AD 2D 0F             LDA     DSKUNIT         ; SAY WHICH UNIT
-000D74  2  29 01                AND     #$01
-000D76  2  20 AD 0D             JSR     PFDATA          ; SEND THAT
-000D79  2  AD B0 0E             LDA     debcyl          ; TO WHAT TRACK
-000D7C  2  20 AD 0D             JSR     PFDATA          ; SEND THAT TOO
-000D7F  2  4C 97 0D             JMP     WAINT           ; WAIT FOR INTERRUPT SAYING DONE
-000D82  2               RECAL:
-000D82  2  A9 0C                LDA     #DOR_INIT
-000D84  2  0D 2D 0F             ORA     DSKUNIT         ; SET MOTOR ON
-000D87  2  8D 36 03             STA     FDC_DOR         ; OUTPUT TO CONTROLLER
-000D8A  2  A9 07                LDA     #CFD_RECAL      ; RECAL TO TRACK 0
-000D8C  2  20 AD 0D             JSR     PFDATA          ; SEND IT
-000D8F  2  AD 2D 0F             LDA     DSKUNIT         ; SAY WHICH UNIT
-000D92  2  29 01                AND     #$01
-000D94  2  20 AD 0D             JSR     PFDATA          ; SEND THAT TOO
-000D97  2               ;
-000D97  2               WAINT:
-000D97  2  48                   PHA
-000D98  2  8A                   TXA
-000D99  2  48                   PHA
-000D9A  2  A2 64                LDX     #100
-000D9C  2  20 A4 0E             JSR     FDVDELAY
-000D9F  2  68                   PLA
-000DA0  2  AA                   TAX
-000DA1  2  68                   PLA
-000DA2  2               :
-000DA2  2  20 F1 0D             JSR     CHECKINT
-000DA5  2  AD 30 03             LDA     FDC_MSR         ; READ SEEK STATUS
-000DA8  2  29 0F                AND     #%00001111      ; ANY DRIVES SEEKING?
-000DAA  2  D0 F6                BNE     :-              ; YES, WAIT FOR THEM
-000DAC  2               ;
-000DAC  2               SETTRKEXIT:
-000DAC  2  60                   RTS
-000DAD  2               
-000DAD  2               ;__PFDATA__________________________________________________________________________________________________________________________
-000DAD  2               ;
-000DAD  2               ; WRITE A COMMAND OR PARAMETER SEQUENCE
-000DAD  2               ;
-000DAD  2               ; TRANSFERS ARE SYNCHONIZED BY MSR D7 <RQM> AND D6 <DIO>
-000DAD  2               ;	RQM  DIO
-000DAD  2               ;	0	0	BUSY
-000DAD  2               ;	1	0	WRITE TO DATA REGISTER PERMITTED
-000DAD  2               ;	1	1	BYTE FOR READ BY HOST PENDING
-000DAD  2               ;	0	1	BUSY
-000DAD  2               ;
-000DAD  2               ;________________________________________________________________________________________________________________________________
-000DAD  2               ;
-000DAD  2               PFDATA:
-000DAD  2  48                   PHA                     ; SAVE DATA BYTE
-000DAE  2  A0 00                LDY     #$00
-000DB0  2               WRF1:
-000DB0  2  AD 30 03             LDA     FDC_MSR         ; READ FDC STATUS
-000DB3  2  AA                   TAX
-000DB4  2  29 80                AND     #$80            ;
-000DB6  2  D0 07                BNE     :+
-000DB8  2  C8                   INY
-000DB9  2  D0 F5                BNE     WRF1            ; FDC IS NOT READY, WAIT FOR IT
-000DBB  2  68                   PLA
-000DBC  2  A9 FF                LDA     #$FF
-000DBE  2  60                   RTS
-000DBF  2               :
-000DBF  2  8A                   TXA
-000DC0  2  29 40                AND     #$40            ; TEST DIO BIT
-000DC2  2  D0 0E                BNE     WRF2            ; FDC IS OUT OF SYNC
-000DC4  2  68                   PLA                     ; RESTORE DATA
-000DC5  2  8D 31 03             STA     FDC_DATA        ; WRITE TO FDC
-000DC8  2  20 9F 0E             JSR     FDDELAY
-000DCB  2  20 9F 0E             JSR     FDDELAY
-000DCE  2  20 9F 0E             JSR     FDDELAY
-000DD1  2  60                   RTS
-000DD2  2               ; FDC IS OUT OF SYNC CLEAR IT OUT AND RE-TRY
-000DD2  2               WRF2:
-000DD2  2  AD 31 03             LDA     FDC_DATA        ; READ DATA REGISTER
-000DD5  2  4C B0 0D             JMP     WRF1            ; AND CONTINUE
-000DD8  2               
-000DD8  2               ;__PFDATAS_________________________________________________________________________________________________________________________
-000DD8  2               ;
-000DD8  2               ; WRITE A COMMAND OR PARAMETER SEQUENCE (NO PAUSE)
-000DD8  2               ;
-000DD8  2               ; TRANSFERS ARE SYNCHONIZED BY MSR D7 <RQM> AND D6 <DIO>
-000DD8  2               ;	RQM  DIO
-000DD8  2               ;	0	0	BUSY
-000DD8  2               ;	1	0	WRITE TO DATA REGISTER PERMITTED
-000DD8  2               ;	1	1	BYTE FOR READ BY HOST PENDING
-000DD8  2               ;	0	1	BUSY
-000DD8  2               ;
-000DD8  2               ;________________________________________________________________________________________________________________________________
-000DD8  2               ;
-000DD8  2               PFDATAS:
-000DD8  2  48                   PHA                     ; SAVE DATA BYTE
-000DD9  2               WRF1S:
-000DD9  2  AD 30 03             LDA     FDC_MSR         ; READ FDC STATUS
-000DDC  2  AA                   TAX
-000DDD  2  29 80                AND     #$80            ;
-000DDF  2  F0 F8                BEQ     WRF1S           ; FDC IS NOT READY, WAIT FOR IT
-000DE1  2  8A                   TXA
-000DE2  2  29 40                AND     #$40            ; TEST DIO BIT
-000DE4  2  D0 05                BNE     WRF2S           ; FDC IS OUT OF SYNC
-000DE6  2  68                   PLA                     ; RESTORE DATA
-000DE7  2  8D 31 03             STA     FDC_DATA        ; WRITE TO FDC
-000DEA  2  60                   RTS
-000DEB  2               ; FDC IS OUT OF SYNC CLEAR IT OUT AND RE-TRY
-000DEB  2               WRF2S:
-000DEB  2  AD 31 03             LDA     FDC_DATA        ; READ DATA REGISTER
-000DEE  2  4C D9 0D             JMP     WRF1S           ; AND CONTINUE
-000DF1  2               
-000DF1  2               
-000DF1  2               
-000DF1  2               ;__CHECKINT__________________________________________________________________________________________________________________________
-000DF1  2               ;
-000DF1  2               ; CHECK FOR ACTIVE FDC INTERRUPTS BEFORE GIVING I8272 COMMANDS
-000DF1  2               ; POLL RQM FOR WHEN NOT BUSY AND THEN SEND FDC
-000DF1  2               ; SENSE INTERRUPT COMMAND.  IF IT RTSURNS WITH NON ZERO
-000DF1  2               ; ERROR CODE, PASS BACK TO JSRING ROUTINE FOR HANDLING
-000DF1  2               ;________________________________________________________________________________________________________________________________
-000DF1  2               ;
-000DF1  2               CHECKINT:
-000DF1  2  A0 00                LDY     #$00
-000DF3  2               :
-000DF3  2  AD 30 03             LDA     FDC_MSR         ; READING OR WRITING IS KEYS TO D7 RQM
-000DF6  2  29 80                AND     #$80
-000DF8  2  D0 09                BNE     :+              ; WAIT FOR RQM TO BE TRUE. WAIT UNTIL DONE
-000DFA  2  20 9F 0E             JSR     FDDELAY
-000DFD  2  C8                   INY
-000DFE  2  D0 F3                BNE     :-
-000E00  2  4C 0B 0E             JMP     ERRCLR
-000E03  2               
-000E03  2               :
-000E03  2  AD 30 03             LDA     FDC_MSR         ; READING OR WRITING IS KEYS TO D7 RQM
-000E06  2  29 40                AND     #$40            ; WAITING FOR INPUT?
-000E08  2  F0 16                BEQ     SENDINT
-000E0A  2  60                   RTS
-000E0B  2               
-000E0B  2               ERRCLR:
-000E0B  2  A0 00                LDY     #$00
-000E0D  2               :
-000E0D  2  AD 31 03             LDA     FDC_DATA        ; CLEAR THE JUNK OUT OF DATA REGISTER
-000E10  2  AD 30 03             LDA     FDC_MSR         ; CHECK WITH RQM
-000E13  2  29 80                AND     #$80            ; IF STILL NOT READY, READ OUT MORE JUNK
-000E15  2  D0 06                BNE     :+              ;
-000E17  2  20 9F 0E             JSR     FDDELAY
-000E1A  2  C8                   INY
-000E1B  2  D0 F0                BNE     :-
-000E1D  2               :
-000E1D  2  A9 FF                LDA     #$FF            ; RETURN ERROR CODE -1
-000E1F  2               ;
-000E1F  2  60                   RTS
-000E20  2               
-000E20  2               ;__SENDINT__________________________________________________________________________________________________________________________
-000E20  2               ;
-000E20  2               ; SENSE INTERRUPT COMMAND
-000E20  2               ;________________________________________________________________________________________________________________________________
-000E20  2               ;
-000E20  2               SENDINT:
-000E20  2  A9 08                LDA     #CFD_SENSEINT   ; SENSE INTERRUPT COMMAND
-000E22  2  20 AD 0D             JSR     PFDATA          ; SEND IT
-000E25  2  20 3A 0E             JSR     GFDATA          ; GET RESULTS
-000E28  2  8D B8 0E             STA     ST0             ; STORE THAT
-000E2B  2  29 C0                AND     #$C0            ; MASK OFF INTERRUPT STATUS BITS
-000E2D  2  C9 80                CMP     #$80            ; CHECK IF INVALID COMMAND
-000E2F  2  F0 08                BEQ     ENDSENDINT      ; YES, EXIT
-000E31  2  20 3A 0E             JSR     GFDATA          ; GET ANOTHER (STATUS CODE 1)
-000E34  2  AD B8 0E             LDA     ST0             ; GET FIRST ONE
-000E37  2  29 C0                AND     #$C0            ; MASK OFF ALL BUT INTERRUPT CODE 00 IS NORMAL
-000E39  2               ENDSENDINT:
-000E39  2  60                   RTS                     ; ANYTHING ELSE IS AN ERROR
-000E3A  2               
-000E3A  2               
-000E3A  2               ;__GFDATA__________________________________________________________________________________________________________________________
-000E3A  2               ;
-000E3A  2               ; GET DATA FROM FLOPPY CONTROLLER
-000E3A  2               ;
-000E3A  2               ; TRANSFERS ARE SYNCHONIZED BYT MSR D7 <RQM> AND D6 <DIO>
-000E3A  2               ;	RQM  DIO
-000E3A  2               ;	0	0	BUSY
-000E3A  2               ;	1	0	WRITE TO DATA REGISTER PERMITTED
-000E3A  2               ;	1	1	BYTE FOR READ BY HOST PENDING
-000E3A  2               ;	0	1	BUSY
-000E3A  2               ;
-000E3A  2               ;________________________________________________________________________________________________________________________________
-000E3A  2               ;
-000E3A  2               GFDATA:
-000E3A  2  A0 00                LDY     #$00
-000E3C  2               :
-000E3C  2  AD 30 03             LDA     FDC_MSR         ; GET STATUS
-000E3F  2  AA                   TAX                     ;
-000E40  2  29 80                AND     #%10000000      ; NOT READY, WAIT
-000E42  2  D0 06                BNE     :+              ;
-000E44  2  C8                   INY
-000E45  2  D0 F5                BNE     :-
-000E47  2  A9 00                LDA     #$00
-000E49  2  60                   RTS
-000E4A  2               :
-000E4A  2  8A                   TXA
-000E4B  2  29 40                AND     #%01000000      ; ANY DATA FOR US?
-000E4D  2  F0 03                BEQ     GFDATA1         ; NO, SKIP IT
-000E4F  2  AD 31 03             LDA     FDC_DATA        ; GET FDC DATA
-000E52  2               GFDATA1:
-000E52  2  60                   RTS
-000E53  2               
-000E53  2               ;__FD_DETECT______________________________________________________________________________________________________________________
-000E53  2               ;
-000E53  2               ; 	DETECT FLOPPY HARDWARE
-000E53  2               ;________________________________________________________________________________________________________________________________
-000E53  2               FD_DETECT:
-000E53  2               ; BLINDLY RESET FDC (WHICH MAY OR MAY NOT EXIST)
-000E53  2  20 81 0E             JSR     FC_RESETFDC     ; RESET FDC
-000E56  2               
-000E56  2  AD 30 03             LDA     FDC_MSR         ; READ MSR
-000E59  2  C9 80                CMP     #$80
-000E5B  2  F0 0A                BEQ     FD_DETECT1      ; $80 IS OK
-000E5D  2  C9 D0                CMP     #$D0
-000E5F  2  F0 06                BEQ     FD_DETECT1      ; $D0 IS OK
-000E61  2  A9 FF                LDA     #$FF            ; NOT OK
-000E63  2  8D AE 0E             STA     HARDWARE_DETCT
-000E66  2  60                   RTS
-000E67  2               ;
-000E67  2               FD_DETECT1:
-000E67  2  A2 64                LDX     #100
-000E69  2  20 A4 0E             JSR     FDVDELAY        ; WAIT A BIT FOR FDC
-000E6C  2  AD 30 03             LDA     FDC_MSR         ; READ MSR AGAIN
-000E6F  2  C9 80                CMP     #$80
-000E71  2  F0 08                BEQ     :+              ; $80 IS OK
-000E73  2  C9 D0                CMP     #$D0
-000E75  2  A9 FF                LDA     #$FF            ; NOT OK
-000E77  2  8D AE 0E             STA     HARDWARE_DETCT
-000E7A  2  60                   RTS
-000E7B  2               :
-000E7B  2  A9 00                LDA     #$00            ; OK
-000E7D  2  8D AE 0E             STA     HARDWARE_DETCT
-000E80  2  60                   RTS
-000E81  2               
-000E81  2               FC_RESETFDC:
-000E81  2  AD 33 03             LDA     FDC_RESET
-000E84  2  AD 33 03             LDA     FDC_RESET
-000E87  2  A2 96                LDX     #150
-000E89  2  20 A4 0E             JSR     FDVDELAY        ; WAIT A BIT FOR FDC
-000E8C  2               
-000E8C  2  A9 00                LDA     #$00
-000E8E  2  8D 36 03             STA     FDC_DOR
-000E91  2  20 9F 0E             JSR     FDDELAY
-000E94  2  A9 0C                LDA     #DOR_INIT
-000E96  2  8D 36 03             STA     FDC_DOR
-000E99  2  A2 96                LDX     #150            ;
-000E9B  2  20 A4 0E             JSR     FDVDELAY
-000E9E  2  60                   RTS
-000E9F  2               
-000E9F  2               
-000E9F  2               FDDELAY:
-000E9F  2  48                   PHA
-000EA0  2  68                   PLA
-000EA1  2  48                   PHA
-000EA2  2  68                   PLA
-000EA3  2  60                   RTS
-000EA4  2               FDVDELAY:
-000EA4  2  48                   PHA
-000EA5  2  68                   PLA
-000EA6  2  48                   PHA
-000EA7  2  68                   PLA
-000EA8  2  CA                   DEX
-000EA9  2  E0 00                CPX     #$00
-000EAB  2  D0 F7                BNE     FDVDELAY
-000EAD  2  60                   RTS
-000EAE  2               
-000EAE  2               
-000EAE  2               
-000EAE  2               HARDWARE_DETCT:
-000EAE  2  00                   .BYTE   0               ; HARDWARE DETECTED
-000EAF  2               debhead:
-000EAF  2  00                   .BYTE   0               ; DEBLOCKED HEAD
-000EB0  2               debcyl:
-000EB0  2  00                   .BYTE   0               ; DEBLOCKED CYLINDER
-000EB1  2               debsec:
-000EB1  2  00                   .BYTE   0               ; DEBLOCKED SECTOR
-000EB2  2               Cdebhead:
-000EB2  2  00                   .BYTE   0               ; DEBLOCKED HEAD (cache)
-000EB3  2               Cdebcyl:
-000EB3  2  00                   .BYTE   0               ; DEBLOCKED CYLINDER (cache)
-000EB4  2               Cdebsec:
-000EB4  2  00                   .BYTE   0               ; DEBLOCKED SECTOR (cache)
-000EB5  2               FLERR:
-000EB5  2  00                   .BYTE   $00             ;
-000EB6  2               UNIT:
-000EB6  2  00                   .BYTE   $00             ;
-000EB7  2               FCMD:
-000EB7  2  00                   .BYTE   0               ; COMMAND READ OR WRITE,
-000EB8  2               ST0:
-000EB8  2  00                   .BYTE   0               ; COMMAND READ OR WRITE,
-000EB9  2               FLRETRY:
-000EB9  2  00                   .BYTE   00
-000EBA  2               FLRETRY1:
-000EBA  2  00                   .BYTE   00
-000EBB  2               
-000EBB  1               
-000EBB  1               
-000EBB  1               
-000EBB  1               ;
-000EBB  1               ;==================================================================================================
-000EBB  1               ; UTILITY FUNCTIONS
-000EBB  1               ;==================================================================================================
-000EBB  1               ;
-000EBB  1               ;
-000EBB  1               CHR_CR          = $0D
-000EBB  1               CHR_LF          = $0A
-000EBB  1               CHR_BS          = $08
-000EBB  1               CHR_ESC         = $1B
-000EBB  1               ;
-000EBB  1               ;__________________________________________________________________________________________________
-000EBB  1               ;
-000EBB  1               ; UTILITY PROCS TO PRINT SINGLE CHARACTERS WITHOUT TRASHING ANY REGISTERS
-000EBB  1               ;
-000EBB  1               
-000EBB  1               PC_SPACE:
-000EBB  1  48                   PHA
-000EBC  1  A9 20                LDA     #' '
-000EBE  1  20 DB 0E             JSR     OUT             ; PRINT CHAR IN ACC
-000EC1  1  68                   PLA
-000EC2  1  60                   RTS
-000EC3  1               
-000EC3  1               PC_PERIOD:
-000EC3  1  48                   PHA
-000EC4  1  A9 2E                LDA     #'.'
-000EC6  1  20 DB 0E             JSR     OUT             ; PRINT CHAR IN ACC
-000EC9  1  68                   PLA
-000ECA  1  60                   RTS
-000ECB  1               
-000ECB  1               
-000ECB  1               PC_CR:
-000ECB  1  48                   PHA
-000ECC  1  A9 0D                LDA     #CHR_CR
-000ECE  1  20 DB 0E             JSR     OUT             ; PRINT CHAR IN ACC
-000ED1  1  68                   PLA
-000ED2  1  60                   RTS
-000ED3  1               
-000ED3  1               PC_LF:
-000ED3  1  48                   PHA
-000ED4  1  A9 0A                LDA     #CHR_LF
-000ED6  1  20 DB 0E             JSR     OUT             ; PRINT CHAR IN ACC
-000ED9  1  68                   PLA
-000EDA  1  60                   RTS
-000EDB  1               
-000EDB  1               OUT:
-000EDB  1               conwrt:
-000EDB  1  DA                   PHX
-000EDC  1  5A                   PHY
-000EDD  1  A2 02                LDX     #2              ;
-000EDF  1  20 03 01             JSR     PEM             ;
-000EE2  1  7A                   PLY
-000EE3  1  FA                   PLX
-000EE4  1  60                   RTS
-000EE5  1               
-000EE5  1               BLKSECR512:
-000EE5  1               DEBSECR512:
-000EE5  1  60                   RTS
-000EE6  1               
-000EE6  1               ;__PRINT_BYTE__________________________________________________
-000EE6  1               ;
-000EE6  1               ; PRINT OUT ACCUMULATOR AS HEX NUMBER
-000EE6  1               ;
-000EE6  1               ;______________________________________________________________
-000EE6  1               PRINT_BYTE:
-000EE6  1  AA                   TAX                     ; SAVE A REGISTER
-000EE7  1  4A                   LSR     A               ; SHIFT HIGH NIBBLE TO LOW NIBBLE
-000EE8  1  4A                   LSR     A               ;
-000EE9  1  4A                   LSR     A               ;
-000EEA  1  4A                   LSR     A               ;
-000EEB  1  18                   CLC                     ; CLEAR CARRY
-000EEC  1  20 E1 09             JSR     PRINT_DIGIT     ; PRINT LOW NIBBLE
-000EEF  1  8A                   TXA                     ; RESTORE ACCUMULATOR
-000EF0  1  4C E1 09             JMP     PRINT_DIGIT     ; PRINT LOW NIBBLE
-000EF3  1               
-000EF3  1               
-000EF3  1               ;
-000EF3  1               ; OUTPUT A '$' TERMINATED STRING
-000EF3  1               ;
-000EF3  1               WRITESTR:
-000EF3  1  85 F0                STA     OUTMSG_W
-000EF5  1  84 F1                STY     OUTMSG_W+1
-000EF7  1  A0 00                LDY     #$00
-000EF9  1               WRITESTR1:
-000EF9  1  B1 F0                LDA     (OUTMSG_W),Y    ; LOAD NEXT CHAR FROM STRING INTO ACC
-000EFB  1  C9 24                CMP     #'$'            ; IS END?
-000EFD  1  F0 07                BEQ     ENDOUTSTR       ; YES, END PRINT OUT
-000EFF  1  20 DB 0E             JSR     OUT             ; PRINT CHAR IN ACC
-000F02  1  C8                   INY                     ; Y=Y+1 (BUMP INDEX)
-000F03  1  4C F9 0E             JMP     WRITESTR1       ; DO NEXT CHAR
-000F06  1               ENDOUTSTR:
-000F06  1  60                   RTS                     ; RETURN
-000F07  1               
-000F07  1               
-000F07  1               
-000F07  1               
-000F07  1               
-000F07  1               CIN:
-000F07  1  DA                   PHX
-000F08  1  5A                   PHY
-000F09  1  A2 01                LDX     #1              ;
-000F0B  1  20 03 01             JSR     PEM             ;
-000F0E  1  7A                   PLY
-000F0F  1  FA                   PLX
-000F10  1  60                   RTS
-000F11  1               
-000F11  1               
-000F11  1               CONF:
-000F11  1  20 07 0F             JSR     CIN
-000F14  1  C9 1B                CMP     #$1B
-000F16  1  F0 05                BEQ     EXIT
-000F18  1  C9 0D                CMP     #$0D
-000F1A  1  D0 F5                BNE     CONF
-000F1C  1               
-000F1C  1  60                   RTS
-000F1D  1               
-000F1D  1               EXIT:
-000F1D  1               ; CLEAN UP AND RETURN TO OS
-000F1D  1  20 EF 09             JSR     NEWLINE
-000F20  1  20 EF 09             JSR     NEWLINE
-000F23  1  4C 00 01             JMP     $0100
-000F26  1               
-000F26  1               
-000F26  1               FMTGAP:
-000F26  1  00                   .BYTE   0               ; GAP FOR FORMAT 5.25=$50, 3.5=$54
-000F27  1               CURSEC:
-000F27  1  00                   .BYTE   0
-000F28  1               
-000F28  1               sektrk:
-000F28  1  00 00                .BYTE   0,0             ;seek track number
-000F2A  1               seksec:
-000F2A  1  00 00                .BYTE   0,0             ;seek sector number
-000F2C  1               sekdsk:
-000F2C  1  00                   .BYTE   0
-000F2D  1               DSKUNIT:
-000F2D  1  00                   .BYTE   0
-000F2E  1               hstbuf:
-000F2E  1  xx xx xx xx          .RES    1024
-000F32  1  xx xx xx xx  
+000B84  2  20 8D 0B             JSR     FL_READ_SECTOR_RAW
+000B87  2  48                   PHA
+000B88  2  20 E9 0E             JSR     DEBSECR512
+000B8B  2  68                   PLA
+000B8C  2  60                   RTS
+000B8D  2               
+000B8D  2               FL_READ_SECTOR_RAW:
+000B8D  2  A9 00                LDA     #$00
+000B8F  2  8D BD 0E             STA     FLRETRY         ; BLANK RETRIES
+000B92  2  8D BE 0E             STA     FLRETRY1
+000B95  2  A9 0C                LDA     #DOR_INIT
+000B97  2  0D 31 0F             ORA     DSKUNIT         ;
+000B9A  2  8D 36 03             STA     FDC_DOR         ; OUTPUT TO CONTROLLER
+000B9D  2  20 62 0C             JSR     SETUP_FD_CHS
+000BA0  2  AD B3 0E             LDA     debhead         ;
+000BA3  2  CD B6 0E             CMP     Cdebhead        ;
+000BA6  2  D0 13                BNE     READFL_DIRTY
+000BA8  2  AD B4 0E             LDA     debcyl          ;
+000BAB  2  CD B7 0E             CMP     Cdebcyl         ;
+000BAE  2  D0 0B                BNE     READFL_DIRTY
+000BB0  2  AD B5 0E             LDA     debsec          ;
+000BB3  2  CD B8 0E             CMP     Cdebsec         ;
+000BB6  2  D0 03                BNE     READFL_DIRTY
+000BB8  2               ; SECTOR ALREADY IN CACHE, DEBLOCK
+000BB8  2  A9 00                LDA     #$00
+000BBA  2  60                   RTS
+000BBB  2               READFL_DIRTY:
+000BBB  2  AD B3 0E             LDA     debhead         ; STORE CURRENT PARMS
+000BBE  2  8D B6 0E             STA     Cdebhead        ;
+000BC1  2  AD B4 0E             LDA     debcyl          ;
+000BC4  2  8D B7 0E             STA     Cdebcyl         ;
+000BC7  2  AD B5 0E             LDA     debsec          ;
+000BCA  2  8D B8 0E             STA     Cdebsec         ;
+000BCD  2               
+000BCD  2               READFL1:
+000BCD  2  A9 46                LDA     #CFD_READ|CFD_MFM; BIT 6 SETS MFM, 06H IS READ COMMAND
+000BCF  2  8D BB 0E             STA     FCMD            ; SET COMMAND
+000BD2  2  20 7A 0C             JSR     DSKOP           ; DO DISK OPERATION
+000BD5  2               
+000BD5  2  C9 00                CMP     #$00
+000BD7  2  F0 2B                BEQ     READFLDONE      ; OPERATION SUCCESSFUL
+000BD9  2  EE BD 0E             INC     FLRETRY         ; LET'S RETRY
+000BDC  2  AD BD 0E             LDA     FLRETRY
+000BDF  2  C9 06                CMP     #FLOPPY_RETRIES
+000BE1  2  D0 EA                BNE     READFL1
+000BE3  2  20 86 0D             JSR     RECAL           ; AFTER X RETRIES, LET'S RECAL THE HEAD
+000BE6  2  20 57 0D             JSR     SETTRACK        ;
+000BE9  2  A9 00                LDA     #$00            ;
+000BEB  2  8D BD 0E             STA     FLRETRY         ; MORE RETRIES!
+000BEE  2  EE BE 0E             INC     FLRETRY1
+000BF1  2  AD BE 0E             LDA     FLRETRY1
+000BF4  2  C9 02                CMP     #FLOPPY_RETRIES1
+000BF6  2  D0 D5                BNE     READFL1
+000BF8  2               
+000BF8  2  A9 FF                LDA     #$FF            ; RETRIES FAILED, INVALIDATE CACHE AND REPORT ERROR
+000BFA  2  8D B6 0E             STA     Cdebhead        ;
+000BFD  2  8D B7 0E             STA     Cdebcyl         ;
+000C00  2  8D B8 0E             STA     Cdebsec         ;
+000C03  2  60                   RTS                     ; A = $FF ON RETURN = OPERATION ERROR
+000C04  2               READFLDONE:
+000C04  2  A9 00                LDA     #$00            ; A = 0 ON RETURN = OPERATION OK
+000C06  2  60                   RTS
+000C07  2               
+000C07  2               ;__FL_WRITE_SECTOR_______________________________________________________________________________________________________________
+000C07  2               ;
+000C07  2               ; 	WRITE A FLOPPY SECTOR
+000C07  2               ;________________________________________________________________________________________________________________________________
+000C07  2               ;
+000C07  2               FL_WRITE_SECTOR:
+000C07  2  AD B2 0E             LDA     HARDWARE_DETCT
+000C0A  2  C9 00                CMP     #$00
+000C0C  2  F0 01                BEQ     :+
+000C0E  2  60                   RTS
+000C0F  2               :
+000C0F  2  20 8D 0B             JSR     FL_READ_SECTOR_RAW
+000C12  2  20 E9 0E             JSR     BLKSECR512
+000C15  2               
+000C15  2               FL_WRITE_SECTOR_RAW:
+000C15  2  A9 00                LDA     #$00
+000C17  2  8D BD 0E             STA     FLRETRY         ; BLANK RETRIES
+000C1A  2  8D BE 0E             STA     FLRETRY1
+000C1D  2  A9 FF                LDA     #$FF
+000C1F  2  8D B6 0E             STA     Cdebhead        ; INVALIDATE CACHE
+000C22  2  8D B7 0E             STA     Cdebcyl         ;
+000C25  2  8D B8 0E             STA     Cdebsec         ;
+000C28  2               
+000C28  2               WRITEFL1:
+000C28  2  A9 45                LDA     #CFD_WRITE|CFD_MFM; BIT 6 SETS MFM, 05H IS WRITE COMMAND
+000C2A  2  8D BB 0E             STA     FCMD
+000C2D  2  20 7A 0C             JSR     DSKOP
+000C30  2               
+000C30  2  C9 00                CMP     #$00
+000C32  2  F0 2B                BEQ     WRITEFLDONE
+000C34  2  EE BD 0E             INC     FLRETRY
+000C37  2  AD BD 0E             LDA     FLRETRY
+000C3A  2  C9 06                CMP     #FLOPPY_RETRIES
+000C3C  2  D0 EA                BNE     WRITEFL1
+000C3E  2  20 86 0D             JSR     RECAL
+000C41  2  20 57 0D             JSR     SETTRACK
+000C44  2  A9 00                LDA     #$00
+000C46  2  8D BD 0E             STA     FLRETRY
+000C49  2  EE BE 0E             INC     FLRETRY1
+000C4C  2  AD BE 0E             LDA     FLRETRY1
+000C4F  2  C9 02                CMP     #FLOPPY_RETRIES1
+000C51  2  D0 D5                BNE     WRITEFL1
+000C53  2  A9 FF                LDA     #$FF            ; INVALIDATE CACHE
+000C55  2  8D B6 0E             STA     Cdebhead        ;
+000C58  2  8D B7 0E             STA     Cdebcyl         ;
+000C5B  2  8D B8 0E             STA     Cdebsec         ;
+000C5E  2  60                   RTS                     ; A = $FF ON RETURN = OPERATION ERROR
+000C5F  2               WRITEFLDONE:
+000C5F  2  A9 00                LDA     #$00            ; A = 0 ON RETURN = OPERATION OK
+000C61  2  60                   RTS
+000C62  2               
+000C62  2               
+000C62  2               ;__SETUP_FD_CHS__________________________________________________________________________________________________________________
+000C62  2               ;
+000C62  2               ; 	TRANSFORM DOS65 CHS TO FLOPPY
+000C62  2               ;________________________________________________________________________________________________________________________________
+000C62  2               ;
+000C62  2               SETUP_FD_CHS:
+000C62  2  AD 2C 0F             LDA     sektrk          ; LOAD TRACK # (LOW BYTE)
+000C65  2  29 01                AND     #$01            ; FILTER OUT HEAD
+000C67  2  8D B3 0E             STA     debhead         ; STORE HEAD
+000C6A  2  AD 2C 0F             LDA     sektrk          ; SAVE TRACK IN A
+000C6D  2  4A                   LSR     A               ; REMOVE HEAD BIT
+000C6E  2  8D B4 0E             STA     debcyl          ; STORE IN TRACK
+000C71  2  AD 2E 0F             LDA     seksec          ; LOAD SECTOR # (LOW BYTE)
+000C74  2  4A                   LSR     A               ;
+000C75  2  4A                   LSR     A               ; DIVIDE BY 4 (FOR BLOCKING)
+000C76  2  8D B5 0E             STA     debsec          ; STORE IN SECTOR
+000C79  2               
+000C79  2                       .IF     USEDSKY=1 || USEDSKYNG=1
+000C79  2                           PRTDBG  "DSKY OUTPUT 1$"
+000C79  2                           LDA     sekdsk
+000C79  2                           STA     DSKY_HEXBUF
+000C79  2                           LDA     debcyl
+000C79  2                           STA     DSKY_HEXBUF+1
+000C79  2                           LDA     debhead
+000C79  2                           STA     DSKY_HEXBUF+2
+000C79  2                           LDA     debsec
+000C79  2                           STA     DSKY_HEXBUF+3
+000C79  2                           JSR     DSKY_BIN2SEG
+000C79  2                           JSR     DSKY_SHOW
+000C79  2                       .ENDIF
+000C79  2               
+000C79  2  60                   RTS
+000C7A  2               
+000C7A  2               ;__DSKOP__________________________________________________________________________________________________________________________
+000C7A  2               ;
+000C7A  2               ; 	PERFORM A DISK OPERATION
+000C7A  2               ;________________________________________________________________________________________________________________________________
+000C7A  2               ;
+000C7A  2               DSKOP:
+000C7A  2  78                   SEI
+000C7B  2  20 F5 0D             JSR     CHECKINT        ; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
+000C7E  2  C9 FF                CMP     #$FF            ; DID IT RETURN WITH ERROR CODE?
+000C80  2  F0 10                BEQ     DSKEXIT         ; IF YES, EXIT WITH ERROR CODE
+000C82  2               ;
+000C82  2  20 57 0D             JSR     SETTRACK        ; PERFORM SEEK TO TRACK
+000C85  2               ;
+000C85  2  AD BB 0E             LDA     FCMD            ; WHAT COMMAND IS PENDING?
+000C88  2  C9 46                CMP     #CFD_READ|CFD_MFM; IS IT A READ COMMAND?
+000C8A  2  D0 03                BNE     GWRR_POLL       ;
+000C8C  2  4C E7 0C             JMP     RDD_POLL        ;
+000C8F  2               GWRR_POLL:
+000C8F  2  4C 2D 0D             JMP     WRR_POLL        ;
+000C92  2               DSKEXIT:
+000C92  2  A9 00                LDA     #0              ; SET MOTOR OFF
+000C94  2  8D 36 03             STA     FDC_DOR         ; OUTPUT TO CONTROLLER
+000C97  2  A9 FF                LDA     #$FF            ; SET IF ERROR
+000C99  2  58                   CLI
+000C9A  2  60                   RTS
+000C9B  2               
+000C9B  2               SNDFDWR:
+000C9B  2  18                   CLC
+000C9C  2  AD 31 0F             LDA     DSKUNIT         ; GET DISK UNIT NUMBER
+000C9F  2  29 01                AND     #$01            ; MASK FOR TWO DRIVES.
+000CA1  2  8D BA 0E             STA     UNIT            ; PARK IT IN TEMP
+000CA4  2  AD B3 0E             LDA     debhead         ; GET HEAD SELECTION
+000CA7  2  29 01                AND     #$01            ; INSURE SINGLE BIT
+000CA9  2  0A                   ASL     A               ;
+000CAA  2  0A                   ASL     A               ; MOVE HEAD TO BIT 2 POSITION
+000CAB  2  0D BA 0E             ORA     UNIT            ; OR HEAD TO UNIT BYTE IN COMMAND BLOCK
+000CAE  2  8D BA 0E             STA     UNIT            ; STORE IN UNIT
+000CB1  2  AD BB 0E             LDA     FCMD            ;
+000CB4  2  20 B1 0D             JSR     PFDATA          ; PUSH COMMAND TO I8272
+000CB7  2  AD BA 0E             LDA     UNIT            ;
+000CBA  2  20 B1 0D             JSR     PFDATA          ;
+000CBD  2  AD B4 0E             LDA     debcyl          ;
+000CC0  2  20 B1 0D             JSR     PFDATA          ;
+000CC3  2  AD B3 0E             LDA     debhead         ;
+000CC6  2  20 B1 0D             JSR     PFDATA          ;
+000CC9  2  18                   CLC                     ;
+000CCA  2  AD B5 0E             LDA     debsec          ;
+000CCD  2  69 01                ADC     #$01            ;
+000CCF  2  20 B1 0D             JSR     PFDATA          ;
+000CD2  2  A9 02                LDA     #$02            ;
+000CD4  2  20 B1 0D             JSR     PFDATA          ; WHAT DENSITY
+000CD7  2  A9 09                LDA     #$09            ;
+000CD9  2  20 B1 0D             JSR     PFDATA          ; ASSUME SC (SECTOR COUNT)  EOT
+000CDC  2  A9 1B                LDA     #$1B            ;
+000CDE  2  20 B1 0D             JSR     PFDATA          ; WHAT GAP IS NEEDED
+000CE1  2  A9 FF                LDA     #$FF            ; DTL, IS THE LAST COMMAND BYTE TO I8272
+000CE3  2  20 DC 0D             JSR     PFDATAS
+000CE6  2  60                   RTS
+000CE7  2               
+000CE7  2               
+000CE7  2               ; PERFORM READ
+000CE7  2               ; FROM READ TO READ MUST NOT EXCEED 25US WORST CASE MIN. (AT 2MHZ IS 2,000,000 CYCLES PER SECOND == 50 CYCLE BUDGET.)
+000CE7  2               ;
+000CE7  2               RDD_POLL:
+000CE7  2  A2 00                LDX     #$00
+000CE9  2  A0 00                LDY     #$00
+000CEB  2  20 9B 0C             JSR     SNDFDWR         ;
+000CEE  2               RDS1:
+000CEE  2  AD 30 03             LDA     FDC_MSR         ; GET STATUS  (4 CYCLES)
+000CF1  2  10 FB                BPL     RDS1            ; FDC IS NOT READY, WAIT FOR IT (UP TO 4 CYCLES)
+000CF3  2  29 20                AND     #%00100000      ; EXECUTION MODE? (2 CYCLES)
+000CF5  2  F0 1D                BEQ     DSKOPEND        ; NO, ERROR
+000CF7  2               RDS1A:
+000CF7  2  AD 31 03             LDA     FDC_DATA        ; GET DATA (4 CYCLES)
+000CFA  2  99 32 0F             STA     hstbuf,Y        ; WRITE IT (5 CYCLES)
+000CFD  2  C8                   INY                     ; (2 CYCLES)
+000CFE  2  D0 EE                BNE     RDS1            ; KEEP GOING (UP TO 4 CYCLES)   TOTAL =
+000D00  2  A2 00                LDX     #$00
+000D02  2               RDS2:
+000D02  2  AD 30 03             LDA     FDC_MSR         ; GET STATUS
+000D05  2  10 FB                BPL     RDS2            ; FDC IS NOT READY, WAIT FOR IT (UP TO 4 CYCLES)
+000D07  2  29 20                AND     #%00100000      ; EXECUTION MODE?
+000D09  2  F0 09                BEQ     DSKOPEND        ; NO, ERROR
+000D0B  2               RDS2A:
+000D0B  2  AD 31 03             LDA     FDC_DATA        ; GET DATA
+000D0E  2  99 32 10             STA     hstbuf+256,Y    ; WRITE IT
+000D11  2  C8                   INY
+000D12  2  D0 EE                BNE     RDS2            ; KEEP GOING
+000D14  2               DSKOPEND:
+000D14  2  AD 37 03             LDA     FDC_TC
+000D17  2  20 A3 0E             JSR     FDDELAY
+000D1A  2               ;
+000D1A  2  20 3E 0E             JSR     GFDATA          ;GET ERROR TYPE
+000D1D  2  8D B9 0E             STA     FLERR
+000D20  2               ;* CLEAR OUT ANY REMAINING DATA
+000D20  2               RESUL3:
+000D20  2  20 3E 0E             JSR     GFDATA          ;READ BYTE FROM FDC
+000D23  2  C9 00                CMP     #$00
+000D25  2  D0 F9                BNE     RESUL3          ;CLEAR THEM ALL
+000D27  2  AD B9 0E             LDA     FLERR           ;
+000D2A  2  29 C0                AND     #%11000000      ;
+000D2C  2  60                   RTS
+000D2D  2               
+000D2D  2               
+000D2D  2               WRR_POLL:
+000D2D  2  20 9B 0C             JSR     SNDFDWR         ;
+000D30  2               WRS1:   ;
+000D30  2  AD 30 03             LDA     FDC_MSR         ; GET STATUS
+000D33  2  10 FB                BPL     WRS1            ; NOT READY
+000D35  2  29 20                AND     #%00100000      ; EXECUTION MODE?
+000D37  2  F0 1B                BEQ     WRS3            ; NO, ERROR
+000D39  2  B9 32 0F             LDA     hstbuf,Y        ; WRITE IT
+000D3C  2  8D 31 03             STA     FDC_DATA        ; WRITE TO FDC
+000D3F  2  C8                   INY
+000D40  2  D0 EE                BNE     WRS1            ; DO NEXT
+000D42  2               WRS2:   ;
+000D42  2  AD 30 03             LDA     FDC_MSR         ; GET STATUS
+000D45  2  10 FB                BPL     WRS2            ; NOT READY
+000D47  2  29 20                AND     #%00100000      ; EXECUTION MODE?
+000D49  2  F0 09                BEQ     WRS3            ; NO, ERROR
+000D4B  2  B9 32 10             LDA     hstbuf+256,Y    ; WRITE IT
+000D4E  2  8D 31 03             STA     FDC_DATA        ; WRITE TO FDC
+000D51  2  C8                   INY
+000D52  2  D0 EE                BNE     WRS2            ; DO NEXT
+000D54  2               WRS3:
+000D54  2  4C 14 0D             JMP     DSKOPEND        ;
+000D57  2               
+000D57  2               
+000D57  2               ;__SETTRACK__________________________________________________________________________________________________________________________
+000D57  2               ;
+000D57  2               ; 	SEEK TO A TRACK ON GIVEN UNIT
+000D57  2               ; 	A: TRACK #
+000D57  2               ;________________________________________________________________________________________________________________________________
+000D57  2               ;
+000D57  2               SETTRACK:
+000D57  2  A9 0C                LDA     #DOR_INIT
+000D59  2  0D 31 0F             ORA     DSKUNIT         ; SET MOTOR ON
+000D5C  2  8D 36 03             STA     FDC_DOR         ; OUTPUT TO CONTROLLER
+000D5F  2               
+000D5F  2               ; ANY INTERUPT PENDING
+000D5F  2               ; IF YES FIND OUT WHY/CLEAR
+000D5F  2  20 F5 0D             JSR     CHECKINT        ; CHECK INTERRUPT STATUS, MAKE SURE IT IS CLEAR
+000D62  2  C9 FF                CMP     #$FF            ; DID IT RTSURN WITH ERROR CODE?
+000D64  2  D0 03                BNE     SETTRK1
+000D66  2  4C B0 0D             JMP     SETTRKEXIT      ;
+000D69  2               
+000D69  2               ;
+000D69  2               SETTRK1:
+000D69  2  AD B4 0E             LDA     debcyl          ; GET TRACK
+000D6C  2  C9 00                CMP     #$00            ;
+000D6E  2  F0 16                BEQ     RECAL           ; IF 0 PERFORM RECAL INSTEAD OF SEEK
+000D70  2  A9 0F                LDA     #CFD_SEEK       ; SEEK COMMAND
+000D72  2  20 B1 0D             JSR     PFDATA          ; PUSH COMMAND
+000D75  2  AD 31 0F             LDA     DSKUNIT         ; SAY WHICH UNIT
+000D78  2  29 01                AND     #$01
+000D7A  2  20 B1 0D             JSR     PFDATA          ; SEND THAT
+000D7D  2  AD B4 0E             LDA     debcyl          ; TO WHAT TRACK
+000D80  2  20 B1 0D             JSR     PFDATA          ; SEND THAT TOO
+000D83  2  4C 9B 0D             JMP     WAINT           ; WAIT FOR INTERRUPT SAYING DONE
+000D86  2               RECAL:
+000D86  2  A9 0C                LDA     #DOR_INIT
+000D88  2  0D 31 0F             ORA     DSKUNIT         ; SET MOTOR ON
+000D8B  2  8D 36 03             STA     FDC_DOR         ; OUTPUT TO CONTROLLER
+000D8E  2  A9 07                LDA     #CFD_RECAL      ; RECAL TO TRACK 0
+000D90  2  20 B1 0D             JSR     PFDATA          ; SEND IT
+000D93  2  AD 31 0F             LDA     DSKUNIT         ; SAY WHICH UNIT
+000D96  2  29 01                AND     #$01
+000D98  2  20 B1 0D             JSR     PFDATA          ; SEND THAT TOO
+000D9B  2               ;
+000D9B  2               WAINT:
+000D9B  2  48                   PHA
+000D9C  2  8A                   TXA
+000D9D  2  48                   PHA
+000D9E  2  A2 64                LDX     #100
+000DA0  2  20 A8 0E             JSR     FDVDELAY
+000DA3  2  68                   PLA
+000DA4  2  AA                   TAX
+000DA5  2  68                   PLA
+000DA6  2               :
+000DA6  2  20 F5 0D             JSR     CHECKINT
+000DA9  2  AD 30 03             LDA     FDC_MSR         ; READ SEEK STATUS
+000DAC  2  29 0F                AND     #%00001111      ; ANY DRIVES SEEKING?
+000DAE  2  D0 F6                BNE     :-              ; YES, WAIT FOR THEM
+000DB0  2               ;
+000DB0  2               SETTRKEXIT:
+000DB0  2  60                   RTS
+000DB1  2               
+000DB1  2               ;__PFDATA__________________________________________________________________________________________________________________________
+000DB1  2               ;
+000DB1  2               ; WRITE A COMMAND OR PARAMETER SEQUENCE
+000DB1  2               ;
+000DB1  2               ; TRANSFERS ARE SYNCHONIZED BY MSR D7 <RQM> AND D6 <DIO>
+000DB1  2               ;	RQM  DIO
+000DB1  2               ;	0	0	BUSY
+000DB1  2               ;	1	0	WRITE TO DATA REGISTER PERMITTED
+000DB1  2               ;	1	1	BYTE FOR READ BY HOST PENDING
+000DB1  2               ;	0	1	BUSY
+000DB1  2               ;
+000DB1  2               ;________________________________________________________________________________________________________________________________
+000DB1  2               ;
+000DB1  2               PFDATA:
+000DB1  2  48                   PHA                     ; SAVE DATA BYTE
+000DB2  2  A0 00                LDY     #$00
+000DB4  2               WRF1:
+000DB4  2  AD 30 03             LDA     FDC_MSR         ; READ FDC STATUS
+000DB7  2  AA                   TAX
+000DB8  2  29 80                AND     #$80            ;
+000DBA  2  D0 07                BNE     :+
+000DBC  2  C8                   INY
+000DBD  2  D0 F5                BNE     WRF1            ; FDC IS NOT READY, WAIT FOR IT
+000DBF  2  68                   PLA
+000DC0  2  A9 FF                LDA     #$FF
+000DC2  2  60                   RTS
+000DC3  2               :
+000DC3  2  8A                   TXA
+000DC4  2  29 40                AND     #$40            ; TEST DIO BIT
+000DC6  2  D0 0E                BNE     WRF2            ; FDC IS OUT OF SYNC
+000DC8  2  68                   PLA                     ; RESTORE DATA
+000DC9  2  8D 31 03             STA     FDC_DATA        ; WRITE TO FDC
+000DCC  2  20 A3 0E             JSR     FDDELAY
+000DCF  2  20 A3 0E             JSR     FDDELAY
+000DD2  2  20 A3 0E             JSR     FDDELAY
+000DD5  2  60                   RTS
+000DD6  2               ; FDC IS OUT OF SYNC CLEAR IT OUT AND RE-TRY
+000DD6  2               WRF2:
+000DD6  2  AD 31 03             LDA     FDC_DATA        ; READ DATA REGISTER
+000DD9  2  4C B4 0D             JMP     WRF1            ; AND CONTINUE
+000DDC  2               
+000DDC  2               ;__PFDATAS_________________________________________________________________________________________________________________________
+000DDC  2               ;
+000DDC  2               ; WRITE A COMMAND OR PARAMETER SEQUENCE (NO PAUSE)
+000DDC  2               ;
+000DDC  2               ; TRANSFERS ARE SYNCHONIZED BY MSR D7 <RQM> AND D6 <DIO>
+000DDC  2               ;	RQM  DIO
+000DDC  2               ;	0	0	BUSY
+000DDC  2               ;	1	0	WRITE TO DATA REGISTER PERMITTED
+000DDC  2               ;	1	1	BYTE FOR READ BY HOST PENDING
+000DDC  2               ;	0	1	BUSY
+000DDC  2               ;
+000DDC  2               ;________________________________________________________________________________________________________________________________
+000DDC  2               ;
+000DDC  2               PFDATAS:
+000DDC  2  48                   PHA                     ; SAVE DATA BYTE
+000DDD  2               WRF1S:
+000DDD  2  AD 30 03             LDA     FDC_MSR         ; READ FDC STATUS
+000DE0  2  AA                   TAX
+000DE1  2  29 80                AND     #$80            ;
+000DE3  2  F0 F8                BEQ     WRF1S           ; FDC IS NOT READY, WAIT FOR IT
+000DE5  2  8A                   TXA
+000DE6  2  29 40                AND     #$40            ; TEST DIO BIT
+000DE8  2  D0 05                BNE     WRF2S           ; FDC IS OUT OF SYNC
+000DEA  2  68                   PLA                     ; RESTORE DATA
+000DEB  2  8D 31 03             STA     FDC_DATA        ; WRITE TO FDC
+000DEE  2  60                   RTS
+000DEF  2               ; FDC IS OUT OF SYNC CLEAR IT OUT AND RE-TRY
+000DEF  2               WRF2S:
+000DEF  2  AD 31 03             LDA     FDC_DATA        ; READ DATA REGISTER
+000DF2  2  4C DD 0D             JMP     WRF1S           ; AND CONTINUE
+000DF5  2               
+000DF5  2               
+000DF5  2               
+000DF5  2               ;__CHECKINT__________________________________________________________________________________________________________________________
+000DF5  2               ;
+000DF5  2               ; CHECK FOR ACTIVE FDC INTERRUPTS BEFORE GIVING I8272 COMMANDS
+000DF5  2               ; POLL RQM FOR WHEN NOT BUSY AND THEN SEND FDC
+000DF5  2               ; SENSE INTERRUPT COMMAND.  IF IT RTSURNS WITH NON ZERO
+000DF5  2               ; ERROR CODE, PASS BACK TO JSRING ROUTINE FOR HANDLING
+000DF5  2               ;________________________________________________________________________________________________________________________________
+000DF5  2               ;
+000DF5  2               CHECKINT:
+000DF5  2  A0 00                LDY     #$00
+000DF7  2               :
+000DF7  2  AD 30 03             LDA     FDC_MSR         ; READING OR WRITING IS KEYS TO D7 RQM
+000DFA  2  29 80                AND     #$80
+000DFC  2  D0 09                BNE     :+              ; WAIT FOR RQM TO BE TRUE. WAIT UNTIL DONE
+000DFE  2  20 A3 0E             JSR     FDDELAY
+000E01  2  C8                   INY
+000E02  2  D0 F3                BNE     :-
+000E04  2  4C 0F 0E             JMP     ERRCLR
+000E07  2               
+000E07  2               :
+000E07  2  AD 30 03             LDA     FDC_MSR         ; READING OR WRITING IS KEYS TO D7 RQM
+000E0A  2  29 40                AND     #$40            ; WAITING FOR INPUT?
+000E0C  2  F0 16                BEQ     SENDINT
+000E0E  2  60                   RTS
+000E0F  2               
+000E0F  2               ERRCLR:
+000E0F  2  A0 00                LDY     #$00
+000E11  2               :
+000E11  2  AD 31 03             LDA     FDC_DATA        ; CLEAR THE JUNK OUT OF DATA REGISTER
+000E14  2  AD 30 03             LDA     FDC_MSR         ; CHECK WITH RQM
+000E17  2  29 80                AND     #$80            ; IF STILL NOT READY, READ OUT MORE JUNK
+000E19  2  D0 06                BNE     :+              ;
+000E1B  2  20 A3 0E             JSR     FDDELAY
+000E1E  2  C8                   INY
+000E1F  2  D0 F0                BNE     :-
+000E21  2               :
+000E21  2  A9 FF                LDA     #$FF            ; RETURN ERROR CODE -1
+000E23  2               ;
+000E23  2  60                   RTS
+000E24  2               
+000E24  2               ;__SENDINT__________________________________________________________________________________________________________________________
+000E24  2               ;
+000E24  2               ; SENSE INTERRUPT COMMAND
+000E24  2               ;________________________________________________________________________________________________________________________________
+000E24  2               ;
+000E24  2               SENDINT:
+000E24  2  A9 08                LDA     #CFD_SENSEINT   ; SENSE INTERRUPT COMMAND
+000E26  2  20 B1 0D             JSR     PFDATA          ; SEND IT
+000E29  2  20 3E 0E             JSR     GFDATA          ; GET RESULTS
+000E2C  2  8D BC 0E             STA     ST0             ; STORE THAT
+000E2F  2  29 C0                AND     #$C0            ; MASK OFF INTERRUPT STATUS BITS
+000E31  2  C9 80                CMP     #$80            ; CHECK IF INVALID COMMAND
+000E33  2  F0 08                BEQ     ENDSENDINT      ; YES, EXIT
+000E35  2  20 3E 0E             JSR     GFDATA          ; GET ANOTHER (STATUS CODE 1)
+000E38  2  AD BC 0E             LDA     ST0             ; GET FIRST ONE
+000E3B  2  29 C0                AND     #$C0            ; MASK OFF ALL BUT INTERRUPT CODE 00 IS NORMAL
+000E3D  2               ENDSENDINT:
+000E3D  2  60                   RTS                     ; ANYTHING ELSE IS AN ERROR
+000E3E  2               
+000E3E  2               
+000E3E  2               ;__GFDATA__________________________________________________________________________________________________________________________
+000E3E  2               ;
+000E3E  2               ; GET DATA FROM FLOPPY CONTROLLER
+000E3E  2               ;
+000E3E  2               ; TRANSFERS ARE SYNCHONIZED BYT MSR D7 <RQM> AND D6 <DIO>
+000E3E  2               ;	RQM  DIO
+000E3E  2               ;	0	0	BUSY
+000E3E  2               ;	1	0	WRITE TO DATA REGISTER PERMITTED
+000E3E  2               ;	1	1	BYTE FOR READ BY HOST PENDING
+000E3E  2               ;	0	1	BUSY
+000E3E  2               ;
+000E3E  2               ;________________________________________________________________________________________________________________________________
+000E3E  2               ;
+000E3E  2               GFDATA:
+000E3E  2  A0 00                LDY     #$00
+000E40  2               :
+000E40  2  AD 30 03             LDA     FDC_MSR         ; GET STATUS
+000E43  2  AA                   TAX                     ;
+000E44  2  29 80                AND     #%10000000      ; NOT READY, WAIT
+000E46  2  D0 06                BNE     :+              ;
+000E48  2  C8                   INY
+000E49  2  D0 F5                BNE     :-
+000E4B  2  A9 00                LDA     #$00
+000E4D  2  60                   RTS
+000E4E  2               :
+000E4E  2  8A                   TXA
+000E4F  2  29 40                AND     #%01000000      ; ANY DATA FOR US?
+000E51  2  F0 03                BEQ     GFDATA1         ; NO, SKIP IT
+000E53  2  AD 31 03             LDA     FDC_DATA        ; GET FDC DATA
+000E56  2               GFDATA1:
+000E56  2  60                   RTS
+000E57  2               
+000E57  2               ;__FD_DETECT______________________________________________________________________________________________________________________
+000E57  2               ;
+000E57  2               ; 	DETECT FLOPPY HARDWARE
+000E57  2               ;________________________________________________________________________________________________________________________________
+000E57  2               FD_DETECT:
+000E57  2               ; BLINDLY RESET FDC (WHICH MAY OR MAY NOT EXIST)
+000E57  2  20 85 0E             JSR     FC_RESETFDC     ; RESET FDC
+000E5A  2               
+000E5A  2  AD 30 03             LDA     FDC_MSR         ; READ MSR
+000E5D  2  C9 80                CMP     #$80
+000E5F  2  F0 0A                BEQ     FD_DETECT1      ; $80 IS OK
+000E61  2  C9 D0                CMP     #$D0
+000E63  2  F0 06                BEQ     FD_DETECT1      ; $D0 IS OK
+000E65  2  A9 FF                LDA     #$FF            ; NOT OK
+000E67  2  8D B2 0E             STA     HARDWARE_DETCT
+000E6A  2  60                   RTS
+000E6B  2               ;
+000E6B  2               FD_DETECT1:
+000E6B  2  A2 64                LDX     #100
+000E6D  2  20 A8 0E             JSR     FDVDELAY        ; WAIT A BIT FOR FDC
+000E70  2  AD 30 03             LDA     FDC_MSR         ; READ MSR AGAIN
+000E73  2  C9 80                CMP     #$80
+000E75  2  F0 08                BEQ     :+              ; $80 IS OK
+000E77  2  C9 D0                CMP     #$D0
+000E79  2  A9 FF                LDA     #$FF            ; NOT OK
+000E7B  2  8D B2 0E             STA     HARDWARE_DETCT
+000E7E  2  60                   RTS
+000E7F  2               :
+000E7F  2  A9 00                LDA     #$00            ; OK
+000E81  2  8D B2 0E             STA     HARDWARE_DETCT
+000E84  2  60                   RTS
+000E85  2               
+000E85  2               FC_RESETFDC:
+000E85  2  AD 33 03             LDA     FDC_RESET
+000E88  2  AD 33 03             LDA     FDC_RESET
+000E8B  2  A2 96                LDX     #150
+000E8D  2  20 A8 0E             JSR     FDVDELAY        ; WAIT A BIT FOR FDC
+000E90  2               
+000E90  2  A9 00                LDA     #$00
+000E92  2  8D 36 03             STA     FDC_DOR
+000E95  2  20 A3 0E             JSR     FDDELAY
+000E98  2  A9 0C                LDA     #DOR_INIT
+000E9A  2  8D 36 03             STA     FDC_DOR
+000E9D  2  A2 96                LDX     #150            ;
+000E9F  2  20 A8 0E             JSR     FDVDELAY
+000EA2  2  60                   RTS
+000EA3  2               
+000EA3  2               
+000EA3  2               FDDELAY:
+000EA3  2  48                   PHA
+000EA4  2  68                   PLA
+000EA5  2  48                   PHA
+000EA6  2  68                   PLA
+000EA7  2  60                   RTS
+000EA8  2               FDVDELAY:
+000EA8  2  48                   PHA
+000EA9  2  68                   PLA
+000EAA  2  48                   PHA
+000EAB  2  68                   PLA
+000EAC  2  CA                   DEX
+000EAD  2  E0 00                CPX     #$00
+000EAF  2  D0 F7                BNE     FDVDELAY
+000EB1  2  60                   RTS
+000EB2  2               
+000EB2  2                       .IF     DRIVERS=1
+000EB2  2               ;*__FL_STORE_BOOT_IMAGE_______________________________________________________________________________
+000EB2  2               ;*
+000EB2  2               ;*  WRITE Boot image to block 0 of device
+000EB2  2               ;*
+000EB2  2               ;*  YA points to:
+000EB2  2               ;* 			DB 	Device Unit
+000EB2  2               ;*			DB 	RAM Page
+000EB2  2               ;*			DW 	Source Address
+000EB2  2               ;* 			DB	Image Length (Pages)
+000EB2  2               ;*____________________________________________________________________________________________________
+000EB2  2               FL_STORE_BOOT_IMAGE:
+000EB2  2               
+000EB2  2                           STA     pointr          ; SET POINTR TO INFO BLOCK
+000EB2  2                           STY     pointr+1
+000EB2  2                           LDA     #<BOOTUNIT
+000EB2  2                           STA     room
+000EB2  2                           LDA     #>BOOTUNIT
+000EB2  2                           STA     room+1
+000EB2  2                           LDY     #$00            ; COPY PARAMETERS TO USEFUL AREA
+000EB2  2               :
+000EB2  2                           LDA     (pointr),Y
+000EB2  2                           STA     (room),Y
+000EB2  2                           INY
+000EB2  2                           CPY     #05
+000EB2  2                           BNE     :-
+000EB2  2               
+000EB2  2                           LDA     #$00
+000EB2  2                           STA     sektrk
+000EB2  2                           STA     sektrk+1
+000EB2  2                           STA     seksec          ;
+000EB2  2                           STA     seksec+1        ;
+000EB2  2                           LDA     DSKUNIT
+000EB2  2                           STA     BOOTUNIT
+000EB2  2               
+000EB2  2                           JSR     INIT_PAGE_COPY  ; COPY PAGE COPY CODE TO LORAM
+000EB2  2                           LDA     BOOTSOURCE      ; SETUP SOURCE POINTER
+000EB2  2                           STA     pointr
+000EB2  2                           LDA     BOOTSOURCE+1
+000EB2  2                           STA     pointr+1
+000EB2  2               
+000EB2  2               :
+000EB2  2                           LDA     BOOTRAMPAGE
+000EB2  2                           JSR     COPY_PAGE_TO_HSTBUF; COPY 512 BYTES AT POINTR TO HSTBUF (AND INC POINTER)
+000EB2  2               
+000EB2  2                           JSR     FL_WRITE_SECTOR_RAW
+000EB2  2                           CMP     #$FF
+000EB2  2                           BEQ     FL_STORE_BOOT_IMAGE_ERROR
+000EB2  2                           INC     seksec
+000EB2  2                           LDA     seksec
+000EB2  2                           CMP     #36
+000EB2  2                           BNE     :+
+000EB2  2                           LDA     #00
+000EB2  2                           STA     seksec
+000EB2  2                           INC     sektrk
+000EB2  2               :
+000EB2  2                           DEC     BOOTLENGTH
+000EB2  2                           LDA     BOOTLENGTH
+000EB2  2                           CMP     #$00
+000EB2  2                           BNE     :--
+000EB2  2                           LDA     #$00            ; ZERO ON RETURN = OPERATION OK
+000EB2  2                           RTS
+000EB2  2               FL_STORE_BOOT_IMAGE_ERROR:
+000EB2  2                           LDA     #$FF            ; 1 ON RETURN = OPERATION FAIL
+000EB2  2                           RTS
+000EB2  2               
+000EB2  2               ;*__IDE_RESTORE_BOOT_IMAGE____________________________________________________________________________
+000EB2  2               ;*
+000EB2  2               ;*  READ Boot image from block 0 of device
+000EB2  2               ;*
+000EB2  2               ;*  YA points to:
+000EB2  2               ;* 			DB 	Device Unit
+000EB2  2               ;*			DB 	RAM Page
+000EB2  2               ;*			DW 	Source Address
+000EB2  2               ;* 			DB	Image Length (Pages)
+000EB2  2               ;*____________________________________________________________________________________________________
+000EB2  2               FL_RESTORE_BOOT_IMAGE:
+000EB2  2               
+000EB2  2                           STA     pointr          ; SET POINTR TO INFO BLOCK
+000EB2  2                           STY     pointr+1
+000EB2  2                           LDA     #<BOOTUNIT
+000EB2  2                           STA     room
+000EB2  2                           LDA     #>BOOTUNIT
+000EB2  2                           STA     room+1
+000EB2  2                           LDY     #$00            ; COPY PARAMETERS TO USEFUL AREA
+000EB2  2               :
+000EB2  2                           LDA     (pointr),Y
+000EB2  2                           STA     (room),Y
+000EB2  2                           INY
+000EB2  2                           CPY     #05
+000EB2  2                           BNE     :-
+000EB2  2               
+000EB2  2                           LDA     #$00
+000EB2  2                           LDA     #$00
+000EB2  2                           STA     sektrk
+000EB2  2                           STA     sektrk+1
+000EB2  2                           STA     seksec          ;
+000EB2  2                           STA     seksec+1        ;
+000EB2  2                           LDA     DSKUNIT
+000EB2  2                           STA     BOOTUNIT
+000EB2  2               
+000EB2  2               
+000EB2  2                           JSR     INIT_PAGE_COPY  ; COPY PAGE COPY CODE TO LORAM
+000EB2  2                           LDA     BOOTSOURCE      ; SETUP SOURCE POINTER
+000EB2  2                           STA     pointr
+000EB2  2                           LDA     BOOTSOURCE+1
+000EB2  2                           STA     pointr+1
+000EB2  2               
+000EB2  2               :
+000EB2  2                           JSR     FL_READ_SECTOR_RAW
+000EB2  2                           CMP     #$FF
+000EB2  2                           BEQ     FL_RESTORE_BOOT_IMAGE_ERROR
+000EB2  2                           LDA     BOOTRAMPAGE
+000EB2  2                           JSR     COPY_HSTBUF_TOPAGE; COPY 512 BYTES FROM HSTBUF TO POINTR HSTBUF (AND INC POINTER)
+000EB2  2                           INC     seksec
+000EB2  2                           LDA     seksec
+000EB2  2                           CMP     #36
+000EB2  2                           BNE     :+
+000EB2  2                           LDA     #00
+000EB2  2                           STA     seksec
+000EB2  2                           INC     sektrk
+000EB2  2               :
+000EB2  2                           DEC     BOOTLENGTH
+000EB2  2                           LDA     BOOTLENGTH
+000EB2  2                           CMP     #$00
+000EB2  2                           BNE     :--
+000EB2  2                           LDA     #$00            ; ZERO ON RETURN = OPERATION OK
+000EB2  2                           RTS
+000EB2  2               FL_RESTORE_BOOT_IMAGE_ERROR:
+000EB2  2                           LDA     #$FF            ; 1 ON RETURN = OPERATION FAIL
+000EB2  2                           RTS
+000EB2  2                       .ENDIF
+000EB2  2               
+000EB2  2               
+000EB2  2               HARDWARE_DETCT:
+000EB2  2  00                   .BYTE   0               ; HARDWARE DETECTED
+000EB3  2               debhead:
+000EB3  2  00                   .BYTE   0               ; DEBLOCKED HEAD
+000EB4  2               debcyl:
+000EB4  2  00                   .BYTE   0               ; DEBLOCKED CYLINDER
+000EB5  2               debsec:
+000EB5  2  00                   .BYTE   0               ; DEBLOCKED SECTOR
+000EB6  2               Cdebhead:
+000EB6  2  00                   .BYTE   0               ; DEBLOCKED HEAD (cache)
+000EB7  2               Cdebcyl:
+000EB7  2  00                   .BYTE   0               ; DEBLOCKED CYLINDER (cache)
+000EB8  2               Cdebsec:
+000EB8  2  00                   .BYTE   0               ; DEBLOCKED SECTOR (cache)
+000EB9  2               FLERR:
+000EB9  2  00                   .BYTE   $00             ;
+000EBA  2               UNIT:
+000EBA  2  00                   .BYTE   $00             ;
+000EBB  2               FCMD:
+000EBB  2  00                   .BYTE   0               ; COMMAND READ OR WRITE,
+000EBC  2               ST0:
+000EBC  2  00                   .BYTE   0               ; COMMAND READ OR WRITE,
+000EBD  2               FLRETRY:
+000EBD  2  00                   .BYTE   00
+000EBE  2               FLRETRY1:
+000EBE  2  00                   .BYTE   00
+000EBF  2               
+000EBF  1               
+000EBF  1               
+000EBF  1               
+000EBF  1               
+000EBF  1               ;
+000EBF  1               ;==================================================================================================
+000EBF  1               ; UTILITY FUNCTIONS
+000EBF  1               ;==================================================================================================
+000EBF  1               ;
+000EBF  1               ;
+000EBF  1               CHR_CR          = $0D
+000EBF  1               CHR_LF          = $0A
+000EBF  1               CHR_BS          = $08
+000EBF  1               CHR_ESC         = $1B
+000EBF  1               ;
+000EBF  1               ;__________________________________________________________________________________________________
+000EBF  1               ;
+000EBF  1               ; UTILITY PROCS TO PRINT SINGLE CHARACTERS WITHOUT TRASHING ANY REGISTERS
+000EBF  1               ;
+000EBF  1               
+000EBF  1               PC_SPACE:
+000EBF  1  48                   PHA
+000EC0  1  A9 20                LDA     #' '
+000EC2  1  20 DF 0E             JSR     OUT             ; PRINT CHAR IN ACC
+000EC5  1  68                   PLA
+000EC6  1  60                   RTS
+000EC7  1               
+000EC7  1               PC_PERIOD:
+000EC7  1  48                   PHA
+000EC8  1  A9 2E                LDA     #'.'
+000ECA  1  20 DF 0E             JSR     OUT             ; PRINT CHAR IN ACC
+000ECD  1  68                   PLA
+000ECE  1  60                   RTS
+000ECF  1               
+000ECF  1               
+000ECF  1               PC_CR:
+000ECF  1  48                   PHA
+000ED0  1  A9 0D                LDA     #CHR_CR
+000ED2  1  20 DF 0E             JSR     OUT             ; PRINT CHAR IN ACC
+000ED5  1  68                   PLA
+000ED6  1  60                   RTS
+000ED7  1               
+000ED7  1               PC_LF:
+000ED7  1  48                   PHA
+000ED8  1  A9 0A                LDA     #CHR_LF
+000EDA  1  20 DF 0E             JSR     OUT             ; PRINT CHAR IN ACC
+000EDD  1  68                   PLA
+000EDE  1  60                   RTS
+000EDF  1               
+000EDF  1               OUT:
+000EDF  1               conwrt:
+000EDF  1  DA                   PHX
+000EE0  1  5A                   PHY
+000EE1  1  A2 02                LDX     #2              ;
+000EE3  1  20 03 01             JSR     PEM             ;
+000EE6  1  7A                   PLY
+000EE7  1  FA                   PLX
+000EE8  1  60                   RTS
+000EE9  1               
+000EE9  1               BLKSECR512:
+000EE9  1               DEBSECR512:
+000EE9  1  60                   RTS
+000EEA  1               
+000EEA  1               ;__PRINT_BYTE__________________________________________________
+000EEA  1               ;
+000EEA  1               ; PRINT OUT ACCUMULATOR AS HEX NUMBER
+000EEA  1               ;
+000EEA  1               ;______________________________________________________________
+000EEA  1               PRINT_BYTE:
+000EEA  1  AA                   TAX                     ; SAVE A REGISTER
+000EEB  1  4A                   LSR     A               ; SHIFT HIGH NIBBLE TO LOW NIBBLE
+000EEC  1  4A                   LSR     A               ;
+000EED  1  4A                   LSR     A               ;
+000EEE  1  4A                   LSR     A               ;
+000EEF  1  18                   CLC                     ; CLEAR CARRY
+000EF0  1  20 E1 09             JSR     PRINT_DIGIT     ; PRINT LOW NIBBLE
+000EF3  1  8A                   TXA                     ; RESTORE ACCUMULATOR
+000EF4  1  4C E1 09             JMP     PRINT_DIGIT     ; PRINT LOW NIBBLE
+000EF7  1               
+000EF7  1               
+000EF7  1               ;
+000EF7  1               ; OUTPUT A '$' TERMINATED STRING
+000EF7  1               ;
+000EF7  1               WRITESTR:
+000EF7  1  85 F0                STA     OUTMSG_W
+000EF9  1  84 F1                STY     OUTMSG_W+1
+000EFB  1  A0 00                LDY     #$00
+000EFD  1               WRITESTR1:
+000EFD  1  B1 F0                LDA     (OUTMSG_W),Y    ; LOAD NEXT CHAR FROM STRING INTO ACC
+000EFF  1  C9 24                CMP     #'$'            ; IS END?
+000F01  1  F0 07                BEQ     ENDOUTSTR       ; YES, END PRINT OUT
+000F03  1  20 DF 0E             JSR     OUT             ; PRINT CHAR IN ACC
+000F06  1  C8                   INY                     ; Y=Y+1 (BUMP INDEX)
+000F07  1  4C FD 0E             JMP     WRITESTR1       ; DO NEXT CHAR
+000F0A  1               ENDOUTSTR:
+000F0A  1  60                   RTS                     ; RETURN
+000F0B  1               
+000F0B  1               
+000F0B  1               
+000F0B  1               
+000F0B  1               
+000F0B  1               CIN:
+000F0B  1  DA                   PHX
+000F0C  1  5A                   PHY
+000F0D  1  A2 01                LDX     #1              ;
+000F0F  1  20 03 01             JSR     PEM             ;
+000F12  1  7A                   PLY
+000F13  1  FA                   PLX
+000F14  1  60                   RTS
+000F15  1               
+000F15  1               
+000F15  1               CONF:
+000F15  1  20 0B 0F             JSR     CIN
+000F18  1  C9 1B                CMP     #$1B
+000F1A  1  F0 05                BEQ     EXIT
+000F1C  1  C9 0D                CMP     #$0D
+000F1E  1  D0 F5                BNE     CONF
+000F20  1               
+000F20  1  60                   RTS
+000F21  1               
+000F21  1               EXIT:
+000F21  1               ; CLEAN UP AND RETURN TO OS
+000F21  1  20 EF 09             JSR     NEWLINE
+000F24  1  20 EF 09             JSR     NEWLINE
+000F27  1  4C 00 01             JMP     $0100
+000F2A  1               
+000F2A  1               
+000F2A  1               FMTGAP:
+000F2A  1  00                   .BYTE   0               ; GAP FOR FORMAT 5.25=$50, 3.5=$54
+000F2B  1               CURSEC:
+000F2B  1  00                   .BYTE   0
+000F2C  1               
+000F2C  1               sektrk:
+000F2C  1  00 00                .BYTE   0,0             ;seek track number
+000F2E  1               seksec:
+000F2E  1  00 00                .BYTE   0,0             ;seek sector number
+000F30  1               sekdsk:
+000F30  1  00                   .BYTE   0
+000F31  1               DSKUNIT:
+000F31  1  00                   .BYTE   0
+000F32  1               hstbuf:
+000F32  1  xx xx xx xx          .RES    1024
 000F36  1  xx xx xx xx  
-00132E  1               temp:
-00132E  1  00                   .BYTE   0
-00132F  1               MAXTRACK:
-00132F  1  28                   .BYTE   40
-001330  1               
-001330  1               STR_BANNER:
-001330  1  0D 0A 4E 68          .BYTE   $0D,$0A,"Nhyodyne Floppy Disk Format v1.0"
-001334  1  79 6F 64 79  
-001338  1  6E 65 20 46  
-001352  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Floppy type:",$0D,$0A
-001356  1  6F 6F 73 65  
-00135A  1  20 46 6C 6F  
-001369  1  31 3E 20 35          .BYTE   "1> 5.25 inch floppy  360K 40 tracks",$0D,$0A
-00136D  1  2E 32 35 20  
-001371  1  69 6E 63 68  
-00138E  1  32 3E 20 33          .BYTE   "2> 3.5 inch floppy   720K 80 tracks",$0D,$0A,"$"
-001392  1  2E 35 20 69  
-001396  1  6E 63 68 20  
-0013B4  1               STR_DRIVE:
-0013B4  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Floppy drive:",$0D,$0A
-0013B8  1  6F 6F 73 65  
-0013BC  1  20 46 6C 6F  
-0013CC  1  31 3E 20 44          .BYTE   "1> DRIVE 0",$0D,$0A
-0013D0  1  52 49 56 45  
-0013D4  1  20 30 0D 0A  
-0013D8  1  32 3E 20 44          .BYTE   "2> DRIVE 1",$0D,$0A,"$"
-0013DC  1  52 49 56 45  
-0013E0  1  20 31 0D 0A  
-0013E5  1               STR_INTRO:
-0013E5  1  0D 0A 0D 0A          .BYTE   $0D,$0A,$0D,$0A,"Insert FLOPPY, NOTE EXISTING DATA WILL BE DESTROYED!!!",$0D,$0A,"$"
-0013E9  1  49 6E 73 65  
-0013ED  1  72 74 20 46  
-001422  1               STR_CONFIRM:
-001422  1  50 72 65 73          .BYTE   "Press <Enter> to continue, <Esc> to abort",$0D,$0A,"$"
-001426  1  73 20 3C 45  
-00142A  1  6E 74 65 72  
-00144E  1               
-00144E  1               
-00144E  1               
-00144E  1               
-00144E  1               
-00144E  1               STR_ERR1:
-00144E  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR 1",$0D,$0A,"$"
-001452  1  53 4B 20 45  
-001456  1  52 52 4F 52  
-00145F  1               STR_ERR2:
-00145F  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR 2",$0D,$0A,"$"
-001463  1  53 4B 20 45  
-001467  1  52 52 4F 52  
-001470  1               STR_ERR3:
-001470  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR 3",$0D,$0A,"$"
-001474  1  53 4B 20 45  
-001478  1  52 52 4F 52  
-001481  1               STR_ERR4:
-001481  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR 4",$0D,$0A,"$"
-001485  1  53 4B 20 45  
-001489  1  52 52 4F 52  
-001492  1               STR_ERR5:
-001492  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR 5",$0D,$0A,"$"
-001496  1  53 4B 20 45  
-00149A  1  52 52 4F 52  
-0014A3  1               
-0014A3  1                       .END
+000F3A  1  xx xx xx xx  
+001332  1               temp:
+001332  1  00                   .BYTE   0
+001333  1               MAXTRACK:
+001333  1  28                   .BYTE   40
+001334  1               
+001334  1               STR_BANNER:
+001334  1  0D 0A 4E 68          .BYTE   $0D,$0A,"Nhyodyne Floppy Disk Format v1.0"
+001338  1  79 6F 64 79  
+00133C  1  6E 65 20 46  
+001356  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Floppy type:",$0D,$0A
+00135A  1  6F 6F 73 65  
+00135E  1  20 46 6C 6F  
+00136D  1  31 3E 20 35          .BYTE   "1> 5.25 inch floppy  360K 40 tracks",$0D,$0A
+001371  1  2E 32 35 20  
+001375  1  69 6E 63 68  
+001392  1  32 3E 20 33          .BYTE   "2> 3.5 inch floppy   720K 80 tracks",$0D,$0A,"$"
+001396  1  2E 35 20 69  
+00139A  1  6E 63 68 20  
+0013B8  1               STR_DRIVE:
+0013B8  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Floppy drive:",$0D,$0A
+0013BC  1  6F 6F 73 65  
+0013C0  1  20 46 6C 6F  
+0013D0  1  31 3E 20 44          .BYTE   "1> DRIVE 0",$0D,$0A
+0013D4  1  52 49 56 45  
+0013D8  1  20 30 0D 0A  
+0013DC  1  32 3E 20 44          .BYTE   "2> DRIVE 1",$0D,$0A,"$"
+0013E0  1  52 49 56 45  
+0013E4  1  20 31 0D 0A  
+0013E9  1               STR_INTRO:
+0013E9  1  0D 0A 0D 0A          .BYTE   $0D,$0A,$0D,$0A,"Insert FLOPPY, NOTE EXISTING DATA WILL BE DESTROYED!!!",$0D,$0A,"$"
+0013ED  1  49 6E 73 65  
+0013F1  1  72 74 20 46  
+001426  1               STR_CONFIRM:
+001426  1  50 72 65 73          .BYTE   "Press <Enter> to continue, <Esc> to abort",$0D,$0A,"$"
+00142A  1  73 20 3C 45  
+00142E  1  6E 74 65 72  
+001452  1               
+001452  1               
+001452  1               
+001452  1               
+001452  1               
+001452  1               STR_ERR1:
+001452  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR 1",$0D,$0A,"$"
+001456  1  53 4B 20 45  
+00145A  1  52 52 4F 52  
+001463  1               STR_ERR2:
+001463  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR 2",$0D,$0A,"$"
+001467  1  53 4B 20 45  
+00146B  1  52 52 4F 52  
+001474  1               STR_ERR3:
+001474  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR 3",$0D,$0A,"$"
+001478  1  53 4B 20 45  
+00147C  1  52 52 4F 52  
+001485  1               STR_ERR4:
+001485  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR 4",$0D,$0A,"$"
+001489  1  53 4B 20 45  
+00148D  1  52 52 4F 52  
+001496  1               STR_ERR5:
+001496  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR 5",$0D,$0A,"$"
+00149A  1  53 4B 20 45  
+00149E  1  52 52 4F 52  
+0014A7  1               
+0014A7  1                       .END

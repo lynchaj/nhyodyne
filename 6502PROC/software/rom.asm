@@ -286,7 +286,7 @@ STARTUP:
 
         .SEGMENT "IVECTOR"
         .ORG    $FFF0
-        JMP     LOAD
+        JMP     LOADS19
 
         .SEGMENT "VECTORS"
 NNTVECTOR:

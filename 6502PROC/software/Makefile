@@ -6,6 +6,7 @@ lowmon.s19: lowmon.asm supermon.asm assmb.asm
 	srec_cat  lowmon.out -binary -offset 0x1000 -exclude 0x2000 0xffff -o  lowmon.s19  -data-only
 	@rm lowmon.out
 	@rm lowmon.o
+	cp lowmon.s19 ../DOS65/bin/
 
 monitor.com: monitor.asm moncode.asm assmb.asm
 	ca65 monitor.asm -l monitor.lst
@@ -17,6 +18,7 @@ monitor.com: monitor.asm moncode.asm assmb.asm
 	@rm monitor.s
 	@rm monitor.out
 	@rm monitor.o
+	cp monitor.com ../DOS65/bin/
 
 tstflop.s19: tstflop.asm
 	ca65 tstflop.asm -l tstflop.lst
@@ -36,6 +38,7 @@ scream.com: scream.asm
 	@rm scream.s
 	@rm scream.out
 	@rm scream.o
+	cp scream.com ../DOS65/bin
 
 hi.com: hi.asm
 	ca65 hi.asm -l hi.lst
@@ -47,6 +50,7 @@ hi.com: hi.asm
 	@rm hi.s
 	@rm hi.out
 	@rm hi.o
+	cp hi.com ../DOS65/bin
 
 rom.bin: rom.asm ../DOS65/os/dos65drv.rom  moncode.asm assmb.asm ../DOS65/os/dospager.asm
 	ca65 rom.asm -l rom.lst
@@ -57,6 +61,7 @@ rom.bin: rom.asm ../DOS65/os/dos65drv.rom  moncode.asm assmb.asm ../DOS65/os/dos
 	@rm rom.s
 	@rm rom.o
 	@rm romB.s
+	cp rom.bin ../DOS65/bin
 
 pretty:
 	cp *.asm ./backup

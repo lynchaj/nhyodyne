@@ -165,8 +165,6 @@ FL_READ_SECTOR:
         BEQ     :+
         RTS
 :
-        STA     FLRETRY         ; BLANK RETRIES
-        STA     FLRETRY1
         JSR     FL_READ_SECTOR_RAW
         PHA
         JSR     DEBSECR512
@@ -174,6 +172,9 @@ FL_READ_SECTOR:
         RTS
 
 FL_READ_SECTOR_RAW:
+        LDA     #$00
+        STA     FLRETRY         ; BLANK RETRIES
+        STA     FLRETRY1
         LDA     #DOR_INIT
         ORA     DSKUNIT         ;
         STA     FDC_DOR         ; OUTPUT TO CONTROLLER
@@ -239,10 +240,12 @@ FL_WRITE_SECTOR:
         RTS
 :
         JSR     FL_READ_SECTOR_RAW
-        STA     FLRETRY         ; BLANK RETRIES
-        STA     FLRETRY1
         JSR     BLKSECR512
 
+FL_WRITE_SECTOR_RAW:
+        LDA     #$00
+        STA     FLRETRY         ; BLANK RETRIES
+        STA     FLRETRY1
         LDA     #$FF
         STA     Cdebhead        ; INVALIDATE CACHE
         STA     Cdebcyl         ;
@@ -727,6 +730,138 @@ FDVDELAY:
         BNE     FDVDELAY
         RTS
 
+        .IF     DRIVERS=1
+;*__FL_STORE_BOOT_IMAGE_______________________________________________________________________________
+;*
+;*  WRITE Boot image to block 0 of device
+;*
+;*  YA points to:
+;* 			DB 	Device Unit
+;*			DB 	RAM Page
+;*			DW 	Source Address
+;* 			DB	Image Length (Pages)
+;*____________________________________________________________________________________________________
+FL_STORE_BOOT_IMAGE:
+
+            STA     pointr          ; SET POINTR TO INFO BLOCK
+            STY     pointr+1
+            LDA     #<BOOTUNIT
+            STA     room
+            LDA     #>BOOTUNIT
+            STA     room+1
+            LDY     #$00            ; COPY PARAMETERS TO USEFUL AREA
+:
+            LDA     (pointr),Y
+            STA     (room),Y
+            INY
+            CPY     #05
+            BNE     :-
+
+            LDA     #$00
+            STA     sektrk
+            STA     sektrk+1
+            STA     seksec          ;
+            STA     seksec+1        ;
+            LDA     DSKUNIT
+            STA     BOOTUNIT
+
+            JSR     INIT_PAGE_COPY  ; COPY PAGE COPY CODE TO LORAM
+            LDA     BOOTSOURCE      ; SETUP SOURCE POINTER
+            STA     pointr
+            LDA     BOOTSOURCE+1
+            STA     pointr+1
+
+:
+            LDA     BOOTRAMPAGE
+            JSR     COPY_PAGE_TO_HSTBUF; COPY 512 BYTES AT POINTR TO HSTBUF (AND INC POINTER)
+
+            JSR     FL_WRITE_SECTOR_RAW
+            CMP     #$FF
+            BEQ     FL_STORE_BOOT_IMAGE_ERROR
+            INC     seksec
+            LDA     seksec
+            CMP     #36
+            BNE     :+
+            LDA     #00
+            STA     seksec
+            INC     sektrk
+:
+            DEC     BOOTLENGTH
+            LDA     BOOTLENGTH
+            CMP     #$00
+            BNE     :--
+            LDA     #$00            ; ZERO ON RETURN = OPERATION OK
+            RTS
+FL_STORE_BOOT_IMAGE_ERROR:
+            LDA     #$FF            ; 1 ON RETURN = OPERATION FAIL
+            RTS
+
+;*__IDE_RESTORE_BOOT_IMAGE____________________________________________________________________________
+;*
+;*  READ Boot image from block 0 of device
+;*
+;*  YA points to:
+;* 			DB 	Device Unit
+;*			DB 	RAM Page
+;*			DW 	Source Address
+;* 			DB	Image Length (Pages)
+;*____________________________________________________________________________________________________
+FL_RESTORE_BOOT_IMAGE:
+
+            STA     pointr          ; SET POINTR TO INFO BLOCK
+            STY     pointr+1
+            LDA     #<BOOTUNIT
+            STA     room
+            LDA     #>BOOTUNIT
+            STA     room+1
+            LDY     #$00            ; COPY PARAMETERS TO USEFUL AREA
+:
+            LDA     (pointr),Y
+            STA     (room),Y
+            INY
+            CPY     #05
+            BNE     :-
+
+            LDA     #$00
+            LDA     #$00
+            STA     sektrk
+            STA     sektrk+1
+            STA     seksec          ;
+            STA     seksec+1        ;
+            LDA     DSKUNIT
+            STA     BOOTUNIT
+
+
+            JSR     INIT_PAGE_COPY  ; COPY PAGE COPY CODE TO LORAM
+            LDA     BOOTSOURCE      ; SETUP SOURCE POINTER
+            STA     pointr
+            LDA     BOOTSOURCE+1
+            STA     pointr+1
+
+:
+            JSR     FL_READ_SECTOR_RAW
+            CMP     #$FF
+            BEQ     FL_RESTORE_BOOT_IMAGE_ERROR
+            LDA     BOOTRAMPAGE
+            JSR     COPY_HSTBUF_TOPAGE; COPY 512 BYTES FROM HSTBUF TO POINTR HSTBUF (AND INC POINTER)
+            INC     seksec
+            LDA     seksec
+            CMP     #36
+            BNE     :+
+            LDA     #00
+            STA     seksec
+            INC     sektrk
+:
+            DEC     BOOTLENGTH
+            LDA     BOOTLENGTH
+            CMP     #$00
+            BNE     :--
+            LDA     #$00            ; ZERO ON RETURN = OPERATION OK
+            RTS
+FL_RESTORE_BOOT_IMAGE_ERROR:
+            LDA     #$FF            ; 1 ON RETURN = OPERATION FAIL
+            RTS
+        .ENDIF
 
 
 HARDWARE_DETCT:
