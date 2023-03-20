@@ -1,7 +1,8 @@
 Modules list:
 -------------
 rom.o:
-    TROM              Offs=000000  Size=000C9B  Align=00001  Fill=0000
+    TROM              Offs=000000  Size=000C98  Align=00001  Fill=0000
+    IVECTOR           Offs=000000  Size=000003  Align=00001  Fill=0000
     VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
 
 
@@ -9,7 +10,8 @@ Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-TROM                  00F000  00FC9A  000C9B  00001
+TROM                  00F000  00FC97  000C98  00001
+IVECTOR               00FFF0  00FFF2  000003  00001
 VECTORS               00FFFA  00FFFF  000006  00001
 
 

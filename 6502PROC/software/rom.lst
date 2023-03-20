@@ -2209,6 +2209,7 @@ Current file: rom.asm
 00FC88  1  63 30 32 20  
 00FC8C  1  53 75 70 65  
 00FC98  1               
+00FC98  1                       .SEGMENT "IVECTOR"
 00FC98  1                       .ORG    $FFF0
 00FFF0  1  4C EE F8             JMP     LOAD
 00FFF3  1               
