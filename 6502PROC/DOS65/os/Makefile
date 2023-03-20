@@ -63,6 +63,7 @@ pretty:
 	pretty6502 -p1 -a0 -du -mu -l ./backup/dosser.asm dosser.asm
 	pretty6502 -p1 -a0 -du -mu -l ./backup/dosmd.asm dosmd.asm
 	pretty6502 -p1 -a0 -du -mu -l ./backup/dosdskyn.asm dosdskyn.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/dosdblk.asm dosdblk.asm
 	pretty6502 -p1 -a0 -du -mu -l ./backup/dosflp.asm dosflp.asm
 	pretty6502 -p1 -a0 -du -mu -l ./backup/doside.asm doside.asm
 
@@ -80,6 +81,7 @@ clean:
 	@rm -f *.s19
 	@rm -f *.sys
 	@rm -f *.s
+	@rm -f *.rom
 
 cleandust:
 	@rm -f *.o

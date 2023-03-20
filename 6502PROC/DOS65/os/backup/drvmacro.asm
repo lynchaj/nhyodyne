@@ -15,8 +15,10 @@
         .endif
         .if DEBUG=1
         PHA
-        PHX
-        PHY
+        txa
+        PHA
+        tya
+        PHA
         LDX #$00
 p1:
         LDA p4,x
@@ -30,8 +32,10 @@ p2:
         jsr CONSOLE_OUT
         LDA #10
         jsr CONSOLE_OUT
-        PLY
-        plx
+        PLA
+        tay
+        PLA
+        tax
         pla
         JMP p5
 p4:
@@ -50,8 +54,10 @@ p5:
         .error  "Too few parameters for macro PRTS"
         .endif
         PHA
-        PHX
-        PHY
+        TXA
+        PHA
+        tay
+        PHa
         LDX #$00
 p1:
         LDA p4,x
@@ -61,8 +67,10 @@ p1:
         JSR CONSOLE_OUT
         JMP p1
 p2:
-        PLY
-        plx
+        PLA
+        tay
+        PLA
+        tax
         pla
         JMP p5
 p4:
@@ -88,8 +96,12 @@ p5:
 ;______________________________________________________________
 PRTHEXBYTE:
         PHA
-        PHX
-        PHY
+        sta     STACKA
+        txa
+        PHa
+        tya
+        PHA
+        lda     STACKA
         TAX				; SAVE A REGISTER
         LSR 				; SHIFT HIGH NIBBLE TO LOW NIBBLE
         LSR 				;
@@ -99,8 +111,10 @@ PRTHEXBYTE:
         JSR PRINT_DIGIT			; PRINT LOW NIBBLE
         TXA				; RESTORE ACCUMULATOR
         JSR PRINT_DIGIT			; PRINT LOW NIBBLE
-        PLY
-        plx
+        pla
+        TAY
+        pla
+        TAX
         PLA
         RTS
 
@@ -121,20 +135,21 @@ PRINT_DIGIT_OUT:					;
 
 NEWLINE:
                 pha
-                PHX
-                phy
                 LDA #$0D
                 JSR CONSOLE_OUT
                 LDA #$0A
                 Jsr CONSOLE_OUT
-                ply
-                plx
                 pla
                 rts
 
 PRTDEC:
-                phy
-                PHX
+                PHA
+                STA     STACKA
+                TYA
+                phA
+                TXA
+                PHA
+                LDA     STACKA
                 PHA
                 ldy #00
                 LDX #$FF
@@ -157,8 +172,10 @@ PrDec10:
                 ldy #1
                 JSR PrDecDigit          ;Print the 1s
                 PLA
-                PLX
-                ply
+                pla
+                TAX
+                pla
+                TAY
                 RTS
 PrDecDigit:
                 PHA

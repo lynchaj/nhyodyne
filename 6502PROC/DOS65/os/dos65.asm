@@ -58,7 +58,7 @@
 ; RAM BANK $0F is fixed bank $0000-$7FFF
 ; ROM BANKS $00 and $0C-$0F are reserved for ROMWBW code
 
-        .PC02
+
         .SEGMENT "OS"
         .ORG    $D000
         .INCLUDE "ccmnhy.asm"

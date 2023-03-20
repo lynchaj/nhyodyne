@@ -85,7 +85,7 @@ md_pagecode:
         PLA
         ORA     #$80
         STA     MPCL_RAM
-        BRA     MD_PAGE_COPYFRM
+        JMP     MD_PAGE_COPYFRM
 MD_PAGE_ROREAD:
         LDA     #$00
         STA     MPCL_RAM
@@ -155,6 +155,16 @@ farcall:
             NOP
             PLA
             RTS
+md_farrun:
+            LDA     #$80
+            STA     MPCL_ROM
+            NOP
+            NOP
+            LDA     $00
+            STA     MPCL_RAM
+            NOP
+            NOP
+            JMP     ($0001)
         .ELSE
             PHA
             LDA     #$8C

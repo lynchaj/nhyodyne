@@ -5,7 +5,7 @@
 ;
 ;  DWERNER 04/24/2022 	Initial
 ;________________________________________________________________________________________________________________________________
-        .PC02
+
         .SEGMENT "DRIVERS"
         .ORG    $8800
         .INCLUDE "DOSDEFN.ASM"  ; base addresses and definitions
@@ -27,7 +27,8 @@
 ;____________________________________________________________________________________________________
 ;
         PHA
-        PHX
+        TXA
+        PHA
         LDA     farfunct
         ASL     A               ; DOUBLE NUMBER FOR TABLE LOOKUP
         TAX
@@ -36,7 +37,8 @@
         LDA     DISPATCHTABLE+1,X
         STA     farpointer+1
 
-        PLX
+        PLA
+        TAX
         PLA
         JMP     (farpointer)
 
@@ -77,6 +79,7 @@ DISPATCHTABLE:
 
         .WORD   IDE_STORE_BOOT_IMAGE; FUNCTION 28 - save a boot image to a ppide device
         .WORD   IDE_RESTORE_BOOT_IMAGE; FUNCTION 29 - restore a boot image from a ppide device
+        .WORD   IDE_CLEAR_TRACKS; FUNCTION 30 - clear tracks on a ppide device
 
 
 ;__DRIVERS___________________________________________________________________________________________

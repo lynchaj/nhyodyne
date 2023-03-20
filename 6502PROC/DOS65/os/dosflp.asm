@@ -480,10 +480,14 @@ RECAL:
         JSR     PFDATA          ; SEND THAT TOO
 ;
 WAINT:
-        PHX
+        PHA
+        TXA
+        PHA
         LDX     #100
         JSR     FDVDELAY
-        PLX
+        PLA
+        TAX
+        PLA
 :
         JSR     CHECKINT
         LDA     FDC_MSR         ; READ SEEK STATUS

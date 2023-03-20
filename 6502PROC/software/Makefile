@@ -3,7 +3,7 @@ all:  	tstflop.s19 monitor.com scream.com hi.com rom.bin lowmon.s19
 lowmon.s19: lowmon.asm supermon.asm assmb.asm
 	ca65 lowmon.asm -l lowmon.lst
 	ld65 lowmon.o -m lowmon.map -C mbc.cfg -o lowmon.out
-	srec_cat  lowmon.out -binary -offset 0x1000 -exclude 0x1b00 0xffff -o  lowmon.s19  -data-only
+	srec_cat  lowmon.out -binary -offset 0x1000 -exclude 0x2000 0xffff -o  lowmon.s19  -data-only
 	@rm lowmon.out
 	@rm lowmon.o
 

@@ -63,9 +63,9 @@ UART5           = $036D         ; LINE STATUS
 UART6           = $036E         ; MODEM STATUS
 UART7           = $036F         ; SCRATCH REG.
 
-        .PC02
+
         .SEGMENT "TROM"
-        .ORG $F000
+        .ORG    $F000
 
 ;__COLD_START___________________________________________________
 ;
@@ -151,64 +151,34 @@ INIT_SERIAL:
         STA     UART4           ;
         RTS
 
-IOF_CONINW:                     ;
-SERIAL_INCHW1:
-        LDA     UART5           ; READ LINE STATUS REGISTER
-        AND     #$01            ; TEST IF DATA IN RECEIVE BUFFER
-        CMP     #$00
-        BEQ     SERIAL_INCHW1   ; LOOP UNTIL DATA IS READY
-        LDA     UART0           ; THEN READ THE CHAR FROM THE UART
-
-        RTS
-
-IOF_CONIN:                      ;
-        LDA     UART5           ; READ LINE STATUS REGISTER
-        AND     #$01            ; TEST IF DATA IN RECEIVE BUFFER
-        BEQ     SERIAL_INCH1    ; NO CHAR FOUND
-        LDA     UART0           ; THEN READ THE CHAR FROM THE UART
-        RTS
-SERIAL_INCH1:                   ;
-        LDA     #$00
-        RTS                     ;
-
-OUTCH:  ;
-        PHA                     ; STORE A
-TX_BUSYLP:
-        LDA     UART5           ; READ LINE STATUS REGISTER
-        AND     #$20            ; TEST IF UART IS READY TO SEND (BIT 5)
-        CMP     #$00
-        BEQ     TX_BUSYLP       ; IF NOT REPEAT
-        PLA                     ; RESTORE ACC
-        STA     UART0           ; THEN WRITE THE CHAR TO UART
-        RTS
 ;__IOF_CONINW____________________________________________________________________________________________
 ;
 ; PERFORM BLOCKING CONSOLE READ
 ;________________________________________________________________________________________________________
-;IOF_CONINW:
-;        LDA     #02
-;        STA     farfunct
-;        JMP     DO_FARCALL
+IOF_CONINW:
+        LDA     #02
+        STA     farfunct
+        JMP     DO_FARCALL
 
 ;__IOF_CONIN_____________________________________________________________________________________________
 ;
 ; PERFORM NON-BLOCKING CONSOLE READ
 ;________________________________________________________________________________________________________
-;IOF_CONIN:
-;        LDA     #02
-;        STA     farfunct
-;        JMP     DO_FARCALL
+IOF_CONIN:
+        LDA     #01
+        STA     farfunct
+        JMP     DO_FARCALL
 
 ;__OUTCH_________________________________________________________________________________________________
 ;
 ; PERFORM CONSOLE WRITE
 ;________________________________________________________________________________________________________
-;OUTCH:
-;        PHA
-;        LDA     #00
-;        STA     farfunct
-;        PLA
-;        JMP     DO_FARCALL
+OUTCH:
+        PHA
+        LDA     #00
+        STA     farfunct
+        PLA
+        JMP     DO_FARCALL
 
 
 Z80:
@@ -238,6 +208,7 @@ ENDOUTSTR:
         .INCLUDE"../DOS65/OS/DOSPAGER.ASM"
 
 DO_FARCALL      = farcall - md_pagecode + $0500
+DO_FARRUN       = md_farrun - md_pagecode + $0500
 
 ;__RELOCATE_DRIVERS______________________________________________________________________________________
 ;
@@ -312,6 +283,9 @@ STARTUP:
         .BYTE   "| (_) |__) | |___| |_| / /_ ",$0D,$0A
         .BYTE   " \___/____/ \_____\___/____| ",$0D,$0A
         .BYTE   "* 65c02 SuperMON ",$0D,$0A,$00
+
+        .ORG    $FFF0
+        JMP     LOAD
 
         .SEGMENT "VECTORS"
 NNTVECTOR:

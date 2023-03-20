@@ -1,14 +1,14 @@
 Modules list:
 -------------
 tstflop.o:
-    CODE              Offs=000000  Size=0007EF  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=000814  Align=00001  Fill=0000
 
 
 Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-CODE                  001000  0017EE  0007EF  00001
+CODE                  001000  001813  000814  00001
 
 
 Exports list by name:

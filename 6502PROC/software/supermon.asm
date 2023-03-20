@@ -143,7 +143,7 @@ ERROR:
 ; -----------------------------------------------------------------------------
 ; dispatch command
 S2:
-        CPX     #$0F            ; next 4 commands are base conversions
+        CPX     #$10            ; next 4 commands are base conversions
         BCS     CNVLNK          ;   which are handled by the same subroutine
         TXA                     ; remaining commands dispatch through vector table
         ASL     A               ; multiply index of command by 2
@@ -156,10 +156,6 @@ S2:
 CNVLNK:
         JMP     CONVRT          ; handle base conversion
 
-; -----------------------------------------------------------------------------
-; exit monitor [X]
-EXIT:
-        JMP     Z80             ; jump to warm-start vector to reinitialize BASIC
 
 ; -----------------------------------------------------------------------------
 ; display memory [M]
@@ -438,11 +434,11 @@ HERROR:
 ; fill memory [F]
 FILL:
         JSR     GETDIF          ; start in TMP2, end in STASH, length in STORE
-        BCS     AERROR          ; carry set indicates error
+        BCS     FERROR          ; carry set indicates error
         JSR     GETPAR          ; get value to fill in TMP0
-        BCS     AERROR          ; carry set indicates error
+        BCS     FERROR          ; carry set indicates error
         JSR     GETCHR          ; any more characters triggers an error
-        BNE     AERROR
+        BNE     FERROR
         LDY     #0              ; no offset
 FILLP:
         LDA     TMP0            ; load value to fill in accumulator
@@ -454,11 +450,117 @@ FILLP:
         BCS     FILLP           ; keep going until length reaches 0
 FSTART:
         JMP     STRT            ; back to main loop
+FERROR:
+        JMP     ERROR           ; handle error
+; -----------------------------------------------------------------------------
+; Boot System [B]
+BOOT:
+        BCS     BOOTX           ; exit with error if no parameter given
+        LDA     TMP0
+        AND     #$0F
+        STA     $1800
+        LDA     #$8E
+        STA     $1801
+        LDA     #$00
+        STA     $1802
+        LDA     #$D0
+        STA     $1803
+        LDA     #$17
+        STA     $1804
+        LDA     TMP0
+        AND     #$F0            ; filter out unit
+        CMP     #$00            ; is IDE?
+        BEQ     BOOT_IDE
+        CMP     #$10            ; is Floppy?
+        BEQ     BOOT_FLOPPY
+        JMP     BOOTX
+BOOT_IDE:
+        LDA     #29
+        STA     farfunct
+        LDY     #$18
+        LDA     #00
+        JSR     DO_FARCALL
+        LDA     #$8E
+        STA     $00
+        LDA     #$00
+        STA     $01
+        LDA     #$D0
+        STA     $02
+        JMP     DO_FARRUN
+BOOT_FLOPPY:
+        LDY     #$18
+        LDA     #00
+        JMP     STRT
+BOOTX:
+        JMP     ERROR           ; back to main loop
+
+; -----------------------------------------------------------------------------
+; Write OS [W]
+WRITEOS:
+        BCS     WRITEOSX        ; exit with error if no parameter given
+        LDA     TMP0
+        AND     #$0F
+        STA     $0800
+        LDA     #$8E
+        STA     $0801
+        LDA     #$00
+        STA     $0802
+        LDA     #$D0
+        STA     $0803
+        LDA     #$17
+        STA     $0804
+        LDA     TMP0
+        AND     #$F0            ; filter out unit
+        CMP     #$00            ; is IDE?
+        BEQ     WRITEOS_IDE
+        CMP     #$10            ; is Floppy?
+        BEQ     WRITEOS_FLOPPY
+        JMP     WRITEOSX
+WRITEOS_IDE:
+        LDA     #28
+        STA     farfunct
+        LDY     #08
+        LDA     #00
+        JSR     DO_FARCALL
+        JMP     STRT
+WRITEOS_FLOPPY:
+        LDY     #08
+        LDA     #00
+        JMP     STRT
+WRITEOSX:
+        JMP     ERROR           ; back to main loop
+
+; -----------------------------------------------------------------------------
+; CLEAR DIRECTORY SECTORS [Z]
+CLRDIR:
+        BCS     CLRDIRX         ; abort if no device specified
+        LDA     TMP0
+        STA     $0800           ; save specified disk unit here
+        JSR     GETPAR          ; get start track
+        BCS     CLRDIRX         ; abort if not specified
+        JSR     COPY12          ; save start track in TMP2
+        JSR     GETPAR          ; get number of tracks in TMP0
+        BCS     CLRDIRX         ; abort if not specified
+        LDA     TMP2
+        STA     $0801
+        LDA     TMP2+1
+        STA     $0802
+        LDA     TMP0
+        STA     $0803
+        LDA     #30
+        STA     farfunct
+        LDY     #08
+        LDA     #00
+        JSR     DO_FARCALL
+        JMP     STRT            ; back to main loop
+CLRDIRX:
+        JMP     ERROR           ; back to main loop
 
 ; -----------------------------------------------------------------------------
 ; assemble [A.]
-
 ; read in mnemonic
+ASTART:
+        JMP     STRT            ; back to main loop
 ASSEM:
         BCS     AERROR          ; error if no address given
         JSR     COPY12          ; copy address to TMP2
@@ -470,7 +572,7 @@ AGET2:
         JSR     GETCHR          ; get a char
         BNE     ALMOR           ; proceed if the character isn't null
         CPX     #0              ; it's null, have read a mnemonic yet?
-        BEQ     FSTART          ; if not, silently go back to main loop
+        BEQ     ASTART          ; if not, silently go back to main loop
 ALMOR:
         CMP     #$20            ; skip leading spaces
         BEQ     AGET1
@@ -1589,7 +1691,7 @@ MNEMR:
 ; -----------------------------------------------------------------------------
 ; single-character commands
 KEYW:
-        .BYTE   "ACDFGHJLMRTX@.>;"
+        .BYTE   "ABCDFGHJLMRTWZ.>;"
 HIKEY:
         .BYTE   "$+&%"
 KEYTOP:
@@ -1597,10 +1699,10 @@ KEYTOP:
 
 ; vectors corresponding to commands above
 KADDR:
-        .WORD   ASSEM-1,COMPAR-1,DISASS-1,FILL-1
-        .WORD   GOTO-1,HUNT-1,JSUB-1,LOAD-1
-        .WORD   DSPLYM-1,DSPLYR-1,TRANS-1,EXIT-1
-        .WORD   ASSEM-1,ALTM-1,ALTR-1
+        .WORD   ASSEM-1,BOOT-1,COMPAR-1,DISASS-1
+        .WORD   FILL-1,GOTO-1,HUNT-1,JSUB-1,LOAD-1
+        .WORD   DSPLYM-1,DSPLYR-1,TRANS-1,WRITEOS-1
+        .WORD   CLRDIR-1,ASSEM-1,ALTM-1,ALTR-1
 
 ; -----------------------------------------------------------------------------
 MODTAB:

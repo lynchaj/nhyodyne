@@ -163,8 +163,8 @@ DSKY_RESET:
 ; IS USED TO IMPLEMENT A TIMEOUT.
         LDX     #0              ; TIMEOUT LOOP COUNTER
 DSKY_RESET1:
-        PHX                     ; SAVE COUNTER
-        PLX                     ; RECOVER COUNTER
+        PHA                     ; SAVE COUNTER
+        PLA                     ; RECOVER COUNTER
         DEX
         BNE     DSKY_RESET1     ; LOOP TILL TIMEOUT
 ;
@@ -317,26 +317,24 @@ DSKY_BIN2SEG1:
         LSR     A
         LSR     A
         LSR     A
-        PHX                     ; STORE READ INDEX
+        STX     STACKA          ; STORE READ INDEX
         TAX                     ; MOVE DIGIT TO LOOKUP INDEX
         LDA     DSKY_HEXMAP,X   ; GET DECODED DIGIT INTO A
-        PLX                     ; GET READ INDEX
-        PHX
+        LDX     STACKA          ; GET READ INDEX
         PHA
         TXA
         ASL     a
         TAX
         PLA
         STA     DSKY_BUF,X      ;STORE HIGH BYTE IN OUT BUFFER
-        PLX
+        LDX     STACKA          ; GET READ INDEX
         LDA     DSKY_HEXBUF,X   ; SECOND NIBBLE
 
         AND     #$0F
-        PHX
+        STX     STACKA          ; STORE READ INDEX
         TAX
         LDA     DSKY_HEXMAP,X   ; GET DECODED DIGIT INTO A
-        PLX
-        PHX
+        LDX     STACKA          ; GET READ INDEX
         PHA
         TXA                     ; GET READ INDEX
         ASL     a
@@ -344,7 +342,7 @@ DSKY_BIN2SEG1:
         INX
         PLA
         STA     DSKY_BUF,X      ;STORE HIGH BYTE IN OUT BUFFER
-        PLX
+        LDX     STACKA          ; GET READ INDEX
         INX
         CPX     #4
         BNE     DSKY_BIN2SEG1
@@ -356,19 +354,23 @@ DSKY_BIN2SEG1:
 ;
 DSKY_SHOW:
         PHA
-        PHX
-        PHY
+        TXA
+        PHA
+        TYA
+        PHA
         LDX     #0
 DSKY_SHOW1:
         LDA     DSKY_BUF,X
-        PHX
-        PLY
+        STX     STACKA
+        LDY     STACKA
         JSR     DSKY_PUTBYTE
         INX
         CPX     #8
         BNE     DSKY_SHOW1
-        PLY
-        PLX
+        PLA
+        TAY
+        PLA
+        TAX
         PLA
         RTS
 
@@ -507,8 +509,11 @@ DSKY_BLANK1:
 ;__________________________________________________________________________________________________
 ;
 DSKY_PUTBYTE:
-        PHY
+        STA     STACKA
         PHA
+        TYA
+        PHA
+        LDA     STACKA
         PHA
         CLC
         TYA
@@ -519,7 +524,8 @@ DSKY_PUTBYTE:
         EOR     #$FF
         JSR     DSKY_DOUT
         PLA
-        PLY
+        TAY
+        PLA
         RTS
 ;
 ;__DSKY_GETBYTE___________________________________________________________________________________
@@ -546,8 +552,10 @@ DSKY_GETBYTE:
 ;_________________________________________________________________________________________________
 ;
 DSKY_PUTLED:
-        PHX
-        PHY
+        PHA
+        TXA
+        PHA
+        TYA
         PHA
         LDY     #$00
         LDX     #$00
@@ -559,8 +567,10 @@ DSKY_PUTLED_1:
         CPY     #8
         BNE     DSKY_PUTLED_1
         PLA                     ; RESTORE REGISTERS
-        PLY
-        PLX
+        TAY
+        PLA
+        TAX
+        PLA
         RTS
 ;
 ;__DSKY_BEEP______________________________________________________________________________________
@@ -568,9 +578,12 @@ DSKY_PUTLED_1:
 ;_________________________________________________________________________________________________
 ;
 DSKY_BEEP:
-        PHY
-        PHX
         PHA
+        TXA
+        PHA
+        TYA
+        PHA
+
         LDY     #$0F
         JSR     DSKY_GETBYTE
         ORA     #$20
@@ -594,9 +607,11 @@ DSKY_BEEP1:
         LDY     #$0F
         JSR     DSKY_PUTBYTE
 
+        PLA                     ; RESTORE REGISTERS
+        TAY
         PLA
-        PLX
-        PLY
+        TAX
+        PLA
         RTS
 ;
 ;__DSKY_L1ON______________________________________________________________________________________
@@ -604,15 +619,21 @@ DSKY_BEEP1:
 ;_________________________________________________________________________________________________
 ;
 DSKY_L1ON:
-        PHY
+        PHA
+        TXA
+        PHA
+        TYA
         PHA
         LDY     #$0D
         JSR     DSKY_GETBYTE
         ORA     #$20
         LDY     #$0D
         JSR     DSKY_PUTBYTE
+        PLA                     ; RESTORE REGISTERS
+        TAY
         PLA
-        PLY
+        TAX
+        PLA
         RTS
 ;
 ;__DSKY_L2ON______________________________________________________________________________________
@@ -620,15 +641,21 @@ DSKY_L1ON:
 ;_________________________________________________________________________________________________
 ;
 DSKY_L2ON:
-        PHY
+        PHA
+        TXA
+        PHA
+        TYA
         PHA
         LDY     #$0E
         JSR     DSKY_GETBYTE
         ORA     #$20
         LDY     #$0E
         JSR     DSKY_PUTBYTE
+        PLA                     ; RESTORE REGISTERS
+        TAY
         PLA
-        PLY
+        TAX
+        PLA
         RTS
 ;
 ;__DSKY_L1OFF_____________________________________________________________________________________
@@ -636,15 +663,21 @@ DSKY_L2ON:
 ;_________________________________________________________________________________________________
 ;
 DSKY_L1OFF:
-        PHY
+        PHA
+        TXA
+        PHA
+        TYA
         PHA
         LDY     #$0D
         JSR     DSKY_GETBYTE
         AND     #$DF
         LDY     #$0D
         JSR     DSKY_PUTBYTE
+        PLA                     ; RESTORE REGISTERS
+        TAY
         PLA
-        PLY
+        TAX
+        PLA
         RTS
 ;
 ;__DSKY_L2OFF_____________________________________________________________________________________
@@ -652,15 +685,21 @@ DSKY_L1OFF:
 ;_________________________________________________________________________________________________
 ;
 DSKY_L2OFF:
-        PHY
+        PHA
+        TXA
+        PHA
+        TYA
         PHA
         LDY     #$0E
         JSR     DSKY_GETBYTE
         AND     #$DF
         LDY     #$0E
         JSR     DSKY_PUTBYTE
+        PLA                     ; RESTORE REGISTERS
+        TAY
         PLA
-        PLY
+        TAX
+        PLA
         RTS
 ;
 ;_________________________________________________________________________________________________

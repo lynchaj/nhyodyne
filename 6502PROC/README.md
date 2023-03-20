@@ -198,19 +198,11 @@ Finally transfer control to the 65C02 by reading the toggle register
 
 
 ## Using the 6502 MONITOR
-Monitor is a simple machine language monitor that will allow you to view and manipulate the 6502 operating environment.
+The Nhyodyne system now uses the SuperMON monitor.  It is a powerful machine language monitor that will allow you to view and manipulate the 6502 operating environment.
 
-Monitor Supports the following Commands:
 
 ```
-        * REGISTER - Display the 6502 internal Registers
- 	* DUMP XXXX YYYY - Dump memory from XXXX to YYYY
- 	* ENTER XXXX YY  - update the ram at XXXX with value YY
-        * GO XXXX - Execute program at XXXX
-        * LOAD - Load a S19 file into RAM
-        * Z80 - return to Z80 mode
-        * DISASSEMBLE XXXX - Disassemble program at XXXX
-	* ASSEMBLE XXXX - Begin Assembling a program from XXXX
+ INSERT SUPERMON DOCS HERE
 ```
 
 ## Using DOS65
@@ -244,15 +236,17 @@ Monitor Supports the following Commands:
 # 6502 ROM
 If the 6502 processor board is the only CPU board in your Nhyodyne system ensure J1 is set for 1&2 (Only CPU) and J4 is set for 1&2 (Only CPU).   The ROM.BIN file can be placed in ROM to bring the system up to the ROM monitor.
 TO BOOT DOS/65 FROM A PRIMARY 6502 CPU:
-   LOAD LOWMON.S19
-   GO 1000 ( TO RUN LOWMON)
-   ENTER 037C 80
-   ENTER 0378 8E
-   LOAD DOS65.S19
-   GO D000
+   L (SEND FILE LOWMON.S19)
+   G 1000 ( TO RUN LOWMON)
+   >037C 80
+   >0378 8E
+   L (SEND FILE DOS65.S19)
+   G D000 (OR W XX to write os to a specified device)
 
-   TODO: COMPLETE DOS/65 STORE AND BOOT FUNCTIONS.
-                * IDE IS WRITTEN, DOES NOT WORK.
+   TODO:
+        * WRITEOS CODE
+        * COMPLETE DOS/65 STORE AND BOOT FUNCTIONS FOR FLOPPY.
+
 
 
 
@@ -260,3 +254,4 @@ TO BOOT DOS/65 FROM A PRIMARY 6502 CPU:
         * Hardware support for RTC
         * Hardware Support for VDC/Keyboard
         * Hardware support for Dual Serial
+        * XMODEM

@@ -402,7 +402,8 @@ ENDOUTSTR:
 ;
 ;________________________________________________________________________________________________________
 GET_DRIVE_DEVICE:
-            PHX
+            TXA
+            PHA
             LDA     sekdsk          ; GET DRIVE
             AND     #7              ; ONLY FIRST 8 DEVICES SUPPORTED
             ASL     a               ; DOUBLE NUMBER FOR TABLE LOOKUP
@@ -420,7 +421,10 @@ GET_DRIVE_DEVICE:
             STA     DSKUNIT
 GET_DRIVE_DEVICE_1:
             LDA     dskcfg, X       ; GET device
-            PLX
+            STA     STACKA
+            PLA
+            TAX
+            LDA     STACKA
             RTS
 
 ;___DSPL_DSK_CFG_________________________________________________________________________________________
@@ -431,12 +435,6 @@ GET_DRIVE_DEVICE_1:
 DSPL_DSK_CFG:
             JSR     NEWLINE
             PRTS    "DISK   Configuration:$"
-            JSR     NEWLINE
-            JSR     NEWLINE
-            JSR     NEWLINE
-            JSR     NEWLINE
-            JSR     NEWLINE
-            JSR     NEWLINE
             JSR     NEWLINE
             LDX     #0
 DSPL_DSK_CFG_1:
@@ -545,7 +543,9 @@ MOVEDMATOBUF:
 ;
 ;________________________________________________________________________________________________________
 COPY_DOS_SECTOR:
-            PHY
+            PHA
+            TYA
+            PHA
             LDY     #$00            ;
 COPY_DOS_SECTOR1:
             LDA     (SRC), Y        ;
@@ -554,7 +554,9 @@ COPY_DOS_SECTOR1:
             TYA                     ;
             CMP     #$80            ;
             BNE     COPY_DOS_SECTOR1;
-            PLY
+            PLA
+            TAY
+            PLA
             RTS
 
 DOS65DSKYINIT:

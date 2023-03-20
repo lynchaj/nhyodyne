@@ -132,7 +132,9 @@ MD_WRITE_SECTOR_RAM:
 ;________________________________________________________________________________________________________
 MD_CONVERT_SECTOR:
         PRTDBG  "CONVERT SECTOR$"
-        PHX
+        PHA
+        TXA
+        PHA
         LDA     seksec          ; LOAD SECTOR # (LOW BYTE)
         LSR     A               ; DIVIDE BY 2 (FOR BLOCKING)
         AND     #$1F            ; CLEAR UPPER 3 BITS (JUST 'CAUSE)
@@ -168,5 +170,7 @@ MD_CONVERT_SECTOR:
             JSR     DSKY_BIN2SEG
             JSR     DSKY_SHOW
         .ENDIF
-        PLX
+        PLA
+        TAX
+        PLA
         RTS

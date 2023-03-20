@@ -17,7 +17,7 @@ USEDSKYNG       = 0
 USEDSKY         = 0
 
 OUTMSG_W        = $F0
-
+STACKA          = $3A
 DENS            = 2             ; DENSITY
 EOTSEC          = 09            ; LAST SECTOR OF TRACK
 

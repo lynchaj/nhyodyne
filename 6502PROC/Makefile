@@ -1,6 +1,6 @@
 all:
-	$(MAKE) --directory software
 	$(MAKE) --directory DOS65
+	$(MAKE) --directory software
 
 clean:
 	$(MAKE) --directory software clean

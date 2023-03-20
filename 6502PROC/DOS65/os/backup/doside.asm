@@ -433,8 +433,10 @@ RST_DLY:
 ;*
 ;*____________________________________________________________________________________________________
 IDE_WAIT_NOT_BUSY:
-        PHX
-        PHY
+        PHA
+        TXA
+        PHA
+        TYA
         PHA
         LDA     #$00
         STA     PPIDETIMEOUT
@@ -455,8 +457,10 @@ IDE_WAIT_NOT_BUSY2:
         CLC
 IDE_WAIT_NOT_BUSY3:
         PLA
-        PLY
-        PLX
+        TAY
+        PLA
+        TAX
+        PLA
         RTS
 
 ;*__IDE_WAIT_DRQ______________________________________________________________________________________
@@ -465,8 +469,10 @@ IDE_WAIT_NOT_BUSY3:
 ;*
 ;*____________________________________________________________________________________________________
 IDE_WAIT_DRQ:
-        PHX
-        PHY
+        PHA
+        TXA
+        PHA
+        TYA
         PHA
         LDA     #$00
         STA     PPIDETIMEOUT
@@ -492,8 +498,10 @@ IDE_WAIT_DRQ2:
         CLC
 IDE_WAIT_DRQ3:
         PLA
-        PLY
-        PLX
+        TAY
+        PLA
+        TAX
+        PLA
         RTS
 
 
@@ -801,13 +809,13 @@ IDE_RESTORE_BOOT_IMAGE:
         STA     pointr+1
 
 :
-        LDA     BOOTRAMPAGE
-        JSR     COPY_HSTBUF_TOPAGE; COPY 512 BYTES FROM HSTBUF TO POINTR HSTBUF (AND INC POINTER)
         JSR     IDE_WAIT_NOT_BUSY;MAKE SURE DRIVE IS READY
         LDA     BOOTUNIT
         JSR     IDE_READ_SECTOR_DIRTY1
         CMP     #$FF
         BEQ     IDE_RESTORE_BOOT_IMAGE_ERROR
+        LDA     BOOTRAMPAGE
+        JSR     COPY_HSTBUF_TOPAGE; COPY 512 BYTES FROM HSTBUF TO POINTR HSTBUF (AND INC POINTER)
         INC     debsehd
         DEC     BOOTLENGTH
         LDA     BOOTLENGTH
@@ -820,6 +828,67 @@ IDE_RESTORE_BOOT_IMAGE_ERROR:
         RTS
 
 
+;*__IDE_CLEAR_TRACKS__________________________________________________________________________________
+;*
+;*  CLEAR IDE TRACKS
+;*
+;*  YA points to:
+;* 			DB 	Device Unit
+;*			DW 	START TRACK
+;*			DB 	NUMBER of TRACKS
+;*____________________________________________________________________________________________________
+IDE_CLEAR_TRACKS:
+        STA     pointr          ; SET POINTR TO INFO BLOCK
+        STY     pointr+1
+        LDY     #$00
+        LDA     (pointr),Y
+        STA     BOOTUNIT
+        INY
+        LDA     (pointr),Y
+        STA     debcyll         ;
+        INY
+        LDA     (pointr),Y
+        STA     debcylm         ;
+        INY
+        LDA     (pointr),Y
+        STA     nmsstr          ;
+
+        JSR     clear_hstbuf
+
+        LDA     #$00
+        STA     debsehd         ;
+        TAX
+:
+        JSR     IDE_WAIT_NOT_BUSY;MAKE SURE DRIVE IS READY
+        LDA     BOOTUNIT
+        JSR     IDE_WRITE_SECTOR_RAW
+        INC     debsehd
+        LDA     debsehd
+        CMP     #$00
+        BNE     :-
+        INC     debcyll
+        LDA     debcyll
+        CMP     #$00
+        BNE     :+
+        INC     debcylm
+:
+        DEC     nmsstr
+        LDA     nmsstr
+        CMP     #$00
+        BNE     :--
+        RTS
+
+clear_hstbuf:
+        LDX     #$00
+:
+        LDA     #$e5
+        STA     hstbuf,x
+        STA     hstbuf+100,x
+        INX
+        CPX     #$00
+        BNE     :-
+        RTS
+
 BOOTUNIT:
         .BYTE   00
 BOOTRAMPAGE:
@@ -828,6 +897,7 @@ BOOTSOURCE:
         .BYTE   00,00
 BOOTLENGTH:
         .BYTE   00
+
 
 ;-------------------------------------------------------------------------------
 

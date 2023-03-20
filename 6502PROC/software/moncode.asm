@@ -633,7 +633,9 @@ PRINT_DIGIT_OUT:                ;
 ;
 ;______________________________________________________________
 PRINT_BIN_BYTE:
-        PHX
+        PHA
+        TXA
+        PHA
         LDX     #$08
 :
         ASL     A               ; ROTATE BIT INTO CARRY FLAG
@@ -653,7 +655,9 @@ PRINT_BIN_BYTE:
         DEX
         CPX     #$00
         BNE     :---
-        PLX
+        PLA
+        TAX
+        PLA
         RTS
 
 

@@ -11,11 +11,20 @@
 ;
 ; DATA CONSTANTS
 ;__________________________________________________________________________________________________
-;REGISTER		IO PORT		; FUNCTION
+;REGISTER			; FUNCTION
+farfunct        = $32           ;function to call in driver area
+farpointer      = $33           ;WORD POINTER to call in driver area
 IRQVECTOR       = $35           ; VECTOR FOR USER IRQ RTN
 NMIVECTOR       = $37           ; VECTOR FOR USER IRQ RTN
 STRPTR          = $3B           ;
 INBUFFER        = $0200         ;
+
+IO              = $0300         ; 0300-03FF Memory mapped IO
+MPCL_ROM        = $037C         ; ROM MAPPER
+MPCL_RAM        = $0378         ; RAM MAPPER
+
+BANKED_DRIVER_DISPATCHER=$8800  ; LOCATION OF DRIVER DISPATCHER
+
 
 ; UART 16C550 SERIAL -- Assumes IO is in page $03 -- DIP Switch settings $83
 UART0           = $0368         ; DATA IN/OUT
@@ -29,7 +38,7 @@ UART7           = $036F         ; SCRATCH REG.
 
 
 
-        .PC02
+
         .ORG    $1000
 
 
@@ -67,6 +76,39 @@ OUTSTRLP:
 ENDOUTSTR:
         RTS                     ; RETURN
 
+DO_FARCALL:
+        PHA
+        LDA     #$80
+        STA     MPCL_ROM
+        NOP
+        NOP
+        LDA     #$8C
+        STA     MPCL_RAM
+        NOP
+        NOP
+        PLA
+        JSR     BANKED_DRIVER_DISPATCHER
+        PHA
+        LDA     #$00
+        STA     MPCL_RAM
+        NOP
+        NOP
+        STA     MPCL_ROM
+        NOP
+        NOP
+        PLA
+        RTS
+
+DO_FARRUN:
+        LDA     #$80
+        STA     MPCL_ROM
+        NOP
+        NOP
+        LDA     $00
+        STA     MPCL_RAM
+        NOP
+        NOP
+        JMP     ($0001)
 
         .INCLUDE "supermon.asm"
 

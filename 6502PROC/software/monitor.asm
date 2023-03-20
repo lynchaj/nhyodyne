@@ -86,7 +86,6 @@ UART7           = $036F         ; SCRATCH REG.
 ;
 
 
-        .PC02
         .SEGMENT "TROM"
 
 ;__COLD_START___________________________________________________

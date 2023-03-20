@@ -1,7 +1,7 @@
 
 all:  	cpm.co6 assign.co6 alloc.co6 asm.co6 \
 	bcompile.co6 compare.co6 copy.co6 debug.co6 edit.co6 run.co6 sedit.co6 \
-	dbasic.co6 format.co6 mksys.co6
+	dbasic.co6 format.co6 mksys.co6 s19.co6
 
 
 cpm.out: cpm.asm
@@ -61,6 +61,10 @@ format.out: format.asm
 mksys.out: mksys.asm
 	ca65 --cpu 65sc02 mksys.asm -lmksys.lst
 	ld65 mksys.o  -m mksys.map -C dos65.cfg -o mksys.out
+
+s19.out: s19.asm
+	ca65 --cpu 65sc02 s19.asm -ls19.lst
+	ld65 s19.o  -m s19.map -C dos65.cfg -o s19.out
 
 alloc.co6: alloc.out
 	srec_cat  alloc.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  alloc.s19  -data-only
@@ -153,6 +157,14 @@ cpm.co6: cpm.out
 	@rm -f cpmA.s
 	cp cpm.co6 ../bin/
 
+s19.co6: s19.out
+	srec_cat  s19.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  s19.s19  -data-only
+	srec_cat  s19.s19  -offset -0x0800  -o  s19A.s  -data-only
+	srec_cat  s19A.s -o s19.co6  -BINARY
+	@rm -f s19A.s
+	cp s19.co6 ../bin/
+	cp s19.s19 ../bin/
+
 pretty:
 	cp *.asm ./backup
 	pretty6502 -p1 -a0 -du -mu -l ./backup/cpm.asm cpm.asm
@@ -168,6 +180,7 @@ pretty:
 	pretty6502 -p1 -a0 -du -mu -l ./backup/sedit.asm sedit.asm
 	pretty6502 -p1 -a0 -du -mu -l ./backup/format.asm format.asm
 	pretty6502 -p1 -a0 -du -mu -l ./backup/mksys.asm mksys.asm
+	pretty6502 -p1 -a0 -du -mu -l ./backup/s19.asm s19.asm
 
 clean:
 	@rm -f *.o
