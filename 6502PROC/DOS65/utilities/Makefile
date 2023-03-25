@@ -1,7 +1,7 @@
 
 all:  	cpm.co6 assign.co6 alloc.co6 asm.co6 \
 	bcompile.co6 compare.co6 copy.co6 debug.co6 edit.co6 run.co6 sedit.co6 \
-	dbasic.co6 format.co6 writeos.co6 s19.co6
+	dbasic.co6 format.co6 writeos.co6 s19.co6 assign.s19
 
 
 cpm.out: cpm.asm
@@ -62,6 +62,12 @@ writeos.out: writeos.asm
 	ca65 --cpu 65sc02 writeos.asm -lwriteos.lst
 	ld65 writeos.o  -m writeos.map -C dos65.cfg -o writeos.out
 
+assign.out: assign.c
+	cc65  -t none -O --cpu 65sc02  assign.c
+	ca65 --cpu 65sc02  assign.s
+	ld65 assign.o  ./nhyodyne/nhyodyne.lib -m assign.map -C dos65c.cfg -o assign.out
+
+
 s19.out: s19.asm
 	ca65 --cpu 65sc02 s19.asm -ls19.lst
 	ld65 s19.o  -m s19.map -C dos65.cfg -o s19.out
@@ -71,14 +77,21 @@ alloc.co6: alloc.out
 	srec_cat  alloc.s19  -offset -0x0800  -o  allocA.s  -data-only
 	srec_cat  allocA.s -o alloc.co6  -BINARY
 	@rm -f allocA.s
+	sed -i -e '$$aS9' alloc.s19
 	cp alloc.co6 ../bin/
 	cp alloc.s19 ../bin/
+
+assign.s19: assign.out
+	srec_cat  assign.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  assign.s19  -data-only
+	sed -i -e '$$aS9' assign.s19
+	cp assign.s19 ../bin/
 
 bcompile.co6: bcompile.out
 	srec_cat  bcompile.out -binary -offset 0x0100 -exclude 0x0000 0x0800 -o  bcompile.s19  -data-only
 	srec_cat  bcompile.s19  -offset -0x0800  -o  bcompileA.s  -data-only
 	srec_cat  bcompileA.s -o bcompile.co6  -BINARY
 	@rm -f bcompileA.s
+	sed -i -e '$$aS9' bcompile.s19
 	cp bcompile.co6 ../bin/
 	cp bcompile.s19 ../bin/
 
@@ -87,6 +100,7 @@ asm.co6: asm.out
 	srec_cat  asm.s19  -offset -0x0800  -o  asmA.s  -data-only
 	srec_cat  asmA.s -o asm.co6  -BINARY
 	@rm -f asmA.s
+	sed -i -e '$$aS9' asm.s19
 	cp asm.co6 ../bin/
 	cp asm.s19 ../bin/
 
@@ -95,6 +109,7 @@ compare.co6: compare.out
 	srec_cat  compare.s19  -offset -0x0800  -o  compareA.s  -data-only
 	srec_cat  compareA.s -o compare.co6  -BINARY
 	@rm -f compareA.s
+	sed -i -e '$$aS9' compare.s19
 	cp compare.co6 ../bin/
 	cp compare.s19 ../bin/
 
@@ -103,6 +118,7 @@ copy.co6: copy.out
 	srec_cat  copy.s19  -offset -0x0800  -o  copyA.s  -data-only
 	srec_cat  copyA.s -o copy.co6  -BINARY
 	@rm -f copyA.s
+	sed -i -e '$$aS9' copy.s19
 	cp copy.co6 ../bin/
 	cp copy.s19 ../bin/
 
@@ -111,6 +127,7 @@ debug.co6: debug.out
 	srec_cat  debug.s19  -offset -0x0800  -o  debugA.s  -data-only
 	srec_cat  debugA.s -o debug.co6  -BINARY
 	@rm -f debugA.s
+	sed -i -e '$$aS9' debug.s19
 	cp debug.co6 ../bin/
 	cp debug.s19 ../bin/
 
@@ -119,6 +136,7 @@ dbasic.co6: dbasic.out
 	srec_cat  dbasic.s19  -offset -0x0800  -o  dbasicA.s  -data-only
 	srec_cat  dbasicA.s -o dbasic.co6  -BINARY
 	@rm -f dbasicA.s
+	sed -i -e '$$aS9' dbasic.s19
 	cp dbasic.co6 ../bin/
 	cp dbasic.s19 ../bin/
 
@@ -127,6 +145,7 @@ edit.co6: edit.out
 	srec_cat  edit.s19  -offset -0x0800  -o  editA.s  -data-only
 	srec_cat  editA.s -o edit.co6  -BINARY
 	@rm -f editA.s
+	sed -i -e '$$aS9' edit.s19
 	cp edit.co6 ../bin/
 	cp edit.s19 ../bin/
 
@@ -135,6 +154,7 @@ run.co6: run.out
 	srec_cat  run.s19  -offset -0x0800  -o  runA.s  -data-only
 	srec_cat  runA.s -o run.co6  -BINARY
 	@rm -f runA.s
+	sed -i -e '$$aS9' run.s19
 	cp run.co6 ../bin/
 	cp run.s19 ../bin/
 
@@ -143,6 +163,7 @@ sedit.co6: sedit.out
 	srec_cat  sedit.s19  -offset -0x0800  -o  seditA.s  -data-only
 	srec_cat  seditA.s -o sedit.co6  -BINARY
 	@rm -f seditA.s
+	sed -i -e '$$aS9' sedit.s19
 	cp sedit.co6 ../bin/
 	cp sedit.s19 ../bin/
 
@@ -151,6 +172,7 @@ format.co6: format.out
 	srec_cat  format.s19  -offset -0x0800  -o  formatA.s  -data-only
 	srec_cat  formatA.s -o format.co6  -BINARY
 	@rm -f formatA.s
+	sed -i -e '$$aS9' format.s19
 	cp format.co6 ../bin/
 	cp format.s19 ../bin/
 
@@ -159,6 +181,7 @@ writeos.co6: writeos.out
 	srec_cat  writeos.s19  -offset -0x0800  -o  writeosA.s  -data-only
 	srec_cat  writeosA.s -o writeos.co6  -BINARY
 	@rm -f writeosA.s
+	sed -i -e '$$aS9' writeos.s19
 	cp writeos.co6 ../bin/
 	cp writeos.s19 ../bin/
 
@@ -174,6 +197,7 @@ s19.co6: s19.out
 	srec_cat  s19.s19  -offset -0x0800  -o  s19A.s  -data-only
 	srec_cat  s19A.s -o s19.co6  -BINARY
 	@rm -f s19A.s
+	sed -i -e '$$aS9' s19.s19
 	cp s19.co6 ../bin/
 	cp s19.s19 ../bin/
 

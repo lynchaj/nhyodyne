@@ -19,10 +19,12 @@ dos65drv.out: dos65drv.asm dosser.asm dosdefn.asm doside.asm dosmd.asm dosdskyn.
 
 dos65.s19: dos65.out
 	srec_cat  dos65.out -binary -offset 0x0100 -exclude 0x0000 0xCFF3 -o  dos65.s19  -data-only
+	sed -i -e '$$aS9' dos65.s19
 	cp dos65.s19 ../bin/
 
 dos65rr.s19: dos65rr.out
 	srec_cat  dos65rr.out -binary -offset 0x0100 -exclude 0x0000 0xCFF3 -o  dos65rr.s19  -data-only
+	sed -i -e '$$aS9' dos65rr.s19
 	cp dos65rr.s19 ../bin/
 
 dos65.hex: dos65.out

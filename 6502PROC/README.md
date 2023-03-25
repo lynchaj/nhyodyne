@@ -222,6 +222,8 @@ The Nhyodyne system now uses the SuperMON monitor.  It is a powerful machine lan
         SEDIT.CO6 - Text editor (only partially working)
         DBASIC.CO6 - ehBasic for DOS/65
         FORMAT.CO6 - Utility to format floppy disks for DOS/65
+        S19.CO6 - Utility to dump S19 files to memory.
+        WRITEOS.CO6 - Save Running OS version to device for Boot.
 
         The following utilities are from the DOS/65 distribution and are documented in the DOS/65 documentation.
         alloc.CO6 - DOS/65 drive utility
@@ -242,11 +244,6 @@ TO BOOT DOS/65 FROM A PRIMARY 6502 CPU:
    >0378 8E
    L (SEND FILE DOS65.S19)
    G D000 (OR W XX to write os to a specified device)
-
-   TODO:
-        * COMPLETE DOS/65 STORE AND BOOT FUNCTIONS FOR FLOPPY.
-
-
 
 
 # Items left on the DOS/65 To Do list:
