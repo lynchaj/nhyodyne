@@ -96,6 +96,8 @@ COLD_START:
         STA     STRPTR+1        ;
         JSR     OUTSTR          ;
 
+
+
 ;
         BRK                     ; PERFORM BRK (START MONITOR)
 

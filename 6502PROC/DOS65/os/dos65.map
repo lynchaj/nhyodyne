@@ -1,14 +1,14 @@
 Modules list:
 -------------
 dos65.o:
-    OS                Offs=000000  Size=002280  Align=00002  Fill=0000
+    OS                Offs=000000  Size=002284  Align=00002  Fill=0000
 
 
 Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-OS                    00D000  00F27F  002280  00002
+OS                    00D000  00F283  002284  00002
 
 
 Exports list by name:

@@ -12,11 +12,9 @@ CCMLNG          = 2048          ;CCM LENGTH
 CRSYM           = 32            ;CR SYMBOL
 LASTROW         = 20
 MAXCOL          = 80
-MPCL_RAM        = $0378         ; RAM MAPPER
 OUTMSG_W        = $F0
-BANKED_DRIVER_DISPATCHER = $8800; LOCATION OF DRIVER DISPATCHER
 farfunct        = $32           ;function to call in driver area
-
+DO_FARCALL      = $D003
 
 ;MAIN PROGRAM
         .SEGMENT "TEA"
@@ -82,16 +80,7 @@ CONT2:
         STA     farfunct
         LDA     #<PARAMETERS
         LDY     #>PARAMETERS
-
-        PHA
-        LDA     #$8C
-        STA     MPCL_RAM
-        NOP
-        NOP
-        PLA
-        JSR     BANKED_DRIVER_DISPATCHER
-        LDA     #$8E
-        STA     MPCL_RAM
+        JSR     DO_FARCALL
 
         JMP     EXIT
 
@@ -149,7 +138,7 @@ EXIT:
 ; CLEAN UP AND RETURN TO OS
         JSR     NEWLINE
         JSR     NEWLINE
-        JMP     $0100
+        JMP     $D000
 
 
 PARAMETERS:

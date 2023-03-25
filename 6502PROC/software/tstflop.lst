@@ -1144,13 +1144,23 @@ Current file: tstflop.asm
 000520r 2                           CPY     #05
 000520r 2                           BNE     :-
 000520r 2               
+000520r 2                           LDA     BOOTUNIT
+000520r 2                           CMP     #$00
+000520r 2                           BNE     :+
+000520r 2                           LDA     #$10
+000520r 2                           JMP     :++
+000520r 2               :
+000520r 2                           LDA     #$21
+000520r 2                           STA     DSKUNIT
+000520r 2               :
+000520r 2                           JSR     RECAL           ;
+000520r 2               
 000520r 2                           LDA     #$00
-000520r 2                           STA     sektrk
-000520r 2                           STA     sektrk+1
-000520r 2                           STA     seksec          ;
-000520r 2                           STA     seksec+1        ;
-000520r 2                           LDA     DSKUNIT
-000520r 2                           STA     BOOTUNIT
+000520r 2                           STA     debcyl
+000520r 2                           STA     debhead
+000520r 2                           STA     debsec          ;
+000520r 2                           JSR     SETTRACK        ;
+000520r 2               
 000520r 2               
 000520r 2                           JSR     INIT_PAGE_COPY  ; COPY PAGE COPY CODE TO LORAM
 000520r 2                           LDA     BOOTSOURCE      ; SETUP SOURCE POINTER
@@ -1162,16 +1172,26 @@ Current file: tstflop.asm
 000520r 2                           LDA     BOOTRAMPAGE
 000520r 2                           JSR     COPY_PAGE_TO_HSTBUF; COPY 512 BYTES AT POINTR TO HSTBUF (AND INC POINTER)
 000520r 2               
+000520r 2                           LDA     #DOR_INIT
+000520r 2                           ORA     DSKUNIT         ;
+000520r 2                           STA     FDC_DOR         ; OUTPUT TO CONTROLLER
 000520r 2                           JSR     FL_WRITE_SECTOR_RAW
 000520r 2                           CMP     #$FF
 000520r 2                           BEQ     FL_STORE_BOOT_IMAGE_ERROR
-000520r 2                           INC     seksec
-000520r 2                           LDA     seksec
-000520r 2                           CMP     #36
+000520r 2                           INC     debsec
+000520r 2                           LDA     debsec
+000520r 2                           CMP     #9
 000520r 2                           BNE     :+
 000520r 2                           LDA     #00
-000520r 2                           STA     seksec
-000520r 2                           INC     sektrk
+000520r 2                           STA     debsec
+000520r 2                           INC     debhead
+000520r 2                           LDA     debhead
+000520r 2                           CMP     #$02
+000520r 2                           BNE     :+
+000520r 2                           LDA     #00
+000520r 2                           STA     debhead
+000520r 2                           INC     debcyl
+000520r 2                           JSR     SETTRACK
 000520r 2               :
 000520r 2                           DEC     BOOTLENGTH
 000520r 2                           LDA     BOOTLENGTH
@@ -1209,14 +1229,23 @@ Current file: tstflop.asm
 000520r 2                           CPY     #05
 000520r 2                           BNE     :-
 000520r 2               
+000520r 2                           LDA     BOOTUNIT
+000520r 2                           CMP     #$00
+000520r 2                           BNE     :+
+000520r 2                           LDA     #$10
+000520r 2                           JMP     :++
+000520r 2               :
+000520r 2                           LDA     #$21
+000520r 2                           STA     DSKUNIT
+000520r 2               :
+000520r 2                           STA     DSKUNIT
+000520r 2                           JSR     RECAL           ;
+000520r 2               
 000520r 2                           LDA     #$00
-000520r 2                           LDA     #$00
-000520r 2                           STA     sektrk
-000520r 2                           STA     sektrk+1
-000520r 2                           STA     seksec          ;
-000520r 2                           STA     seksec+1        ;
-000520r 2                           LDA     DSKUNIT
-000520r 2                           STA     BOOTUNIT
+000520r 2                           STA     debcyl
+000520r 2                           STA     debhead
+000520r 2                           STA     debsec          ;
+000520r 2                           JSR     SETTRACK        ;
 000520r 2               
 000520r 2               
 000520r 2                           JSR     INIT_PAGE_COPY  ; COPY PAGE COPY CODE TO LORAM
@@ -1226,18 +1255,25 @@ Current file: tstflop.asm
 000520r 2                           STA     pointr+1
 000520r 2               
 000520r 2               :
-000520r 2                           JSR     FL_READ_SECTOR_RAW
+000520r 2                           JSR     READFL_DIRTY
 000520r 2                           CMP     #$FF
 000520r 2                           BEQ     FL_RESTORE_BOOT_IMAGE_ERROR
 000520r 2                           LDA     BOOTRAMPAGE
 000520r 2                           JSR     COPY_HSTBUF_TOPAGE; COPY 512 BYTES FROM HSTBUF TO POINTR HSTBUF (AND INC POINTER)
-000520r 2                           INC     seksec
-000520r 2                           LDA     seksec
-000520r 2                           CMP     #36
+000520r 2                           INC     debsec
+000520r 2                           LDA     debsec
+000520r 2                           CMP     #9
 000520r 2                           BNE     :+
 000520r 2                           LDA     #00
-000520r 2                           STA     seksec
-000520r 2                           INC     sektrk
+000520r 2                           STA     debsec
+000520r 2                           INC     debhead
+000520r 2                           LDA     debhead
+000520r 2                           CMP     #$02
+000520r 2                           BNE     :+
+000520r 2                           LDA     #00
+000520r 2                           STA     debhead
+000520r 2                           INC     debcyl
+000520r 2                           JSR     SETTRACK        ;
 000520r 2               :
 000520r 2                           DEC     BOOTLENGTH
 000520r 2                           LDA     BOOTLENGTH

@@ -1,14 +1,14 @@
 Modules list:
 -------------
 writeos.o:
-    TEA               Offs=000000  Size=0001AA  Align=00001  Fill=0000
+    TEA               Offs=000000  Size=00019C  Align=00001  Fill=0000
 
 
 Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-TEA                   000800  0009A9  0001AA  00001
+TEA                   000800  00099B  00019C  00001
 
 
 Exports list by name:

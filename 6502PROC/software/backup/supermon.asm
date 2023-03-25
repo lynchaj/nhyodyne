@@ -475,6 +475,9 @@ BOOT:
         BEQ     BOOT_FLOPPY
         JMP     BOOTX
 BOOT_IDE:
+        LDA     #04             ;PPIDE_INIT
+        STA     farfunct
+        JSR     DO_FARCALL
         LDA     #29
         STA     farfunct
         LDY     #$18
@@ -488,6 +491,9 @@ BOOT_IDE:
         STA     $02
         JMP     DO_FARRUN
 BOOT_FLOPPY:
+        LDA     #25             ;FD_INIT
+        STA     farfunct
+        JSR     DO_FARCALL
         LDA     #32
         STA     farfunct
         LDY     #$18
@@ -526,6 +532,9 @@ WRITEOS:
         BEQ     WRITEOS_FLOPPY
         JMP     WRITEOSX
 WRITEOS_IDE:
+        LDA     #04             ;PPIDE_INIT
+        STA     farfunct
+        JSR     DO_FARCALL
         LDA     #28
         STA     farfunct
         LDY     #08
@@ -533,6 +542,9 @@ WRITEOS_IDE:
         JSR     DO_FARCALL
         JMP     STRT
 WRITEOS_FLOPPY:
+        LDA     #25             ;FD_INIT
+        STA     farfunct
+        JSR     DO_FARCALL
         LDA     #31
         STA     farfunct
         LDY     #08

@@ -1247,13 +1247,23 @@ Current file: format.asm
 000EB2  2                           CPY     #05
 000EB2  2                           BNE     :-
 000EB2  2               
+000EB2  2                           LDA     BOOTUNIT
+000EB2  2                           CMP     #$00
+000EB2  2                           BNE     :+
+000EB2  2                           LDA     #$10
+000EB2  2                           JMP     :++
+000EB2  2               :
+000EB2  2                           LDA     #$21
+000EB2  2                           STA     DSKUNIT
+000EB2  2               :
+000EB2  2                           JSR     RECAL           ;
+000EB2  2               
 000EB2  2                           LDA     #$00
-000EB2  2                           STA     sektrk
-000EB2  2                           STA     sektrk+1
-000EB2  2                           STA     seksec          ;
-000EB2  2                           STA     seksec+1        ;
-000EB2  2                           LDA     DSKUNIT
-000EB2  2                           STA     BOOTUNIT
+000EB2  2                           STA     debcyl
+000EB2  2                           STA     debhead
+000EB2  2                           STA     debsec          ;
+000EB2  2                           JSR     SETTRACK        ;
+000EB2  2               
 000EB2  2               
 000EB2  2                           JSR     INIT_PAGE_COPY  ; COPY PAGE COPY CODE TO LORAM
 000EB2  2                           LDA     BOOTSOURCE      ; SETUP SOURCE POINTER
@@ -1265,16 +1275,26 @@ Current file: format.asm
 000EB2  2                           LDA     BOOTRAMPAGE
 000EB2  2                           JSR     COPY_PAGE_TO_HSTBUF; COPY 512 BYTES AT POINTR TO HSTBUF (AND INC POINTER)
 000EB2  2               
+000EB2  2                           LDA     #DOR_INIT
+000EB2  2                           ORA     DSKUNIT         ;
+000EB2  2                           STA     FDC_DOR         ; OUTPUT TO CONTROLLER
 000EB2  2                           JSR     FL_WRITE_SECTOR_RAW
 000EB2  2                           CMP     #$FF
 000EB2  2                           BEQ     FL_STORE_BOOT_IMAGE_ERROR
-000EB2  2                           INC     seksec
-000EB2  2                           LDA     seksec
-000EB2  2                           CMP     #36
+000EB2  2                           INC     debsec
+000EB2  2                           LDA     debsec
+000EB2  2                           CMP     #9
 000EB2  2                           BNE     :+
 000EB2  2                           LDA     #00
-000EB2  2                           STA     seksec
-000EB2  2                           INC     sektrk
+000EB2  2                           STA     debsec
+000EB2  2                           INC     debhead
+000EB2  2                           LDA     debhead
+000EB2  2                           CMP     #$02
+000EB2  2                           BNE     :+
+000EB2  2                           LDA     #00
+000EB2  2                           STA     debhead
+000EB2  2                           INC     debcyl
+000EB2  2                           JSR     SETTRACK
 000EB2  2               :
 000EB2  2                           DEC     BOOTLENGTH
 000EB2  2                           LDA     BOOTLENGTH
@@ -1312,14 +1332,23 @@ Current file: format.asm
 000EB2  2                           CPY     #05
 000EB2  2                           BNE     :-
 000EB2  2               
+000EB2  2                           LDA     BOOTUNIT
+000EB2  2                           CMP     #$00
+000EB2  2                           BNE     :+
+000EB2  2                           LDA     #$10
+000EB2  2                           JMP     :++
+000EB2  2               :
+000EB2  2                           LDA     #$21
+000EB2  2                           STA     DSKUNIT
+000EB2  2               :
+000EB2  2                           STA     DSKUNIT
+000EB2  2                           JSR     RECAL           ;
+000EB2  2               
 000EB2  2                           LDA     #$00
-000EB2  2                           LDA     #$00
-000EB2  2                           STA     sektrk
-000EB2  2                           STA     sektrk+1
-000EB2  2                           STA     seksec          ;
-000EB2  2                           STA     seksec+1        ;
-000EB2  2                           LDA     DSKUNIT
-000EB2  2                           STA     BOOTUNIT
+000EB2  2                           STA     debcyl
+000EB2  2                           STA     debhead
+000EB2  2                           STA     debsec          ;
+000EB2  2                           JSR     SETTRACK        ;
 000EB2  2               
 000EB2  2               
 000EB2  2                           JSR     INIT_PAGE_COPY  ; COPY PAGE COPY CODE TO LORAM
@@ -1329,18 +1358,25 @@ Current file: format.asm
 000EB2  2                           STA     pointr+1
 000EB2  2               
 000EB2  2               :
-000EB2  2                           JSR     FL_READ_SECTOR_RAW
+000EB2  2                           JSR     READFL_DIRTY
 000EB2  2                           CMP     #$FF
 000EB2  2                           BEQ     FL_RESTORE_BOOT_IMAGE_ERROR
 000EB2  2                           LDA     BOOTRAMPAGE
 000EB2  2                           JSR     COPY_HSTBUF_TOPAGE; COPY 512 BYTES FROM HSTBUF TO POINTR HSTBUF (AND INC POINTER)
-000EB2  2                           INC     seksec
-000EB2  2                           LDA     seksec
-000EB2  2                           CMP     #36
+000EB2  2                           INC     debsec
+000EB2  2                           LDA     debsec
+000EB2  2                           CMP     #9
 000EB2  2                           BNE     :+
 000EB2  2                           LDA     #00
-000EB2  2                           STA     seksec
-000EB2  2                           INC     sektrk
+000EB2  2                           STA     debsec
+000EB2  2                           INC     debhead
+000EB2  2                           LDA     debhead
+000EB2  2                           CMP     #$02
+000EB2  2                           BNE     :+
+000EB2  2                           LDA     #00
+000EB2  2                           STA     debhead
+000EB2  2                           INC     debcyl
+000EB2  2                           JSR     SETTRACK        ;
 000EB2  2               :
 000EB2  2                           DEC     BOOTLENGTH
 000EB2  2                           LDA     BOOTLENGTH

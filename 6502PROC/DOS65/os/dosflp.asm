@@ -757,13 +757,23 @@ FL_STORE_BOOT_IMAGE:
             CPY     #05
             BNE     :-
 
+            LDA     BOOTUNIT
+            CMP     #$00
+            BNE     :+
+            LDA     #$10
+            JMP     :++
+:
+            LDA     #$21
+            STA     DSKUNIT
+:
+            JSR     RECAL           ;
+
             LDA     #$00
-            STA     sektrk
-            STA     sektrk+1
-            STA     seksec          ;
-            STA     seksec+1        ;
-            LDA     DSKUNIT
-            STA     BOOTUNIT
+            STA     debcyl
+            STA     debhead
+            STA     debsec          ;
+            JSR     SETTRACK        ;
+
 
             JSR     INIT_PAGE_COPY  ; COPY PAGE COPY CODE TO LORAM
             LDA     BOOTSOURCE      ; SETUP SOURCE POINTER
@@ -775,16 +785,26 @@ FL_STORE_BOOT_IMAGE:
             LDA     BOOTRAMPAGE
             JSR     COPY_PAGE_TO_HSTBUF; COPY 512 BYTES AT POINTR TO HSTBUF (AND INC POINTER)
 
+            LDA     #DOR_INIT
+            ORA     DSKUNIT         ;
+            STA     FDC_DOR         ; OUTPUT TO CONTROLLER
             JSR     FL_WRITE_SECTOR_RAW
             CMP     #$FF
             BEQ     FL_STORE_BOOT_IMAGE_ERROR
-            INC     seksec
-            LDA     seksec
-            CMP     #36
+            INC     debsec
+            LDA     debsec
+            CMP     #9
             BNE     :+
             LDA     #00
-            STA     seksec
-            INC     sektrk
+            STA     debsec
+            INC     debhead
+            LDA     debhead
+            CMP     #$02
+            BNE     :+
+            LDA     #00
+            STA     debhead
+            INC     debcyl
+            JSR     SETTRACK
 :
             DEC     BOOTLENGTH
             LDA     BOOTLENGTH
@@ -822,14 +842,23 @@ FL_RESTORE_BOOT_IMAGE:
             CPY     #05
             BNE     :-
 
+            LDA     BOOTUNIT
+            CMP     #$00
+            BNE     :+
+            LDA     #$10
+            JMP     :++
+:
+            LDA     #$21
+            STA     DSKUNIT
+:
+            STA     DSKUNIT
+            JSR     RECAL           ;
+
             LDA     #$00
-            LDA     #$00
-            STA     sektrk
-            STA     sektrk+1
-            STA     seksec          ;
-            STA     seksec+1        ;
-            LDA     DSKUNIT
-            STA     BOOTUNIT
+            STA     debcyl
+            STA     debhead
+            STA     debsec          ;
+            JSR     SETTRACK        ;
 
 
             JSR     INIT_PAGE_COPY  ; COPY PAGE COPY CODE TO LORAM
@@ -839,18 +868,25 @@ FL_RESTORE_BOOT_IMAGE:
             STA     pointr+1
 
 :
-            JSR     FL_READ_SECTOR_RAW
+            JSR     READFL_DIRTY
             CMP     #$FF
             BEQ     FL_RESTORE_BOOT_IMAGE_ERROR
             LDA     BOOTRAMPAGE
             JSR     COPY_HSTBUF_TOPAGE; COPY 512 BYTES FROM HSTBUF TO POINTR HSTBUF (AND INC POINTER)
-            INC     seksec
-            LDA     seksec
-            CMP     #36
+            INC     debsec
+            LDA     debsec
+            CMP     #9
             BNE     :+
             LDA     #00
-            STA     seksec
-            INC     sektrk
+            STA     debsec
+            INC     debhead
+            LDA     debhead
+            CMP     #$02
+            BNE     :+
+            LDA     #00
+            STA     debhead
+            INC     debcyl
+            JSR     SETTRACK        ;
 :
             DEC     BOOTLENGTH
             LDA     BOOTLENGTH

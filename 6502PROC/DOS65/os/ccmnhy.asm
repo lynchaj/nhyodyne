@@ -14,6 +14,7 @@ nbuilt          = 7             ;number built in commands
 ;main program
 ; warm boot vector
         JMP     boot
+        JMP     DO_FARCALL
 ccm:
         CLD                     ;set binary mode
         PHA                     ;save drive number

@@ -16,11 +16,9 @@ Current file: writeos.asm
 000000r 1               CRSYM           = 32            ;CR SYMBOL
 000000r 1               LASTROW         = 20
 000000r 1               MAXCOL          = 80
-000000r 1               MPCL_RAM        = $0378         ; RAM MAPPER
 000000r 1               OUTMSG_W        = $F0
-000000r 1               BANKED_DRIVER_DISPATCHER = $8800; LOCATION OF DRIVER DISPATCHER
 000000r 1               farfunct        = $32           ;function to call in driver area
-000000r 1               
+000000r 1               DO_FARCALL      = $D003
 000000r 1               
 000000r 1               ;MAIN PROGRAM
 000000r 1                       .SEGMENT "TEA"
@@ -28,12 +26,12 @@ Current file: writeos.asm
 000800  1               
 000800  1               
 000800  1               
-000800  1  A9 B4                LDA     #STR_BANNER &$FF
+000800  1  A9 A6                LDA     #STR_BANNER &$FF
 000802  1  A0 08                LDY     #STR_BANNER>>8 & $FF
-000804  1  20 6E 08             JSR     WRITESTR
+000804  1  20 60 08             JSR     WRITESTR
 000807  1               
 000807  1               INLOOP:
-000807  1  20 82 08             JSR     CIN
+000807  1  20 74 08             JSR     CIN
 00080A  1  C9 31                CMP     #'1'
 00080C  1  F0 07                BEQ     PPIDE
 00080E  1  C9 32                CMP     #'2'
@@ -42,21 +40,21 @@ Current file: writeos.asm
 000815  1               
 000815  1               PPIDE:
 000815  1  A9 1C                LDA     #28
-000817  1  8D B3 08             STA     FUNCTION
+000817  1  8D A5 08             STA     FUNCTION
 00081A  1  4C 22 08             JMP     CONT
 00081D  1               
 00081D  1               FLOPPY:
 00081D  1  A9 1F                LDA     #31
-00081F  1  8D B3 08             STA     FUNCTION
+00081F  1  8D A5 08             STA     FUNCTION
 000822  1               
 000822  1               
 000822  1               CONT:
-000822  1  A9 05                LDA     #STR_DRIVE &$FF
-000824  1  A0 09                LDY     #STR_DRIVE>>8 & $FF
-000826  1  20 6E 08             JSR     WRITESTR
+000822  1  A9 F7                LDA     #STR_DRIVE &$FF
+000824  1  A0 08                LDY     #STR_DRIVE>>8 & $FF
+000826  1  20 60 08             JSR     WRITESTR
 000829  1               
 000829  1               INLOOP1:
-000829  1  20 82 08             JSR     CIN
+000829  1  20 74 08             JSR     CIN
 00082C  1  C9 31                CMP     #'1'
 00082E  1  F0 07                BEQ     CONT1
 000830  1  C9 32                CMP     #'2'
@@ -70,137 +68,128 @@ Current file: writeos.asm
 00083B  1  A9 01                LDA     #$01
 00083D  1               
 00083D  1               :
-00083D  1  8D AE 08             STA     UNIT
+00083D  1  8D A0 08             STA     UNIT
 000840  1               
-000840  1  A9 31                LDA     #STR_INTRO &$FF
+000840  1  A9 23                LDA     #STR_INTRO &$FF
 000842  1  A0 09                LDY     #STR_INTRO>>8 & $FF
-000844  1  20 6E 08             JSR     WRITESTR
+000844  1  20 60 08             JSR     WRITESTR
 000847  1               
-000847  1  A9 6E                LDA     #STR_CONFIRM &$FF
+000847  1  A9 60                LDA     #STR_CONFIRM &$FF
 000849  1  A0 09                LDY     #STR_CONFIRM>>8 & $FF
-00084B  1  20 6E 08             JSR     WRITESTR
+00084B  1  20 60 08             JSR     WRITESTR
 00084E  1               
-00084E  1  20 99 08             JSR     CONF
+00084E  1  20 8B 08             JSR     CONF
 000851  1               
-000851  1  AD B3 08             LDA     FUNCTION
+000851  1  AD A5 08             LDA     FUNCTION
 000854  1  85 32                STA     farfunct
-000856  1  A9 AE                LDA     #<PARAMETERS
+000856  1  A9 A0                LDA     #<PARAMETERS
 000858  1  A0 08                LDY     #>PARAMETERS
-00085A  1               
-00085A  1  48                   PHA
-00085B  1  A9 8C                LDA     #$8C
-00085D  1  8D 78 03             STA     MPCL_RAM
-000860  1  EA                   NOP
-000861  1  EA                   NOP
-000862  1  68                   PLA
-000863  1  20 00 88             JSR     BANKED_DRIVER_DISPATCHER
-000866  1  A9 8E                LDA     #$8E
-000868  1  8D 78 03             STA     MPCL_RAM
-00086B  1               
-00086B  1  4C A5 08             JMP     EXIT
-00086E  1               
-00086E  1               
-00086E  1               
-00086E  1               ;
-00086E  1               ; OUTPUT A '$' TERMINATED STRING
-00086E  1               ;
-00086E  1               WRITESTR:
-00086E  1  85 F0                STA     OUTMSG_W
-000870  1  84 F1                STY     OUTMSG_W+1
-000872  1  A0 00                LDY     #$00
-000874  1               WRITESTR1:
-000874  1  B1 F0                LDA     (OUTMSG_W),Y    ; LOAD NEXT CHAR FROM STRING INTO ACC
-000876  1  C9 24                CMP     #'$'            ; IS END?
-000878  1  F0 07                BEQ     ENDOUTSTR       ; YES, END PRINT OUT
-00087A  1  20 93 08             JSR     OUT             ; PRINT CHAR IN ACC
-00087D  1  C8                   INY                     ; Y=Y+1 (BUMP INDEX)
-00087E  1  4C 74 08             JMP     WRITESTR1       ; DO NEXT CHAR
-000881  1               ENDOUTSTR:
-000881  1  60                   RTS                     ; RETURN
-000882  1               
-000882  1               
-000882  1               
-000882  1               
-000882  1               
-000882  1               CIN:
-000882  1  A2 01                LDX     #1              ;
-000884  1  20 03 01             JSR     PEM             ;
-000887  1  60                   RTS
-000888  1               
-000888  1               NEWLINE:
-000888  1  A9 0D                LDA     #$0D
-00088A  1  20 93 08             JSR     OUT             ; PRINT CHAR IN ACC
-00088D  1  A9 0A                LDA     #$0A
-00088F  1  20 93 08             JSR     OUT             ; PRINT CHAR IN ACC
-000892  1  60                   RTS
-000893  1               
-000893  1               OUT:
-000893  1               conwrt:
-000893  1  A2 02                LDX     #2              ;
-000895  1  20 03 01             JSR     PEM             ;
-000898  1  60                   RTS
-000899  1               
-000899  1               CONF:
-000899  1  20 82 08             JSR     CIN
-00089C  1  C9 1B                CMP     #$1B
-00089E  1  F0 05                BEQ     EXIT
-0008A0  1  C9 0D                CMP     #$0D
-0008A2  1  D0 F5                BNE     CONF
-0008A4  1               
-0008A4  1  60                   RTS
+00085A  1  20 03 D0             JSR     DO_FARCALL
+00085D  1               
+00085D  1  4C 97 08             JMP     EXIT
+000860  1               
+000860  1               
+000860  1               
+000860  1               ;
+000860  1               ; OUTPUT A '$' TERMINATED STRING
+000860  1               ;
+000860  1               WRITESTR:
+000860  1  85 F0                STA     OUTMSG_W
+000862  1  84 F1                STY     OUTMSG_W+1
+000864  1  A0 00                LDY     #$00
+000866  1               WRITESTR1:
+000866  1  B1 F0                LDA     (OUTMSG_W),Y    ; LOAD NEXT CHAR FROM STRING INTO ACC
+000868  1  C9 24                CMP     #'$'            ; IS END?
+00086A  1  F0 07                BEQ     ENDOUTSTR       ; YES, END PRINT OUT
+00086C  1  20 85 08             JSR     OUT             ; PRINT CHAR IN ACC
+00086F  1  C8                   INY                     ; Y=Y+1 (BUMP INDEX)
+000870  1  4C 66 08             JMP     WRITESTR1       ; DO NEXT CHAR
+000873  1               ENDOUTSTR:
+000873  1  60                   RTS                     ; RETURN
+000874  1               
+000874  1               
+000874  1               
+000874  1               
+000874  1               
+000874  1               CIN:
+000874  1  A2 01                LDX     #1              ;
+000876  1  20 03 01             JSR     PEM             ;
+000879  1  60                   RTS
+00087A  1               
+00087A  1               NEWLINE:
+00087A  1  A9 0D                LDA     #$0D
+00087C  1  20 85 08             JSR     OUT             ; PRINT CHAR IN ACC
+00087F  1  A9 0A                LDA     #$0A
+000881  1  20 85 08             JSR     OUT             ; PRINT CHAR IN ACC
+000884  1  60                   RTS
+000885  1               
+000885  1               OUT:
+000885  1               conwrt:
+000885  1  A2 02                LDX     #2              ;
+000887  1  20 03 01             JSR     PEM             ;
+00088A  1  60                   RTS
+00088B  1               
+00088B  1               CONF:
+00088B  1  20 74 08             JSR     CIN
+00088E  1  C9 1B                CMP     #$1B
+000890  1  F0 05                BEQ     EXIT
+000892  1  C9 0D                CMP     #$0D
+000894  1  D0 F5                BNE     CONF
+000896  1               
+000896  1  60                   RTS
+000897  1               
+000897  1               EXIT:
+000897  1               ; CLEAN UP AND RETURN TO OS
+000897  1  20 7A 08             JSR     NEWLINE
+00089A  1  20 7A 08             JSR     NEWLINE
+00089D  1  4C 00 D0             JMP     $D000
+0008A0  1               
+0008A0  1               
+0008A0  1               PARAMETERS:
+0008A0  1               UNIT:
+0008A0  1  00                   .BYTE   00
+0008A1  1  8E                   .BYTE   $8E
+0008A2  1  00 D0                .BYTE   $00,$D0
+0008A4  1  17                   .BYTE   $17
 0008A5  1               
-0008A5  1               EXIT:
-0008A5  1               ; CLEAN UP AND RETURN TO OS
-0008A5  1  20 88 08             JSR     NEWLINE
-0008A8  1  20 88 08             JSR     NEWLINE
-0008AB  1  4C 00 01             JMP     $0100
-0008AE  1               
-0008AE  1               
-0008AE  1               PARAMETERS:
-0008AE  1               UNIT:
-0008AE  1  00                   .BYTE   00
-0008AF  1  8E                   .BYTE   $8E
-0008B0  1  00 D0                .BYTE   $00,$D0
-0008B2  1  17                   .BYTE   $17
-0008B3  1               
-0008B3  1               FUNCTION:
-0008B3  1  00                   .BYTE   0
-0008B4  1               
-0008B4  1               STR_BANNER:
-0008B4  1  0D 0A 4E 68          .BYTE   $0D,$0A,"Nhyodyne Boot System Generator v1.0"
-0008B8  1  79 6F 64 79  
-0008BC  1  6E 65 20 42  
-0008D9  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Drive type:",$0D,$0A
-0008DD  1  6F 6F 73 65  
-0008E1  1  20 44 72 69  
-0008EF  1  31 3E 20 50          .BYTE   "1> PPIDE",$0D,$0A
-0008F3  1  50 49 44 45  
-0008F7  1  0D 0A        
-0008F9  1  32 3E 20 66          .BYTE   "2> floppy",$0D,$0A,"$"
-0008FD  1  6C 6F 70 70  
-000901  1  79 0D 0A 24  
-000905  1               STR_DRIVE:
-000905  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Unit Id:",$0D,$0A
-000909  1  6F 6F 73 65  
-00090D  1  20 55 6E 69  
-000918  1  31 3E 20 44          .BYTE   "1> DRIVE 0",$0D,$0A
-00091C  1  52 49 56 45  
-000920  1  20 30 0D 0A  
-000924  1  32 3E 20 44          .BYTE   "2> DRIVE 1",$0D,$0A,"$"
-000928  1  52 49 56 45  
-00092C  1  20 31 0D 0A  
-000931  1               STR_INTRO:
-000931  1  0D 0A 0D 0A          .BYTE   $0D,$0A,$0D,$0A,"System track will be overwritten with DOS/65 in RAM!!!",$0D,$0A,"$"
-000935  1  53 79 73 74  
-000939  1  65 6D 20 74  
-00096E  1               STR_CONFIRM:
-00096E  1  50 72 65 73          .BYTE   "Press <Enter> to continue, <Esc> to abort",$0D,$0A,"$"
-000972  1  73 20 3C 45  
-000976  1  6E 74 65 72  
-00099A  1               
-00099A  1               STR_ERR1:
-00099A  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR.",$0D,$0A,"$"
-00099E  1  53 4B 20 45  
-0009A2  1  52 52 4F 52  
-0009AA  1               
-0009AA  1                       .END
+0008A5  1               FUNCTION:
+0008A5  1  00                   .BYTE   0
+0008A6  1               
+0008A6  1               STR_BANNER:
+0008A6  1  0D 0A 4E 68          .BYTE   $0D,$0A,"Nhyodyne Boot System Generator v1.0"
+0008AA  1  79 6F 64 79  
+0008AE  1  6E 65 20 42  
+0008CB  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Drive type:",$0D,$0A
+0008CF  1  6F 6F 73 65  
+0008D3  1  20 44 72 69  
+0008E1  1  31 3E 20 50          .BYTE   "1> PPIDE",$0D,$0A
+0008E5  1  50 49 44 45  
+0008E9  1  0D 0A        
+0008EB  1  32 3E 20 66          .BYTE   "2> floppy",$0D,$0A,"$"
+0008EF  1  6C 6F 70 70  
+0008F3  1  79 0D 0A 24  
+0008F7  1               STR_DRIVE:
+0008F7  1  0D 0A 43 68          .BYTE   $0D,$0A,"Choose Unit Id:",$0D,$0A
+0008FB  1  6F 6F 73 65  
+0008FF  1  20 55 6E 69  
+00090A  1  31 3E 20 44          .BYTE   "1> DRIVE 0",$0D,$0A
+00090E  1  52 49 56 45  
+000912  1  20 30 0D 0A  
+000916  1  32 3E 20 44          .BYTE   "2> DRIVE 1",$0D,$0A,"$"
+00091A  1  52 49 56 45  
+00091E  1  20 31 0D 0A  
+000923  1               STR_INTRO:
+000923  1  0D 0A 0D 0A          .BYTE   $0D,$0A,$0D,$0A,"System track will be overwritten with DOS/65 in RAM!!!",$0D,$0A,"$"
+000927  1  53 79 73 74  
+00092B  1  65 6D 20 74  
+000960  1               STR_CONFIRM:
+000960  1  50 72 65 73          .BYTE   "Press <Enter> to continue, <Esc> to abort",$0D,$0A,"$"
+000964  1  73 20 3C 45  
+000968  1  6E 74 65 72  
+00098C  1               
+00098C  1               STR_ERR1:
+00098C  1  0D 0A 44 49          .BYTE   $0D,$0A,"DISK ERROR.",$0D,$0A,"$"
+000990  1  53 4B 20 45  
+000994  1  52 52 4F 52  
+00099C  1               
+00099C  1                       .END
