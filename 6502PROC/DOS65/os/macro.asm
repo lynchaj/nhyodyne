@@ -15,8 +15,10 @@
         .endif
         .if DEBUG=1
         PHA
-        PHX
-        PHY
+        txa
+        PHa
+        tya
+        PHa
         LDX #$00
 p1:
         LDA p4,x
@@ -30,8 +32,10 @@ p2:
         jsr conwrt
         LDA #10
         jsr conwrt
-        PLY
-        plx
+        PLA
+        tay
+        PLA
+        tax
         pla
         JMP p5
 p4:
@@ -50,8 +54,10 @@ p5:
         .error  "Too few parameters for macro PRTS"
         .endif
         PHA
-        PHX
-        PHY
+        txa
+        PHa
+        tya
+        PHa
         LDX #$00
 p1:
         LDA p4,x
@@ -61,8 +67,10 @@ p1:
         JSR conwrt
         JMP p1
 p2:
-        PLY
-        plx
+        PLa
+        tay
+        pla
+        tax
         pla
         JMP p5
 p4:
@@ -78,8 +86,12 @@ p5:
 ;______________________________________________________________
 PRTHEXBYTE:
         PHA
-        PHX
-        PHY
+        sta     STACKA
+        TXA
+        PHa
+        tya
+        PHA
+        LDA     STACKA
         TAX				; SAVE A REGISTER
         LSR 				; SHIFT HIGH NIBBLE TO LOW NIBBLE
         LSR 				;
@@ -89,8 +101,10 @@ PRTHEXBYTE:
         JSR PRINT_DIGIT			; PRINT LOW NIBBLE
         TXA				; RESTORE ACCUMULATOR
         JSR PRINT_DIGIT			; PRINT LOW NIBBLE
-        PLY
-        plx
+        PLa
+        TAY
+        plA
+        TAX
         PLA
         RTS
 
@@ -111,20 +125,28 @@ PRINT_DIGIT_OUT:					;
 
 NEWLINE:
                 pha
-                PHX
-                phy
+                TXA
+                PHA
+                TYA
+                phA
                 LDA #$0D
                 JSR conwrt
                 LDA #$0A
                 Jsr conwrt
-                ply
-                plx
+                pla
+                TAY
+                pla
+                TAX
                 pla
                 rts
 
 PRTDEC:
-                phy
-                PHX
+                STA             STACKA
+                TYA
+                phA
+                TXA
+                PHa
+                LDA             STACKA
                 PHA
                 ldy #00
                 LDX #$FF
@@ -147,8 +169,12 @@ PrDec10:
                 ldy #1
                 JSR PrDecDigit          ;Print the 1s
                 PLA
-                PLX
-                ply
+                STA STACKA
+                PLa
+                TAX
+                pla
+                TAY
+                LDA     STACKA
                 RTS
 PrDecDigit:
                 PHA
