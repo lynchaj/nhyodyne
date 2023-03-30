@@ -50,7 +50,7 @@
 ;	page zero 0 & 1 not used
 ;	allow _ in file names
 
-.include "dosdefn.asm" 		; base addresses and definitions
+        .INCLUDE "DOSDEFN.ASM"  ; base addresses and definitions
 
 ; for Nhyodyne:
 ; RAM BANK $0C is RAM area for Drivers
@@ -58,11 +58,11 @@
 ; RAM BANK $0F is fixed bank $0000-$7FFF
 ; ROM BANKS $00 and $0C-$0F are reserved for ROMWBW code
 
-		.PC02
-                .segment "OS"
-		.ORG $D000
-		.include "ccmnhy.asm"
-		.include "pemnhy.asm"
-		.include "simnhy.asm"
 
-	.end
+        .SEGMENT "OS"
+        .ORG    $D000
+        .INCLUDE "ccmnhy.asm"
+        .INCLUDE "pemnhy.asm"
+        .INCLUDE "simnhy.asm"
+
+        .END

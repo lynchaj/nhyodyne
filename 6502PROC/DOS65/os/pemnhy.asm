@@ -7,785 +7,880 @@
 ;________________________________________________________________________________________________________________________________
 
 ;zero page data storage
-addinp	=	$02		;initialized to a,y
-bufadd	=	$04		;buffer address
-alcpnt	=	$06		;allocation map pointer
-chkpnt	=	$08		;checksum map pointer
-numvar	=	8		;eight bytes
+addinp          = $02           ;initialized to a,y
+bufadd          = $04           ;buffer address
+alcpnt          = $06           ;allocation map pointer
+chkpnt          = $08           ;checksum map pointer
+numvar          = 8             ;eight bytes
 ;main program
 ; input:x=command,a=value,a&y=address
 ; returns:a=value,a&y=address
 ; alters:all
 pem:
-	cld			;set binary mode
-	sta	bytinp		;save input
-	sta	lowin		;value and
-	sty	bytinp+1	;save high
-	sty	lowin+1		;address
-	stx	cmdinp		;and command
-	cpx	#numcmd		;if invalid
-	bcs	extpem		;then exit
-	lda	swctbl,x	;if flag zero
-	beq	noswin		;skip switch
-	lda	#255		;else set
-	sta	swcflg		;memory switch flag
-	jsr	switch		;move data to page zero
-noswin:	lda	#0		;clear drive
-	sta	tmpdrv		;switch flag
-	lda	cmdinp		;get command
-	asl	a		;multiply by two
-	adc	cmdinp		;then add to get x3
-	tax			;and make a pointer
-	inx			;bump to pass jmp
-	lda	cmdtbl,x	;get command
-	ldy	cmdtbl+1,x	;address
-	sta	xqtvec		;and put
-	sty	xqtvec+1	;in vector
-	lda	extevc+1	;get return
-	pha			;address
-	lda	extevc		;and push
-	pha			;as return
-	lda	bytinp		;get input value
-	ldy	bytinp+1
-	jmp	(xqtvec)	;then execute
-extexq:	sta	bytout		;save value
-	sty	addout+1	;and address
-	lda	tmpdrv		;get temp drive
-	beq	extpem		;if zero skip switch
-	ldy	#0		;else
-	sta	(addinp),y	;put back in fcb
-	lda	olddrv		;get old drive number
-	sta	bytinp		;set input value
-	jsr	chgdrv		;then switch back
-extpem:	bit	swcflg		;test memory switch
-	bpl	noswot		;if not set skip
-	jsr	switch		;else do memory switch
-	lda	#0		;clear
-	sta	swcflg		;flag
-noswot:	ldy	addout+1	;get address
-	lda	bytout		;and value (address low)
-	rts
+        CLD                     ;set binary mode
+        STA     bytinp          ;save input
+        STA     lowin           ;value and
+        STY     bytinp+1        ;save high
+        STY     lowin+1         ;address
+        STX     cmdinp          ;and command
+        CPX     #numcmd         ;if invalid
+        BCS     extpem          ;then exit
+        LDA     swctbl,x        ;if flag zero
+        BEQ     noswin          ;skip switch
+        LDA     #255            ;else set
+        STA     swcflg          ;memory switch flag
+        JSR     switch          ;move data to page zero
+noswin:
+        LDA     #0              ;clear drive
+        STA     tmpdrv          ;switch flag
+        LDA     cmdinp          ;get command
+        ASL     a               ;multiply by two
+        ADC     cmdinp          ;then add to get x3
+        TAX                     ;and make a pointer
+        INX                     ;bump to pass jmp
+        LDA     cmdtbl,x        ;get command
+        LDY     cmdtbl+1,x      ;address
+        STA     xqtvec          ;and put
+        STY     xqtvec+1        ;in vector
+        LDA     extevc+1        ;get return
+        PHA                     ;address
+        LDA     extevc          ;and push
+        PHA                     ;as return
+        LDA     bytinp          ;get input value
+        LDY     bytinp+1
+        JMP     (xqtvec)        ;then execute
+extexq:
+        STA     bytout          ;save value
+        STY     addout+1        ;and address
+        LDA     tmpdrv          ;get temp drive
+        BEQ     extpem          ;if zero skip switch
+        LDY     #0              ;else
+        STA     (addinp),y      ;put back in fcb
+        LDA     olddrv          ;get old drive number
+        STA     bytinp          ;set input value
+        JSR     chgdrv          ;then switch back
+extpem:
+        BIT     swcflg          ;test memory switch
+        BPL     noswot          ;if not set skip
+        JSR     switch          ;else do memory switch
+        LDA     #0              ;clear
+        STA     swcflg          ;flag
+noswot:
+        LDY     addout+1        ;get address
+        LDA     bytout          ;and value (address low)
+        RTS
 ;command vector table
-cmdtbl:	jmp	xwboot		;warm boot
-	jmp	xcnsin		;console input with echo
-	jmp	sndchr		;console output
-	jmp	sim+21		;tape reader
-	jmp	sim+18		;tape punch
-	jmp	sim+15		;printer output
-	jmp	getcon		;console input w/o echo
-	jmp	xgtios		;read i/o status
-	jmp	xstios		;set i/o status
-	jmp	sndstr		;print buffer
-	jmp	bufinp		;read buffer
-	jmp	kbdsts		;test console ready
-	jmp	sim+45		;read list status
-	jmp	xintds		;initialize system
-	jmp	chgdrv		;log in drive
-	jmp	xopen		;open file
-	jmp	xclose		;close file
-	jmp	xfndfr		;find first match
-	jmp	xfndnx		;find next match
-	jmp	xdltfl		;delete file
-	jmp	xread		;read record
-	jmp	xwrite		;write record
-	jmp	xmake		;create file
-	jmp	xrenme		;rename file
-	jmp	xintlg		;interrogate log in status
-	jmp	xintdr		;interrogate current drive
-	jmp	chgdma		;set buffer address
-	jmp	xrdalv		;read allocation map start
-	jmp	setron		;set r/w status
-	jmp	xrdros		;read r/w status
-	jmp	setlst		;set list echo status
-	jmp	lststs		;read list echo status
-	jmp	xrtclo		;read low clock
-	jmp	xrtchi		;read high clock
-	jmp	xrddcb		;read dcb address
-	jmp	sim+51		;translate sector
+cmdtbl:
+        JMP     xwboot          ;warm boot
+        JMP     xcnsin          ;console input with echo
+        JMP     sndchr          ;console output
+        JMP     sim+21          ;tape reader
+        JMP     sim+18          ;tape punch
+        JMP     sim+15          ;printer output
+        JMP     getcon          ;console input w/o echo
+        JMP     xgtios          ;read i/o status
+        JMP     xstios          ;set i/o status
+        JMP     sndstr          ;print buffer
+        JMP     bufinp          ;read buffer
+        JMP     kbdsts          ;test console ready
+        JMP     sim+45          ;read list status
+        JMP     xintds          ;initialize system
+        JMP     chgdrv          ;log in drive
+        JMP     xopen           ;open file
+        JMP     xclose          ;close file
+        JMP     xfndfr          ;find first match
+        JMP     xfndnx          ;find next match
+        JMP     xdltfl          ;delete file
+        JMP     xread           ;read record
+        JMP     xwrite          ;write record
+        JMP     xmake           ;create file
+        JMP     xrenme          ;rename file
+        JMP     xintlg          ;interrogate log in status
+        JMP     xintdr          ;interrogate current drive
+        JMP     chgdma          ;set buffer address
+        JMP     xrdalv          ;read allocation map start
+        JMP     setron          ;set r/w status
+        JMP     xrdros          ;read r/w status
+        JMP     setlst          ;set list echo status
+        JMP     lststs          ;read list echo status
+        JMP     xrtclo          ;read low clock
+        JMP     xrtchi          ;read high clock
+        JMP     xrddcb          ;read dcb address
+        JMP     sim+51          ;translate sector
 ;set list echo status
-setlst:	sta	lstflg		;set flag
-	rts
+setlst:
+        STA     lstflg          ;set flag
+        RTS
 ;read list echo status
-lststs:	lda	lstflg		;read flag
-	rts
+lststs:
+        LDA     lstflg          ;read flag
+        RTS
 ;execute warm boot
 ; ***this command does not return to pem***
 ; ***instead it jumps to sim, resets	***
 ; ***system and stack and jumps to ccm. ***
-xwboot:	bit	swcflg		;test memory switch flag
-	bpl	dowmbt		;if clear do not
-	jsr	switch		;switch memory
-	lda	#0		;clear
-	sta	swcflg		;flag
-dowmbt:	jmp	sim+3		;go to sim
+xwboot:
+        BIT     swcflg          ;test memory switch flag
+        BPL     dowmbt          ;if clear do not
+        JSR     switch          ;switch memory
+        LDA     #0              ;clear
+        STA     swcflg          ;flag
+dowmbt:
+        JMP     sim+3           ;go to sim
 
 ;execute read real time clock
-xrtclo:	jsr	sim+48		;read clock
+xrtclo:
+        JSR     sim+48          ;read clock
 
-	sta	rtclk		;save low
-	sty	rtclk+1		;middle
-	stx	rtclk+2		;high
-	txa
-	and	#%10000000	;test for valid
-	tay
-	lda	rtclk		;get low
-	rts
+        STA     rtclk           ;save low
+        STY     rtclk+1         ;middle
+        STX     rtclk+2         ;high
+        TXA
+        AND     #%10000000      ;test for valid
+        TAY
+        LDA     rtclk           ;get low
+        RTS
 ;execute read real time clock high
-xrtchi:	lda	rtclk+2		;get high
-	and	#%01111111	;clear status
-	tay
-	lda	rtclk+1		;get middle
-	rts
+xrtchi:
+        LDA     rtclk+2         ;get high
+        AND     #%01111111      ;clear status
+        TAY
+        LDA     rtclk+1         ;get middle
+        RTS
 ;execute read dcb address
-xrddcb:	lda	cptdcb+1	;get address
-	ldy	cptdcb+2
-	rts
+xrddcb:
+        LDA     cptdcb+1        ;get address
+        LDY     cptdcb+2
+        RTS
 ;execute read i/o status
-xgtios:	lda	iostat		;get status byte
-	rts
+xgtios:
+        LDA     iostat          ;get status byte
+        RTS
 ;execute read allocation map starting address
-xrdalv:	lda	alcmap		;get
-	ldy	alcmap+1	;starting address
-	rts			;then return
+xrdalv:
+        LDA     alcmap          ;get
+        LDY     alcmap+1        ;starting address
+        RTS                     ;then return
 ;execute set i/o status
-xstios:	sta	iostat		;set status
-	rts
+xstios:
+        STA     iostat          ;set status
+        RTS
 ;execute interrogate current drive
-xintdr:	lda	curdrv		;get number
-	rts
+xintdr:
+        LDA     curdrv          ;get number
+        RTS
 ;execute read log in status
-xintlg:	lda	lginvc		;get status
-	rts
+xintlg:
+        LDA     lginvc          ;get status
+        RTS
 ;execute read read/write status
-xrdros:	lda	ronlst		;get status
-	rts
+xrdros:
+        LDA     ronlst          ;get status
+        RTS
 ;execute find next match
-xfndnx:	jsr	autodr		;auto drive select
-	lda	#13		;match including
-	jmp	search		;extent
+xfndnx:
+        JSR     autodr          ;auto drive select
+        LDA     #13             ;match including
+        JMP     search          ;extent
 ;execute read next record
-xread:	jsr	autodr		;auto drive select
-	jsr	inrcct		;initialize record counters
-	lda	nxtrec		;if next record less
-	cmp	numrec		;then number records
-	bcc	tryrde		;then try to read
-	cmp	#128		;but if not and
-	beq	tryext		;is max try to extend
-rdeeof:	lda	#1		;else set eof
-	rts			;code and return
-tryext:	ldx	#1		;try for a read
-	jsr	extend		;file extension
-	cmp	#0		;if not ok exit eof
-	bne	rdeeof		;with jump back
-	sta	nxtrec		;clear next record
-tryrde:	jsr	getblk		;and get block
-	lda	blknum		;if block not zero
-	ora	blknum+1
-	bne	dorde		;do the read
-	lda	#2		;else set unwritten
-	rts			;code and exit
-dorde:	jsr	calrcn		;calculate record number
-	jsr	sttrsc		;set track and sector
-	jsr	rdesec		;do sector read
-	jsr	updtrc		;update counters
-	lda	#0		;return w/o error
-extrde:	rts
+xread:
+        JSR     autodr          ;auto drive select
+        JSR     inrcct          ;initialize record counters
+        LDA     nxtrec          ;if next record less
+        CMP     numrec          ;then number records
+        BCC     tryrde          ;then try to read
+        CMP     #128            ;but if not and
+        BEQ     tryext          ;is max try to extend
+rdeeof:
+        LDA     #1              ;else set eof
+        RTS                     ;code and return
+tryext:
+        LDX     #1              ;try for a read
+        JSR     extend          ;file extension
+        CMP     #0              ;if not ok exit eof
+        BNE     rdeeof          ;with jump back
+        STA     nxtrec          ;clear next record
+tryrde:
+        JSR     getblk          ;and get block
+        LDA     blknum          ;if block not zero
+        ORA     blknum+1
+        BNE     dorde           ;do the read
+        LDA     #2              ;else set unwritten
+        RTS                     ;code and exit
+dorde:
+        JSR     calrcn          ;calculate record number
+        JSR     sttrsc          ;set track and sector
+        JSR     rdesec          ;do sector read
+        JSR     updtrc          ;update counters
+        LDA     #0              ;return w/o error
+extrde:
+        RTS
 ;execute file rename
-xrenme:	jsr	autodr		;automatic drive select
-	jsr	tstron		;test for r/o
-	lda	#12		;match name
-	jsr	frstsr		;and type
-	bmi	extren		;exit if not found
-doren:	lda	#0		;clear drive select
-	ldy	#16		;in new name
-	sta	(addinp),y	;part of fcb
-	lda	#12		;then move
-	ldx	#16		;new name
-	jsr	dirchg		;to directory
-	lda	#12		;see if
-	jsr	search		;another match
-	bpl	doren		;loop if found
-extren:	rts			;number
+xrenme:
+        JSR     autodr          ;automatic drive select
+        JSR     tstron          ;test for r/o
+        LDA     #12             ;match name
+        JSR     frstsr          ;and type
+        BMI     extren          ;exit if not found
+doren:
+        LDA     #0              ;clear drive select
+        LDY     #16             ;in new name
+        STA     (addinp),y      ;part of fcb
+        LDA     #12             ;then move
+        LDX     #16             ;new name
+        JSR     dirchg          ;to directory
+        LDA     #12             ;see if
+        JSR     search          ;another match
+        BPL     doren           ;loop if found
+extren:
+        RTS                     ;number
 ;execute delete file
-xdltfl:	jsr	autodr		;automatic drive select
-	jsr	tstron		;test for r/o
-	lda	#12		;match name
-	jsr	frstsr		;and type
-	bmi	extdlt		;done if not found
-dodlt:	ldx	#0		;else do a
-	jsr	mapdir		;delete
-	ldy	subrec		;then change
-	lda	empty		;byte zero to
-	sta	(bufadd),y	;empty code
-	jsr	updtck		;then update directory
-	lda	#12		;search
-	jsr	search		;for next
-	bpl	dodlt		;loop if found
-extdlt:	rts			;exit
+xdltfl:
+        JSR     autodr          ;automatic drive select
+        JSR     tstron          ;test for r/o
+        LDA     #12             ;match name
+        JSR     frstsr          ;and type
+        BMI     extdlt          ;done if not found
+dodlt:
+        LDX     #0              ;else do a
+        JSR     mapdir          ;delete
+        LDY     subrec          ;then change
+        LDA     empty           ;byte zero to
+        STA     (bufadd),y      ;empty code
+        JSR     updtck          ;then update directory
+        LDA     #12             ;search
+        JSR     search          ;for next
+        BPL     dodlt           ;loop if found
+extdlt:
+        RTS                     ;exit
 ;execute write next record
-xwrite:	jsr	autodr		;automatic drive select
-	jsr	tstron		;test for r/o
-	jsr	inrcct		;initialize counters
-	lda	nxtrec		;get next record
-	cmp	#128		;compare to max
-	bcc	ntexte		;continue if less
-	lda	#1		;else flag as extend
-	rts			;error and exit
-ntexte:	jsr	getblk		;calculate block num
-	lda	#0		;say normal write
-	sta	pemwrtype		;for now
-	lda	blknum		;get it and if
-	ora	blknum+1
-	beq	*+5		;zero then get number
-	jmp	blkopn		;else go write
-	lda	#2		;say unalloc write
-	sta	pemwrtype
-	lda	fcbind		;get index from prior
-	pha			;and save
-	cmp	#16		;if first block
-	beq	isfrst		;then don't change
-	tay			;else make an index
-	dey			;point to last
-	bit	blmode		;test mode
-	bpl	*+3		;done if byte
-	dey			;else drop for word
-	lda	(addinp),y	;and get that number
-	sta	blknum		;store as starting
-	iny			;bump for word
-	lda	#0		;preset for byte
-	bit	blmode		;test mode
-	bpl	*+4		;done if byte
-	lda	(addinp),y	;else get high
-	sta	blknum+1	;then set high
-isfrst:	lda	blknum		;get block
-	sta	lkdown		;set lower and
-	sta	lookup		;upper pointers
-	lda	blknum+1	;now set high part
-	sta	lkdown+1
-	sta	lookup+1
-srblag:	lda	lookup		;if upper pointer
-	cmp	maxblk		;not at max
-	bne	upnemx		;then keep going
-	ldy	lookup+1	;now check high
-	cpy	maxblk+1
-	beq	tstdwn		;go test down
-upnemx:	inc	lookup		;else bump upper
-	bne	*+5
-	inc	lookup+1
-	lda	lkdown		;then if lower
-	ora	lkdown+1
-	beq	dotest		;is zero start test
-	bne	dcdown		;else drop lower
-tstdwn:	lda	lkdown		;if upper & lower at
-	ora	lkdown+1
-	bne	dcdown		;drop if not zero
-	tay			;also set y
-	beq	extsbl		;then exit
-dcdown:	lda	lkdown		;drop lower
-	bne	*+5
-	dec	lkdown+1
-	dec	lkdown
-dotest:	lda	lkdown		;get lower
-	ldy	lkdown+1
-	jsr	tstblk		;and test
-	bne	trylup		;if full try upper
-	lda	lkdown		;else use lower
-	ldy	lkdown+1
-	jmp	extsbl		;as result
-trylup:	lda	lookup		;get upper
-	ldy	lookup+1
-	jsr	tstblk		;if full
-	bne	srblag		;then loop
-	lda	lookup		;else use upper
-	ldy	lookup+1
-extsbl:	sta	blknum		;then save number
-	sty	blknum+1
-	ora	blknum+1	;see if zero
-	bne	gtgood		;then proceed
-	pla			;clear stack
-	lda	#2		;set end
-	rts			;of data return
-gtgood:	lda	blknum		;get low again
-	jsr	setblk		;set allocation map
-	pla			;get block
-	tay			;pointer back
-	lda	blknum		;get number
-	sta	(addinp),y	;and put in fcb
-	lda	blknum+1	;get high
-	iny
-	bit	blmode		;test mode
-	bpl	*+4		;done if byte
-	sta	(addinp),y	;else set high
-blkopn:	jsr	calrcn		;calculate record num
-	jsr	sttrsc		;set track and sector
-	jsr	wrtsec		;do write
-	ldx	nxtrec		;get next record
-	cpx	numrec		;if less than max
-	bcc	notful		;then ok
-	inx			;else bump count
-	stx	numrec		;and save
-	dex			;back down
-notful:	cpx	#127		;if not at max
-	bne	noawex		;skip extending
-	jsr	updtrc		;update record counters
-	ldx	#0		;do write
-	jsr	extend		;file extension
-	cmp	#0		;if not ok
-	bne	extwrt		;exit
-	lda	#255		;else start counter
-	sta	nxtrec		;at one short
-noawex:	jsr	updtrc		;then update counters
-	lda	#0		;good return
-extwrt:	rts			;exit
+xwrite:
+        JSR     autodr          ;automatic drive select
+        JSR     tstron          ;test for r/o
+        JSR     inrcct          ;initialize counters
+        LDA     nxtrec          ;get next record
+        CMP     #128            ;compare to max
+        BCC     ntexte          ;continue if less
+        LDA     #1              ;else flag as extend
+        RTS                     ;error and exit
+ntexte:
+        JSR     getblk          ;calculate block num
+        LDA     #0              ;say normal write
+        STA     pemwrtype       ;for now
+        LDA     blknum          ;get it and if
+        ORA     blknum+1
+        BEQ     *+5             ;zero then get number
+        JMP     blkopn          ;else go write
+        LDA     #2              ;say unalloc write
+        STA     pemwrtype
+        LDA     fcbind          ;get index from prior
+        PHA                     ;and save
+        CMP     #16             ;if first block
+        BEQ     isfrst          ;then don't change
+        TAY                     ;else make an index
+        DEY                     ;point to last
+        BIT     blmode          ;test mode
+        BPL     *+3             ;done if byte
+        DEY                     ;else drop for word
+        LDA     (addinp),y      ;and get that number
+        STA     blknum          ;store as starting
+        INY                     ;bump for word
+        LDA     #0              ;preset for byte
+        BIT     blmode          ;test mode
+        BPL     *+4             ;done if byte
+        LDA     (addinp),y      ;else get high
+        STA     blknum+1        ;then set high
+isfrst:
+        LDA     blknum          ;get block
+        STA     lkdown          ;set lower and
+        STA     lookup          ;upper pointers
+        LDA     blknum+1        ;now set high part
+        STA     lkdown+1
+        STA     lookup+1
+srblag:
+        LDA     lookup          ;if upper pointer
+        CMP     maxblk          ;not at max
+        BNE     upnemx          ;then keep going
+        LDY     lookup+1        ;now check high
+        CPY     maxblk+1
+        BEQ     tstdwn          ;go test down
+upnemx:
+        INC     lookup          ;else bump upper
+        BNE     *+5
+        INC     lookup+1
+        LDA     lkdown          ;then if lower
+        ORA     lkdown+1
+        BEQ     dotest          ;is zero start test
+        BNE     dcdown          ;else drop lower
+tstdwn:
+        LDA     lkdown          ;if upper & lower at
+        ORA     lkdown+1
+        BNE     dcdown          ;drop if not zero
+        TAY                     ;also set y
+        BEQ     extsbl          ;then exit
+dcdown:
+        LDA     lkdown          ;drop lower
+        BNE     *+5
+        DEC     lkdown+1
+        DEC     lkdown
+dotest:
+        LDA     lkdown          ;get lower
+        LDY     lkdown+1
+        JSR     tstblk          ;and test
+        BNE     trylup          ;if full try upper
+        LDA     lkdown          ;else use lower
+        LDY     lkdown+1
+        JMP     extsbl          ;as result
+trylup:
+        LDA     lookup          ;get upper
+        LDY     lookup+1
+        JSR     tstblk          ;if full
+        BNE     srblag          ;then loop
+        LDA     lookup          ;else use upper
+        LDY     lookup+1
+extsbl:
+        STA     blknum          ;then save number
+        STY     blknum+1
+        ORA     blknum+1        ;see if zero
+        BNE     gtgood          ;then proceed
+        PLA                     ;clear stack
+        LDA     #2              ;set end
+        RTS                     ;of data return
+gtgood:
+        LDA     blknum          ;get low again
+        JSR     setblk          ;set allocation map
+        PLA                     ;get block
+        TAY                     ;pointer back
+        LDA     blknum          ;get number
+        STA     (addinp),y      ;and put in fcb
+        LDA     blknum+1        ;get high
+        INY
+        BIT     blmode          ;test mode
+        BPL     *+4             ;done if byte
+        STA     (addinp),y      ;else set high
+blkopn:
+        JSR     calrcn          ;calculate record num
+        JSR     sttrsc          ;set track and sector
+        JSR     wrtsec          ;do write
+        LDX     nxtrec          ;get next record
+        CPX     numrec          ;if less than max
+        BCC     notful          ;then ok
+        INX                     ;else bump count
+        STX     numrec          ;and save
+        DEX                     ;back down
+notful:
+        CPX     #127            ;if not at max
+        BNE     noawex          ;skip extending
+        JSR     updtrc          ;update record counters
+        LDX     #0              ;do write
+        JSR     extend          ;file extension
+        CMP     #0              ;if not ok
+        BNE     extwrt          ;exit
+        LDA     #255            ;else start counter
+        STA     nxtrec          ;at one short
+noawex:
+        JSR     updtrc          ;then update counters
+        LDA     #0              ;good return
+extwrt:
+        RTS                     ;exit
 ;execute console input
-xcnsin:	jsr	getcon		;get input
-	jsr	tstchr		;test it and
-	bcc	extxci		;if control exit
-	pha			;else save
-	jsr	sndchr		;echo
-	pla			;restore
-extxci:	rts			;return
+xcnsin:
+        JSR     getcon          ;get input
+        JSR     tstchr          ;test it and
+        BCC     extxci          ;if control exit
+        PHA                     ;else save
+        JSR     sndchr          ;echo
+        PLA                     ;restore
+extxci:
+        RTS                     ;return
 ;switch memory
 ;page zero block begins at $02 and is numvar bytes long.
-switch:	ldx	#numvar-1	;get number to switch
-nxtswh:	lda	2,x		;get zero page
-	ldy	varblk,x	;and save area
-	sta	varblk,x	;save zero
-	sty	2,x		;and high
-	dex			;count down
-	bpl	nxtswh		;and loop until done
-drvsme:	rts			;then return
+switch:
+        LDX     #numvar-1       ;get number to switch
+nxtswh:
+        LDA     2,x             ;get zero page
+        LDY     varblk,x        ;and save area
+        STA     varblk,x        ;save zero
+        STY     2,x             ;and high
+        DEX                     ;count down
+        BPL     nxtswh          ;and loop until done
+drvsme:
+        RTS                     ;then return
 ;change dma address
 ; input:addinp=address
 ; returns:none
 ; alters:all
-chgdma:	lda	addinp		;get low
-	ldy	addinp+1	;and high address
-	sta	bufadd		;then store
-	sty	bufadd+1	;in address
-	jmp	sim+36		;then go to sim
+chgdma:
+        LDA     addinp          ;get low
+        LDY     addinp+1        ;and high address
+        STA     bufadd          ;then store
+        STY     bufadd+1        ;in address
+        JMP     sim+36          ;then go to sim
 
 ;change drive
 ; input:bytinp
 ; returns:none
 ; alters:all
-chgdrv:	lda	bytinp		;get input
-	cmp	curdrv		;if same as current
-	beq	drvsme		;do nothing
-	sta	curdrv		;else change current
-	jmp	mapdrv		;then log it in
+chgdrv:
+        LDA     bytinp          ;get input
+        CMP     curdrv          ;if same as current
+        BEQ     drvsme          ;do nothing
+        STA     curdrv          ;else change current
+        JMP     mapdrv          ;then log it in
 ;automatic drive select
 ; input:(addinp) 0=no change
 ; 1-8 or 'A'-'H' = change
 ; returns:none
 ; alters:all
-autodr:	ldy	#0		;get
-	lda	(addinp),y	;first byte of fcb
-	beq	qtatdr		;if zero quit
-	sec			;set carry for
-	sbc	#1		;subtract one
-	and	#%00000111	;look at three lsbs
-	sta	bytinp		;make parameter
-	lda	curdrv		;get current
-	sta	olddrv		;and save
-	lda	(addinp),y	;get fcb entry
-	sta	tmpdrv		;and save as flag
-	tya			;set a to 0
-	sta	(addinp),y	;clear byte zero in fcb
-	jsr	chgdrv		;then select new drive
-qtatdr:	rts			;and return
+autodr:
+        LDY     #0              ;get
+        LDA     (addinp),y      ;first byte of fcb
+        BEQ     qtatdr          ;if zero quit
+        SEC                     ;set carry for
+        SBC     #1              ;subtract one
+        AND     #%00000111      ;look at three lsbs
+        STA     bytinp          ;make parameter
+        LDA     curdrv          ;get current
+        STA     olddrv          ;and save
+        LDA     (addinp),y      ;get fcb entry
+        STA     tmpdrv          ;and save as flag
+        TYA                     ;set a to 0
+        STA     (addinp),y      ;clear byte zero in fcb
+        JSR     chgdrv          ;then select new drive
+qtatdr:
+        RTS                     ;and return
 ;execute initialize system
 ; input:none
 ; returns:none
 ; alters:all,curdrv,lginvc,bufadd
-xintds:	lda	#DEFDRV		;set current
-	sta	curdrv		;drive to a
-	sta	lginvc		;clear log in status
-	lda	#<dflbuf	;get default buffer
-	ldy	#>dflbuf	;address
-	sta	addinp		;and set up
-	sty	addinp+1	;parameters
-	jsr	chgdma		;change address
+xintds:
+        LDA     #DEFDRV         ;set current
+        STA     curdrv          ;drive to a
+        STA     lginvc          ;clear log in status
+        LDA     #<dflbuf        ;get default buffer
+        LDY     #>dflbuf        ;address
+        STA     addinp          ;and set up
+        STY     addinp+1        ;parameters
+        JSR     chgdma          ;change address
 
 ;log in drive and set pointers and maps
 ; input:curdrv
 ; returns:none
 ; alters:all
-mapdrv:	lda	curdrv		;if current drive
-	cmp	#8		;is 0 to 7
-	bcc	vlddrv		;then log it in
-drserr:	jsr	errout		;send error message
-	lda	sltmvc		;point to
-	ldy	sltmvc+1	;select message
-	jsr	sndstr		;and send it
+mapdrv:
+        LDA     curdrv          ;if current drive
+        CMP     #8              ;is 0 to 7
+        BCC     vlddrv          ;then log it in
+drserr:
+        JSR     errout          ;send error message
+        LDA     sltmvc          ;point to
+        LDY     sltmvc+1        ;select message
+        JSR     sndstr          ;and send it
 
-	jmp	xwboot		;and abort
+        JMP     xwboot          ;and abort
 
-vlddrv:	jsr	sim+27		;go to sim to set
-	sta	cptdcb+1	;save
-	sty	cptdcb+2
-	ora	cptdcb+2	;see if invalid
-	beq	drserr		;error if is
+vlddrv:
+        JSR     sim+27          ;go to sim to set
+        STA     cptdcb+1        ;save
+        STY     cptdcb+2
+        ORA     cptdcb+2        ;see if invalid
+        BEQ     drserr          ;error if is
 ;capture dcb
-	ldy	#14-1		;do 14 bytes
-cptdcb:	lda	$ffff,y		;get value from sim
-	sta	dcb,y		;store it
-	dey
-	bpl	cptdcb		;loop for more
-	lda	blkscd		;get block size code
-	tay			;save in y
-	clc
-	adc	#3		;convert to sxb
-	sta	sxb		;and save
-	lda	sabtbl,y	;get sab
-	sta	sab		;and set
-	lda	maxdir		;get max dir
-	sta	maxdrc		;set max dir record
-	lda	maxdir+1
-	lsr	a		;divide by 4
-	ror	maxdrc
-	lsr	a
-	ror	maxdrc
-	sta	maxdrc+1	;then save high
-	lda	#0		;set mode to byte
-	sta	blmode
-	lda	maxblk+1	;branch if max block
-	beq	ntm255		;not over 255
+        LDY     #14-1           ;do 14 bytes
+cptdcb:
+        LDA     $ffff,y         ;get value from sim
+        STA     dcb,y           ;store it
+        DEY
+        BPL     cptdcb          ;loop for more
+        LDA     blkscd          ;get block size code
+        TAY                     ;save in y
+        CLC
+        ADC     #3              ;convert to sxb
+        STA     sxb             ;and save
+        LDA     sabtbl,y        ;get sab
+        STA     sab             ;and set
+        LDA     maxdir          ;get max dir
+        STA     maxdrc          ;set max dir record
+        LDA     maxdir+1
+        LSR     a               ;divide by 4
+        ROR     maxdrc
+        LSR     a
+        ROR     maxdrc
+        STA     maxdrc+1        ;then save high
+        LDA     #0              ;set mode to byte
+        STA     blmode
+        LDA     maxblk+1        ;branch if max block
+        BEQ     ntm255          ;not over 255
 ;if y=0 when the following line is executed it means
 ;that the user has put an illegal combination into
 ;the disk definition table. may want to consider
 ;putting some error checking here in the future if
 ;there is space in pem.
-	dey			;back up index
-	sec			;else set mode to word
-	ror	blmode
-ntm255:	lda	exmtbl,y	;get extent mask
-	sta	exm
+        DEY                     ;back up index
+        SEC                     ;else set mode to word
+        ROR     blmode
+ntm255:
+        LDA     exmtbl,y        ;get extent mask
+        STA     exm
 
-	sec			;now calculate cexm1f
-	lda	#31
-	sbc	exmtbl,y
-	sta	cexm1f
-	ldx	curdrv		;get drive as pointer
-	lda	bitmap,x	;get bit
-	and	lginvc		;if logged in
-	bne	extstm		;then exit
-	lda	bitmap,x	;get bit back
-	ora	lginvc		;set in log-in
-	sta	lginvc		;and update
-	jmp	flinal		;then fill in maps
+        SEC                     ;now calculate cexm1f
+        LDA     #31
+        SBC     exmtbl,y
+        STA     cexm1f
+        LDX     curdrv          ;get drive as pointer
+        LDA     bitmap,x        ;get bit
+        AND     lginvc          ;if logged in
+        BNE     extstm          ;then exit
+        LDA     bitmap,x        ;get bit back
+        ORA     lginvc          ;set in log-in
+        STA     lginvc          ;and update
+        JMP     flinal          ;then fill in maps
 
-extstm:	rts			;and return
+extstm:
+        RTS                     ;and return
 ;fill in allocation map
-flinal:	jsr	setrw		;set to read/write
-	lda	maxblk		;divide max block by
-	sta	gpcnt		;eight to get max
-	lda	maxblk+1
-	ldx	#3
-clcnab:	lsr	a		;use a for speed
-	ror	gpcnt
-	dex
-	bne	clcnab		;loop if more
-	sta	gpcnt+1		;save high
-	inc	gpcnt		;bump by one
-	bne	*+5
-	inc	gpcnt+1		;with carry
-	lda	alcmap		;get map start
-	ldy	alcmap+1
-	sta	alcpnt		;set pointer to start
-	sty	alcpnt+1
-	ldy	#0		;clear index
-clraml:	lda	#0		;clear byte
-	sta	(alcpnt),y	;put in map
-	inc	alcpnt		;bump pointer
-	bne	*+4
-	inc	alcpnt+1	;with carry
-	lda	gpcnt		;get low of count
-	bne	*+5		;skip if not zero
-	dec	gpcnt+1		;else drop high
-	dec	gpcnt		;always drop low
-	lda	gpcnt		;test for zero
-	ora	gpcnt+1
-	bne	clraml		;loop if more
+flinal:
+        JSR     setrw           ;set to read/write
+        LDA     maxblk          ;divide max block by
+        STA     gpcnt           ;eight to get max
+        LDA     maxblk+1
+        LDX     #3
+clcnab:
+        LSR     a               ;use a for speed
+        ROR     gpcnt
+        DEX
+        BNE     clcnab          ;loop if more
+        STA     gpcnt+1         ;save high
+        INC     gpcnt           ;bump by one
+        BNE     *+5
+        INC     gpcnt+1         ;with carry
+        LDA     alcmap          ;get map start
+        LDY     alcmap+1
+        STA     alcpnt          ;set pointer to start
+        STY     alcpnt+1
+        LDY     #0              ;clear index
+clraml:
+        LDA     #0              ;clear byte
+        STA     (alcpnt),y      ;put in map
+        INC     alcpnt          ;bump pointer
+        BNE     *+4
+        INC     alcpnt+1        ;with carry
+        LDA     gpcnt           ;get low of count
+        BNE     *+5             ;skip if not zero
+        DEC     gpcnt+1         ;else drop high
+        DEC     gpcnt           ;always drop low
+        LDA     gpcnt           ;test for zero
+        ORA     gpcnt+1
+        BNE     clraml          ;loop if more
 ;at this point complete map is cleared
-	lda	maxdrc		;get low of max dir record
-	sta	gpcnt
-	lda	maxdrc+1	;high in a
-	ldx	sxb		;set x according to block size
-clcmdb:	lsr	a		;do division
-	ror	gpcnt
-	dex
-	bne	clcmdb		;until x is zero
-	sta	gpcnt+1		;set high
-	inc	gpcnt		;then bump by one
-	bne	*+5
-	inc	gpcnt+1
-	stx	blknum		;clear block number
-	stx	blknum+1
-fildal:	lda	blknum		;get block number
-	ldy	blknum+1
-	jsr	setblk		;set bit
-	inc	blknum		;bump block number
-	bne	*+5
-	inc	blknum+1
-	lda	gpcnt		;get low of count
-	bne	*+5		;skip if not zero
-	dec	gpcnt+1		;else drop high
-	dec	gpcnt		;always do low
-	lda	gpcnt		;test for zero
-	ora	gpcnt+1
-	bne	fildal		;loop if more
+        LDA     maxdrc          ;get low of max dir record
+        STA     gpcnt
+        LDA     maxdrc+1        ;high in a
+        LDX     sxb             ;set x according to block size
+clcmdb:
+        LSR     a               ;do division
+        ROR     gpcnt
+        DEX
+        BNE     clcmdb          ;until x is zero
+        STA     gpcnt+1         ;set high
+        INC     gpcnt           ;then bump by one
+        BNE     *+5
+        INC     gpcnt+1
+        STX     blknum          ;clear block number
+        STX     blknum+1
+fildal:
+        LDA     blknum          ;get block number
+        LDY     blknum+1
+        JSR     setblk          ;set bit
+        INC     blknum          ;bump block number
+        BNE     *+5
+        INC     blknum+1
+        LDA     gpcnt           ;get low of count
+        BNE     *+5             ;skip if not zero
+        DEC     gpcnt+1         ;else drop high
+        DEC     gpcnt           ;always do low
+        LDA     gpcnt           ;test for zero
+        ORA     gpcnt+1
+        BNE     fildal          ;loop if more
 ;at this point directory space is mapped
-	jsr	intdrv		;initialize drive
-	jsr	cldrnm		;clear directory number
-fillpe:	ldx	#1		;parameter for fill
-	jsr	nxtdir		;execute for next directory
-	bmi	extfil		;done if invalid
-	ldy	subrec		;get offset
-	lda	(bufadd),y	;get empty/valid flag
-	cmp	#$e5		;if empty
-	beq	fillpe		;try next
-	ldx	#1		;parameter for fill in
-	jsr	mapdir		;do directory map
-	jmp	fillpe		;then loop
-extfil:	rts			;return
+        JSR     intdrv          ;initialize drive
+        JSR     cldrnm          ;clear directory number
+fillpe:
+        LDX     #1              ;parameter for fill
+        JSR     nxtdir          ;execute for next directory
+        BMI     extfil          ;done if invalid
+        LDY     subrec          ;get offset
+        LDA     (bufadd),y      ;get empty/valid flag
+        CMP     #$e5            ;if empty
+        BEQ     fillpe          ;try next
+        LDX     #1              ;parameter for fill in
+        JSR     mapdir          ;do directory map
+        JMP     fillpe          ;then loop
+extfil:
+        RTS                     ;return
 ;initialize drive
 ; input:nsystr
 ; returns:none
 ; alters:all
-intdrv:	jsr	sim+24		;home then
+intdrv:
+        JSR     sim+24          ;home then
 
-	lda	nsystr		;get number of system tracks
-	ldy	nsystr+1
-	jmp	sim+30		;and set in sim
+        LDA     nsystr          ;get number of system tracks
+        LDY     nsystr+1
+        JMP     sim+30          ;and set in sim
 
 ;directory record set up
 ; input:dirnum
 ; returns:none
 ; alters:all,recnum,dirrec
-drrcsu:	lda	dirnum+1	;move high dir number
-	sta	recnum+1	;to record number
-	lda	dirnum		;divide
-	lsr	recnum+1	;directory by four
-	ror	a
-	lsr	recnum+1
-	ror	a
-	sta	dirrec		;and save
-	sta	recnum		;set low record number
-	lda	recnum+1	;get high
-	sta	dirrec+1	;and set
-	lda	#0		;clear top byte
-	sta	recnum+2
+drrcsu:
+        LDA     dirnum+1        ;move high dir number
+        STA     recnum+1        ;to record number
+        LDA     dirnum          ;divide
+        LSR     recnum+1        ;directory by four
+        ROR     a
+        LSR     recnum+1
+        ROR     a
+        STA     dirrec          ;and save
+        STA     recnum          ;set low record number
+        LDA     recnum+1        ;get high
+        STA     dirrec+1        ;and set
+        LDA     #0              ;clear top byte
+        STA     recnum+2
 ;set track and sector
 ; input:recnum
 ; returns:none
 ; alters:all,countr,trkctr
-sttrsc:	ldx	#0		;clear track counter
-	stx	trkctr
-	stx	countr		;and record
-	stx	countr+1	;counter
-	stx	countr+2
-trnxtr:	lda	recnum		;from
-	cmp	countr		;record number
-	lda	recnum+1	;and if a
-	sbc	countr+1	;borrow then
-	lda	recnum+2
-	sbc	countr+2
-	bcc	higher		;gone too far
-	clc			;else
-	lda	countr		;get counter
-	adc	sectrk		;add sectors per track
-	sta	countr		;sectors per track
-	lda	countr+1
-	adc	sectrk+1
-	sta	countr+1
-	bcc	bumptr		;done if no carry
-	inc	countr+2	;else bump high
-bumptr:	inx			;increase track count
-	bne	trnxtr		;with carry
-	inc	trkctr
-	jmp	trnxtr		;then loop
-higher:	dex			;back up track
-	cpx	#$ff		;see if wrap around
-	bne	*+5		;wasn't
-	dec	trkctr		;else drop high
-	txa			;move to a
-	clc			;add starting track
-	adc	nsystr
-	tax			;save in x
-	lda	trkctr
-	adc	nsystr+1
-	tay			;move to correct registers
-	txa
-	jsr	sim+30		;then set in sim
+sttrsc:
+        LDX     #0              ;clear track counter
+        STX     trkctr
+        STX     countr          ;and record
+        STX     countr+1        ;counter
+        STX     countr+2
+trnxtr:
+        LDA     recnum          ;from
+        CMP     countr          ;record number
+        LDA     recnum+1        ;and if a
+        SBC     countr+1        ;borrow then
+        LDA     recnum+2
+        SBC     countr+2
+        BCC     higher          ;gone too far
+        CLC                     ;else
+        LDA     countr          ;get counter
+        ADC     sectrk          ;add sectors per track
+        STA     countr          ;sectors per track
+        LDA     countr+1
+        ADC     sectrk+1
+        STA     countr+1
+        BCC     bumptr          ;done if no carry
+        INC     countr+2        ;else bump high
+bumptr:
+        INX                     ;increase track count
+        BNE     trnxtr          ;with carry
+        INC     trkctr
+        JMP     trnxtr          ;then loop
+higher:
+        DEX                     ;back up track
+        CPX     #$ff            ;see if wrap around
+        BNE     *+5             ;wasn't
+        DEC     trkctr          ;else drop high
+        TXA                     ;move to a
+        CLC                     ;add starting track
+        ADC     nsystr
+        TAX                     ;save in x
+        LDA     trkctr
+        ADC     nsystr+1
+        TAY                     ;move to correct registers
+        TXA
+        JSR     sim+30          ;then set in sim
 
-	sec			;back
-	lda	countr		;counter down
-	sbc	sectrk		;by sectors per track
-	sta	countr		;and save
-	lda	countr+1
-	sbc	sectrk+1
-	sta	countr+1
-	sec			;now
-	lda	recnum		;find difference
-	sbc	countr		;as sector
-	tax			;save in x
-	lda	recnum+1
-	sbc	countr+1
-	tay			;move to correct registers
-	txa
-	jsr	sim+51		;translate
+        SEC                     ;back
+        LDA     countr          ;counter down
+        SBC     sectrk          ;by sectors per track
+        STA     countr          ;and save
+        LDA     countr+1
+        SBC     sectrk+1
+        STA     countr+1
+        SEC                     ;now
+        LDA     recnum          ;find difference
+        SBC     countr          ;as sector
+        TAX                     ;save in x
+        LDA     recnum+1
+        SBC     countr+1
+        TAY                     ;move to correct registers
+        TXA
+        JSR     sim+51          ;translate
 
-	jmp	sim+33		;and set through sim
+        JMP     sim+33          ;and set through sim
 
 ;get block bit mask and index
 ; input:a&y=block number
 ; returns:a=bit mask and y=0
 ; alters:all and alcpnt
-blkmsk:	pha			;save block number
-	sty	alcpnt+1	;including high
-	ldy	#3		;divide by eight
-blkmlp:	lsr	alcpnt+1	;shift high
-	ror	a
-	dey			;loop until done
-	bne	blkmlp
-	clc			;now add map start
-	adc	alcmap
-	sta	alcpnt
-	lda	alcpnt+1
-	adc	alcmap+1
-	sta	alcpnt+1
-	pla			;get number back
-	and	#%00000111	;look at 3 lsbs
-	tax			;get
-	lda	bitmsk,x	;mask
-	rts			;and return
+blkmsk:
+        PHA                     ;save block number
+        STY     alcpnt+1        ;including high
+        LDY     #3              ;divide by eight
+blkmlp:
+        LSR     alcpnt+1        ;shift high
+        ROR     a
+        DEY                     ;loop until done
+        BNE     blkmlp
+        CLC                     ;now add map start
+        ADC     alcmap
+        STA     alcpnt
+        LDA     alcpnt+1
+        ADC     alcmap+1
+        STA     alcpnt+1
+        PLA                     ;get number back
+        AND     #%00000111      ;look at 3 lsbs
+        TAX                     ;get
+        LDA     bitmsk,x        ;mask
+        RTS                     ;and return
 ;test block
 ; input:a&y=block number
 ; returns:z=1 if unassigned
 ; 	   =0 if assigned and bit in a is set
 ; alters:all
-tstblk:	jsr	blkmsk		;get mask and index
-	and	(alcpnt),y	;mask with map entry
-	rts			;then return
+tstblk:
+        JSR     blkmsk          ;get mask and index
+        AND     (alcpnt),y      ;mask with map entry
+        RTS                     ;then return
 ;alter block status
 ; input:a&y=block number,x=1 if set
 ;		   	  =0 if reset
 ; returns:none
 ; alters:all and allocation map
-altalc:	cpx	#1		;if set
-	beq	setblk		;go do it
-clrblk:	jsr	blkmsk		;else get mask
-	eor	#$ff		;and complement
-	and	(alcpnt),y	;preserve others
-	sta	(alcpnt),y	;and save
-	rts			;then return
-setblk:	jsr	blkmsk		;get mask
-	ora	(alcpnt),y	;set bit
-	sta	(alcpnt),y	;and put back
-	rts			;then return
+altalc:
+        CPX     #1              ;if set
+        BEQ     setblk          ;go do it
+clrblk:
+        JSR     blkmsk          ;else get mask
+        EOR     #$ff            ;and complement
+        AND     (alcpnt),y      ;preserve others
+        STA     (alcpnt),y      ;and save
+        RTS                     ;then return
+setblk:
+        JSR     blkmsk          ;get mask
+        ORA     (alcpnt),y      ;set bit
+        STA     (alcpnt),y      ;and put back
+        RTS                     ;then return
 ;set current drive to read only
 ; input:curdrv,ronlst,bitmap
 ; returns:none
 ; alters:a,x,p and ronlst
-setron:	ldx	curdrv		;get number
-	lda	bitmap,x	;and get mask
-	ora	ronlst		;or with status
-	sta	ronlst		;and put back
-	rts			;then return
+setron:
+        LDX     curdrv          ;get number
+        LDA     bitmap,x        ;and get mask
+        ORA     ronlst          ;or with status
+        STA     ronlst          ;and put back
+        RTS                     ;then return
 ;calculate checksum of buffer @ bufadd
 ; input: buffer@(bufadd)
 ; returns:a=checksum
 ; alters:a,y,p
-clcchk:	lda	#0		;clear accumulator
-	ldy	#127		;start at end
-chkmre:	clc			;no carry
-	adc	(bufadd),y	;add byte
-	dey			;count down
-	bpl	chkmre		;and loop until done
-	rts			;then return
+clcchk:
+        LDA     #0              ;clear accumulator
+        LDY     #127            ;start at end
+chkmre:
+        CLC                     ;no carry
+        ADC     (bufadd),y      ;add byte
+        DEY                     ;count down
+        BPL     chkmre          ;and loop until done
+        RTS                     ;then return
 ;check read/write status
 ; input:curdrv,ronlst
 ; returns:z=0 if r/o or z=1 if r/w
 ; alters:a,x,p
-chkron:	ldx	curdrv		;get current drive
-	lda	bitmap,x	;get mask
-	and	ronlst		;and test status
-	rts
+chkron:
+        LDX     curdrv          ;get current drive
+        LDA     bitmap,x        ;get mask
+        AND     ronlst          ;and test status
+        RTS
 ;initialize record counters from fcb
 ; input:fcb@(addinp)
 ; returns:none
 ; alters:a,y,p,nxtrec,numrec
-inrcct:	ldy	#32		;next record offset
-	lda	(addinp),y	;get next record
-	sta	nxtrec		;and save
-	ldy	#15		;number records offset
-	lda	(addinp),y	;get number
-	sta	numrec		;and save
-	rts			;and return
+inrcct:
+        LDY     #32             ;next record offset
+        LDA     (addinp),y      ;get next record
+        STA     nxtrec          ;and save
+        LDY     #15             ;number records offset
+        LDA     (addinp),y      ;get number
+        STA     numrec          ;and save
+        RTS                     ;and return
 ;update record counters in fcb
 ; input:nxtrec,numrec
 ; returns:none
 ; alters:all,fcb@(addinp)
-updtrc:	ldx	nxtrec		;get next record
-	inx			;bump it
-	txa			;transfer
-	ldy	#32		;set offset
-	sta	(addinp),y	;and store in fcb
-	lda	numrec		;get number
-	ldy	#15		;and its offset
-	sta	(addinp),y	;and store
-	rts			;then return
+updtrc:
+        LDX     nxtrec          ;get next record
+        INX                     ;bump it
+        TXA                     ;transfer
+        LDY     #32             ;set offset
+        STA     (addinp),y      ;and store in fcb
+        LDA     numrec          ;get number
+        LDY     #15             ;and its offset
+        STA     (addinp),y      ;and store
+        RTS                     ;then return
 ;execute open file
-xopen:	jsr	autodr		;auto drive select
+xopen:
+        JSR     autodr          ;auto drive select
 ;open file
 ; input:fcb @ (addinp)
 ; returns:n=1 if not found,a=dirmod (255 if not found)
 ; alters:all
-opnfle:	jsr	fndf13		;match all including extent
-	bmi	extopn		;done if not found
-	lda	#12		;point to first char
-	ora	subrec		;add offset
-	tay			;make it a pointer
-nxopmv:	lda	(bufadd),y	;get buffer contents
-	tax			;and save
-	tya			;save index
-	and	#%00011111	;remove offset
-	tay			;back to index
-	txa			;get byte back
-	sta	(addinp),y	;and store in fcb
-	tya			;get index
-	ora	subrec		;add offset back
-	tay			;and make index again
-	iny			;next position
-	tya			;if index
-	and	#%00011111	;not gone past
-	bne	nxopmv		;end then loop
+opnfle:
+        JSR     fndf13          ;match all including extent
+        BMI     extopn          ;done if not found
+        LDA     #12             ;point to first char
+        ORA     subrec          ;add offset
+        TAY                     ;make it a pointer
+nxopmv:
+        LDA     (bufadd),y      ;get buffer contents
+        TAX                     ;and save
+        TYA                     ;save index
+        AND     #%00011111      ;remove offset
+        TAY                     ;back to index
+        TXA                     ;get byte back
+        STA     (addinp),y      ;and store in fcb
+        TYA                     ;get index
+        ORA     subrec          ;add offset back
+        TAY                     ;and make index again
+        INY                     ;next position
+        TYA                     ;if index
+        AND     #%00011111      ;not gone past
+        BNE     nxopmv          ;end then loop
 ;now correct extent and max records
-	ldy	#12		;point at extent in fcb
-	lda	savext		;get save from search
-	cmp	(addinp),y	;compare
-	beq	extsme		;jump ahead if same
-	sta	(addinp),y	;else change extent
-	lda	#128		;assume fcb ext < dir ext
-	bcc	fcbxls		;jump ahead if true
-	asl	a		;clear a
-fcbxls:	ldy	#15		;point to max
-	sta	(addinp),y	;and set
-extsme:	lda	dirmod		;else get number
-extopn:	rts			;and return
+        LDY     #12             ;point at extent in fcb
+        LDA     savext          ;get save from search
+        CMP     (addinp),y      ;compare
+        BEQ     extsme          ;jump ahead if same
+        STA     (addinp),y      ;else change extent
+        LDA     #128            ;assume fcb ext < dir ext
+        BCC     fcbxls          ;jump ahead if true
+        ASL     a               ;clear a
+fcbxls:
+        LDY     #15             ;point to max
+        STA     (addinp),y      ;and set
+extsme:
+        LDA     dirmod          ;else get number
+extopn:
+        RTS                     ;and return
 ;execute close file
-xclose:	jsr	autodr		;auto drive select
+xclose:
+        JSR     autodr          ;auto drive select
 ;close file
 ;if file is r/o then no actual close
 ;operation is performed.
 ; input:fcb @ (addinp)
 ; returns:n=1 if not valid,a=dirmod (255 if invalid)
 ; alters:all
-clsfle:	jsr	fndf13		;match including extent
-	bmi	extcls		;exit if not found
-	jsr	chkron		;see if r/o
-	bne	noclse		;branch if is
+clsfle:
+        JSR     fndf13          ;match including extent
+        BMI     extcls          ;exit if not found
+        JSR     chkron          ;see if r/o
+        BNE     noclse          ;branch if is
 ;now set flag to ensure directory extent and number of
 ;records fields are only changed if necessary.
 ;The decision to change is determined by whether or
@@ -793,823 +888,1000 @@ clsfle:	jsr	fndf13		;match including extent
 ;maximum extent in the directory entry. If that is
 ;the case, the directory extent and number of record
 ;fields are not changed.
-	ldy	#12		;get extent
-	lda	(addinp),y
-	pha			;save it
-	tya			;now look in directory
-	ora	subrec
-	tay
-	pla			;get extent back
-	cmp	(bufadd),y
-	ror	skpdir		;save result
+        LDY     #12             ;get extent
+        LDA     (addinp),y
+        PHA                     ;save it
+        TYA                     ;now look in directory
+        ORA     subrec
+        TAY
+        PLA                     ;get extent back
+        CMP     (bufadd),y
+        ROR     skpdir          ;save result
 ;now go do it
-	jsr	updtdr		;update directory
-noclse:	lda	dirmod		;get directory number
-extcls:	rts			;and return
+        JSR     updtdr          ;update directory
+noclse:
+        LDA     dirmod          ;get directory number
+extcls:
+        RTS                     ;and return
 ;execute find first match
-xfndfr:	jsr	autodr		;auto drive select
-fndf13:	lda	#13		;match including extent
+xfndfr:
+        JSR     autodr          ;auto drive select
+fndf13:
+        LDA     #13             ;match including extent
 ;search for first match
 ; input:a=number char to match
 ; returns:n=1 if invalid,a=dirmod (255 if invalid)
 ; alters:all
-frstsr:	pha			;save number to match
-	jsr	cldrnm		;clear directory number to -1
-	jsr	intdrv		;and drive
-	pla			;get number to match
+frstsr:
+        PHA                     ;save number to match
+        JSR     cldrnm          ;clear directory number to -1
+        JSR     intdrv          ;and drive
+        PLA                     ;get number to match
 ;search for directory match
 ; input:a=number char to match
 ; returns:n=1 if not found,a=dirmod (255 if invalid)
 ; alters:all
-search:	sta	chrcnt		;save number
-newtry:	ldx	#0		;set for search
-	stx	cmppnt		;clear pointer
-	jsr	nxtdir		;get next entry
-	bmi	exitsr		;exit if not found
-	ldx	chrcnt		;get count
-mremch:	ldy	cmppnt		;get pointer
-	inc	cmppnt		;and bump
-	lda	(addinp),y	;get fcb entry
-	cpy	#12		;see if at extent
-	bne	notaex		;jump if not
-	sta	savext		;save for later use
-	pha			;save extent
-	tya			;change to directory
-	ora	subrec		;coordinates
-	tay
-	pla			;get extent back
-	eor	(bufadd),y	;exclusive or with dir
-	and	cexm1f		;and with exm complement + 1f
-	beq	trynxt		;ok if zero
-	bne	newtry		;else get next directory
-notaex:	cmp	#'?'		;if a ? then
-	beq	trynxt		;is a match
-	pha			;save char
-	tya			;then add
-	ora	subrec		;offset to
-	tay			;make pointer
-	pla			;get char back
+search:
+        STA     chrcnt          ;save number
+newtry:
+        LDX     #0              ;set for search
+        STX     cmppnt          ;clear pointer
+        JSR     nxtdir          ;get next entry
+        BMI     exitsr          ;exit if not found
+        LDX     chrcnt          ;get count
+mremch:
+        LDY     cmppnt          ;get pointer
+        INC     cmppnt          ;and bump
+        LDA     (addinp),y      ;get fcb entry
+        CPY     #12             ;see if at extent
+        BNE     notaex          ;jump if not
+        STA     savext          ;save for later use
+        PHA                     ;save extent
+        TYA                     ;change to directory
+        ORA     subrec          ;coordinates
+        TAY
+        PLA                     ;get extent back
+        EOR     (bufadd),y      ;exclusive or with dir
+        AND     cexm1f          ;and with exm complement + 1f
+        BEQ     trynxt          ;ok if zero
+        BNE     newtry          ;else get next directory
+notaex:
+        CMP     #'?'            ;if a ? then
+        BEQ     trynxt          ;is a match
+        PHA                     ;save char
+        TYA                     ;then add
+        ORA     subrec          ;offset to
+        TAY                     ;make pointer
+        PLA                     ;get char back
 ;        sta     savex
 ;        lda	(bufadd),y	;if not same
 ;        and     #$7F            ; strip off high bit for ROMWBW Read only filesystem
 ;	cmp	savex	        ;if not same
-        cmp	(bufadd),y	;if not same
-	bne	newtry		;try next directory
-trynxt:	dex			;else count number down
-	bne	mremch		;and loop if more
-	lda	dirmod		;return with directory
-exitsr:	rts			;number mod 4
+        CMP     (bufadd),y      ;if not same
+        BNE     newtry          ;try next directory
+trynxt:
+        DEX                     ;else count number down
+        BNE     mremch          ;and loop if more
+        LDA     dirmod          ;return with directory
+exitsr:
+        RTS                     ;number mod 4
 ;calculate logical record number
 ; input:blknum
 ; returns:none
 ; alters:a,x,p,recnum
-calrcn:	ldx	sxb		;set x according to blkscd
-mulmre:	asl	blknum		;multiply block
-	rol	blknum+1	;number
-	rol	blknum+2
-	dex			;by code
-	bne	mulmre
-	lda	sab		;set mask in a
-	and	nxtrec		;and with next record
-	ora	recnum		;or with number
-	sta	recnum		;and save
-	rts
+calrcn:
+        LDX     sxb             ;set x according to blkscd
+mulmre:
+        ASL     blknum          ;multiply block
+        ROL     blknum+1        ;number
+        ROL     blknum+2
+        DEX                     ;by code
+        BNE     mulmre
+        LDA     sab             ;set mask in a
+        AND     nxtrec          ;and with next record
+        ORA     recnum          ;or with number
+        STA     recnum          ;and save
+        RTS
 ;update directory
-updtdr:	lda	#32		;change all
-	ldx	#0		;from start
+updtdr:
+        LDA     #32             ;change all
+        LDX     #0              ;from start
 ;change directory entry
 ; input:a=number char to change,x=starting position,fcb@(addinp)
 ; returns:none
 ; alters:all,directory,checksums
-dirchg:	sta	chrcnt		;save count
-	dec	chrcnt		;back up
-mrechg:	clc			;clear carry
-	txa			;get offset
-	adc	chrcnt		;compute index
-	tay			;and set
-	cpy	#12		;see if at extent
-	beq	docare		;if so do special
-	cpy	#15		;see if at number rec
-	bne	dntcar		;if not skip
-docare:	bit	skpdir		;check flag
-	bpl	nochng		;skip if ok
-dntcar:	lda	(addinp),y	;get char
-	pha			;save it
-	lda	chrcnt		;get count
-	ora	subrec		;add offset
-	tay			;make an index
-	pla			;get char back
-	sta	(bufadd),y	;and put in buffer
-nochng:	dec	chrcnt		;count down
-	bpl	mrechg		;and loop
-	jsr	drrcsu		;set it up
-	jmp	updtck		;and do change
+dirchg:
+        STA     chrcnt          ;save count
+        DEC     chrcnt          ;back up
+mrechg:
+        CLC                     ;clear carry
+        TXA                     ;get offset
+        ADC     chrcnt          ;compute index
+        TAY                     ;and set
+        CPY     #12             ;see if at extent
+        BEQ     docare          ;if so do special
+        CPY     #15             ;see if at number rec
+        BNE     dntcar          ;if not skip
+docare:
+        BIT     skpdir          ;check flag
+        BPL     nochng          ;skip if ok
+dntcar:
+        LDA     (addinp),y      ;get char
+        PHA                     ;save it
+        LDA     chrcnt          ;get count
+        ORA     subrec          ;add offset
+        TAY                     ;make an index
+        PLA                     ;get char back
+        STA     (bufadd),y      ;and put in buffer
+nochng:
+        DEC     chrcnt          ;count down
+        BPL     mrechg          ;and loop
+        JSR     drrcsu          ;set it up
+        JMP     updtck          ;and do change
 ;execute create file
-xmake:	jsr	autodr		;auto drive select
+xmake:
+        JSR     autodr          ;auto drive select
 ;create file
 ; input:fcb@(addinp)
 ; returns:n=1 if not valid,a=dirmod (255 if not valid)
 ; alters:dirnum,dirmod,fcb@(addinp)
-mkefle:	jsr	tstron		;test for r/o
-	lda	addinp		;save fcb
-	pha			;address
-	lda	addinp+1	;on
-	pha			;stack
-	lda	empdvc		;then point
-	ldy	empdvc+1	;to empty
-	sta	addinp		;dummy
-	sty	addinp+1	;fcb
-	lda	#1		;match only
-	jsr	frstsr		;first char
-	pla			;restore
-	sta	addinp+1	;fcb
-	pla			;address
-	sta	addinp		;from stack
-	lda	dirmod		;get number mod 4
-	bmi	extmke		;quit if not found
-	ldy	#13		;else set up
-	lda	#0		;to clear
-mkeagn:	sta	(addinp),y	;rest of
-	iny			;fcb
-	cpy	#33		;including next
-	bne	mkeagn		;record
+mkefle:
+        JSR     tstron          ;test for r/o
+        LDA     addinp          ;save fcb
+        PHA                     ;address
+        LDA     addinp+1        ;on
+        PHA                     ;stack
+        LDA     empdvc          ;then point
+        LDY     empdvc+1        ;to empty
+        STA     addinp          ;dummy
+        STY     addinp+1        ;fcb
+        LDA     #1              ;match only
+        JSR     frstsr          ;first char
+        PLA                     ;restore
+        STA     addinp+1        ;fcb
+        PLA                     ;address
+        STA     addinp          ;from stack
+        LDA     dirmod          ;get number mod 4
+        BMI     extmke          ;quit if not found
+        LDY     #13             ;else set up
+        LDA     #0              ;to clear
+mkeagn:
+        STA     (addinp),y      ;rest of
+        INY                     ;fcb
+        CPY     #33             ;including next
+        BNE     mkeagn          ;record
 ;the next two lines ensure that the extent and
 ;number of records fields are updated
-	sec
-	ror	skpdir
-	jsr	updtdr		;update directory
-	lda	dirmod		;get number
-extmke:	rts			;and quit
+        SEC
+        ROR     skpdir
+        JSR     updtdr          ;update directory
+        LDA     dirmod          ;get number
+extmke:
+        RTS                     ;and quit
 ;extend file
 ; input:fcb@(addinp), x=1 read
 ;		        0 write
-extend:	stx	exrwfl		;save parameter
-	jsr	clsfle		;close current extent
-	bmi	extext		;exit if not found
-	ldy	#12		;else
-	lda	(addinp),y	;get extent
-	clc			;and
-	adc	#1		;add one
-	and	#%00011111	;see if overflow
-	beq	exteof		;eof if so
-	sta	(addinp),y	;and save
-	jsr	fndf13		;see if next extent exists
-	bpl	opnext		;if so open
-	lda	exrwfl		;if not and is write then create
-	bne	extext		;else return as eof
-dwrtex:	jsr	mkefle		;create file
-	jmp	tstext		;and test
-opnext:	jsr	opnfle		;open
-tstext:	bpl	extnok		;continue if ok
-exteof:	lda	#1		;else set eof
-	rts			;and return
-extnok:	jsr	inrcct		;initialize counters
-	lda	#0		;good
-extext:	rts			;return
+extend:
+        STX     exrwfl          ;save parameter
+        JSR     clsfle          ;close current extent
+        BMI     extext          ;exit if not found
+        LDY     #12             ;else
+        LDA     (addinp),y      ;get extent
+        CLC                     ;and
+        ADC     #1              ;add one
+        AND     #%00011111      ;see if overflow
+        BEQ     exteof          ;eof if so
+        STA     (addinp),y      ;and save
+        JSR     fndf13          ;see if next extent exists
+        BPL     opnext          ;if so open
+        LDA     exrwfl          ;if not and is write then create
+        BNE     extext          ;else return as eof
+dwrtex:
+        JSR     mkefle          ;create file
+        JMP     tstext          ;and test
+opnext:
+        JSR     opnfle          ;open
+tstext:
+        BPL     extnok          ;continue if ok
+exteof:
+        LDA     #1              ;else set eof
+        RTS                     ;and return
+extnok:
+        JSR     inrcct          ;initialize counters
+        LDA     #0              ;good
+extext:
+        RTS                     ;return
 ;set up next directory block
 ; input:dirnum,x=1 for update checksum
 ; returns:a=dirmod (255 if invalid),n=1 if invalid
 ; alters:alll,dirnum,dirmod
-nxtdir:	txa			;save operation
-	pha			;on stack
-	inc	dirnum		;bump directory
-	bne	*+5
-	inc	dirnum+1
-	lda	maxdir		;if not at limit continue
-	cmp	dirnum
-	lda	maxdir+1
-	sbc	dirnum+1
-	bcs	gtnxdr		;then continue
-	pla			;else clear stack
-	tax			;and set x
-	jmp	cldrnm		;set to invalid
-gtnxdr:	lda	dirnum		;get low again
-	and	#%00000011	;look at 2 lsbs
-	sta	dirmod		;save mod 4
-	asl	a		;multiply
-	asl	a		;by
-	asl	a		;32 to
-	asl	a		;get pointer
-	asl	a		;offset
-	sta	subrec		;and save
-	beq	getdir		;if zero read new
-	pla			;else clear stack
-	tax			;set x
-	jmp	gotdir		;and exit
-getdir:	jsr	drrcsu		;set up to read
-	jsr	rdesec		;do read
-	pla			;get operation
-	tax			;code
+nxtdir:
+        TXA                     ;save operation
+        PHA                     ;on stack
+        INC     dirnum          ;bump directory
+        BNE     *+5
+        INC     dirnum+1
+        LDA     maxdir          ;if not at limit continue
+        CMP     dirnum
+        LDA     maxdir+1
+        SBC     dirnum+1
+        BCS     gtnxdr          ;then continue
+        PLA                     ;else clear stack
+        TAX                     ;and set x
+        JMP     cldrnm          ;set to invalid
+gtnxdr:
+        LDA     dirnum          ;get low again
+        AND     #%00000011      ;look at 2 lsbs
+        STA     dirmod          ;save mod 4
+        ASL     a               ;multiply
+        ASL     a               ;by
+        ASL     a               ;32 to
+        ASL     a               ;get pointer
+        ASL     a               ;offset
+        STA     subrec          ;and save
+        BEQ     getdir          ;if zero read new
+        PLA                     ;else clear stack
+        TAX                     ;set x
+        JMP     gotdir          ;and exit
+getdir:
+        JSR     drrcsu          ;set up to read
+        JSR     rdesec          ;do read
+        PLA                     ;get operation
+        TAX                     ;code
 ;;;;;;	jsr	chksop		;do it
-gotdir:	lda	dirmod		;and return
-exnxdr:	rts			;with number
+gotdir:
+        LDA     dirmod          ;and return
+exnxdr:
+        RTS                     ;with number
 ;checksum operation
 ;this routine assumes calling routine has checked for
 ;valid dirnum and hence valid dirrec
 ; input:chkflg,dirrec,x (1=update else check)
 ; returns:none
 ; alters:map@(chkmap)
-chksop:	bit	chkflg		;check flag
-	bmi	exnxdr		;done if set
-	dex			;dec code
-	bne	tstchk		;if not zero test
-	jsr	clcchk		;else calculate
-	jsr	clcckp		;calculate pointer
-	sta	(chkpnt),y	;and save
-	rts			;then return
-tstchk:	jsr	clcchk		;do calculation
-	jsr	clcckp		;calculate pointer
-	cmp	(chkpnt),y	;compare to old
-	beq	exnxdr		;if equal ok
-	jmp	setron		;else set to r/o
+chksop:
+        BIT     chkflg          ;check flag
+        BMI     exnxdr          ;done if set
+        DEX                     ;dec code
+        BNE     tstchk          ;if not zero test
+        JSR     clcchk          ;else calculate
+        JSR     clcckp          ;calculate pointer
+        STA     (chkpnt),y      ;and save
+        RTS                     ;then return
+tstchk:
+        JSR     clcchk          ;do calculation
+        JSR     clcckp          ;calculate pointer
+        CMP     (chkpnt),y      ;compare to old
+        BEQ     exnxdr          ;if equal ok
+        JMP     setron          ;else set to r/o
 ;get block number
 ; input:nxtrec,blmode,fcb@(addinp),sxb,exm
 ; returns:none
 ; alters:all,blknum
-getblk:	ldx	sxb		;set x according to blkscd
-	lda	nxtrec		;get next record
-gblp:	lsr	a		;divide by 2 x times
-	dex
-	bne	gblp
-	sta	blknum		;save previous as temp
+getblk:
+        LDX     sxb             ;set x according to blkscd
+        LDA     nxtrec          ;get next record
+gblp:
+        LSR     a               ;divide by 2 x times
+        DEX
+        BNE     gblp
+        STA     blknum          ;save previous as temp
 ;use extent as offset but first use sxb to create param
-	sec
-	lda	#8
-	sbc	sxb
-	tax
+        SEC
+        LDA     #8
+        SBC     sxb
+        TAX
 ;now get extent from fcb
-	ldy	#12
-	lda	(addinp),y
-	and	exm		;and with mask
-	lsr	a		;shift with lsb to c
-gbxlp:	rol	a		;now go other way
-	dex
-	bne	gbxlp
-	clc			;now add saved value
-	adc	blknum		;back
-	bit	blmode		;test mode
-	bpl	*+3		;skip if byte
-	asl	a		;else times two
-	clc			;then add
-	adc	#16		;offset into fcb
-	sta	fcbind		;save for later
-	tay			;set index
-	lda	(addinp),y	;get number
-	sta	blknum		;store
-	iny
-	lda	#0		;clear
-	bit	blmode		;test mode
-	bpl	*+4		;skip if byte
-	lda	(addinp),y	;else get high
-	sta	blknum+1	;high byte
-	rts			;and return
+        LDY     #12
+        LDA     (addinp),y
+        AND     exm             ;and with mask
+        LSR     a               ;shift with lsb to c
+gbxlp:
+        ROL     a               ;now go other way
+        DEX
+        BNE     gbxlp
+        CLC                     ;now add saved value
+        ADC     blknum          ;back
+        BIT     blmode          ;test mode
+        BPL     *+3             ;skip if byte
+        ASL     a               ;else times two
+        CLC                     ;then add
+        ADC     #16             ;offset into fcb
+        STA     fcbind          ;save for later
+        TAY                     ;set index
+        LDA     (addinp),y      ;get number
+        STA     blknum          ;store
+        INY
+        LDA     #0              ;clear
+        BIT     blmode          ;test mode
+        BPL     *+4             ;skip if byte
+        LDA     (addinp),y      ;else get high
+        STA     blknum+1        ;high byte
+        RTS                     ;and return
 ;calculate chkpnt as function of dirrec and chkmap
 ; input:dirrec,chkmap
 ; returns:y=0
 ; alters:y,p,chkpnt
-clcckp:	pha			;save a
-	clc
-	lda	dirrec		;add record number
-	adc	chkmap		;to start
-	sta	chkpnt
-	lda	dirrec+1
-	adc	chkmap+1
-	sta	chkpnt+1
-	ldy	#0
-	pla			;get a back
-	rts
+clcckp:
+        PHA                     ;save a
+        CLC
+        LDA     dirrec          ;add record number
+        ADC     chkmap          ;to start
+        STA     chkpnt
+        LDA     dirrec+1
+        ADC     chkmap+1
+        STA     chkpnt+1
+        LDY     #0
+        PLA                     ;get a back
+        RTS
 ;clear directory number to $ffff
 ; input:none
 ; returns:a=$ff,n=1,z=0
 ; alters:a,p,dirnum,dirmod
-cldrnm:	lda	#$ff		;set to $ff
-	sta	dirnum
-	sta	dirnum+1
-	sta	dirmod
-	rts
+cldrnm:
+        LDA     #$ff            ;set to $ff
+        STA     dirnum
+        STA     dirnum+1
+        STA     dirmod
+        RTS
 ;change allocation map
 ; input:subrec,directory record @ (bufadd)
 ; returns:none
 ; alters:all,allocation map
-mapdir:	clc			;add 16 to
-	lda	subrec		;to subrec to point
-	adc	#16		;to block number field
-	tay			;make index
-lpmpdr:	sty	mpdrsy		;save index
-	txa			;save x
-	pha			;operation
-	lda	(bufadd),y	;get block number
-	sta	mpdrtm		;save in temp
-	iny			;bump index for word
-	jsr	gthibn		;get high part of number
-mpdrnw:	ora	mpdrtm		;see if zero
-	beq	skpedr		;skip if zero
-	jsr	gthibn		;get high again
-	tay			;move to y
-	lda	mpdrtm		;get low again
-	jsr	altalc		;else alter map
-skpedr:	pla			;get operation
-	tax			;back
-	ldy	mpdrsy		;get index back
-	iny			;bump it
-	tya			;if still
-	and	#%00001111	;in field
-	bne	lpmpdr		;then loop
-	rts			;else quit
+mapdir:
+        CLC                     ;add 16 to
+        LDA     subrec          ;to subrec to point
+        ADC     #16             ;to block number field
+        TAY                     ;make index
+lpmpdr:
+        STY     mpdrsy          ;save index
+        TXA                     ;save x
+        PHA                     ;operation
+        LDA     (bufadd),y      ;get block number
+        STA     mpdrtm          ;save in temp
+        INY                     ;bump index for word
+        JSR     gthibn          ;get high part of number
+mpdrnw:
+        ORA     mpdrtm          ;see if zero
+        BEQ     skpedr          ;skip if zero
+        JSR     gthibn          ;get high again
+        TAY                     ;move to y
+        LDA     mpdrtm          ;get low again
+        JSR     altalc          ;else alter map
+skpedr:
+        PLA                     ;get operation
+        TAX                     ;back
+        LDY     mpdrsy          ;get index back
+        INY                     ;bump it
+        TYA                     ;if still
+        AND     #%00001111      ;in field
+        BNE     lpmpdr          ;then loop
+        RTS                     ;else quit
 ;test r/w status
 ;does warm boot if r/o
 ; input:curdrv,ronlst
 ; returns:none
 ; alters:a,x,p
-tstron:	jsr	chkron		;test bit
-	beq	exttro		;exit if r/w
-	jsr	errout		;else send error
-	lda	rommvc		;point to r/o
-	ldy	rommvc+1	;message
-	jsr	sndstr		;send it
-	jmp	xwboot		;then abort
+tstron:
+        JSR     chkron          ;test bit
+        BEQ     exttro          ;exit if r/w
+        JSR     errout          ;else send error
+        LDA     rommvc          ;point to r/o
+        LDY     rommvc+1        ;message
+        JSR     sndstr          ;send it
+        JMP     xwboot          ;then abort
 ;set current drive to r/w
 ; input:curdrv,ronlst
 ; returns:ronlst
 ; alters:a,x,p,ronlst
-setrw:	ldx	curdrv		;get drive
-	lda	bitmap,x	;and mask
-	eor	#$ff		;complement
-	and	ronlst		;and with status
-	sta	ronlst		;save
-exttro:	rts			;return
+setrw:
+        LDX     curdrv          ;get drive
+        LDA     bitmap,x        ;and mask
+        EOR     #$ff            ;complement
+        AND     ronlst          ;and with status
+        STA     ronlst          ;save
+exttro:
+        RTS                     ;return
 ;read sector
-rdesec:	jsr	sim+39		;do read
+rdesec:
+        JSR     sim+39          ;do read
 
-	jmp	chkrwe		;check for error
+        JMP     chkrwe          ;check for error
 ;update checksum and directory
-updtck:	ldx	#1		;set for update
+updtck:
+        LDX     #1              ;set for update
 ;;;;;	jsr	chksop		;do it
-	lda	#1		;say is directory op
-	bne	secwrt		;do it
+        LDA     #1              ;say is directory op
+        BNE     secwrt          ;do it
 ;write sector
-wrtsec:	lda	pemwrtype		;get write type
-secwrt:	jsr	sim+42		;do write
+wrtsec:
+        LDA     pemwrtype       ;get write type
+secwrt:
+        JSR     sim+42          ;do write
 
-chkrwe:	cmp	#0		;if not ok
-	beq	exttro		;done if zero
+chkrwe:
+        CMP     #0              ;if not ok
+        BEQ     exttro          ;done if zero
 ;read/write error
-rwerrt:	jsr	errout		;send error message
-	lda	bdsmvc		;point to
-	ldy	bdsmvc+1	;bad sector message
-	jsr	sndstr		;and send
-	jsr	getcon		;get input
-	cmp	#cr		;if a cr
-	beq	ignerr		;then continue
-	jmp	xwboot		;else abort
-ignerr:	jmp	pcrlf		;crlf and return
+rwerrt:
+        JSR     errout          ;send error message
+        LDA     bdsmvc          ;point to
+        LDY     bdsmvc+1        ;bad sector message
+        JSR     sndstr          ;and send
+        JSR     getcon          ;get input
+        CMP     #cr             ;if a cr
+        BEQ     ignerr          ;then continue
+        JMP     xwboot          ;else abort
+ignerr:
+        JMP     pcrlf           ;crlf and return
 ;error output routine
 ; input:curdrv,pemmvc
 ; returns:none
 ; alters:all
-errout:	lda	pemmvc		;point to
-	ldy	pemmvc+1	;error message
-	jsr	sndstr		;send it
-	lda	curdrv		;get drive number
-	clc			;add
-	adc	#'A'		;ascii a
-	jmp	sndchr		;and send it
+errout:
+        LDA     pemmvc          ;point to
+        LDY     pemmvc+1        ;error message
+        JSR     sndstr          ;send it
+        LDA     curdrv          ;get drive number
+        CLC                     ;add
+        ADC     #'A'            ;ascii a
+        JMP     sndchr          ;and send it
 ;get high part of block number if word (zero if byte)
 ; input:y=index to high,blmode,directory@(bufadd)+subrec
 ; returns:a=high part of block number
 ; alters:a,p,mpdrsy iff word
-gthibn:	lda	#0		;preset for byte
-	bit	blmode		;test mode
-	bpl	gthiex		;done if byte
-	lda	(bufadd),y	;get high
-	sty	mpdrsy		;alter y
-gthiex:	rts
+gthibn:
+        LDA     #0              ;preset for byte
+        BIT     blmode          ;test mode
+        BPL     gthiex          ;done if byte
+        LDA     (bufadd),y      ;get high
+        STY     mpdrsy          ;alter y
+gthiex:
+        RTS
 ;get console input
 ; input:pndkey
 ; returns:a=character
 ; alters:all,pndkey
 getcon:
-	lda	pndkey		;get pending
-	pha			;save it
-	lda	#0		;clear
-	sta	pndkey		;pending
-	pla			;restore
-	bne	extget		;exit if not null
-	jsr	sim+9		;else get new
+        LDA     pndkey          ;get pending
+        PHA                     ;save it
+        LDA     #0              ;clear
+        STA     pndkey          ;pending
+        PLA                     ;restore
+        BNE     extget          ;exit if not null
+        JSR     sim+9           ;else get new
 
-extget:	rts			;and return
+extget:
+        RTS                     ;and return
 ;check keyboard status
 ;handles <ctl-s> for freeze and <ctl-c> for boot
 ; input:pndkey
 ; returns:a=0 if no input or <>0 if input
 ; alters:all,pndkey
 kbdsts:
-	lda	pndkey		;get pending
-	bne	extkbd		;if there quit
-	jsr	sim+6		;else test
-	CMP	#$00		;if zero
-	beq	extkbd		;exit
-	jsr	sim+9		;else get input
-	cmp	#ctls		;if not freeze
-	bne	newpnd		;save input
-	jsr	sim+9		;else wait for more
-	cmp	#ctlc		;if not abort
-	bne	nowarm		;then jump
-	jmp	xwboot		;else do warm boot
-nowarm:	lda	#0		;clear
-	rts			;and return
-newpnd:	sta	pndkey		;save
-	lda	#$ff		;set ready
+        LDA     pndkey          ;get pending
+        BNE     extkbd          ;if there quit
+        JSR     sim+6           ;else test
+        CMP     #$00            ;if zero
+        BEQ     extkbd          ;exit
+        JSR     sim+9           ;else get input
+        CMP     #ctls           ;if not freeze
+        BNE     newpnd          ;save input
+        JSR     sim+9           ;else wait for more
+        CMP     #ctlc           ;if not abort
+        BNE     nowarm          ;then jump
+        JMP     xwboot          ;else do warm boot
+nowarm:
+        LDA     #0              ;clear
+        RTS                     ;and return
+newpnd:
+        STA     pndkey          ;save
+        LDA     #$ff            ;set ready
 extkbd:
-	rts			;and return
+        RTS                     ;and return
 ;test character
 ; input:a=character
 ; returns:c=0 if control or c=1 if printing
 ; alters:p
-tstchr:	cmp	#cr		;if cr
-	beq	chtext		;quit
-	cmp	#lf		;if linefeed
-	beq	chtext		;quit
-	cmp	#ctli		;if tab
-	beq	chtext		;quit
-	cmp	#' '		;see if control
-chtext:	rts			;and return
+tstchr:
+        CMP     #cr             ;if cr
+        BEQ     chtext          ;quit
+        CMP     #lf             ;if linefeed
+        BEQ     chtext          ;quit
+        CMP     #ctli           ;if tab
+        BEQ     chtext          ;quit
+        CMP     #' '            ;see if control
+chtext:
+        RTS                     ;and return
 ;send string ending in $
 ; input:ay=string address
 ; returns:none
 ; alters:all,index,sndlpe+1 and +2
-sndstr:	sta	sndlpe+1	;set pointer
-	sty	sndlpe+2
-	ldy	#0
-sndlpe:	lda	$ffff,y		;get char
-	cmp	#'$'		;if terminator
-	beq	sndext		;then exit
-	iny			;else bump
-	sty	index		;and save
-	jsr	sndchr		;send char
-	ldy	index		;get index
-	bne	sndlpe		;and loop
-sndext:	rts			;return
+sndstr:
+        STA     sndlpe+1        ;set pointer
+        STY     sndlpe+2
+        LDY     #0
+sndlpe:
+        LDA     $ffff,y         ;get char
+        CMP     #'$'            ;if terminator
+        BEQ     sndext          ;then exit
+        INY                     ;else bump
+        STY     index           ;and save
+        JSR     sndchr          ;send char
+        LDY     index           ;get index
+        BNE     sndlpe          ;and loop
+sndext:
+        RTS                     ;return
 ;send char to printer if enabled
 ; input:a=character,lstflg
 ; returns:a=character
 ; alters:x,y,p
 lstout:
-	bit	lstflg		;test flag
-	bpl	extlst		;exit if off
-	bit	outflg		;test output flag
-	bmi	extlst		;done if set
-	pha			;save char
-	jsr	sim+15		;send
-	pla			;get char
-extlst:	rts			;and done
+        BIT     lstflg          ;test flag
+        BPL     extlst          ;exit if off
+        BIT     outflg          ;test output flag
+        BMI     extlst          ;done if set
+        PHA                     ;save char
+        JSR     sim+15          ;send
+        PLA                     ;get char
+extlst:
+        RTS                     ;and done
 ;output a character
 ; input:a=character,console definition block in sim
 ; returns:none
 ; alters:all,positn
-output:	jsr	tstchr		;test it
-	bcs	sndchr		;if not control jump
-	pha			;else save
-	lda	sysdef+4	;get invert
-	jsr	nolist		;send to console
-	lda	#'^'		;get arrow
-	jsr	lstout		;send to printer
-	pla			;get character
-	ora	#'A'-1		;convert to ascii
-	jsr	pchrot		;send to all
-	lda	sysdef+3	;get normal
-	jmp	nolist		;to console
-sndchr:	cmp	#ctli		;if not tab
-	bne	pchrot		;send
-tabspc:	lda	#' '		;else get space
-	jsr	pchrot		;send
-	lda	positn		;get count
-	and	#7		;if not mod 8
-	bne	tabspc		;loop
-	rts			;else exit
-pchrot:	pha			;save char
-	jsr	kbdsts		;test input
-	pla			;restore
-	jsr	lstout		;to printer if on
-nolist:	pha			;save again
-	bit	outflg		;test flag
-	bmi	*+5		;done if set
-	jsr	sim+12		;to console
-	pla			;restore
-	inc	positn		;bump col
-	cmp	#' '		;if space or more
-	bcs	extchr		;is ok
-	cmp	sysdef+2	;also ok
-	beq	extchr		;if forward
-	dec	positn		;else drop back
-	cmp	sysdef+0	;see if bs
-	bne	tryotr		;branch if not
-	dec	positn		;else drop again
-	bmi	zrocol		;zero if <0
-	rts			;else ok
-tryotr:	cmp	#cr		;if a cr
-	beq	zrocol		;clear col
-	cmp	sysdef+7	;if a formfeed
-	beq	zrocol		;also clear
-	cmp	sysdef+8	;if not home
-	bne	extchr		;then done
-zrocol:	lda	#0		;clear
-	sta	positn		;column
-extchr:	rts			;and exit
+output:
+        JSR     tstchr          ;test it
+        BCS     sndchr          ;if not control jump
+        PHA                     ;else save
+        LDA     sysdef+4        ;get invert
+        JSR     nolist          ;send to console
+        LDA     #'^'            ;get arrow
+        JSR     lstout          ;send to printer
+        PLA                     ;get character
+        ORA     #'A'-1          ;convert to ascii
+        JSR     pchrot          ;send to all
+        LDA     sysdef+3        ;get normal
+        JMP     nolist          ;to console
+sndchr:
+        CMP     #ctli           ;if not tab
+        BNE     pchrot          ;send
+tabspc:
+        LDA     #' '            ;else get space
+        JSR     pchrot          ;send
+        LDA     positn          ;get count
+        AND     #7              ;if not mod 8
+        BNE     tabspc          ;loop
+        RTS                     ;else exit
+pchrot:
+        PHA                     ;save char
+        JSR     kbdsts          ;test input
+        PLA                     ;restore
+        JSR     lstout          ;to printer if on
+nolist:
+        PHA                     ;save again
+        BIT     outflg          ;test flag
+        BMI     *+5             ;done if set
+        JSR     sim+12          ;to console
+        PLA                     ;restore
+        INC     positn          ;bump col
+        CMP     #' '            ;if space or more
+        BCS     extchr          ;is ok
+        CMP     sysdef+2        ;also ok
+        BEQ     extchr          ;if forward
+        DEC     positn          ;else drop back
+        CMP     sysdef+0        ;see if bs
+        BNE     tryotr          ;branch if not
+        DEC     positn          ;else drop again
+        BMI     zrocol          ;zero if <0
+        RTS                     ;else ok
+tryotr:
+        CMP     #cr             ;if a cr
+        BEQ     zrocol          ;clear col
+        CMP     sysdef+7        ;if a formfeed
+        BEQ     zrocol          ;also clear
+        CMP     sysdef+8        ;if not home
+        BNE     extchr          ;then done
+zrocol:
+        LDA     #0              ;clear
+        STA     positn          ;column
+extchr:
+        RTS                     ;and exit
 ;go to left and space past prompt
 ; input:frscol,positn
 ; returns:none
 ; alters:positn
-spcovr:	lda	#cr		;get cr
-	jsr	pchrot		;send to all
-	lda	#lf		;send lf
-	jsr	lstout		;only to printer
-mreovr:	lda	frscol		;get first
-	cmp	positn		;see if there
-	beq	extchr		;done if is
-	lda	sysdef+2	;get forward
-	jsr	nolist		;send it
-	jmp	mreovr		;and loop
+spcovr:
+        LDA     #cr             ;get cr
+        JSR     pchrot          ;send to all
+        LDA     #lf             ;send lf
+        JSR     lstout          ;only to printer
+mreovr:
+        LDA     frscol          ;get first
+        CMP     positn          ;see if there
+        BEQ     extchr          ;done if is
+        LDA     sysdef+2        ;get forward
+        JSR     nolist          ;send it
+        JMP     mreovr          ;and loop
 ;buffered read
 ; input:buffer@(addinp)
 ; returns:none
 ; alters:all,buffer@(addinp)
-bufinp:	lda	#0		;clear
-	ldy	#1		;length
-	sta	(addinp),y	;position in buffer
-	sty	bufpsn		;set point to 1
-	lda	positn		;get current
-	sta	frscol		;and save
-nxtinp:	jsr	getcon		;get input
-	ldy	bufpsn		;get index
-	cmp	#cr		;if not a cr
-	bne	notcr		;then jump
-	jmp	endlin		;else done
-notcr:	cmp	#delete		;if not delete
-	bne	ntdelt		;then jump
-	cpy	#1		;else if start
-	beq	nxtinp		;then loop
-	lda	(addinp),y	;get last
-	pha			;save char
-	ldy	#1		;point to count
-	sec			;set carry
-	lda	(addinp),y	;get count
-	sbc	#1		;decrement
-	sta	(addinp),y	;then save
-	pla			;restore char
-	dec	bufpsn		;backup pointer
-	cmp	#' '		;if space or more
-	bcs	nrmbs		;just backspace
-	cmp	#ctli		;see if tab
-	bne	ctlbs		;if not is control
-	sec			;set flag
-	ror	outflg
-	lda	positn		;get position and save
-	sta	lstcol
-	jsr	spcovr		;else go back
-	jsr	rptlne		;and retype
-	lda	positn		;get new last position
-	pha			;save on stack
-	sec			;subtract to get delta
-	lda	lstcol
-	sbc	positn
-	sta	lstcol		;and save
-	asl	outflg		;clear flag
-bstab:	jsr	dobs		;do one
-	dec	lstcol		;drop count
-	bne	bstab		;loop if more
-	pla			;get position
-	sta	positn		;and set
-	jmp	nxtinp		;then loop
-ctlbs:	lda	sysdef+3	;get normal
-	jsr	chkbs		;bs if printing
-	lda	sysdef+4	;same for invert
-	jsr	chkbs		;then delete char itself
-nrmbs:	jsr	dobs		;do a backspace
-	jmp	nxtinp		;and loop
-ntdelt:	cmp	#ctlp		;if not ctl-p
-	bne	ntctlp		;then jump
-	lda	lstflg		;else get printer flag
-	eor	#$ff		;complement
-	sta	lstflg		;save
-	jmp	nxtinp		;and loop
-ntctlp:	cmp	#ctlx		;if not ctl-x
-	bne	ntctlx		;then jump
-	jsr	spcovr		;restart
-	lda	sysdef+1	;get clear to eol
-	jsr	nolist		;send it
-	jmp	bufinp		;and start over
-ntctlx:	cmp	#ctlr		;if not ctl-r
-	bne	ntctlr		;then jump
-	jsr	spcovr		;restart
-	jsr	rptlne		;retype line
-	jmp	nxtinp		;and start over
-ntctlr:	iny			;next position
-	sta	(addinp),y	;store char
-	pha			;and save
-	sty	bufpsn		;index
-	ldy	#1		;point to count
-	tya			;set a to 1
-	clc			;then
-	adc	(addinp),y	;add count
-	sta	(addinp),y	;and save
-	pla			;restore char
-dontsv:	jsr	output		;send char
-	ldy	bufpsn		;get index
-	lda	(addinp),y	;get char
-	cmp	#ctlc		;if not ctl-c
-	bne	ignrcc		;ignore
-	ldy	#1		;get count
-	lda	(addinp),y	;from buffer
-	cmp	#1		;if not at start
-	bne	ignrcc		;ignore
-	jmp	xwboot		;else do warm boot
-ignrcc:	ldy	#1		;get
-	lda	(addinp),y	;count
-	dey			;point to max
-	cmp	(addinp),y	;if length
-	bcs	lineen		;at max jump
-	jmp	nxtinp		;else loop
-lineen:	lda	#cr		;get a cr
-endlin:	jmp	pchrot		;and send
+bufinp:
+        LDA     #0              ;clear
+        LDY     #1              ;length
+        STA     (addinp),y      ;position in buffer
+        STY     bufpsn          ;set point to 1
+        LDA     positn          ;get current
+        STA     frscol          ;and save
+nxtinp:
+        JSR     getcon          ;get input
+        LDY     bufpsn          ;get index
+        CMP     #cr             ;if not a cr
+        BNE     notcr           ;then jump
+        JMP     endlin          ;else done
+notcr:
+        CMP     #delete         ;if not delete
+        BNE     ntdelt          ;then jump
+        CPY     #1              ;else if start
+        BEQ     nxtinp          ;then loop
+        LDA     (addinp),y      ;get last
+        PHA                     ;save char
+        LDY     #1              ;point to count
+        SEC                     ;set carry
+        LDA     (addinp),y      ;get count
+        SBC     #1              ;decrement
+        STA     (addinp),y      ;then save
+        PLA                     ;restore char
+        DEC     bufpsn          ;backup pointer
+        CMP     #' '            ;if space or more
+        BCS     nrmbs           ;just backspace
+        CMP     #ctli           ;see if tab
+        BNE     ctlbs           ;if not is control
+        SEC                     ;set flag
+        ROR     outflg
+        LDA     positn          ;get position and save
+        STA     lstcol
+        JSR     spcovr          ;else go back
+        JSR     rptlne          ;and retype
+        LDA     positn          ;get new last position
+        PHA                     ;save on stack
+        SEC                     ;subtract to get delta
+        LDA     lstcol
+        SBC     positn
+        STA     lstcol          ;and save
+        ASL     outflg          ;clear flag
+bstab:
+        JSR     dobs            ;do one
+        DEC     lstcol          ;drop count
+        BNE     bstab           ;loop if more
+        PLA                     ;get position
+        STA     positn          ;and set
+        JMP     nxtinp          ;then loop
+ctlbs:
+        LDA     sysdef+3        ;get normal
+        JSR     chkbs           ;bs if printing
+        LDA     sysdef+4        ;same for invert
+        JSR     chkbs           ;then delete char itself
+nrmbs:
+        JSR     dobs            ;do a backspace
+        JMP     nxtinp          ;and loop
+ntdelt:
+        CMP     #ctlp           ;if not ctl-p
+        BNE     ntctlp          ;then jump
+        LDA     lstflg          ;else get printer flag
+        EOR     #$ff            ;complement
+        STA     lstflg          ;save
+        JMP     nxtinp          ;and loop
+ntctlp:
+        CMP     #ctlx           ;if not ctl-x
+        BNE     ntctlx          ;then jump
+        JSR     spcovr          ;restart
+        LDA     sysdef+1        ;get clear to eol
+        JSR     nolist          ;send it
+        JMP     bufinp          ;and start over
+ntctlx:
+        CMP     #ctlr           ;if not ctl-r
+        BNE     ntctlr          ;then jump
+        JSR     spcovr          ;restart
+        JSR     rptlne          ;retype line
+        JMP     nxtinp          ;and start over
+ntctlr:
+        INY                     ;next position
+        STA     (addinp),y      ;store char
+        PHA                     ;and save
+        STY     bufpsn          ;index
+        LDY     #1              ;point to count
+        TYA                     ;set a to 1
+        CLC                     ;then
+        ADC     (addinp),y      ;add count
+        STA     (addinp),y      ;and save
+        PLA                     ;restore char
+dontsv:
+        JSR     output          ;send char
+        LDY     bufpsn          ;get index
+        LDA     (addinp),y      ;get char
+        CMP     #ctlc           ;if not ctl-c
+        BNE     ignrcc          ;ignore
+        LDY     #1              ;get count
+        LDA     (addinp),y      ;from buffer
+        CMP     #1              ;if not at start
+        BNE     ignrcc          ;ignore
+        JMP     xwboot          ;else do warm boot
+ignrcc:
+        LDY     #1              ;get
+        LDA     (addinp),y      ;count
+        DEY                     ;point to max
+        CMP     (addinp),y      ;if length
+        BCS     lineen          ;at max jump
+        JMP     nxtinp          ;else loop
+lineen:
+        LDA     #cr             ;get a cr
+endlin:
+        JMP     pchrot          ;and send
 ;cr and lf
-pcrlf:	lda	#cr		;then a
-	jsr	pchrot		;cr
-	lda	#lf		;and a
-	jmp	pchrot		;lf
+pcrlf:
+        LDA     #cr             ;then a
+        JSR     pchrot          ;cr
+        LDA     #lf             ;and a
+        JMP     pchrot          ;lf
 ;retype line
-rptlne:	lda	bufpsn		;save point
-	sta	numcnt		;as count
-	lda	#1		;start position
-	pha			;save
-mrerpt:	pla			;get position
-	dec	numcnt		;count down
-	bne	*+3		;continue if more
-	rts			;else done
-	tay			;else make index
-	iny			;and bump
-	tya			;save
-	pha			;on stack
-	lda	(addinp),y	;get char
-	jsr	output		;send
-	jmp	mrerpt		;and loop
+rptlne:
+        LDA     bufpsn          ;save point
+        STA     numcnt          ;as count
+        LDA     #1              ;start position
+        PHA                     ;save
+mrerpt:
+        PLA                     ;get position
+        DEC     numcnt          ;count down
+        BNE     *+3             ;continue if more
+        RTS                     ;else done
+        TAY                     ;else make index
+        INY                     ;and bump
+        TYA                     ;save
+        PHA                     ;on stack
+        LDA     (addinp),y      ;get char
+        JSR     output          ;send
+        JMP     mrerpt          ;and loop
 ;check for printing and backspace if needed
-chkbs:	cmp	#' '		;compare to space
-	bcc	extdec		;not printing so done
+chkbs:
+        CMP     #' '            ;compare to space
+        BCC     extdec          ;not printing so done
 ;do a backspace
-dobs:	lda	sysdef+0	;get backspace
-	pha			;save it
-	jsr	nolist		;send
-	lda	#' '		;get space
-	jsr	nolist		;send
-	pla			;get backspace
-	jmp	nolist		;send it
+dobs:
+        LDA     sysdef+0        ;get backspace
+        PHA                     ;save it
+        JSR     nolist          ;send
+        LDA     #' '            ;get space
+        JSR     nolist          ;send
+        PLA                     ;get backspace
+        JMP     nolist          ;send it
 ;test for decimal digit
 ;if decimal then c=0 else c=1
-tstdec:	cmp	#'0'		;if under 0
-	bcc	notdec		;then not decimal
-	cmp	#'9'+1		;if 9 or under is ok
-	bcc	extdec
-notdec:	sec			;else not a match
-extdec:	rts
+tstdec:
+        CMP     #'0'            ;if under 0
+        BCC     notdec          ;then not decimal
+        CMP     #'9'+1          ;if 9 or under is ok
+        BCC     extdec
+notdec:
+        SEC                     ;else not a match
+extdec:
+        RTS
 ;test for hexadecimal digit
 ;if hex then c=0 else c=1
-tsthex:	jsr	tstdec		;first try decimal
-	bcc	extdec		;ok if dec
-	cmp	#'A'		;if under A
-	bcc	notdec		;then not hex
-	cmp	#'F'+1		;set c in F compare
-	rts
+tsthex:
+        JSR     tstdec          ;first try decimal
+        BCC     extdec          ;ok if dec
+        CMP     #'A'            ;if under A
+        BCC     notdec          ;then not hex
+        CMP     #'F'+1          ;set c in F compare
+        RTS
 ;bump load address by 128 and return in ay
-adjdb:	lda	dskbuf		;get old
-	ldy	dskbuf+1	;address
-	clc			;and bump
-	adc	#128		;by 128
-	sta	dskbuf		;save low
-	bcc	*+6		;then bump
-	iny			;and save
-	sty	dskbuf+1	;high as needed
-	rts
+adjdb:
+        LDA     dskbuf          ;get old
+        LDY     dskbuf+1        ;address
+        CLC                     ;and bump
+        ADC     #128            ;by 128
+        STA     dskbuf          ;save low
+        BCC     *+6             ;then bump
+        INY                     ;and save
+        STY     dskbuf+1        ;high as needed
+        RTS
 ;move record from disk buffer to default buffer
-mv128:	lda	dskbuf		;get address
-	ldy	dskbuf+1
-	sta	mvfrom+1	;and set pointer
-	sty	mvfrom+2
-	ldx	#0		;clear index
-mvfrom:	lda	$ffff,x		;get byte
-	sta	dflbuf,x	;move it
-	inx
-	bpl	mvfrom		;loop until done
-	rts
+mv128:
+        LDA     dskbuf          ;get address
+        LDY     dskbuf+1
+        STA     mvfrom+1        ;and set pointer
+        STY     mvfrom+2
+        LDX     #0              ;clear index
+mvfrom:
+        LDA     $ffff,x         ;get byte
+        STA     dflbuf,x        ;move it
+        INX
+        BPL     mvfrom          ;loop until done
+        RTS
 
 ;relocatable vectors
-	.byte	$4c
-extevc:	.word	extexq-1
-	.byte	$4c
-sltmvc:	.word	sltmsg
-	.byte	$4c
-empdvc:	.word	empty
-	.byte	$4c
-rommvc:	.word	romsg
-	.byte	$4c
-bdsmvc:	.word	bdsmsg
-	.byte	$4c
-pemmvc:	.word	pemmsg
-	.byte	$4c
-dcbevc:	.word	dcb
+        .BYTE   $4c
+extevc:
+        .WORD   extexq-1
+        .BYTE   $4c
+sltmvc:
+        .WORD   sltmsg
+        .BYTE   $4c
+empdvc:
+        .WORD   empty
+        .BYTE   $4c
+rommvc:
+        .WORD   romsg
+        .BYTE   $4c
+bdsmvc:
+        .WORD   bdsmsg
+        .BYTE   $4c
+pemmvc:
+        .WORD   pemmsg
+        .BYTE   $4c
+dcbevc:
+        .WORD   dcb
 ;relocation stopper
-	.byte	$ff
+        .BYTE   $ff
 ;messages
-romsg:	.byte	" - R/O$"
-bdsmsg:	.byte	" - BAD SECTOR"
-	.byte	cr,lf,"<RET> TO IGNORE -- <OTHER> "
-	.byte	"TO ABORT$"
-pemmsg:	.byte	cr,lf,"PEM ERROR ON $"
-sltmsg:	.byte	" - INVALID DRIVE$"
+romsg:
+        .BYTE   " - R/O$"
+bdsmsg:
+        .BYTE   " - BAD SECTOR"
+        .BYTE   cr,lf,"<RET> TO IGNORE -- <OTHER> "
+        .BYTE   "TO ABORT$"
+pemmsg:
+        .BYTE   cr,lf,"PEM ERROR ON $"
+sltmsg:
+        .BYTE   " - INVALID DRIVE$"
 
 ;dummy fcb
-empty:	.byte	$e5
+empty:
+        .BYTE   $e5
 ;zero page switch enable table
-swctbl:	.byte	0,0,0,0,0,0,0,0
-	.byte	0,0,1,0,0,1,1,1
-	.byte	1,1,1,1,1,1,1,1
-	.byte	0,0,1,0,0,0,0,0
-	.byte	0,0,0,0
+swctbl:
+        .BYTE   0,0,0,0,0,0,0,0
+        .BYTE   0,0,1,0,0,1,1,1
+        .BYTE   1,1,1,1,1,1,1,1
+        .BYTE   0,0,1,0,0,0,0,0
+        .BYTE   0,0,0,0
 ;bit mask table
-bitmsk:	.byte	128,64,32,16,8,4,2,1
+bitmsk:
+        .BYTE   128,64,32,16,8,4,2,1
 ;bit map table
-bitmap:	.byte	1,2,4,8,16,32,64,128
+bitmap:
+        .BYTE   1,2,4,8,16,32,64,128
 ;extent mask table (also uses 3 bytes in sabtbl
-exmtbl:	.byte	0,1,3
+exmtbl:
+        .BYTE   0,1,3
 ;sab table
-sabtbl:	.byte	7,15,31,63,127
+sabtbl:
+        .BYTE   7,15,31,63,127
 ;variable storage
-skpdir:	.byte	0		;positive if no change
-fcbind:	.byte	0		;index to block number
-savext:	.byte	0		;save extent
-frscol:	.byte	0		;first col
-pndkey:	.byte	0		;pending input
-lstflg:	.byte	0		;printer flag
-positn:	.byte	0		;print position
-swcflg:	.byte	0		;zero page switch flag
-bytinp:	.word	0		;input value
-cmdinp:	.byte	0		;input command
-addout:	.word	0		;output address
-bytout	=	addout		;output value
-bufpsn:	.byte	0		;input buffer position
-exrwfl:	.byte	0		;extend flag
-tmpdrv:	.byte	0		;temporary drive number
+skpdir:
+        .BYTE   0               ;positive if no change
+fcbind:
+        .BYTE   0               ;index to block number
+savext:
+        .BYTE   0               ;save extent
+frscol:
+        .BYTE   0               ;first col
+pndkey:
+        .BYTE   0               ;pending input
+lstflg:
+        .BYTE   0               ;printer flag
+positn:
+        .BYTE   0               ;print position
+swcflg:
+        .BYTE   0               ;zero page switch flag
+bytinp:
+        .WORD   0               ;input value
+cmdinp:
+        .BYTE   0               ;input command
+addout:
+        .WORD   0               ;output address
+bytout          = addout        ;output value
+bufpsn:
+        .BYTE   0               ;input buffer position
+exrwfl:
+        .BYTE   0               ;extend flag
+tmpdrv:
+        .BYTE   0               ;temporary drive number
 ;align xqtvec on word boundary
-	.align 2
-xqtvec:	.word	0		;command vector
-countr:	.word	0		;record counter
-	.byte	0		;overflow
-lkdown:	.word	0		;down pnt. for block search
-lookup:	.word	0		;up pnt. for block search
-olddrv:	.byte	0		;old drive number
-curdrv:	.byte	0		;current drive
-lginvc:	.byte	0		;log in status
-ronlst:	.byte	0		;read write status
-dirnum:	.word	0		;directory number
-subrec:	.byte	0		;directory offset
-recnum:	.word	0		;record number
-blknum	=	recnum		;block number
-	.byte	0		;overflow
-chrcnt:	.byte	0		;character count
-cmppnt:	.byte	0		;comparison pointer
-nxtrec:	.byte	0		;next record
-numrec:	.byte	0		;number records
-dirrec:	.word	0		;directory record
-dirmod:	.byte	0		;directory mod 4
-index:	.byte	0		;buffer index
-numcnt:	.byte	0		;counter
-outflg:	.byte	0		;output enable flag
-lstcol:	.byte	0		;last column
-mpdrsy:	.byte	0		;save for y in mapdir
-mpdrtm:	.byte	0		;temp in mapdir
-blmode:	.byte	0		;<128 if byte else word
-maxdrc:	.word	0		;max directory record
-sab:	.byte	0		;mask for block
-sxb:	.byte	0		;shift for block
-rtclk:	.byte	0,0,0		;real time clock
-gpcnt:	.word	0		;gp counter
-trkctr:	.byte	0		;track counter
+        .ALIGN  2
+xqtvec:
+        .WORD   0               ;command vector
+countr:
+        .WORD   0               ;record counter
+        .BYTE   0               ;overflow
+lkdown:
+        .WORD   0               ;down pnt. for block search
+lookup:
+        .WORD   0               ;up pnt. for block search
+olddrv:
+        .BYTE   0               ;old drive number
+curdrv:
+        .BYTE   0               ;current drive
+lginvc:
+        .BYTE   0               ;log in status
+ronlst:
+        .BYTE   0               ;read write status
+dirnum:
+        .WORD   0               ;directory number
+subrec:
+        .BYTE   0               ;directory offset
+recnum:
+        .WORD   0               ;record number
+blknum          = recnum        ;block number
+        .BYTE   0               ;overflow
+chrcnt:
+        .BYTE   0               ;character count
+cmppnt:
+        .BYTE   0               ;comparison pointer
+nxtrec:
+        .BYTE   0               ;next record
+numrec:
+        .BYTE   0               ;number records
+dirrec:
+        .WORD   0               ;directory record
+dirmod:
+        .BYTE   0               ;directory mod 4
+index:
+        .BYTE   0               ;buffer index
+numcnt:
+        .BYTE   0               ;counter
+outflg:
+        .BYTE   0               ;output enable flag
+lstcol:
+        .BYTE   0               ;last column
+mpdrsy:
+        .BYTE   0               ;save for y in mapdir
+mpdrtm:
+        .BYTE   0               ;temp in mapdir
+blmode:
+        .BYTE   0               ;<128 if byte else word
+maxdrc:
+        .WORD   0               ;max directory record
+sab:
+        .BYTE   0               ;mask for block
+sxb:
+        .BYTE   0               ;shift for block
+rtclk:
+        .BYTE   0,0,0           ;real time clock
+gpcnt:
+        .WORD   0               ;gp counter
+trkctr:
+        .BYTE   0               ;track counter
 ;following region is used to capture dcb
 dcb:
-maxblk:	.word	0		;maximum block number
-sectrk:	.word	0		;sectors per track
-nsystr:	.word	0		;number system tracks
-blkscd:	.byte	0		;block size code
-maxdir:	.word	0		;maximum directory number
-alcmap:	.word	0		;address of allocation map
-chkflg:	.byte	0		;check flag
-chkmap:	.word	0		;address of checksum map
-pemwrtype:	.byte	0		;write type 0=norm,1=dir,2=unalloc
-exm:	.byte	0		;extent mask
-cexm1f:	.byte	0		;exm complemented and 1f
+maxblk:
+        .WORD   0               ;maximum block number
+sectrk:
+        .WORD   0               ;sectors per track
+nsystr:
+        .WORD   0               ;number system tracks
+blkscd:
+        .BYTE   0               ;block size code
+maxdir:
+        .WORD   0               ;maximum directory number
+alcmap:
+        .WORD   0               ;address of allocation map
+chkflg:
+        .BYTE   0               ;check flag
+chkmap:
+        .WORD   0               ;address of checksum map
+pemwrtype:
+        .BYTE   0               ;write type 0=norm,1=dir,2=unalloc
+exm:
+        .BYTE   0               ;extent mask
+cexm1f:
+        .BYTE   0               ;exm complemented and 1f
 ;zero page save block
 varblk:
-lowin:	.word	0
-	.word	0		;save bufadd
-	.word	0		;save alcpnt
-	.word	0		;save chkpnt
+lowin:
+        .WORD   0
+        .WORD   0               ;save bufadd
+        .WORD   0               ;save alcpnt
+        .WORD   0               ;save chkpnt

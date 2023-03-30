@@ -17,14 +17,14 @@
 ;*
 
 ; UART 16C550 SERIAL
-UART0       	=    	$0368           ; DATA IN/OUT
-UART1       	=    	$0369           ; CHECK RX
-UART2       	=    	$036A           ; INTERRUPTS
-UART3       	=    	$036B           ; LINE CONTROL
-UART4       	=    	$036C           ; MODEM CONTROL
-UART5          	=    	$036D           ; LINE STATUS
-UART6          	=    	$036E           ; MODEM STATUS
-UART7	       	=    	$036F           ; SCRATCH REG.
+UART0           = $0368         ; DATA IN/OUT
+UART1           = $0369         ; CHECK RX
+UART2           = $036A         ; INTERRUPTS
+UART3           = $036B         ; LINE CONTROL
+UART4           = $036C         ; MODEM CONTROL
+UART5           = $036D         ; LINE STATUS
+UART6           = $036E         ; MODEM STATUS
+UART7           = $036F         ; SCRATCH REG.
 
 
 ;__SERIALINIT____________________________________________________________________________________________________________________
@@ -43,7 +43,7 @@ SERIALINIT:
 ;	STA	UART3			; SET 8 BIT DATA, 1 STOPBIT
 ;	STA	UART4			;
 
-	RTS
+        RTS
 
 
 
@@ -53,15 +53,15 @@ SERIALINIT:
 ;________________________________________________________________________________________________________________________________
 ;
 WRSER1:
-	PHA
+        PHA
 WRSER1a:
-	LDA	UART5			; READ LINE STATUS REGISTER
-	AND	#$20			; TEST IF UART IS READY TO SEND (BIT 5)
-	CMP     #$00
-	BEQ	WRSER1a			; NO, WAIT FOR IT
-	PLA
-	STA	UART0			; THEN WRITE THE CHAR TO UART
-	RTS
+        LDA     UART5           ; READ LINE STATUS REGISTER
+        AND     #$20            ; TEST IF UART IS READY TO SEND (BIT 5)
+        CMP     #$00
+        BEQ     WRSER1a         ; NO, WAIT FOR IT
+        PLA
+        STA     UART0           ; THEN WRITE THE CHAR TO UART
+        RTS
 
 ;__RDSER1________________________________________________________________________________________________________________________
 ;
@@ -69,15 +69,15 @@ WRSER1a:
 ;________________________________________________________________________________________________________________________________
 ;
 RDSER1:
-	LDA	UART5			; READ LINE STATUS REGISTER
-	AND	#$01			; TEST IF DATA IN RECEIVE BUFFER
-	CMP 	#$00
-	BEQ	RDSER1N			; LOOP UNTIL DATA IS READY
-	LDA	UART0			; THEN READ THE CHAR FROM THE UART
-	RTS
+        LDA     UART5           ; READ LINE STATUS REGISTER
+        AND     #$01            ; TEST IF DATA IN RECEIVE BUFFER
+        CMP     #$00
+        BEQ     RDSER1N         ; LOOP UNTIL DATA IS READY
+        LDA     UART0           ; THEN READ THE CHAR FROM THE UART
+        RTS
 RDSER1N:
-	LDA	#$00			;
-	RTS				;
+        LDA     #$00            ;
+        RTS                     ;
 
 ;__RDSER1W_______________________________________________________________________________________________________________________
 ;
@@ -86,13 +86,13 @@ RDSER1N:
 ;
 
 RDSER1W:
-		LDA	UART5			; READ LINE STATUS REGISTER
-		AND	#$01			; TEST IF DATA IN RECEIVE BUFFER
-		CMP 	#$00
-		BEQ	RDSER1W			; LOOP UNTIL DATA IS READY
-		LDA	UART0			; THEN READ THE CHAR FROM THE UART
-		AND #$7F
-		RTS
+        LDA     UART5           ; READ LINE STATUS REGISTER
+        AND     #$01            ; TEST IF DATA IN RECEIVE BUFFER
+        CMP     #$00
+        BEQ     RDSER1W         ; LOOP UNTIL DATA IS READY
+        LDA     UART0           ; THEN READ THE CHAR FROM THE UART
+        AND     #$7F
+        RTS
 
 ;__SERIALSTATUS__________________________________________________________________________________________________________________
 ;
@@ -100,14 +100,14 @@ RDSER1W:
 ;________________________________________________________________________________________________________________________________
 ;
 SERIALSTATUS:
-	LDA	UART5			; READ LINE STATUS REGISTER
-	AND	#$01			; TEST IF DATA IN RECEIVE BUFFER
-	CMP 	#$00
-	BEQ	RDSTAT1			; NO, INDICATE NO CHAR
-	LDA	#$FF			; GET DATA CHAR
-	RTS
+        LDA     UART5           ; READ LINE STATUS REGISTER
+        AND     #$01            ; TEST IF DATA IN RECEIVE BUFFER
+        CMP     #$00
+        BEQ     RDSTAT1         ; NO, INDICATE NO CHAR
+        LDA     #$FF            ; GET DATA CHAR
+        RTS
 RDSTAT1:
-	LDA	#$00			; GET DATA CHAR
-	RTS
+        LDA     #$00            ; GET DATA CHAR
+        RTS
 
 ; end

@@ -16,10 +16,10 @@
 ;       A15 IS INVERTED FOR THE NYHODYNE 65C02 CPU . . .
 ;	7 6 5 4  3 2 1 0      APPLICABLE TO THE UPPER MEMORY PAGE $8000-$FFFF
 ;	^ ^ ^ ^  ^ ^ ^ ^
-;	: : : :  : : : :--0 = A15 ROM ONLY ADDRESS LINE DEFAULT IS 0
+;	: : : :  : : : :--0 = A15 ROM ONLY ADDRESS LINE DEFAULT IS 0 x
 ;	: : : :  : : :----0 = A16 ROM ONLY ADDRESS LINE DEFAULT IS 0
 ;	: : : :  : :------0 = A17 ROM ONLY ADDRESS LINE DEFAULT IS 0
-;	: : : :  :--------0 = A18 ROM ONLY ADDRESS LINE DEFAULT IS 0
+;	: : : :  :--------0 = A18 ROM ONLY ADDRESS LINE DEFAULT IS 0 X
 ;	: : : :-----------0 = A19 ROM ONLY ADDRESS LINE DEFAULT IS 0
 ;	: : :-------------0 = A20 ROM ONLY ADDRESS LINE DEFAULT IS 0
 ;	: :---------------0 = ROM BOOT OVERRIDE DEFAULT IS 0
@@ -85,7 +85,7 @@ md_pagecode:
         PLA
         ORA     #$80
         STA     MPCL_RAM
-        BRA     MD_PAGE_COPYFRM
+        JMP     MD_PAGE_COPYFRM
 MD_PAGE_ROREAD:
         LDA     #$00
         STA     MPCL_RAM
@@ -109,8 +109,8 @@ MD_PAGE_COPYFRM:
         NOP
         LDA     #$8C
         STA     MPCL_RAM
-        nop
-        nop
+        NOP
+        NOP
         RTS
 MD_PAGE_WRITE:
         PLA
@@ -128,20 +128,54 @@ MD_PAGE_WRITE:
         BNE     :-
         LDA     #$8C
         STA     MPCL_RAM
-        nop
-        nop
+        NOP
+        NOP
         RTS
 md_pagecodeend:
 farcall:
-        PHA
-        LDA     #$8C
-        STA     MPCL_RAM
-        nop
-        nop
-        PLA
-        JSR     BANKED_DRIVER_DISPATCHER
-        pha
-        LDA     #$8E
-        STA     MPCL_RAM
-        pla
-        RTS
+        .IF     USEROM=1
+            PHA
+            LDA     #$80
+            STA     MPCL_ROM
+            NOP
+            NOP
+            LDA     #$8C
+            STA     MPCL_RAM
+            NOP
+            NOP
+            PLA
+            JSR     BANKED_DRIVER_DISPATCHER
+            PHA
+            LDA     #$00
+            STA     MPCL_RAM
+            NOP
+            NOP
+            STA     MPCL_ROM
+            NOP
+            NOP
+            PLA
+            RTS
+md_farrun:
+            LDA     #$80
+            STA     MPCL_ROM
+            NOP
+            NOP
+            LDA     $00
+            STA     MPCL_RAM
+            NOP
+            NOP
+            JMP     ($0001)
+        .ELSE
+            PHA
+            LDA     #$8C
+            STA     MPCL_RAM
+            NOP
+            NOP
+            PLA
+            JSR     BANKED_DRIVER_DISPATCHER
+            PHA
+            LDA     #$8E
+            STA     MPCL_RAM
+            PLA
+            RTS
+        .ENDIF

@@ -3,7 +3,7 @@ PEM	        =	$103		;PEM ENTRY
 
 ; void cputc (char c);
 ;
-        .PC02
+
         .export         _cputc
         .export         gotoxy
 

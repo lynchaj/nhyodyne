@@ -1,0 +1,171 @@
+;__Make System___________________________________________________________________________________________________________________
+;
+; 	DOS/65 System generator for Nhyodyne
+;
+;________________________________________________________________________________________________________________________________
+;
+DFLFCB          = $107          ;DEFAULT FCB
+PEM             = $103          ;PEM ENTRY
+BOOT            = $100          ;WARM BOOT
+TEA             = $800          ;EXECUTION ORG
+CCMLNG          = 2048          ;CCM LENGTH
+CRSYM           = 32            ;CR SYMBOL
+LASTROW         = 20
+MAXCOL          = 80
+OUTMSG_W        = $F0
+farfunct        = $32           ;function to call in driver area
+DO_FARCALL      = $D003
+
+;MAIN PROGRAM
+        .SEGMENT "TEA"
+        .ORG    $0800
+
+
+
+        LDA     #STR_BANNER &$FF
+        LDY     #STR_BANNER>>8 & $FF
+        JSR     WRITESTR
+
+INLOOP:
+        JSR     CIN
+        CMP     #'1'
+        BEQ     PPIDE
+        CMP     #'2'
+        BEQ     FLOPPY
+        JMP     INLOOP
+
+PPIDE:
+        LDA     #28
+        STA     FUNCTION
+        JMP     CONT
+
+FLOPPY:
+        LDA     #31
+        STA     FUNCTION
+
+
+CONT:
+        LDA     #STR_DRIVE &$FF
+        LDY     #STR_DRIVE>>8 & $FF
+        JSR     WRITESTR
+
+INLOOP1:
+        JSR     CIN
+        CMP     #'1'
+        BEQ     CONT1
+        CMP     #'2'
+        BEQ     CONT2
+        JMP     INLOOP1
+
+CONT1:
+        LDA     #$00
+        BRA     :+
+CONT2:
+        LDA     #$01
+
+:
+        STA     UNIT
+
+        LDA     #STR_INTRO &$FF
+        LDY     #STR_INTRO>>8 & $FF
+        JSR     WRITESTR
+
+        LDA     #STR_CONFIRM &$FF
+        LDY     #STR_CONFIRM>>8 & $FF
+        JSR     WRITESTR
+
+        JSR     CONF
+
+        LDA     FUNCTION
+        STA     farfunct
+        LDA     #<PARAMETERS
+        LDY     #>PARAMETERS
+        JSR     DO_FARCALL
+
+        JMP     EXIT
+
+
+
+;
+; OUTPUT A '$' TERMINATED STRING
+;
+WRITESTR:
+        STA     OUTMSG_W
+        STY     OUTMSG_W+1
+        LDY     #$00
+WRITESTR1:
+        LDA     (OUTMSG_W),Y    ; LOAD NEXT CHAR FROM STRING INTO ACC
+        CMP     #'$'            ; IS END?
+        BEQ     ENDOUTSTR       ; YES, END PRINT OUT
+        JSR     OUT             ; PRINT CHAR IN ACC
+        INY                     ; Y=Y+1 (BUMP INDEX)
+        JMP     WRITESTR1       ; DO NEXT CHAR
+ENDOUTSTR:
+        RTS                     ; RETURN
+
+
+
+
+
+CIN:
+        LDX     #1              ;
+        JSR     PEM             ;
+        RTS
+
+NEWLINE:
+        LDA     #$0D
+        JSR     OUT             ; PRINT CHAR IN ACC
+        LDA     #$0A
+        JSR     OUT             ; PRINT CHAR IN ACC
+        RTS
+
+OUT:
+conwrt:
+        LDX     #2              ;
+        JSR     PEM             ;
+        RTS
+
+CONF:
+        JSR     CIN
+        CMP     #$1B
+        BEQ     EXIT
+        CMP     #$0D
+        BNE     CONF
+
+        RTS
+
+EXIT:
+; CLEAN UP AND RETURN TO OS
+        JSR     NEWLINE
+        JSR     NEWLINE
+        JMP     $D000
+
+
+PARAMETERS:
+UNIT:
+        .BYTE   00
+        .BYTE   $8E
+        .BYTE   $00,$D0
+        .BYTE   $17
+
+FUNCTION:
+        .BYTE   0
+
+STR_BANNER:
+        .BYTE   $0D,$0A,"Nhyodyne Boot System Generator v1.0"
+        .BYTE   $0D,$0A,"Choose Drive type:",$0D,$0A
+        .BYTE   "1> PPIDE",$0D,$0A
+        .BYTE   "2> floppy",$0D,$0A,"$"
+STR_DRIVE:
+        .BYTE   $0D,$0A,"Choose Unit Id:",$0D,$0A
+        .BYTE   "1> DRIVE 0",$0D,$0A
+        .BYTE   "2> DRIVE 1",$0D,$0A,"$"
+STR_INTRO:
+        .BYTE   $0D,$0A,$0D,$0A,"System track will be overwritten with DOS/65 in RAM!!!",$0D,$0A,"$"
+STR_CONFIRM:
+        .BYTE   "Press <Enter> to continue, <Esc> to abort",$0D,$0A,"$"
+
+STR_ERR1:
+        .BYTE   $0D,$0A,"DISK ERROR.",$0D,$0A,"$"
+
+        .END
