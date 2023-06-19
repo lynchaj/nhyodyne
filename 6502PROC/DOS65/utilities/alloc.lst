@@ -1,0 +1,300 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : alloc203.asm
+Current file: alloc203.asm
+
+000000r 1               ;ALLOC
+000000r 1               ;VERSION 2.03-A
+000000r 1               ;RELEASED:	10 OCTOBER 1982
+000000r 1               ;LAST REVISION:
+000000r 1               ;	28 DECEMBER 1985
+000000r 1               ;		ADDED PARAM FOR WIDTH
+000000r 1               ;	30 MARCH 2008
+000000r 1               ;		REFORMATTED FOR TASM & ASM210
+000000r 1               ;		ELIMINATED PAGE ZERO 0 & 1
+000000r 1               ;		ADDED TOTAL BLOCK COUNT TO END MSG
+000000r 1               ;	3 APRIL 2008
+000000r 1               ;		CORRECTED ERRORS
+000000r 1               ;SYNTAX IS ALLOC X WHERE X IS THE DRIVE (A TO H)
+000000r 1               ;IF X IS BLANK THEN THE DEFAULT DRIVE IS USED.
+000000r 1               ;USERS MAY WANT TO CHANGE THE VALUE OF WIDTH
+000000r 1               ;TO A SMALLER VALUE IF THEIR CONSOLE IS LESS THAN 80
+000000r 1               ;CHARACTERS WIDE.
+000000r 1               ;EXTERNAL REFERENCES
+000000r 1               PEM             = $103          ;PEM ENTRY
+000000r 1               DFLFCB          = $107          ;DEFAULT FCB
+000000r 1               TEA             = $800          ;TEA START
+000000r 1               ;FIXED PARAMETERS
+000000r 1               CR              = $D            ;RETURN
+000000r 1               LF              = $A            ;LINEFEED
+000000r 1               ;WIDTH IS A SOMEWHAT OBSCURE WAY OF CONTROLLING DIPLAY WIDTH
+000000r 1               ;IT CAN BE SET TO 1, 3, 7, ETC. - AND WHEN SO SET THE NUMBER OF
+000000r 1               ;8 BLOCK WIDE BIT MAPS BECOMES 2, 4, 8, ETC.
+000000r 1               ;WIDTH CAN ONLY BE SET TO (2 TO THE N POWER) - 1
+000000r 1               WIDTH           = 3             ;(WIDTH+1)*8-->CHARS PER LINE
+000000r 1               ;PAGE ZERO VARIABLES
+000000r 1               
+000000r 1               DCBPNT          = $02           ;DCB POINTER
+000000r 1               BITCNT          = $04           ;COUNT OF TOTAL BLOCKS
+000000r 1               VECPNT          = $06           ;VECTOR POINTER
+000000r 1               DFLDRV          = $08           ;DEFAULT DRIVE
+000000r 1               TMPDRV          = $09           ;TEMPORARY DRIVE
+000000r 1               FREE            = $0A           ;FREE BLOCKS
+000000r 1               BITNUM          = $0C           ;BIT (0 TO 7)
+000000r 1               BYTNUM          = $0D           ;BYTE (0 TO 255)
+000000r 1               LEADZ           = $0E           ;LEADING ZERO FLAG
+000000r 1               BLKSCD          = $0F           ;BLOCK SIZE CODE
+000000r 1               TOTAL           = $10           ;TOTAL NUMBER OF BLOCK
+000000r 1               
+000000r 1               ;MAIN PROGRAM
+000000r 1                       .SEGMENT "TEA"
+000000r 1                       .ORG    $0800
+000800  1  A2 19                LDX     #25             ;GET AND
+000802  1  20 03 01             JSR     PEM             ;SAVE
+000805  1  85 08                STA     DFLDRV          ;DEFAULT DRIVE
+000807  1  AD 08 01             LDA     DFLFCB+1        ;GET OBJECT
+00080A  1  85 09                STA     TMPDRV          ;AND SAVE
+00080C  1  A2 0D                LDX     #13             ;INITIALIZE
+00080E  1  20 03 01             JSR     PEM             ;SYSTEM
+000811  1  A5 09                LDA     TMPDRV          ;GET TEMP
+000813  1  C9 20                CMP     #' '            ;IF NOT A SPACE
+000815  1  D0 04                BNE     HAVDRV          ;USE DEFAULT
+000817  1  A5 08                LDA     DFLDRV          ;GET DEFAULT
+000819  1  10 05                BPL     SETDRV          ;AND GO
+00081B  1               HAVDRV:
+00081B  1  38                   SEC                     ;DROP TEMP
+00081C  1  E9 01                SBC     #1              ;BY ONE
+00081E  1  29 07                AND     #%111           ;LOOK AT THREE LSBS
+000820  1               SETDRV:
+000820  1  A2 0E                LDX     #14             ;THEN
+000822  1  85 09                STA     TMPDRV          ;SAVE DRIVE FOR DCB VECTOR
+000824  1  20 03 01             JSR     PEM             ;SELECT
+000827  1  A2 22                LDX     #34             ;FIND DCB ADDRESS
+000829  1  20 03 01             JSR     PEM
+00082C  1  85 02                STA     DCBPNT          ;SAVE POINTER
+00082E  1  84 03                STY     DCBPNT+1
+000830  1  A0 00                LDY     #0              ;GET MAX BLOCK NUMBER
+000832  1  B1 02                LDA     (DCBPNT),Y
+000834  1  18                   CLC                     ;BUMP TO GET NUMBER
+000835  1  69 01                ADC     #1
+000837  1  85 0A                STA     FREE            ;SET FREE COUNT
+000839  1  85 10                STA     TOTAL           ;AND TOTAL
+00083B  1  85 04                STA     BITCNT          ;AND BIT COUNTER
+00083D  1  C8                   INY                     ;NOW GET HIGH
+00083E  1  B1 02                LDA     (DCBPNT),Y      ;AND ADD WITH CARRY
+000840  1  69 00                ADC     #0
+000842  1  85 0B                STA     FREE+1
+000844  1  85 11                STA     TOTAL+1
+000846  1  85 05                STA     BITCNT+1
+000848  1  A0 06                LDY     #6              ;GET SIZE CODE
+00084A  1  B1 02                LDA     (DCBPNT),Y
+00084C  1  85 0F                STA     BLKSCD          ;AND SAVE
+00084E  1  A2 1B                LDX     #27             ;GET VECTOR
+000850  1  20 03 01             JSR     PEM             ;TO MAP
+000853  1  85 06                STA     VECPNT          ;SAVE
+000855  1  84 07                STY     VECPNT+1        ;IN MEMORY
+000857  1  A9 00                LDA     #0              ;THEN CLEAR
+000859  1  85 0C                STA     BITNUM          ;BIT
+00085B  1  85 0D                STA     BYTNUM          ;BYTE
+00085D  1  85 0E                STA     LEADZ           ;AND LEADING ZERO FLAG
+00085F  1  20 7A 09             JSR     CRLF            ;LEAVE BLANK LINE
+000862  1               OUTLPE:
+000862  1  A4 0D                LDY     BYTNUM          ;GET BYTE NUMBER
+000864  1  A6 0C                LDX     BITNUM          ;AND BIT NUMBER
+000866  1  B1 06                LDA     (VECPNT),Y      ;GET MAP BYTE
+000868  1  3D 86 09             AND     BITMSK,X        ;OVERLAY MASK
+00086B  1  D0 04                BNE     ISFULL          ;BRANCH IF ALLOCATED
+00086D  1  A9 30                LDA     #'0'            ;ELSE SEND
+00086F  1  D0 0A                BNE     NEXT            ;A ZERO
+000871  1               ISFULL:
+000871  1  A5 0A                LDA     FREE            ;GET LOW OF FREE COUNT
+000873  1  D0 02                BNE     FRENZ           ;JUMP IF NOT ZERO
+000875  1  C6 0B                DEC     FREE+1          ;ELSE DROP HIGH THEN DO LOW
+000877  1               FRENZ:
+000877  1  C6 0A                DEC     FREE
+000879  1  A9 31                LDA     #'1'            ;SEND A
+00087B  1               NEXT:
+00087B  1  20 81 09             JSR     CHROUT          ;ONE
+00087E  1  A5 04                LDA     BITCNT          ;GET LOW OF COUNTER
+000880  1  D0 02                BNE     BITNZ           ;JUMP IF NOT ZERO
+000882  1  C6 05                DEC     BITCNT+1        ;ELSE DROP HIGH THEN DO LOW
+000884  1               BITNZ:
+000884  1  C6 04                DEC     BITCNT
+000886  1  A5 04                LDA     BITCNT          ;TEST FOR ZERO
+000888  1  05 05                ORA     BITCNT+1
+00088A  1  F0 1E                BEQ     DONE            ;DONE IF ZERO
+00088C  1  E6 0C                INC     BITNUM          ;BUMP BIT NUMBER
+00088E  1  A5 0C                LDA     BITNUM          ;GET IT
+000890  1  C9 08                CMP     #8              ;SEE IF DONE WITH BYTE
+000892  1  D0 CE                BNE     OUTLPE          ;THEN LOOP
+000894  1  A9 00                LDA     #0
+000896  1  85 0C                STA     BITNUM          ;ELSE CLEAR BIT NUMBER
+000898  1  E6 0D                INC     BYTNUM          ;BUMP BYTE NUMBER
+00089A  1  D0 02                BNE     *+4             ;SKIP IF NOT ZERO
+00089C  1  E6 07                INC     VECPNT+1        ;ELSE BUMP HIGH POINTER
+00089E  1  A5 0D                LDA     BYTNUM          ;GET IT
+0008A0  1  29 03                AND     #WIDTH          ;IF NOT MOD-(WIDTH+1)
+0008A2  1  D0 BE                BNE     OUTLPE          ;THEN LOOP
+0008A4  1  20 7A 09             JSR     CRLF            ;ELSE DO CR AND LF
+0008A7  1  4C 62 08             JMP     OUTLPE          ;AND LOOP
+0008AA  1               DONE:
+0008AA  1  20 7A 09             JSR     CRLF            ;SEND TWO
+0008AD  1  20 7A 09             JSR     CRLF            ;CR AND LF PAIRS
+0008B0  1               ;NOW SEND FREE COUNT TO SCREEN
+0008B0  1  20 EF 08             JSR     SNDFRE
+0008B3  1  A9 20                LDA     #' '            ;SEND A SPACE
+0008B5  1  20 81 09             JSR     CHROUT
+0008B8  1               ;NOW DISPLAY BLOCK SIZE
+0008B8  1  A5 0F                LDA     BLKSCD          ;GET CODE
+0008BA  1  0A                   ASL     A               ;MULT BY TWO
+0008BB  1  AA                   TAX                     ;MAKE INDEX
+0008BC  1  BD 99 09             LDA     BLKTBL,X        ;GET ADDRESS
+0008BF  1  BC 9A 09             LDY     BLKTBL+1,X
+0008C2  1  A2 09                LDX     #9              ;SEND MESSAGE
+0008C4  1  20 03 01             JSR     PEM
+0008C7  1  A9 A3                LDA     #(CLSMSG & $ff) ;SEND
+0008C9  1  A0 09                LDY     #((CLSMSG / $100)& $FF);SIZE
+0008CB  1  A2 09                LDX     #9              ;MESSAGE
+0008CD  1  20 03 01             JSR     PEM
+0008D0  1               ;NOW SHOW TOTAL BLOCK COUNT
+0008D0  1  A9 00                LDA     #0              ;FIRST CLEAR LEADING ZERO FLAG
+0008D2  1  85 0E                STA     LEADZ
+0008D4  1  A5 10                LDA     TOTAL
+0008D6  1  A4 11                LDY     TOTAL+1
+0008D8  1  85 0A                STA     FREE
+0008DA  1  84 0B                STY     FREE+1
+0008DC  1  20 EF 08             JSR     SNDFRE
+0008DF  1  A9 B5                LDA     #(TTLMSG & $ff)
+0008E1  1  A0 09                LDY     #((TTLMSG / $100)& $FF)
+0008E3  1  A2 09                LDX     #9
+0008E5  1  20 03 01             JSR     PEM
+0008E8  1               ;NOW EXIT
+0008E8  1  A5 08                LDA     DFLDRV          ;SELECT
+0008EA  1  A2 0E                LDX     #14             ;DEFAULT
+0008EC  1  4C 03 01             JMP     PEM             ;AND RETURN
+0008EF  1               ;SEND 16 BIT VALUE IN FREE TO SCREEN
+0008EF  1               SNDFRE:
+0008EF  1  A2 00                LDX     #0              ;CLEAR 10000'S
+0008F1  1  38                   SEC
+0008F2  1               F10000:
+0008F2  1  A5 0A                LDA     FREE            ;DROP BY 10000
+0008F4  1  E9 10                SBC     #(10000 & $ff)
+0008F6  1  85 0A                STA     FREE
+0008F8  1  A5 0B                LDA     FREE+1
+0008FA  1  E9 27                SBC     #((10000 / $100)& $FF)
+0008FC  1  85 0B                STA     FREE+1
+0008FE  1  E8                   INX                     ;BUMP DIGIT
+0008FF  1  B0 F1                BCS     F10000          ;LOOP IF NO BORROW
+000901  1  A5 0A                LDA     FREE            ;ELSE ADD 10000 BACK IN
+000903  1  69 10                ADC     #(10000 & $ff)
+000905  1  85 0A                STA     FREE
+000907  1  A5 0B                LDA     FREE+1
+000909  1  69 27                ADC     #((10000 / $100)& $FF)
+00090B  1  85 0B                STA     FREE+1
+00090D  1  CA                   DEX                     ;DROP DIGIT
+00090E  1  F0 06                BEQ     N10000          ;SKIP IF ZERO
+000910  1  8A                   TXA                     ;ELSE SET FLAG
+000911  1  85 0E                STA     LEADZ
+000913  1  20 74 09             JSR     SNDDIG          ;SEND
+000916  1               N10000:
+000916  1  A2 00                LDX     #0              ;CLEAR 1000'S
+000918  1  38                   SEC
+000919  1               F1000:
+000919  1  A5 0A                LDA     FREE            ;DROP BY 1000
+00091B  1  E9 E8                SBC     #(1000 & $ff)
+00091D  1  85 0A                STA     FREE
+00091F  1  A5 0B                LDA     FREE+1
+000921  1  E9 03                SBC     #((1000 / $100)& $FF)
+000923  1  85 0B                STA     FREE+1
+000925  1  E8                   INX                     ;BUMP DIGIT
+000926  1  B0 F1                BCS     F1000           ;LOOP IF NO BORROW
+000928  1  A5 0A                LDA     FREE            ;ELSE ADD BACK IN
+00092A  1  69 E8                ADC     #(1000 & $ff)
+00092C  1  85 0A                STA     FREE
+00092E  1  A5 0B                LDA     FREE+1
+000930  1  69 03                ADC     #((1000 / $100)& $FF)
+000932  1  85 0B                STA     FREE+1
+000934  1  20 68 09             JSR     DIGOUT          ;SEND DIGIT
+000937  1  A2 00                LDX     #0              ;CLEAR 100'S COUNT
+000939  1  38                   SEC                     ;NOW
+00093A  1               F100:
+00093A  1  A5 0A                LDA     FREE            ;NOW DO 100'S
+00093C  1  E9 64                SBC     #100
+00093E  1  85 0A                STA     FREE
+000940  1  A5 0B                LDA     FREE+1
+000942  1  E9 00                SBC     #0
+000944  1  85 0B                STA     FREE+1
+000946  1  E8                   INX                     ;BUMP COUNT
+000947  1  B0 F1                BCS     F100            ;UNTIL A BORROW
+000949  1  A5 0A                LDA     FREE
+00094B  1  69 64                ADC     #100            ;THEN ADD
+00094D  1  85 0A                STA     FREE            ;100 BACK AND SAVE
+00094F  1  20 68 09             JSR     DIGOUT          ;SEND DIGIT
+000952  1  A2 00                LDX     #0              ;CLEAR 10'S
+000954  1  38                   SEC                     ;NOW
+000955  1  A5 0A                LDA     FREE            ;DROP
+000957  1               F10:
+000957  1  E9 0A                SBC     #10             ;FREE BY 10
+000959  1  E8                   INX                     ;AND BUMP COUNT
+00095A  1  B0 FB                BCS     F10             ;UNTIL A BORROW
+00095C  1  69 0A                ADC     #10             ;ADD 10 BACK IN
+00095E  1  85 0A                STA     FREE            ;AND SAVE
+000960  1  20 68 09             JSR     DIGOUT          ;SEND DIGIT
+000963  1               NO10:
+000963  1  A5 0A                LDA     FREE            ;ALWAYS
+000965  1  4C 74 09             JMP     SNDDIG          ;DO 1'S
+000968  1               ;OUTPUT DIGIT
+000968  1               DIGOUT:
+000968  1  CA                   DEX                     ;DROP COUNT
+000969  1  F0 04                BEQ     CHKLDZ          ;IF ZERO CHECK FLAG
+00096B  1  86 0E                STX     LEADZ           ;ELSE SET
+00096D  1  D0 04                BNE     MKEDIG          ;THEN MAKE AND SEND
+00096F  1               CHKLDZ:
+00096F  1  A5 0E                LDA     LEADZ           ;GET FLAG
+000971  1  F0 06                BEQ     EXTDIG          ;DONE IF ZERO
+000973  1               MKEDIG:
+000973  1  8A                   TXA                     ;MOVE TO A
+000974  1               SNDDIG:
+000974  1  09 30                ORA     #'0'
+000976  1  20 81 09             JSR     CHROUT          ;SEND
+000979  1               EXTDIG:
+000979  1  60                   RTS                     ;QUIT
+00097A  1               ;OUTPUT A CR AND LF
+00097A  1               CRLF:
+00097A  1  A9 0D                LDA     #CR             ;SEND
+00097C  1  20 81 09             JSR     CHROUT          ;A CR
+00097F  1  A9 0A                LDA     #LF             ;THEN A LF
+000981  1               ;CHARACTER OUTPUT
+000981  1               conwrt:
+000981  1               CHROUT:
+000981  1  A2 02                LDX     #2              ;SEND CHAR
+000983  1  4C 03 01             JMP     PEM             ;TO CONSOLE
+000986  1               ;BIT MASK TABLE
+000986  1               BITMSK:
+000986  1  80 40 20 10          .BYTE   128,64,32,16,8,4,2,1
+00098A  1  08 04 02 01  
+00098E  1               ;BLOCK SIZE MESSAGES
+00098E  1               BLKMS0:
+00098E  1  31 24                .BYTE   "1$"
+000990  1               BLKMS1:
+000990  1  32 24                .BYTE   "2$"
+000992  1               BLKMS2:
+000992  1  34 24                .BYTE   "4$"
+000994  1               BLKMS3:
+000994  1  38 24                .BYTE   "8$"
+000996  1               BLKMS4:
+000996  1  31 36 24             .BYTE   "16$"
+000999  1               ;BLOCK SIZE MESSAGE POINTERS
+000999  1               BLKTBL:
+000999  1  8E 09 90 09          .WORD   BLKMS0,BLKMS1,BLKMS2,BLKMS3,BLKMS4
+00099D  1  92 09 94 09  
+0009A1  1  96 09        
+0009A3  1               ;CLOSING MESSAGE
+0009A3  1               CLSMSG:
+0009A3  1  4B 20 42 4C          .BYTE   "K BLOCKS FREE OF $"
+0009A7  1  4F 43 4B 53  
+0009AB  1  20 46 52 45  
+0009B5  1               TTLMSG:
+0009B5  1  20 54 4F 54          .BYTE   " TOTAL$"
+0009B9  1  41 4C 24     
+0009BC  1               
+0009BC  1                       .END

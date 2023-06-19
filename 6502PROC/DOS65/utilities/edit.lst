@@ -1,0 +1,2134 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : edit203.asm
+Current file: edit203.asm
+
+000000r 1               ;EDIT
+000000r 1               ;DOS/65 CONTEXT EDITOR
+000000r 1               ;VERSION 2.03-A
+000000r 1               ;RELEASED:	25 SEPTEMBER 1982
+000000r 1               ;LAST REVISION:
+000000r 1               ;	27 NOVEMBER 1983
+000000r 1               ;		ADDED CODE SO RETURNS TO DEFAULT DRIVE
+000000r 1               ;	20 APRIL 1986
+000000r 1               ;		ADDED VERSION REPORTING AT START
+000000r 1               ;		ADDED ? COMMAND FOR HELP
+000000r 1               ;		ELIMINATED LOC 0 AND 1
+000000r 1               ;	31 MARCH 2008
+000000r 1               ;		REFORMATTED FOR TASM & ASM210
+000000r 1               ;ASSEMBLY TIME OPTIONS
+000000r 1               STRMAX          = 100           ;MAXIMUM STRING LENGTH
+000000r 1               SRCLNG          = 1024          ;SOURCE BUFFER LENGTH
+000000r 1               DSTLNG          = 1024          ;DESTINATION BUFFER LENGTH
+000000r 1               ;DOS/65 REFERENCES
+000000r 1               BOOT            = $100          ;WARM BOOT
+000000r 1               PEM             = $103          ;PEM JUMP
+000000r 1               DFLFCB          = $107          ;DEFAULT FCB
+000000r 1               DFLBUF          = $128          ;DEFAULT BUFFER
+000000r 1               TEA             = $800          ;ORIGIN
+000000r 1               CONDEF          = 55            ;CONDEF BLOCK OFFSET IN SIM
+000000r 1               ;FIXED PARAMETERS
+000000r 1               PLUS            = $FF           ;PLUS SIGN
+000000r 1               MINUS           = 0             ;MINUS SIGN
+000000r 1               CR              = $D            ;CARRIAGE RETURN
+000000r 1               LF              = $A            ;LINEFEED
+000000r 1               EOF             = $1A           ;END OF FILE
+000000r 1               NULL            = 0
+000000r 1               BLANK           = $20           ;ASCII SPACE
+000000r 1               TAB             = 9             ;CTL-I
+000000r 1               CTLR            = $12           ;REPEAT LINE
+000000r 1               CTLX            = $18           ;CANCEL LINE
+000000r 1               CTLL            = $C            ;CR-LF SUBSTITUTE
+000000r 1               DELETE          = $7F           ;BACKSPACE
+000000r 1               ;PAGE ZERO VARIABLES
+000000r 1               PRMSGN          = $02           ;PARAMETER SIGN (0=-,FF=+)
+000000r 1               NUMBER          = $03           ;PARAMETER VALUE
+000000r 1               COLUMN          = $05           ;CONSOLE COLUMN
+000000r 1               CURDRV          = $06           ;CURRENT DRIVE (DEFAULT)
+000000r 1               DSTDRV          = $07           ;DESTINATION DRIVE
+000000r 1               NXTCHR          = $08           ;NEXT CHARACTER FROM INPUT
+000000r 1               CNSIND          = $09           ;INDEX INTO CNSTXT
+000000r 1               MACFLG          = $0A           ;MACRO FLAG AND MAXIMUM INDEX
+000000r 1               MACIND          = $0B           ;MACRO BUFFER INDEX
+000000r 1               INSFLG          = $0C           ;INSERT MODE IF >127
+000000r 1               NOMORE          = $0D           ;NO MORE CONSOLE INPUT IF >127
+000000r 1               LIBIND          = $0E           ;.LIB FILE INDEX
+000000r 1               XLBIND          = $0F           ;X$$$$$$$.LIB FILE INDEX
+000000r 1               RDSCCN          = $10           ;READ SECTOR COUNT
+000000r 1               STRIND          = $11           ;INDEX INTO STRBUF
+000000r 1               NXTTXT          = $12           ;POINTER TO NEXT CHAR POSITION
+000000r 1               SRCIND          = $14           ;SOURCE FILE POINTER
+000000r 1               DSTIND          = $16           ;DESTINATION FILE POINTER
+000000r 1               UPRTXT          = $18           ;UPPER TEXT POINTER VALUE
+000000r 1               LWRLMT          = $1A           ;LOWER MOVE LIMIT
+000000r 1               UPRLMT          = $1C           ;MAXIMUM TEXT POINTER
+000000r 1               MAXTXT          = $1E           ;TXTLMT-1
+000000r 1               TXTLMT          = $20           ;LIMIT OF TEXT BUFFER
+000000r 1               POINT           = $22           ;GENERAL USE BUFFER
+000000r 1               MACCNT          = $24           ;MACRO COUNT
+000000r 1               TYPPNT          = $26           ;POINTER FOR TYPE
+000000r 1               CMPPNT          = $28           ;POINTER FOR COMPRE
+000000r 1               PRSSTR          = $2A           ;PARSE START
+000000r 1               ENDSTR          = $2B           ;END OF SEARCH STRING
+000000r 1               XLBPNT          = $2C           ;X$$$$$$$.LIB POINTER
+000000r 1               NORMAL          = $2E           ;NORMAL VIDEO
+000000r 1               INVERT          = $2F           ;INVERT VIDEO
+000000r 1               FORWAR          = $30           ;FORWARD SPACE
+000000r 1               CLREOL          = $31           ;CLEAR TO EOL
+000000r 1               BACKSP          = $32           ;BACKSPACE
+000000r 1               ENDCOL          = $33           ;LAST COLUMN
+000000r 1               OUTFLG          = $34           ;OUTPUT OK IF < 128
+000000r 1               DFLDRV          = $35           ;DEFAULT DRIVE
+000000r 1               LASTZP          = $36           ;
+000000r 1               ;-------------------------------
+000000r 1               ;MAIN PROGRAM
+000000r 1               ;-------------------------------
+000000r 1                       .FEATURE labels_without_colons
+000000r 1                       .SEGMENT "TEA"
+000000r 1                       .ORG    $0800
+000800  1               
+000800  1  4C 28 08             JMP     EDIT            ;GO EXECUTE
+000803  1  43 4F 50 59          .BYTE   "COPYRIGHT (C) 2008 - "
+000807  1  52 49 47 48  
+00080B  1  54 20 28 43  
+000818  1  52 49 43 48          .BYTE   "RICHARD A. LEARY"
+00081C  1  41 52 44 20  
+000820  1  41 2E 20 4C  
+000828  1               ;CLEAR PAGE ZERO
+000828  1               EDIT
+000828  1  A2 02                LDX     #2              ;SET STARTING LOC
+00082A  1  A9 00                LDA     #0              ;CLEAR ACCUM
+00082C  1               CLRZRP
+00082C  1  95 00                STA     $00,X           ;CLEAR BYTE
+00082E  1  E8                   INX                     ;COUNT UP
+00082F  1  E0 36                CPX     #LASTZP         ;SEE IF END
+000831  1  D0 F9                BNE     CLRZRP          ;LOOP IF MORE
+000833  1               ;SEND OPENING MESSAGE
+000833  1  A9 AC                LDA     #<OPNMSG        ;POINT TO IT
+000835  1  A0 14                LDY     #>OPNMSG
+000837  1  20 0A 0E             JSR     PRTBUF          ;SEND IT
+00083A  1               ;GET CONSOLE DEFINITION PARAMETERS FROM SIM
+00083A  1  AD 02 01             LDA     BOOT+2          ;GET HIGH
+00083D  1  8D 95 0D             STA     GETSYS+2        ;AND SAVE
+000840  1  A2 3A                LDX     #CONDEF+3       ;GET NORMAL
+000842  1  20 93 0D             JSR     GETSYS          ;CHAR
+000845  1  85 2E                STA     NORMAL          ;AND SAVE
+000847  1  A2 3B                LDX     #CONDEF+4       ;SAME
+000849  1  20 93 0D             JSR     GETSYS          ;FOR
+00084C  1  85 2F                STA     INVERT          ;INVERT
+00084E  1  A2 39                LDX     #CONDEF+2       ;AND
+000850  1  20 93 0D             JSR     GETSYS          ;FOR
+000853  1  85 30                STA     FORWAR          ;FORWARD
+000855  1  A2 38                LDX     #CONDEF+1       ;THEN
+000857  1  20 93 0D             JSR     GETSYS          ;FOR
+00085A  1  85 31                STA     CLREOL          ;CLEAR TO EOL
+00085C  1  A2 37                LDX     #CONDEF+0       ;FINALLY
+00085E  1  20 93 0D             JSR     GETSYS          ;GET
+000861  1  85 32                STA     BACKSP          ;BACKSPACE
+000863  1               ;FIND DEFAULT DRIVE
+000863  1  20 55 0E             JSR     RDECUR          ;GET FROM PEM
+000866  1  85 35                STA     DFLDRV          ;AND SAVE FOR LATER
+000868  1               ;CALCULATE POINTERS FOR TEXT BUFFER
+000868  1  38                   SEC                     ;SET
+000869  1  AD 04 01             LDA     PEM+1           ;UPPER
+00086C  1  AC 05 01             LDY     PEM+2           ;TEXT
+00086F  1  E9 01                SBC     #1              ;LIMITS
+000871  1  85 20                STA     TXTLMT          ;TO
+000873  1  85 1E                STA     MAXTXT          ;PEM
+000875  1  B0 01                BCS     *+3             ;LOCATION
+000877  1  88                   DEY                     ;MINUS
+000878  1  84 21                STY     TXTLMT+1        ;ONE
+00087A  1  84 1F                STY     MAXTXT+1        ;THEN
+00087C  1  A0 00                LDY     #0              ;CLEAR INDEX
+00087E  1  98                   TYA                     ;AND ACCUM
+00087F  1  91 20                STA     (TXTLMT),Y      ;AND INSERT A ZERO
+000881  1  A5 1E                LDA     MAXTXT          ;SUBTRACT
+000883  1  D0 02                BNE     *+4             ;ONE FROM LIMIT
+000885  1  C6 1F                DEC     MAXTXT+1        ;TO MAKE
+000887  1  C6 1E                DEC     MAXTXT          ;MAXIMUM
+000889  1               ;TEST FOR GOOD NAME FORMAT
+000889  1  AD 08 01             LDA     DFLFCB+1        ;GET FIRST CHAR
+00088C  1  C9 20                CMP     #BLANK          ;IF NOT A BLANK
+00088E  1  D0 03                BNE     *+5             ;IS OK
+000890  1  4C 78 0E             JMP     DOSERR          ;ELSE ERROR
+000893  1  AD 18 01             LDA     DFLFCB+17       ;THEN IF SECOND
+000896  1  C9 20                CMP     #BLANK          ;IS BLANK
+000898  1  F0 03                BEQ     *+5             ;IS OK
+00089A  1  4C 78 0E             JMP     DOSERR          ;ELSE ERROR
+00089D  1               ;SET UP CURRENT AND DESTINATION DRIVES
+00089D  1  AD 07 01             LDA     DFLFCB          ;GET AUTOMATIC DRIVE
+0008A0  1  48                   PHA                     ;SAVE IT
+0008A1  1  A9 00                LDA     #0              ;CLEAR
+0008A3  1  8D 07 01             STA     DFLFCB          ;AUTOMATIC
+0008A6  1  68                   PLA                     ;GET DRIVE
+0008A7  1  85 06                STA     CURDRV          ;AND SAVE
+0008A9  1  D0 06                BNE     NOATSR          ;IF NOT ZERO USE
+0008AB  1  A5 35                LDA     DFLDRV          ;ELSE GET CURRENT
+0008AD  1  85 06                STA     CURDRV          ;SAVE IT
+0008AF  1  E6 06                INC     CURDRV          ;BUMP IT
+0008B1  1               NOATSR
+0008B1  1  C6 06                DEC     CURDRV          ;DROP IT TO 0 TO 7
+0008B3  1  AD 17 01             LDA     DFLFCB+16       ;GET AUTOMATIC
+0008B6  1  85 07                STA     DSTDRV          ;AND SAVE
+0008B8  1  D0 05                BNE     NOATDS          ;IF NON ZERO USE
+0008BA  1  A6 06                LDX     CURDRV          ;GET CURRENT
+0008BC  1  E8                   INX                     ;BUMP IT
+0008BD  1  86 07                STX     DSTDRV          ;AND USE IT
+0008BF  1               NOATDS
+0008BF  1  C6 07                DEC     DSTDRV          ;DROP IN EITHER CASE
+0008C1  1               ;INITIALIZE FILES
+0008C1  1  20 8F 0E             JSR     INTXLB          ;INITIALIZE X$$$$$$$.LIB
+0008C4  1               ;RENTRY FOR RE-EDIT OF FILE
+0008C4  1               RENTRY
+0008C4  1  A9 AE                LDA     #<(SOURCE+SRCLNG);SET
+0008C6  1  A0 1E                LDY     #>(SOURCE+SRCLNG);SOURCE
+0008C8  1  85 14                STA     SRCIND          ;INDEX TO
+0008CA  1  84 15                STY     SRCIND+1        ;ILLEGAL
+0008CC  1  A9 AE                LDA     #<DEST          ;SET
+0008CE  1  A0 1E                LDY     #>DEST          ;DESTINATION
+0008D0  1  85 16                STA     DSTIND          ;POINTER
+0008D2  1  84 17                STY     DSTIND+1        ;TO FIRST
+0008D4  1  A9 00                LDA     #0              ;CLEAR
+0008D6  1  8D 13 01             STA     DFLFCB+12       ;EXTENT
+0008D9  1  8D 14 01             STA     DFLFCB+13
+0008DC  1  8D 27 01             STA     DFLFCB+32       ;AND NEXT RECORD
+0008DF  1  A2 20                LDX     #32             ;MOVE
+0008E1  1               STDSFC
+0008E1  1  BD 07 01             LDA     DFLFCB,X        ;DEFAULT FCB
+0008E4  1  9D 29 19             STA     DSTFCB,X        ;TO DESTINATION
+0008E7  1  CA                   DEX                     ;FCB
+0008E8  1  10 F7                BPL     STDSFC          ;IN HIGH MEM
+0008EA  1  A5 07                LDA     DSTDRV          ;GET DESTINATION DRIVE
+0008EC  1  C5 06                CMP     CURDRV          ;COMPARE TO CURRENT
+0008EE  1  F0 18                BEQ     DSTSME          ;BRANCH IF SAME
+0008F0  1  20 5A 0E             JSR     SETDRV          ;ELSE SET DEST
+0008F3  1  A9 07                LDA     #<DFLFCB        ;POINT
+0008F5  1  A0 01                LDY     #>DFLFCB        ;TO DEFAULT
+0008F7  1  A2 11                LDX     #17             ;SEARCH
+0008F9  1  20 03 01             JSR     PEM             ;FOR IT
+0008FC  1  30 0A                BMI     DSTSME          ;OK IF NOT
+0008FE  1  A9 E7                LDA     #<FLXMSG        ;ELSE SEND
+000900  1  A0 17                LDY     #>FLXMSG        ;FILE EXISTS
+000902  1  20 0F 0E             JSR     PRCRBF          ;MESSAGE
+000905  1  4C 64 0E             JMP     DLXLEX          ;AND EXIT
+000908  1               DSTSME
+000908  1  A5 06                LDA     CURDRV          ;GET CURRENT
+00090A  1  20 5A 0E             JSR     SETDRV          ;AND SET
+00090D  1  A9 07                LDA     #<DFLFCB        ;THEN
+00090F  1  A0 01                LDY     #>DFLFCB        ;OPEN
+000911  1  20 1B 0E             JSR     OPNFLE          ;SOURCE
+000914  1  D0 16                BNE     SRISOK          ;OK IF THERE
+000916  1  A9 07                LDA     #<DFLFCB        ;ELSE
+000918  1  A0 01                LDY     #>DFLFCB        ;CREATE
+00091A  1  20 3A 0E             JSR     CRTFLE          ;IT
+00091D  1  D0 03                BNE     *+5             ;JUMP IF OK
+00091F  1  4C 78 0E             JMP     DOSERR          ;ELSE ERROR
+000922  1  A9 B1                LDA     #<NWFMSG        ;POINT TO
+000924  1  A0 17                LDY     #>NWFMSG        ;NEW FILE MESSAGE
+000926  1  20 0F 0E             JSR     PRCRBF          ;AND SEND IT
+000929  1  20 B0 0D             JSR     CRLF            ;AND ANOTHER CR AND LF
+00092C  1               SRISOK
+00092C  1  A9 A6                LDA     #<BAKSTR        ;CHANGE
+00092E  1  A0 14                LDY     #>BAKSTR        ;DESTINATION
+000930  1  20 6B 12             JSR     CHGTYP          ;TO .BAK
+000933  1  A9 29                LDA     #<DSTFCB        ;DELETE
+000935  1  A0 19                LDY     #>DSTFCB        ;IT IF
+000937  1  20 2B 0E             JSR     DLTFLE          ;THERE
+00093A  1  A5 07                LDA     DSTDRV          ;IF DEST
+00093C  1  C5 06                CMP     CURDRV          ;SAME AS CURRENT
+00093E  1  F0 0A                BEQ     DNTDDD          ;JUMP
+000940  1  20 5A 0E             JSR     SETDRV          ;ELSE
+000943  1  A9 29                LDA     #<DSTFCB        ;DELETE
+000945  1  A0 19                LDY     #>DSTFCB        ;IT ON
+000947  1  20 2B 0E             JSR     DLTFLE          ;DESTINATION
+00094A  1               DNTDDD
+00094A  1  A9 A9                LDA     #<DLRSTR        ;CHANGE
+00094C  1  A0 14                LDY     #>DLRSTR        ;TYPE
+00094E  1  20 6B 12             JSR     CHGTYP          ;TO .$$$
+000951  1  A9 29                LDA     #<DSTFCB        ;DELETE
+000953  1  A0 19                LDY     #>DSTFCB        ;IT IF
+000955  1  20 2B 0E             JSR     DLTFLE          ;THERE
+000958  1  A9 29                LDA     #<DSTFCB        ;THEN
+00095A  1  A0 19                LDY     #>DSTFCB        ;CREATE
+00095C  1  20 3A 0E             JSR     CRTFLE          ;IT
+00095F  1  D0 03                BNE     *+5             ;JUMP IF OK
+000961  1  4C 64 0E             JMP     DLXLEX          ;ELSE EXIT
+000964  1  A9 0A                LDA     #LF             ;INSERT A LF
+000966  1  8D AE 22             STA     TXTBUF          ;AT START OF BUFFER
+000969  1  A9 AF                LDA     #<(TXTBUF+1)    ;INITIALIZE
+00096B  1  A0 22                LDY     #>(TXTBUF+1)    ;NEXT
+00096D  1  85 12                STA     NXTTXT          ;POINTER TO
+00096F  1  84 13                STY     NXTTXT+1        ;START + 1
+000971  1  A5 1E                LDA     MAXTXT          ;SET UPPER
+000973  1  A4 1F                LDY     MAXTXT+1        ;TO MAX
+000975  1  85 18                STA     UPRTXT          ;POINT
+000977  1  84 19                STY     UPRTXT+1        ;IN BUFFER
+000979  1  A9 00                LDA     #0              ;CLEAR COLUMN
+00097B  1  85 05                STA     COLUMN          ;INDEX
+00097D  1  4C AD 09             JMP     BEGIN           ;AND BEGIN
+000980  1               ;ERROR/BREAK LOOP ENTRIES
+000980  1               ;CAN NOT DO COMMAND SPECIFIED TIMES
+000980  1               CNTDMR
+000980  1  A9 00                LDA     #0
+000982  1  F0 06                BEQ     BRKLPE
+000984  1               ;UNRECOGNIZED COMMAND
+000984  1               UNRCCM
+000984  1  A9 01                LDA     #1
+000986  1  D0 02                BNE     BRKLPE
+000988  1               ;MEMORY BUFFER FULL
+000988  1               MMBFFL
+000988  1  A9 02                LDA     #2
+00098A  1               BRKLPE
+00098A  1  48                   PHA                     ;SAVE ERROR
+00098B  1  A9 DE                LDA     #<BRKMSG        ;SEND
+00098D  1  A0 17                LDY     #>BRKMSG        ;BREAK
+00098F  1  20 0F 0E             JSR     PRCRBF          ;MESSAGE
+000992  1  68                   PLA                     ;THEN
+000993  1  0A                   ASL     A               ;MAKE INDEX
+000994  1  AA                   TAX
+000995  1  BD 5D 18             LDA     ERRTBL,X        ;GET MESSAGE ADDRESS
+000998  1  BC 5E 18             LDY     ERRTBL+1,X
+00099B  1  20 0A 0E             JSR     PRTBUF          ;PRINT MESSAGE
+00099E  1  A9 D9                LDA     #<ATMSG         ;SEND
+0009A0  1  A0 17                LDY     #>ATMSG         ;AT
+0009A2  1  20 0A 0E             JSR     PRTBUF          ;MESSAGE
+0009A5  1  A5 08                LDA     NXTCHR          ;THEN LAST
+0009A7  1  20 B7 0D             JSR     CHROUT          ;CHAR
+0009AA  1  20 B0 0D             JSR     CRLF            ;AND A CR&LF
+0009AD  1               BEGIN
+0009AD  1  A2 FF                LDX     #$FF            ;RESET STACK
+0009AF  1  9A                   TXS                     ;IN CASE ALTERED
+0009B0  1  86 0D                STX     NOMORE          ;BUFFER EMPTY
+0009B2  1  E8                   INX                     ;CLEAR
+0009B3  1  86 0A                STX     MACFLG          ;MACRO FLAG
+0009B5  1               ;MAIN PARSING LOOP ENTRY
+0009B5  1               PRSMRE
+0009B5  1  A9 00                LDA     #0              ;CLEAR INSERT
+0009B7  1  85 0C                STA     INSFLG          ;MODE FLAG
+0009B9  1  20 7A 12             JSR     GTNXCH          ;GET AN INPUT
+0009BC  1  A5 09                LDA     CNSIND          ;GET INDEX
+0009BE  1  85 2A                STA     PRSSTR          ;AND SAVE
+0009C0  1               ;? FOR HELP
+0009C0  1  A9 3F                LDA     #'?'            ;MATCH ?
+0009C2  1  20 23 10             JSR     TSTFON
+0009C5  1  D0 1F                BNE     NOTHLP          ;NO SO TRY NEXT
+0009C7  1  A9 C4                LDA     #<HELP0         ;DO FIRST PART
+0009C9  1  A0 14                LDY     #>HELP0
+0009CB  1  20 0A 0E             JSR     PRTBUF
+0009CE  1  A9 AD                LDA     #<HELP1         ;THEN SECOND PART
+0009D0  1  A0 15                LDY     #>HELP1
+0009D2  1  20 0A 0E             JSR     PRTBUF
+0009D5  1  A9 90                LDA     #<HELP2         ;THEN THIRD PART
+0009D7  1  A0 16                LDY     #>HELP2
+0009D9  1  20 0A 0E             JSR     PRTBUF
+0009DC  1  A9 71                LDA     #<HELP3         ;AND FINAL PART
+0009DE  1  A0 17                LDY     #>HELP3
+0009E0  1  20 0A 0E             JSR     PRTBUF
+0009E3  1  4C B5 09             JMP     PRSMRE          ;AND DO MAIN LOOP
+0009E6  1               ;E FOR END
+0009E6  1               NOTHLP
+0009E6  1  A9 45                LDA     #'E'            ;SEE IF E
+0009E8  1  20 23 10             JSR     TSTFON          ;AND ONLY E
+0009EB  1  D0 06                BNE     NOTEND          ;TRY NEXT IF NOT
+0009ED  1  20 97 0D             JSR     FLUSFL          ;FLUSH FILE
+0009F0  1  4C 64 0E             JMP     DLXLEX          ;DELETE X$$$$$$$.LIB AND BOOT
+0009F3  1               ;H FOR HEAD
+0009F3  1               NOTEND
+0009F3  1  A9 48                LDA     #'H'            ;SEE IF H
+0009F5  1  20 23 10             JSR     TSTFON          ;AND ONLY H
+0009F8  1  D0 0E                BNE     NOTHEA          ;TRY NEXT IF NOT
+0009FA  1  20 97 0D             JSR     FLUSFL          ;FLUSH FILE
+0009FD  1  A5 07                LDA     DSTDRV          ;SWITCH
+0009FF  1  A6 06                LDX     CURDRV          ;CURRENT AND
+000A01  1  86 07                STX     DSTDRV          ;DESTINATION
+000A03  1  85 06                STA     CURDRV          ;DRIVES
+000A05  1  4C C4 08             JMP     RENTRY          ;AND RESTART
+000A08  1               ;I FOR INSERT
+000A08  1               NOTHEA
+000A08  1  A5 08                LDA     NXTCHR          ;GET NEXT CHAR
+000A0A  1  C9 49                CMP     #'I'            ;IF I
+000A0C  1  F0 03                BEQ     *+5             ;THEN INSERT
+000A0E  1  4C E6 0A             JMP     NOTINS          ;ELSE TRY NEXT
+000A11  1  A2 00                LDX     #0              ;SET X TO ZERO
+000A13  1  AD 66 18             LDA     CNSLNG          ;COMPARE LENGTH
+000A16  1  C5 09                CMP     CNSIND          ;TO INDEX
+000A18  1  D0 05                BNE     STINMD          ;IF NOT SAME CLEAR INSERT MODE
+000A1A  1  A5 0A                LDA     MACFLG          ;GET MACRO FLAG
+000A1C  1  D0 01                BNE     STINMD          ;CLEAR INSERT IF NOT ZERO
+000A1E  1  CA                   DEX                     ;ELSE SET X TO FF
+000A1F  1               STINMD
+000A1F  1  86 0C                STX     INSFLG          ;SAVE INSERT FLAG
+000A21  1               INSMRE
+000A21  1  20 EA 10             JSR     GTTSEN          ;GET INPUT AND TEST FOR EOF
+000A24  1  D0 03                BNE     *+5             ;CONTINUE IF NOT
+000A26  1  4C DA 0A             JMP     ENDINS          ;ELSE END INSERT
+000A29  1  A5 08                LDA     NXTCHR          ;GET CHAR
+000A2B  1  F0 F4                BEQ     INSMRE          ;LOOP IF A NULL
+000A2D  1  C9 18                CMP     #CTLX           ;IF NOT CTL-X
+000A2F  1  D0 13                BNE     NTCTLX          ;TRY NEXT
+000A31  1  20 89 0D             JSR     CLEAR           ;CLEAR LINE
+000A34  1  20 DF 0E             JSR     STNM0           ;SET NUMBER TO ZERO
+000A37  1  A9 00                LDA     #MINUS          ;AND SIGN
+000A39  1  85 02                STA     PRMSGN          ;TO MINUS
+000A3B  1  20 E9 12             JSR     LMTCLC          ;SEE HOW MUCH TO MOVE
+000A3E  1  20 96 0F             JSR     MOVDLT          ;DO IT
+000A41  1  4C 21 0A             JMP     INSMRE          ;AND LOOP
+000A44  1               NTCTLX
+000A44  1  C9 12                CMP     #CTLR           ;IF NOT CTL-R
+000A46  1  D0 10                BNE     NTRTDL          ;TRY NEXT
+000A48  1               DORPT
+000A48  1  20 89 0D             JSR     CLEAR           ;CLEAR LINE
+000A4B  1  20 DF 0E             JSR     STNM0           ;SET NUMBER TO ZERO
+000A4E  1  A9 00                LDA     #MINUS          ;AND SIGN
+000A50  1  85 02                STA     PRMSGN          ;TO NEGATIVE
+000A52  1  20 EF 13             JSR     TYPE            ;ELSE TYPE LINE
+000A55  1  4C 21 0A             JMP     INSMRE          ;AND GET MORE
+000A58  1               NTRTDL
+000A58  1  C9 7F                CMP     #DELETE         ;IF NOT DELETE
+000A5A  1  D0 3F                BNE     NOTDLT          ;TRY NEXT
+000A5C  1  20 7A 0D             JSR     DOBS            ;WIPE OUT THE DELETE
+000A5F  1               DLT
+000A5F  1  A9 AF                LDA     #<(TXTBUF+1)    ;IF
+000A61  1  C5 12                CMP     NXTTXT          ;NOT
+000A63  1  D0 0C                BNE     DLTOK           ;AT
+000A65  1  A9 22                LDA     #>(TXTBUF+1)    ;BEGINNING
+000A67  1  C5 13                CMP     NXTTXT+1        ;IS
+000A69  1  D0 06                BNE     DLTOK           ;OK
+000A6B  1  20 89 0D             JSR     CLEAR           ;CLEAR LINE
+000A6E  1  4C 21 0A             JMP     INSMRE          ;ELSE TRY AGAIN
+000A71  1               DLTOK
+000A71  1  20 66 0D             JSR     GETCOL          ;SET CURRENT COLUMN
+000A74  1  A5 05                LDA     COLUMN          ;AND SAVE
+000A76  1  85 33                STA     ENDCOL
+000A78  1  20 09 0F             JSR     DRNXTX          ;DROP NEXT TEXT
+000A7B  1  A0 00                LDY     #0              ;CLEAR INDEX
+000A7D  1  B1 12                LDA     (NXTTXT),Y      ;GET CHAR
+000A7F  1  C9 0A                CMP     #LF             ;IF A LF
+000A81  1  F0 DC                BEQ     DLT             ;THEN KILL CR TOO
+000A83  1  C9 0D                CMP     #CR             ;IF A CR
+000A85  1  F0 C1                BEQ     DORPT           ;TYPE NEW LINE
+000A87  1  20 66 0D             JSR     GETCOL          ;CALC NEW COLUMN
+000A8A  1  38                   SEC
+000A8B  1  A5 33                LDA     ENDCOL          ;CALCULATE NUMBER OF BS'S
+000A8D  1  E5 05                SBC     COLUMN
+000A8F  1  85 33                STA     ENDCOL          ;AND SAVE
+000A91  1               BSLPE
+000A91  1  20 7A 0D             JSR     DOBS            ;DO ONE
+000A94  1  C6 33                DEC     ENDCOL
+000A96  1  D0 F9                BNE     BSLPE           ;LOOP IF MORE
+000A98  1  4C 21 0A             JMP     INSMRE          ;THEN GET NEXT CHAR
+000A9B  1               NOTDLT
+000A9B  1  C9 0C                CMP     #CTLL           ;IF NOT A CLT-L
+000A9D  1  D0 06                BNE     NOTCTL          ;TRY NEXT
+000A9F  1  20 83 12             JSR     INCRLF          ;ELSE INSERT CR AND LF
+000AA2  1  4C 21 0A             JMP     INSMRE          ;AND LOOP
+000AA5  1               NOTCTL
+000AA5  1  20 D4 10             JSR     INSTCH          ;INSERT CHAR
+000AA8  1  A5 08                LDA     NXTCHR          ;GET IT AGAIN
+000AAA  1  C9 0A                CMP     #LF             ;IF NOT A LF
+000AAC  1  D0 03                BNE     NOTALF          ;TRY NEXT
+000AAE  1  4C 21 0A             JMP     INSMRE          ;ELSE LOOP
+000AB1  1               NOTALF
+000AB1  1  C9 0D                CMP     #CR             ;IF A CR
+000AB3  1  F0 14                BEQ     ISACR           ;CONTINUE
+000AB5  1  C9 09                CMP     #TAB            ;SEE IF TAB
+000AB7  1  D0 03                BNE     *+5             ;CONTINUE IF NOT
+000AB9  1  4C 21 0A             JMP     INSMRE          ;ELSE LOOP
+000ABC  1  C9 20                CMP     #' '            ;IF LESS THAN BLANK
+000ABE  1  90 03                BCC     *+5             ;CONTINUE
+000AC0  1  4C 21 0A             JMP     INSMRE          ;ELSE LOOP
+000AC3  1  20 B7 0D             JSR     CHROUT          ;ECHO CONTROL
+000AC6  1  4C 21 0A             JMP     INSMRE          ;AND LOOP
+000AC9  1               ISACR
+000AC9  1  A9 0A                LDA     #LF             ;GET A LF
+000ACB  1  85 08                STA     NXTCHR          ;STORE IT
+000ACD  1  A6 0A                LDX     MACFLG          ;GET MACRO FLAG
+000ACF  1  D0 03                BNE     *+5             ;JUMP IF MACRO
+000AD1  1  20 B7 0D             JSR     CHROUT          ;ELSE ECHO
+000AD4  1  20 D4 10             JSR     INSTCH          ;INSERT IT
+000AD7  1  4C 21 0A             JMP     INSMRE          ;AND LOOP
+000ADA  1               ENDINS
+000ADA  1  A5 08                LDA     NXTCHR          ;GET CHAR
+000ADC  1  C9 1A                CMP     #EOF            ;IF AN EOF
+000ADE  1  F0 03                BEQ     *+5             ;THEN SKIP
+000AE0  1  20 83 12             JSR     INCRLF          ;CR AND LF INSERTION
+000AE3  1  4C B5 09             JMP     PRSMRE          ;PARSE MORE
+000AE6  1               ;O FOR ORIGINAL FILE
+000AE6  1               NOTINS
+000AE6  1  A9 4F                LDA     #'O'            ;GET AN O
+000AE8  1  20 31 10             JSR     TSTVRF          ;SEE IF ONE AND ONLY
+000AEB  1  D0 03                BNE     *+5             ;TRY NEXT IF NOT
+000AED  1  4C C4 08             JMP     RENTRY          ;ELSE RESTART
+000AF0  1               ;R FOR READ LIBRARY FILE
+000AF0  1  A5 08                LDA     NXTCHR          ;GET CHAR
+000AF2  1  C9 52                CMP     #'R'            ;IF AN R
+000AF4  1  F0 03                BEQ     *+5             ;IS A READ
+000AF6  1  4C 65 0B             JMP     NOTRLB          ;ELSE TRY NEXT
+000AF9  1  A9 01                LDA     #1              ;SET INDEX
+000AFB  1  85 0E                STA     LIBIND          ;TO ONE
+000AFD  1  20 B2 0E             JSR     CURDFL          ;DEFAULT FILE
+000B00  1               GTRLNM
+000B00  1  20 EA 10             JSR     GTTSEN          ;GET CHAR
+000B03  1  F0 0F                BEQ     RNMEND          ;JUMP IF END
+000B05  1  A6 0E                LDX     LIBIND          ;GET INDEX
+000B07  1  E0 09                CPX     #9              ;COMPARE TO MAX+1
+000B09  1  90 03                BCC     *+5             ;OK IF LESS
+000B0B  1  4C 80 09             JMP     CNTDMR          ;ELSE ERROR
+000B0E  1  20 5D 0F             JSR     CHTOLF          ;INSERT INTO FCB
+000B11  1  4C 00 0B             JMP     GTRLNM          ;LOOP FOR MORE
+000B14  1               RNMEND
+000B14  1  A9 20                LDA     #BLANK          ;SET FOR
+000B16  1  85 08                STA     NXTCHR          ;BLANK FILL
+000B18  1  A6 0E                LDX     LIBIND          ;GET INDEX
+000B1A  1  CA                   DEX                     ;DROP
+000B1B  1  D0 0D                BNE     NOTXLB          ;.LIB IF NOT ZERO
+000B1D  1  A2 08                LDX     #8              ;ELSE
+000B1F  1               XLFLBF
+000B1F  1  BD 08 19             LDA     XLBFCB,X        ;IS
+000B22  1  9D E7 18             STA     LIBFCB,X        ;X$$$$$$$.LIB
+000B25  1  CA                   DEX                     ;SO FILL
+000B26  1  D0 F7                BNE     XLFLBF          ;FCB
+000B28  1  F0 0C                BEQ     LBFLOK          ;AND GO USE
+000B2A  1               NOTXLB
+000B2A  1  A6 0E                LDX     LIBIND          ;GET INDEX
+000B2C  1  E0 09                CPX     #9              ;COMPARE TO 9
+000B2E  1  B0 06                BCS     LBFLOK          ;DONE IF THAT
+000B30  1  20 5D 0F             JSR     CHTOLF          ;ELSE INSERT
+000B33  1  4C 2A 0B             JMP     NOTXLB          ;AND LOOP
+000B36  1               LBFLOK
+000B36  1  A9 00                LDA     #0              ;CLEAR
+000B38  1  8D F3 18             STA     LIBFCB+12       ;EXTENT
+000B3B  1  8D F4 18             STA     LIBFCB+13
+000B3E  1  8D 07 19             STA     LIBFCB+32       ;AND RECORD
+000B41  1  A9 E7                LDA     #<LIBFCB        ;THEN
+000B43  1  A0 18                LDY     #>LIBFCB        ;OPEN
+000B45  1  20 1B 0E             JSR     OPNFLE          ;FILE
+000B48  1  D0 05                BNE     *+7             ;CONTINUE IF OK
+000B4A  1  A9 03                LDA     #3              ;ELSE SEND
+000B4C  1  4C 8A 09             JMP     BRKLPE          ;BREAK
+000B4F  1  A9 80                LDA     #128            ;SET INDEX
+000B51  1  85 0E                STA     LIBIND          ;TO ILLEGAL
+000B53  1               RDLBCH
+000B53  1  20 BE 0E             JSR     GETLIB          ;GET CHAR
+000B56  1  85 08                STA     NXTCHR          ;STORE
+000B58  1  C9 1A                CMP     #EOF            ;IF EOF
+000B5A  1  F0 06                BEQ     *+8             ;THEN DONE
+000B5C  1  20 D4 10             JSR     INSTCH          ;ELSE INSERT
+000B5F  1  4C 53 0B             JMP     RDLBCH          ;AND LOOP
+000B62  1  4C B5 09             JMP     PRSMRE          ;MAIN LOOP
+000B65  1               ;Q FOR QUIT
+000B65  1               NOTRLB
+000B65  1  A9 51                LDA     #'Q'            ;SEE IF Q
+000B67  1  20 31 10             JSR     TSTVRF          ;AND VERIFY
+000B6A  1  D0 0A                BNE     NOTQUT          ;BRANCH IF NOT
+000B6C  1  A9 29                LDA     #<DSTFCB        ;ELSE
+000B6E  1  A0 19                LDY     #>DSTFCB        ;DELETE
+000B70  1  20 2B 0E             JSR     DLTFLE          ;DESTINATION
+000B73  1  4C 64 0E             JMP     DLXLEX          ;AND EXIT
+000B76  1               ;NUMBER
+000B76  1               NOTQUT
+000B76  1  20 22 0F             JSR     DFLPRM          ;SET DEFAULT PARMS
+000B79  1  A5 08                LDA     NXTCHR          ;GET CHAR
+000B7B  1  C9 2D                CMP     #'-'            ;IF NOT A -
+000B7D  1  D0 09                BNE     SGNPOS          ;THEN BRANCH
+000B7F  1  A9 00                LDA     #MINUS          ;ELSE GET
+000B81  1  85 02                STA     PRMSGN          ;MINUS AND SET
+000B83  1  20 7A 12             JSR     GTNXCH          ;AND GET COMMAND
+000B86  1  A5 08                LDA     NXTCHR          ;GET CHAR
+000B88  1               SGNPOS
+000B88  1  C9 23                CMP     #'#'            ;IF NOT #
+000B8A  1  D0 09                BNE     NTMXNU          ;SKIP FORWARD
+000B8C  1  20 E6 0E             JSR     STNMMX          ;ELSE SET TO MAX
+000B8F  1  20 7A 12             JSR     GTNXCH          ;GET ANOTHER
+000B92  1  4C 9D 0B             JMP     GOTNUM          ;AND CONTINUE
+000B95  1               NTMXNU
+000B95  1  20 55 10             JSR     TSTDEC          ;TEST FOR DECIMAL
+000B98  1  90 03                BCC     GOTNUM          ;IF NOT JUMP
+000B9A  1  20 66 10             JSR     BLDNUM          ;ELSE BUILD PARM
+000B9D  1               GOTNUM
+000B9D  1  20 DA 0E             JSR     TSTNM0          ;TEST FOR ZERO
+000BA0  1  D0 04                BNE     *+6             ;BRANCH IF NOT
+000BA2  1  A9 00                LDA     #MINUS          ;IF ZERO SET
+000BA4  1  85 02                STA     PRMSGN          ;SIGN TO MINUS
+000BA6  1               ;B FOR BEGINNING OR END (+B OR -B)
+000BA6  1  A5 08                LDA     NXTCHR          ;GET CHAR
+000BA8  1  C9 42                CMP     #'B'            ;IF NOT B
+000BAA  1  D0 1C                BNE     NOTBGN          ;TRY NEXT
+000BAC  1  A5 02                LDA     PRMSGN          ;GET SIGN
+000BAE  1  49 FF                EOR     #$FF            ;COMPLEMENT IT
+000BB0  1  85 02                STA     PRMSGN          ;AND SAVE
+000BB2  1  A9 AF                LDA     #<(TXTBUF+1)    ;SET
+000BB4  1  A0 22                LDY     #>(TXTBUF+1)    ;LOWER
+000BB6  1  85 1A                STA     LWRLMT          ;LIMIT
+000BB8  1  84 1B                STY     LWRLMT+1        ;TO START
+000BBA  1  A5 1E                LDA     MAXTXT          ;AND
+000BBC  1  A4 1F                LDY     MAXTXT+1        ;UPPER
+000BBE  1  85 1C                STA     UPRLMT          ;LIMIT
+000BC0  1  84 1D                STY     UPRLMT+1        ;TO MAX
+000BC2  1  20 6A 0F             JSR     MOVONL          ;MOVE
+000BC5  1  4C B5 09             JMP     PRSMRE          ;AND LOOP
+000BC8  1               ;C FOR MOVE N CHAR
+000BC8  1               NOTBGN
+000BC8  1  C9 43                CMP     #'C'            ;IF NOT C
+000BCA  1  D0 09                BNE     NOTCMV          ;TRY NEXT
+000BCC  1  20 91 12             JSR     CHRLMT          ;CALC LIMITS
+000BCF  1  20 6A 0F             JSR     MOVONL          ;AND MOVE
+000BD2  1  4C B5 09             JMP     PRSMRE          ;AND LOOP
+000BD5  1               ;D FOR DELETE N CHARACTERS
+000BD5  1               NOTCMV
+000BD5  1  C9 44                CMP     #'D'            ;IF NOT D
+000BD7  1  D0 09                BNE     NOTCDL          ;TRY NEXT
+000BD9  1  20 91 12             JSR     CHRLMT          ;CALC LIMITS
+000BDC  1  20 96 0F             JSR     MOVDLT          ;MOVE AND DELEUE
+000BDF  1  4C B5 09             JMP     PRSMRE          ;AND LOOP
+000BE2  1               ;K FOR KILL N LINES
+000BE2  1               NOTCDL
+000BE2  1  C9 4B                CMP     #'K'            ;IF NOT K
+000BE4  1  D0 09                BNE     NOTKLN          ;TRY NEXT
+000BE6  1  20 E9 12             JSR     LMTCLC          ;CALC LIMITS
+000BE9  1  20 96 0F             JSR     MOVDLT          ;MOVE WITH DELETE
+000BEC  1  4C B5 09             JMP     PRSMRE          ;LOOP FOR MORE
+000BEF  1               ;L FOR MOVE N LONES
+000BEF  1               NOTKLN
+000BEF  1  C9 4C                CMP     #'L'            ;IF NOT L
+000BF1  1  D0 06                BNE     NOTMLN          ;TRY NEXT
+000BF3  1  20 65 12             JSR     MOVNLN          ;DO THE MOVE
+000BF6  1  4C B5 09             JMP     PRSMRE          ;AND LOOP
+000BF9  1               ;T FOR TYPE N LINES
+000BF9  1               NOTMLN
+000BF9  1  C9 54                CMP     #'T'            ;IF NOT T
+000BFB  1  D0 06                BNE     NOTTYP          ;TRY NEXT
+000BFD  1  20 EF 13             JSR     TYPE            ;GO DO IT
+000C00  1  4C B5 09             JMP     PRSMRE          ;LOOP FOR MORE
+000C03  1               ;CR FOR MOVE N LINES AND TYPE
+000C03  1               NOTTYP
+000C03  1  C9 0D                CMP     #CR             ;IF NOT A CR
+000C05  1  D0 16                BNE     NTCR            ;TRY NEXT
+000C07  1  A6 0A                LDX     MACFLG          ;BUT IF A MACRO
+000C09  1  D0 0F                BNE     ENDCR           ;DO NOTHING
+000C0B  1  A6 2A                LDX     PRSSTR          ;GET START
+000C0D  1  E0 01                CPX     #1              ;IF NOT ONE
+000C0F  1  D0 09                BNE     ENDCR           ;DO NOTHING
+000C11  1  20 65 12             JSR     MOVNLN          ;MOVE
+000C14  1  20 22 0F             JSR     DFLPRM          ;THEN TYPE
+000C17  1  20 EF 13             JSR     TYPE            ;ONE LINE
+000C1A  1               ENDCR
+000C1A  1  4C B5 09             JMP     PRSMRE          ;LOOP
+000C1D  1               ;FOR ALL FOLLOWING COMMANDS SIGN MUST BE PLUS
+000C1D  1               NTCR
+000C1D  1  24 02                BIT     PRMSGN          ;TEST SIGN
+000C1F  1  30 0A                BMI     TRYA            ;OK IF PLUS
+000C21  1  20 DA 0E             JSR     TSTNM0          ;IF NUMBER ZERO
+000C24  1  F0 03                BEQ     *+5             ;IS OK
+000C26  1  4C 84 09             JMP     UNRCCM          ;ELSE UNKNOWN
+000C29  1  A5 08                LDA     NXTCHR          ;GET CHAR
+000C2B  1               ;A FOR APPEND LINES
+000C2B  1               TRYA
+000C2B  1  C9 41                CMP     #'A'            ;IF OT A
+000C2D  1  D0 2F                BNE     NOTAPP          ;TRY NEXT
+000C2F  1  A5 12                LDA     NXTTXT          ;SET
+000C31  1  A4 13                LDY     NXTTXT+1        ;LOWER
+000C33  1  85 1A                STA     LWRLMT          ;MIMIT
+000C35  1  84 1B                STY     LWRLMT+1        ;TO NEXT
+000C37  1  A5 1E                LDA     MAXTXT          ;AND UPPER
+000C39  1  A4 1F                LDY     MAXTXT+1        ;LIMIT
+000C3B  1  85 1C                STA     UPRLMT          ;TO
+000C3D  1  84 1D                STY     UPRLMT+1        ;MAXIMUM
+000C3F  1  20 6A 0F             JSR     MOVONL          ;THEN MOVE
+000C42  1  20 DA 0E             JSR     TSTNM0          ;IF NUMBER NOT ZERO
+000C45  1  D0 02                BNE     *+4             ;THEN USE IT
+000C47  1  E6 03                INC     NUMBER          ;ELSE SET TO ONE
+000C49  1               APPNLP
+000C49  1  20 ED 0E             JSR     TSTADJ          ;TEST FOR ZERO
+000C4C  1  F0 06                BEQ     APPEND          ;EXIT IF DONE
+000C4E  1  20 FC 10             JSR     ADDLNE          ;ELSE ADD A LINE
+000C51  1  4C 49 0C             JMP     APPNLP          ;AND LOOP FOR NEXT
+000C54  1               APPEND
+000C54  1  A9 00                LDA     #MINUS          ;SET SIGN TO
+000C56  1  85 02                STA     PRMSGN          ;MINUS AND
+000C58  1  20 6A 0F             JSR     MOVONL          ;MOVE BACK
+000C5B  1  4C B5 09             JMP     PRSMRE          ;LOOP FOR MORE
+000C5E  1               ;F FOR FIND STRING
+000C5E  1               NOTAPP
+000C5E  1  C9 46                CMP     #'F'            ;IF NOT F
+000C60  1  D0 11                BNE     NOTFND          ;TRY NEXT
+000C62  1  20 9A 14             JSR     CLSTFL          ;CLEAR INDEX AND FILL
+000C65  1               FNDSTR
+000C65  1  20 ED 0E             JSR     TSTADJ          ;TEST NUMBER
+000C68  1  D0 03                BNE     *+5             ;CONTINUE IF NOT ZERO
+000C6A  1  4C B5 09             JMP     PRSMRE          ;ELSE DONE
+000C6D  1  20 E6 13             JSR     MATCH           ;TRY TO MATCH
+000C70  1  4C 65 0C             JMP     FNDSTR          ;JUMP IF MATCH
+000C73  1               ;M FOR MACRO
+000C73  1               NOTFND
+000C73  1  C9 4D                CMP     #'M'            ;IF NOT M
+000C75  1  D0 35                BNE     NOTMAC          ;TRY NEXT
+000C77  1  A6 0A                LDX     MACFLG          ;JUMP IF FLAG
+000C79  1  D0 31                BNE     NOTMAC          ;NOT ZERO
+000C7B  1  A9 FF                LDA     #$FF            ;ELSE SET INDEX
+000C7D  1  85 0B                STA     MACIND          ;TO -1
+000C7F  1  A5 04                LDA     NUMBER+1        ;IF HIGH NUMBER
+000C81  1  D0 08                BNE     MACLPE          ;IS NOT ZERO THEN USE
+000C83  1  A6 03                LDX     NUMBER          ;IF LOW NUMBER
+000C85  1  CA                   DEX                     ;IS NOT ZERO
+000C86  1  D0 03                BNE     MACLPE          ;THEN USE
+000C88  1  20 DF 0E             JSR     STNM0           ;ELSE SET TO ZESO
+000C8B  1               MACLPE
+000C8B  1  E6 0B                INC     MACIND          ;BUMP INDEX
+000C8D  1  20 EE 11             JSR     GETCHR          ;GET CHAR
+000C90  1  A6 0B                LDX     MACIND          ;AND NEW INDEX
+000C92  1  9D AE 19             STA     MACBUF,X        ;SAVE CHAR
+000C95  1  C9 0D                CMP     #CR             ;IF NOT A CR
+000C97  1  D0 F2                BNE     MACLPE          ;LOOP FOR MORE
+000C99  1  A5 0B                LDA     MACIND          ;GET INDEX
+000C9B  1  85 0A                STA     MACFLG          ;AND SET FLAG
+000C9D  1  A9 00                LDA     #0              ;THEN CLEAR
+000C9F  1  85 0B                STA     MACIND          ;INDEX
+000CA1  1  A5 03                LDA     NUMBER          ;SET
+000CA3  1  A4 04                LDY     NUMBER+1        ;MACRO
+000CA5  1  85 24                STA     MACCNT          ;COUNT
+000CA7  1  84 25                STY     MACCNT+1        ;TO NUMBER
+000CA9  1  4C B5 09             JMP     PRSMRE          ;AND LOOP
+000CAC  1               ;S FOR SUBSTITUTE STRINGS
+000CAC  1               NOTMAC
+000CAC  1  C9 53                CMP     #'S'            ;IF NOT S
+000CAE  1  D0 2D                BNE     NOTSUB          ;TRY NEXT
+000CB0  1  20 9A 14             JSR     CLSTFL          ;GET SEARCH STRING
+000CB3  1  20 A0 10             JSR     FLSTBF          ;THEN REPLACEMENT
+000CB6  1               SUBLPE
+000CB6  1  20 ED 0E             JSR     TSTADJ          ;TEST NUMBER
+000CB9  1  D0 03                BNE     *+5             ;JUMP IF MORE
+000CBB  1  4C B5 09             JMP     PRSMRE          ;ELSE DONE
+000CBE  1  20 E6 13             JSR     MATCH           ;TRY TO MATCH
+000CC1  1  38                   SEC                     ;DROP
+000CC2  1  A5 12                LDA     NXTTXT          ;NEXT
+000CC4  1  E5 2B                SBC     ENDSTR          ;POINTER
+000CC6  1  85 12                STA     NXTTXT          ;BY
+000CC8  1  B0 02                BCS     *+4             ;SEARCH
+000CCA  1  C6 13                DEC     NXTTXT+1        ;LENGTH
+000CCC  1  A6 2B                LDX     ENDSTR          ;GET START INDEX
+000CCE  1               SBCHLP
+000CCE  1  E4 11                CPX     STRIND          ;COMPARE TO END
+000CD0  1  B0 E4                BCS     SUBLPE          ;BRANCH IF END OR MORE
+000CD2  1  BD 4A 19             LDA     STRBUF,X        ;ELSE GET CHAR
+000CD5  1  85 08                STA     NXTCHR          ;SAVE IT
+000CD7  1  20 D4 10             JSR     INSTCH          ;INSERT IN TEXT
+000CDA  1  E8                   INX                     ;BUMP INDEX
+000CDB  1  D0 F1                BNE     SBCHLP          ;AND LOOP
+000CDD  1               ;W FOR WRITE
+000CDD  1               NOTSUB
+000CDD  1  C9 57                CMP     #'W'            ;IF NOT W
+000CDF  1  D0 06                BNE     NOTWRT          ;TRY NEXT
+000CE1  1  20 90 13             JSR     WRITE           ;ELSE WRITE
+000CE4  1  4C B5 09             JMP     PRSMRE          ;AND LOOP
+000CE7  1               ;X FOR TRANSFER TO X$$$$$$$.LIB
+000CE7  1               NOTWRT
+000CE7  1  C9 58                CMP     #'X'            ;IF NOT X
+000CE9  1  D0 71                BNE     NOTXFR          ;TRY NEXT
+000CEB  1  20 9D 0E             JSR     STUPXL          ;SET UP FILES
+000CEE  1  20 DA 0E             JSR     TSTNM0          ;TEST FOR ZERO
+000CF1  1  D0 0D                BNE     NTDLXL          ;BRANCH IF NOT
+000CF3  1  20 8F 0E             JSR     INTXLB          ;ELSE
+000CF6  1  A9 08                LDA     #<XLBFCB        ;DELETE
+000CF8  1  A0 19                LDY     #>XLBFCB        ;THE
+000CFA  1  20 2B 0E             JSR     DLTFLE          ;FILE
+000CFD  1  4C B5 09             JMP     PRSMRE          ;AND LOOP
+000D00  1               NTDLXL
+000D00  1  20 8F 0E             JSR     INTXLB          ;ELSE SET UP
+000D03  1  A9 08                LDA     #<XLBFCB        ;THEN
+000D05  1  A0 19                LDY     #>XLBFCB        ;DELETE
+000D07  1  20 2B 0E             JSR     DLTFLE          ;FILE
+000D0A  1  A9 08                LDA     #<XLBFCB        ;THEN
+000D0C  1  A0 19                LDY     #>XLBFCB        ;INITIALIZE
+000D0E  1  20 3A 0E             JSR     CRTFLE          ;IT AGAIN
+000D11  1  D0 03                BNE     *+5             ;BRANCH IF OK
+000D13  1  4C 78 0E             JMP     DOSERR          ;ELSE ERROR
+000D16  1  20 E9 12             JSR     LMTCLC          ;CALCULATE LIMITS
+000D19  1  A5 1A                LDA     LWRLMT          ;THEN SET
+000D1B  1  A4 1B                LDY     LWRLMT+1        ;POINTER
+000D1D  1  85 2C                STA     XLBPNT          ;TO LOWER
+000D1F  1  84 2D                STY     XLBPNT+1        ;LIMIT
+000D21  1               XFRLPE
+000D21  1  A5 1C                LDA     UPRLMT          ;IF XLBPNT
+000D23  1  C5 2C                CMP     XLBPNT          ;IS GREATER
+000D25  1  A5 1D                LDA     UPRLMT+1        ;THAN UPPER
+000D27  1  E5 2D                SBC     XLBPNT+1        ;LIMIT
+000D29  1  90 0F                BCC     ENDXFR          ;END TRANSFER
+000D2B  1  A0 00                LDY     #0              ;ELSE CLEAR INDEX
+000D2D  1  B1 2C                LDA     (XLBPNT),Y      ;GET BYTE
+000D2F  1  20 F0 0F             JSR     PUTXLB          ;AND WRITE
+000D32  1  E6 2C                INC     XLBPNT          ;BUMP
+000D34  1  D0 EB                BNE     XFRLPE          ;POINTER
+000D36  1  E6 2D                INC     XLBPNT+1        ;AND
+000D38  1  D0 E7                BNE     XFRLPE          ;LOOP
+000D3A  1               ENDXFR
+000D3A  1  24 0F                BIT     XLBIND          ;TEST INDEX
+000D3C  1  30 08                BMI     CLSXFR          ;DONE IF > 127
+000D3E  1  A9 1A                LDA     #EOF            ;ELSE INSERT
+000D40  1  20 F0 0F             JSR     PUTXLB          ;AN EOF
+000D43  1  4C 3A 0D             JMP     ENDXFR          ;AND LOOP
+000D46  1               CLSXFR
+000D46  1  A9 08                LDA     #<XLBFCB        ;WRITE
+000D48  1  A0 19                LDY     #>XLBFCB        ;FINAL
+000D4A  1  20 35 0E             JSR     WRTRCR          ;RECORD
+000D4D  1  F0 03                BEQ     *+5             ;CONTINUE IF OK
+000D4F  1  4C 78 0E             JMP     DOSERR          ;ELSE ERROR
+000D52  1  A9 08                LDA     #<XLBFCB        ;CLOSE
+000D54  1  A0 19                LDY     #>XLBFCB        ;THE
+000D56  1  20 23 0E             JSR     CLSFLE          ;FILE
+000D59  1  4C B5 09             JMP     PRSMRE          ;LOOP FOR MORE
+000D5C  1               ;NULL COMMAND
+000D5C  1               NOTXFR
+000D5C  1  C9 00                CMP     #NULL           ;IF NOT NULL
+000D5E  1  D0 03                BNE     *+5             ;BRANCH
+000D60  1  4C B5 09             JMP     PRSMRE          ;ELSE LOOP
+000D63  1  4C 84 09             JMP     UNRCCM          ;BAD COMMAND
+000D66  1               ;-------------------------------
+000D66  1               ;SUBROUTINES
+000D66  1               ;-------------------------------
+000D66  1               ;CALCULATE CURRENT COLUMN
+000D66  1               GETCOL
+000D66  1  A9 FF                LDA     #$FF            ;TURN OFF OUTPUT
+000D68  1  85 34                STA     OUTFLG
+000D6A  1  20 89 0D             JSR     CLEAR           ;DO A CR
+000D6D  1  20 DF 0E             JSR     STNM0           ;TYPE LINE TO GET COLUMN
+000D70  1  A9 00                LDA     #MINUS
+000D72  1  85 02                STA     PRMSGN
+000D74  1  20 EF 13             JSR     TYPE
+000D77  1  46 34                LSR     OUTFLG          ;CLEAR FLAG
+000D79  1  60                   RTS
+000D7A  1               ;DO BACKSPACE SEQUENCE
+000D7A  1               DOBS
+000D7A  1  A5 32                LDA     BACKSP          ;DO ONE
+000D7C  1  20 FB 0D             JSR     CNSOUT
+000D7F  1  A9 20                LDA     #' '            ;THEN A SPACE
+000D81  1  20 FB 0D             JSR     CNSOUT
+000D84  1  A5 32                LDA     BACKSP          ;AND ONE MORE
+000D86  1  4C FB 0D             JMP     CNSOUT
+000D89  1               ;CLEAR CURRENT LINE
+000D89  1               CLEAR
+000D89  1  A9 0D                LDA     #CR             ;GET A RETURN
+000D8B  1  20 B7 0D             JSR     CHROUT          ;SEND IT
+000D8E  1  A5 31                LDA     CLREOL          ;THEN A CLEAR
+000D90  1  4C FB 0D             JMP     CNSOUT          ;TO EOL
+000D93  1               ;READ FROM CONDEF BLOCK
+000D93  1               GETSYS
+000D93  1  BD 00 FF             LDA     $FF00,X         ;DUMMY INDEXED
+000D96  1  60                   RTS
+000D97  1               ;FLUSH TEXT BUFFER AND SOURCE FILE TO DESTINATION FILE
+000D97  1               FLUSFL
+000D97  1  20 AA 0D             JSR     EMTXBF          ;EMPTY TEXT BUFFER
+000D9A  1               FLUSLP
+000D9A  1  20 40 0F             JSR     GETSRC          ;GET SOURCE CHAR
+000D9D  1  C9 1A                CMP     #EOF            ;IF EOF
+000D9F  1  F0 06                BEQ     FLUSEX          ;THEN CLOSE
+000DA1  1  20 67 11             JSR     PUTDST          ;ELSE PUT IN DEST
+000DA4  1  4C 9A 0D             JMP     FLUSLP          ;AND LOOP
+000DA7  1               FLUSEX
+000DA7  1  4C 83 11             JMP     CLSDST          ;CLOSE OUT DEST
+000DAA  1               ;EMPTY TEXT BUFFER TO DESTINATION FILE
+000DAA  1               EMTXBF
+000DAA  1  20 E6 0E             JSR     STNMMX          ;SET NUMBER TO MAX
+000DAD  1  4C 90 13             JMP     WRITE           ;AND WRITE
+000DB0  1               ;CARRIAGE RETURN AND LINEFEED
+000DB0  1               CRLF
+000DB0  1  A9 0D                LDA     #CR
+000DB2  1  20 B7 0D             JSR     CHROUT
+000DB5  1  A9 0A                LDA     #LF
+000DB7  1               ;OUTPUT CHAR TO CONSOLE
+000DB7  1               CHROUT
+000DB7  1  C9 20                CMP     #BLANK          ;IF BLANK OR MORE
+000DB9  1  B0 3E                BCS     SNDINC          ;SEND WITH COL BUMP
+000DBB  1  C9 0D                CMP     #CR             ;IF A RETURN
+000DBD  1  F0 34                BEQ     CLRCOL          ;CLEAR COLUMN
+000DBF  1  C9 0A                CMP     #LF             ;IF A LINEFEED
+000DC1  1  F0 38                BEQ     CNSOUT          ;JUST SEND
+000DC3  1  C9 09                CMP     #TAB            ;IF A TAB
+000DC5  1  F0 20                BEQ     TABBLK          ;GO EXPAND
+000DC7  1  C9 00                CMP     #NULL           ;IF NOT A
+000DC9  1  D0 01                BNE     *+3             ;NULL CONTINUE
+000DCB  1  60                   RTS                     ;ELSE DONE
+000DCC  1  48                   PHA                     ;SAVE CHAR
+000DCD  1  A5 2F                LDA     INVERT          ;GET INVERT
+000DCF  1  C9 20                CMP     #' '            ;SEE IF PRINTING
+000DD1  1  90 06                BCC     NOINC           ;BRANCH IF NOT
+000DD3  1  20 F9 0D             JSR     SNDINC          ;ELSE SEND WITH BUMP
+000DD6  1  4C DC 0D             JMP     COUT            ;AND CONTINUE
+000DD9  1               NOINC
+000DD9  1  20 FB 0D             JSR     CNSOUT          ;SEND IT
+000DDC  1               COUT
+000DDC  1  68                   PLA                     ;GET CHAR
+000DDD  1  09 40                ORA     #'A'-1          ;CONVERT TO ASCII
+000DDF  1  20 F9 0D             JSR     SNDINC          ;AND SEND
+000DE2  1  A5 2E                LDA     NORMAL          ;GET NORMAL
+000DE4  1  4C FB 0D             JMP     CNSOUT          ;AND SEND IT
+000DE7  1               TABBLK
+000DE7  1  A9 20                LDA     #BLANK          ;SEND A
+000DE9  1  20 F9 0D             JSR     SNDINC          ;SPACE
+000DEC  1  A5 05                LDA     COLUMN          ;GET COLUMN
+000DEE  1  29 07                AND     #7              ;IF NOT MOD 8
+000DF0  1  D0 F5                BNE     TABBLK          ;THE LOOP
+000DF2  1  60                   RTS                     ;ELSE DONE
+000DF3  1               CLRCOL
+000DF3  1  A9 FF                LDA     #255            ;SET COLUMN
+000DF5  1  85 05                STA     COLUMN          ;TO -1
+000DF7  1  A9 0D                LDA     #CR             ;GET CR BACK
+000DF9  1               SNDINC
+000DF9  1  E6 05                INC     COLUMN          ;BUMP COLUMN
+000DFB  1               CNSOUT
+000DFB  1  24 34                BIT     OUTFLG          ;TEST FLAG
+000DFD  1  10 01                BPL     *+3             ;PRINT IF CLEAR
+000DFF  1  60                   RTS
+000E00  1  A2 02                LDX     #2              ;AND SEND
+000E02  1  4C 03 01             JMP     PEM             ;THROUGH PEM
+000E05  1               ;READ CHARACTER FROM CONSOLE
+000E05  1               CNSIN
+000E05  1  A2 01                LDX     #1
+000E07  1  4C 03 01             JMP     PEM
+000E0A  1               ;PRINT STRING
+000E0A  1               PRTBUF
+000E0A  1  A2 09                LDX     #9
+000E0C  1  4C 03 01             JMP     PEM
+000E0F  1               ;PRINT CR AND LF AND THEN STRING
+000E0F  1               PRCRBF
+000E0F  1  48                   PHA                     ;SAVE
+000E10  1  98                   TYA                     ;STRING
+000E11  1  48                   PHA                     ;POINTER
+000E12  1  20 B0 0D             JSR     CRLF            ;DO CR AND LF
+000E15  1  68                   PLA                     ;RESTORE
+000E16  1  A8                   TAY                     ;STRING
+000E17  1  68                   PLA                     ;POINTER
+000E18  1  4C 0A 0E             JMP     PRTBUF          ;AND PRINT
+000E1B  1               ;OPEN FILE (Z=1 IF ERROR)
+000E1B  1               OPNFLE
+000E1B  1  A2 0F                LDX     #15
+000E1D  1  20 03 01             JSR     PEM             ;EXECUTE
+000E20  1  C9 FF                CMP     #255            ;SEE IF BAD
+000E22  1  60                   RTS
+000E23  1               ;CLOSE FILE (Z=1 IF ERROR)
+000E23  1               CLSFLE
+000E23  1  A2 10                LDX     #16
+000E25  1  20 03 01             JSR     PEM             ;EXECUTE
+000E28  1  C9 FF                CMP     #255            ;SEE IF BAD
+000E2A  1  60                   RTS
+000E2B  1               ;DELETE FILE
+000E2B  1               DLTFLE
+000E2B  1  A2 13                LDX     #19
+000E2D  1  4C 03 01             JMP     PEM
+000E30  1               ;READ RECORD
+000E30  1               RDERCR
+000E30  1  A2 14                LDX     #20
+000E32  1  4C 03 01             JMP     PEM
+000E35  1               ;WRITE RECORD
+000E35  1               WRTRCR
+000E35  1  A2 15                LDX     #21
+000E37  1  4C 03 01             JMP     PEM
+000E3A  1               ;CREATE FILE (Z=1 IF ERROR)
+000E3A  1               CRTFLE
+000E3A  1  A2 16                LDX     #22
+000E3C  1  20 03 01             JSR     PEM             ;EXECUTE
+000E3F  1  C9 FF                CMP     #255            ;SEE IF BAD
+000E41  1  60                   RTS
+000E42  1               ;RENAME FILE
+000E42  1               RNMFLE
+000E42  1  A2 17                LDX     #23
+000E44  1  4C 03 01             JMP     PEM
+000E47  1               ;CHECK CONSOLE STATUS (Z=1 IF NONE)
+000E47  1               CONSTS
+000E47  1  A2 0B                LDX     #11
+000E49  1  20 03 01             JSR     PEM             ;CHECK FOR KEY
+000E4C  1  D0 01                BNE     *+3             ;BRANCH IF READY
+000E4E  1  60                   RTS                     ;ELSE DONE
+000E4F  1  20 05 0E             JSR     CNSIN           ;CLEAR INPUT
+000E52  1  A9 FF                LDA     #255            ;AND SET Z=0
+000E54  1  60                   RTS
+000E55  1               ;READ CURRENT DRIVE
+000E55  1               RDECUR
+000E55  1  A2 19                LDX     #25
+000E57  1  4C 03 01             JMP     PEM
+000E5A  1               ;SET DRIVE
+000E5A  1               SETDRV
+000E5A  1  A2 0E                LDX     #14
+000E5C  1  4C 03 01             JMP     PEM
+000E5F  1               ;SET BUFFER ADDRESS
+000E5F  1               SETBUF
+000E5F  1  A2 1A                LDX     #26
+000E61  1  4C 03 01             JMP     PEM
+000E64  1               ;DELETE X$$$$$$$.LIB AND BOOT
+000E64  1               DLXLEX
+000E64  1  A5 06                LDA     CURDRV          ;SET DRIVE
+000E66  1  20 5A 0E             JSR     SETDRV          ;TO CURRENT
+000E69  1  A9 08                LDA     #<XLBFCB        ;POINT TO
+000E6B  1  A0 19                LDY     #>XLBFCB        ;FCB
+000E6D  1  20 2B 0E             JSR     DLTFLE          ;DELETE IT
+000E70  1  A5 35                LDA     DFLDRV          ;SET DRIVE TO DEFAULT
+000E72  1  20 5A 0E             JSR     SETDRV
+000E75  1  4C 00 01             JMP     BOOT            ;AND BOOT
+000E78  1               ;DOS/65 ERROR EXIT
+000E78  1               DOSERR
+000E78  1  20 B0 0D             JSR     CRLF            ;SEND A CR AND LF
+000E7B  1  A9 C2                LDA     #<PEMERR        ;THEN SEND
+000E7D  1  A0 17                LDY     #>PEMERR        ;ANOTHER CR AND LF
+000E7F  1  20 0F 0E             JSR     PRCRBF          ;AND MESSAGE
+000E82  1  A9 29                LDA     #<DSTFCB        ;CLOSE
+000E84  1  A0 19                LDY     #>DSTFCB        ;OUTPUT
+000E86  1  20 23 0E             JSR     CLSFLE          ;FILE
+000E89  1  20 B0 0D             JSR     CRLF            ;ANOTHER CR AND LF
+000E8C  1  4C 64 0E             JMP     DLXLEX          ;AND DELETE X$$$$$$$.LIB AND BOOT
+000E8F  1               ;INITIALIZE X$$$$$$$.LIB
+000E8F  1               INTXLB
+000E8F  1  A9 00                LDA     #0              ;CLEAR
+000E91  1  8D 14 19             STA     XLBFCB+12       ;EXTENT
+000E94  1  8D 15 19             STA     XLBFCB+13
+000E97  1  8D 28 19             STA     XLBFCB+32       ;RECORD
+000E9A  1  85 0F                STA     XLBIND          ;AND INDEX
+000E9C  1  60                   RTS
+000E9D  1               ;SET UP FOR X$$$$$$$.LIB TRANSFER
+000E9D  1               STUPXL
+000E9D  1  A5 06                LDA     CURDRV          ;SET DRIVE
+000E9F  1  20 5A 0E             JSR     SETDRV          ;TO CURRENT
+000EA2  1  A9 2E                LDA     #<XLBBUF        ;THEN POINT
+000EA4  1  A0 1A                LDY     #>XLBBUF        ;BUFFER
+000EA6  1  4C 5F 0E             JMP     SETBUF          ;TO CORRECT
+000EA9  1               ;CLEAR SOURCE INDEX TO START
+000EA9  1               CLSIND
+000EA9  1  A9 AE                LDA     #<SOURCE        ;GET
+000EAB  1  A0 1A                LDY     #>SOURCE        ;START
+000EAD  1  85 14                STA     SRCIND          ;THEN SET
+000EAF  1  84 15                STY     SRCIND+1        ;INDEX
+000EB1  1  60                   RTS
+000EB2  1               ;SET CURRENT DRIVE AND DEFAULT BUFFER
+000EB2  1               CURDFL
+000EB2  1  A5 06                LDA     CURDRV          ;SET
+000EB4  1  20 5A 0E             JSR     SETDRV          ;DRIVE
+000EB7  1  A9 28                LDA     #<DFLBUF        ;THEN
+000EB9  1  A0 01                LDY     #>DFLBUF        ;DO
+000EBB  1  4C 5F 0E             JMP     SETBUF          ;BUFFER
+000EBE  1               ;GET CHAR FROM .LIB FILE
+000EBE  1               GETLIB
+000EBE  1  A6 0E                LDX     LIBIND          ;GET INDEX
+000EC0  1  10 12                BPL     LBINOK          ;USE IF <128
+000EC2  1  20 B2 0E             JSR     CURDFL          ;ELSE SETUP
+000EC5  1  A9 E7                LDA     #<LIBFCB        ;THEN
+000EC7  1  A0 18                LDY     #>LIBFCB        ;READ
+000EC9  1  20 30 0E             JSR     RDERCR          ;A RECORD
+000ECC  1  F0 03                BEQ     *+5             ;USE IF OK
+000ECE  1  A9 1A                LDA     #EOF            ;ELSE GET EOF
+000ED0  1  60                   RTS                     ;AND RETURN
+000ED1  1  AA                   TAX                     ;SET INDEX
+000ED2  1  86 0E                STX     LIBIND          ;AND SAVE
+000ED4  1               LBINOK
+000ED4  1  E6 0E                INC     LIBIND          ;BUMP FO NEXT
+000ED6  1  BD 28 01             LDA     DFLBUF,X        ;GET CHAR
+000ED9  1  60                   RTS
+000EDA  1               ;TEST FOR NUMBER = ZERO (Z=1 IF ZERO)
+000EDA  1               TSTNM0
+000EDA  1  A5 03                LDA     NUMBER          ;SEE IF
+000EDC  1  05 04                ORA     NUMBER+1        ;BOTH ZERO
+000EDE  1  60                   RTS
+000EDF  1               ;SET NUMBER TO ZERO
+000EDF  1               STNM0
+000EDF  1  A9 00                LDA     #0              ;CLEAR
+000EE1  1  85 03                STA     NUMBER          ;BOTH
+000EE3  1  85 04                STA     NUMBER+1
+000EE5  1  60                   RTS
+000EE6  1               ;SET NUMBER TO MAX
+000EE6  1               STNMMX
+000EE6  1  A9 FF                LDA     #$FF            ;SET
+000EE8  1  85 03                STA     NUMBER          ;BOTH
+000EEA  1  85 04                STA     NUMBER+1        ;TO $FF
+000EEC  1  60                   RTS
+000EED  1               ;TEST FOR ZERO AND IF NOT DROP NUMBER (Z=1 IF ZERO)
+000EED  1               TSTADJ
+000EED  1  20 DA 0E             JSR     TSTNM0          ;TEST FOR ZERO
+000EF0  1  D0 01                BNE     *+3             ;JUMP IF NOT
+000EF2  1  60                   RTS
+000EF3  1  20 F9 0E             JSR     DRNUMB          ;DROP NUMBER
+000EF6  1  A9 FF                LDA     #$FF            ;SET Z
+000EF8  1  60                   RTS                     ;TO 0
+000EF9  1               ;DROP NUMBER BY ONE
+000EF9  1               DRNUMB
+000EF9  1  A5 03                LDA     NUMBER          ;GET LOW
+000EFB  1  D0 02                BNE     *+4             ;IF NOT ZERO
+000EFD  1  C6 04                DEC     NUMBER+1        ;SKIP HIGH DROP
+000EFF  1  C6 03                DEC     NUMBER          ;ALWAYS DROP LOW
+000F01  1  60                   RTS
+000F02  1               ;BUMP NEXT POINTER BY ONE
+000F02  1               BPNXTX
+000F02  1  E6 12                INC     NXTTXT          ;BUMP LOW
+000F04  1  D0 02                BNE     *+4             ;DONE IF NOT ZERO
+000F06  1  E6 13                INC     NXTTXT+1        ;BUMP HIGH
+000F08  1  60                   RTS
+000F09  1               ;DROP NEXT TEXT POINTER BY ONE
+000F09  1               DRNXTX
+000F09  1  A5 12                LDA     NXTTXT          ;GET LOW
+000F0B  1  D0 02                BNE     *+4             ;IF NOT ZERO SKIP
+000F0D  1  C6 13                DEC     NXTTXT+1        ;DROP OF HIGH
+000F0F  1  C6 12                DEC     NXTTXT          ;ALWAYS DROP LOW
+000F11  1  60                   RTS
+000F12  1               ;BUMP UPPER TEXT POINTER BY ONE
+000F12  1               BPUPTX
+000F12  1  E6 18                INC     UPRTXT          ;BUMP LOW
+000F14  1  D0 02                BNE     *+4             ;DONE IF NOT ZERO
+000F16  1  E6 19                INC     UPRTXT+1        ;BUMP HIGH
+000F18  1  60                   RTS
+000F19  1               ;DROP UPPER TEXT POINTER BY ONE
+000F19  1               DRUPTX
+000F19  1  A5 18                LDA     UPRTXT          ;GET LOW
+000F1B  1  D0 02                BNE     *+4             ;IF NOT ZERO SKIP
+000F1D  1  C6 19                DEC     UPRTXT+1        ;DROP OF HIGH
+000F1F  1  C6 18                DEC     UPRTXT          ;ALWAYS DROP LOW
+000F21  1  60                   RTS
+000F22  1               ;SET DEFAULT PARM VALUES
+000F22  1               DFLPRM
+000F22  1  A9 FF                LDA     #PLUS           ;SET SIGN
+000F24  1  85 02                STA     PRMSGN          ;TO PLUS
+000F26  1  A0 01                LDY     #1              ;AND
+000F28  1  84 03                STY     NUMBER          ;NUMBER
+000F2A  1  88                   DEY                     ;TO
+000F2B  1  84 04                STY     NUMBER+1        ;1
+000F2D  1  60                   RTS
+000F2E  1               ;TEST UPRTXT AGAINST UPRLMT (C=0 IF UPRTXT < UPRLMT)
+000F2E  1               TSUPUP
+000F2E  1  A5 18                LDA     UPRTXT          ;COMPARE UPPER
+000F30  1  C5 1C                CMP     UPRLMT          ;TO UPPER LIMIT
+000F32  1  A5 19                LDA     UPRTXT+1        ;AND SET
+000F34  1  E5 1D                SBC     UPRLMT+1        ;CARRY
+000F36  1  60                   RTS                     ;ACCORDINGLY
+000F37  1               ;TEST NXTTXT AGAINST LWRLMT (C=0 IF NXTTXT > LWRLMT)
+000F37  1               TSNXLW
+000F37  1  A5 1A                LDA     LWRLMT          ;COMPARE NEXT
+000F39  1  C5 12                CMP     NXTTXT          ;TO LOWER LIMIT
+000F3B  1  A5 1B                LDA     LWRLMT+1        ;AND SET
+000F3D  1  E5 13                SBC     NXTTXT+1        ;CARRY
+000F3F  1  60                   RTS                     ;ACCORDINGLY
+000F40  1               ;GET NEXT BYTE FROM SOURCE
+000F40  1               GETSRC
+000F40  1  A5 14                LDA     SRCIND          ;COMPARE
+000F42  1  C9 AE                CMP     #<(SOURCE+SRCLNG);POINTER
+000F44  1  A5 15                LDA     SRCIND+1        ;TO
+000F46  1  E9 1E                SBC     #>(SOURCE+SRCLNG);MAXIMUM
+000F48  1  90 03                BCC     *+5             ;USE IF LESS
+000F4A  1  20 B4 0F             JSR     RDESRC          ;ELSE READ MORE
+000F4D  1  A0 00                LDY     #0              ;CLEAR INDEX
+000F4F  1  B1 14                LDA     (SRCIND),Y      ;GET CHAR
+000F51  1  C9 1A                CMP     #EOF            ;IF NOT EOF
+000F53  1  D0 01                BNE     *+3             ;GO BUMP POINTER
+000F55  1  60                   RTS                     ;ELSE DONE
+000F56  1  E6 14                INC     SRCIND          ;BUMP LOW
+000F58  1  D0 02                BNE     *+4             ;DONE IF NOT ZERO
+000F5A  1  E6 15                INC     SRCIND+1        ;BUMP HIGH
+000F5C  1  60                   RTS
+000F5D  1               ;INSERT CHAR INTO .LIB FCB
+000F5D  1               CHTOLF
+000F5D  1  A5 08                LDA     NXTCHR          ;GET CHAR
+000F5F  1  20 E6 11             JSR     CNVLWR          ;CONVERT TO UPPER
+000F62  1  A6 0E                LDX     LIBIND          ;GET INDEX
+000F64  1  E6 0E                INC     LIBIND          ;BUMP FOR NEXT
+000F66  1  9D E7 18             STA     LIBFCB,X        ;STORE CHAR
+000F69  1  60                   RTS
+000F6A  1               ;MOVE TO LIMITS IN DIRECTION OF SIGN
+000F6A  1               MOVONL
+000F6A  1  A0 00                LDY     #0              ;CLEAR INDEX
+000F6C  1  24 02                BIT     PRMSGN          ;TEST SIGN
+000F6E  1  10 13                BPL     MOVOMI          ;IF MINUS GO DO IT
+000F70  1               MOVOPL
+000F70  1  20 2E 0F             JSR     TSUPUP          ;COMPARE UPPER TO UPPER LIMIT
+000F73  1  90 01                BCC     *+3             ;CONTINUE IF LESS
+000F75  1  60                   RTS                     ;ELSE DONE
+000F76  1  20 12 0F             JSR     BPUPTX          ;BUMP UPPER POINTER
+000F79  1  B1 18                LDA     (UPRTXT),Y      ;GET BYTE
+000F7B  1  91 12                STA     (NXTTXT),Y      ;STORE CHAR
+000F7D  1  20 02 0F             JSR     BPNXTX          ;THEN BUMP NEXT
+000F80  1  4C 70 0F             JMP     MOVOPL          ;AND LOOP
+000F83  1               MOVOMI
+000F83  1  20 37 0F             JSR     TSNXLW          ;COMPARE LOWER LIMIT TO NEXT
+000F86  1  90 01                BCC     *+3             ;CONTINUE IF LESS
+000F88  1  60                   RTS                     ;ELSE DONE
+000F89  1  20 09 0F             JSR     DRNXTX          ;DROP NEXT POINTER
+000F8C  1  B1 12                LDA     (NXTTXT),Y      ;GET CHAR
+000F8E  1  91 18                STA     (UPRTXT),Y      ;STORE
+000F90  1  20 19 0F             JSR     DRUPTX          ;DROP UPPER POINTER
+000F93  1  4C 83 0F             JMP     MOVOMI          ;AND LOOP
+000F96  1               ;MOVE TO LIMITS IN DIRECTION OF SIGN AND DELETE
+000F96  1               MOVDLT
+000F96  1  A0 00                LDY     #0              ;CLEAR INDEX
+000F98  1  24 02                BIT     PRMSGN          ;TEST SIGN
+000F9A  1  10 0C                BPL     MOVDMI          ;IF MINUS GO DO IT
+000F9C  1               MOVDPL
+000F9C  1  20 2E 0F             JSR     TSUPUP          ;TEST UPPER AGAINST UPPER LIMIT
+000F9F  1  90 01                BCC     *+3             ;CONTINUE IF LESS
+000FA1  1  60                   RTS                     ;ELSE DONE
+000FA2  1  20 12 0F             JSR     BPUPTX          ;BUMP UPPER POINTER
+000FA5  1  4C 9C 0F             JMP     MOVDPL          ;AND LOOP
+000FA8  1               MOVDMI
+000FA8  1  20 37 0F             JSR     TSNXLW          ;COMPARE LOWER TO NEXT
+000FAB  1  90 01                BCC     *+3             ;CONTINUE IF LESS
+000FAD  1  60                   RTS                     ;ELSE DONE
+000FAE  1  20 09 0F             JSR     DRNXTX          ;DROP NEXT POINTER
+000FB1  1  4C A8 0F             JMP     MOVDMI          ;AND LOOP
+000FB4  1               ;READ SOURCE TO FILL BUFFER
+000FB4  1               RDESRC
+000FB4  1  20 A9 0E             JSR     CLSIND          ;SET INDEX TO START
+000FB7  1  A5 06                LDA     CURDRV          ;SET
+000FB9  1  20 5A 0E             JSR     SETDRV          ;DRIVE
+000FBC  1  A9 08                LDA     #SRCLNG/128     ;AND SET SECTOR
+000FBE  1  85 10                STA     RDSCCN          ;COUNT
+000FC0  1               RDESLP
+000FC0  1  A5 14                LDA     SRCIND          ;GET CURRENT
+000FC2  1  A4 15                LDY     SRCIND+1        ;POINTER
+000FC4  1  20 5F 0E             JSR     SETBUF          ;AND SET AS BUFFER
+000FC7  1  A9 07                LDA     #<DFLFCB        ;POINT
+000FC9  1  A0 01                LDY     #>DFLFCB        ;TO FCB
+000FCB  1  20 30 0E             JSR     RDERCR          ;READ RECORD
+000FCE  1  F0 0E                BEQ     RDESOK          ;BRANCH IF OK
+000FD0  1  10 03                BPL     *+5             ;EOF IF POSITIVE
+000FD2  1  4C 78 0E             JMP     DOSERR          ;ELSE ERROR
+000FD5  1  A0 00                LDY     #0              ;CLEAR INDEX
+000FD7  1  A9 1A                LDA     #EOF            ;GET AN EOF
+000FD9  1  91 14                STA     (SRCIND),Y      ;PUT INTO BUFFER
+000FDB  1  4C A9 0E             JMP     CLSIND          ;EXIT WITH INDEX SET
+000FDE  1               RDESOK
+000FDE  1  18                   CLC                     ;ADD
+000FDF  1  A5 14                LDA     SRCIND          ;128 TO
+000FE1  1  69 80                ADC     #128            ;LOW PART
+000FE3  1  85 14                STA     SRCIND          ;OF POINTER
+000FE5  1  90 02                BCC     *+4             ;IF NO CARRY SKIP
+000FE7  1  E6 15                INC     SRCIND+1        ;BUMP OF HIGH
+000FE9  1  C6 10                DEC     RDSCCN          ;DROP COUNT
+000FEB  1  D0 D3                BNE     RDESLP          ;LOOP FOR MORE
+000FED  1  4C A9 0E             JMP     CLSIND          ;THEN SET INDEX TO START
+000FF0  1               ;PUT CHAR INTO X$$$$$$$.LIB BUFFER
+000FF0  1               PUTXLB
+000FF0  1  A6 0F                LDX     XLBIND          ;GET INDEX
+000FF2  1  10 14                BPL     GDXLBI          ;IF <128 USE IT
+000FF4  1  48                   PHA                     ;ELSE SAVE CHAR
+000FF5  1  20 9D 0E             JSR     STUPXL          ;SET UP FOR WRITE
+000FF8  1  A9 08                LDA     #<XLBFCB        ;POINT
+000FFA  1  A0 19                LDY     #>XLBFCB        ;TO FCB
+000FFC  1  20 35 0E             JSR     WRTRCR          ;WRITE A RECORD
+000FFF  1  F0 03                BEQ     *+5             ;CONTINUE IF OK
+001001  1  4C 78 0E             JMP     DOSERR          ;ELSE ERROR
+001004  1  AA                   TAX                     ;CLEAR INDEX
+001005  1  86 0F                STX     XLBIND          ;AND SAVE
+001007  1  68                   PLA                     ;GET CHAR
+001008  1               GDXLBI
+001008  1  E6 0F                INC     XLBIND          ;BUMP FOR NEXT
+00100A  1  9D 2E 1A             STA     XLBBUF,X        ;INSERT CHAR
+00100D  1  60                   RTS
+00100E  1               ;SET DESTINATION INDEX TO START
+00100E  1               CLDIND
+00100E  1  A9 AE                LDA     #<DEST          ;SET
+001010  1  A0 1E                LDY     #>DEST          ;INDEX
+001012  1  85 16                STA     DSTIND          ;TO START
+001014  1  84 17                STY     DSTIND+1        ;OF BUFFER
+001016  1  60                   RTS
+001017  1               ;MOVE PRIMARY NAME TO SECOND HALF OF FCB
+001017  1               MOVNME
+001017  1  A2 0F                LDX     #15             ;MOVE ALL
+001019  1  BD 29 19             LDA     DSTFCB,X        ;OF FIRST HALF
+00101C  1  9D 39 19             STA     DSTFCB+16,X     ;TO SECOND
+00101F  1  CA                   DEX                     ;HALF
+001020  1  10 F7                BPL     MOVNME+2        ;THEN
+001022  1  60                   RTS                     ;EXIT
+001023  1               ;TEST CHAR FOR FIRST AND ONLY COMMAND AND NOT MACRO
+001023  1               ; Z=1 IF TRUE
+001023  1               TSTFON
+001023  1  C5 08                CMP     NXTCHR          ;IF CHAR NOT
+001025  1  D0 09                BNE     TSTFEX          ;SAME IS FALSE
+001027  1  AD 66 18             LDA     CNSLNG          ;IF CONSOLE LENGTH
+00102A  1  C9 01                CMP     #1              ;NOT ONE
+00102C  1  D0 02                BNE     TSTFEX          ;IS FALSE
+00102E  1  A5 0A                LDA     MACFLG          ;IS TRUE IF NOT MACRO
+001030  1               TSTFEX
+001030  1  60                   RTS
+001031  1               ;TEST FOR FIRST AND ONLY AND VERIFY
+001031  1               TSTVRF
+001031  1  48                   PHA                     ;SAVE CHAR
+001032  1  20 23 10             JSR     TSTFON          ;TEST FOR FIRST
+001035  1  F0 02                BEQ     *+4             ;CONTINUE IF IT IS
+001037  1  68                   PLA                     ;CLEAR STACK
+001038  1  60                   RTS                     ;DONE
+001039  1  20 B0 0D             JSR     CRLF            ;SEND A CR AND LF
+00103C  1  68                   PLA                     ;GET CHAR
+00103D  1  20 FB 0D             JSR     CNSOUT          ;AND SEND IT
+001040  1  A9 BA                LDA     #<QUSMSG        ;SEND
+001042  1  A0 17                LDY     #>QUSMSG        ;-(Y/N)?
+001044  1  20 0A 0E             JSR     PRTBUF          ;MESSAGE
+001047  1  20 05 0E             JSR     CNSIN           ;GET ANSWER
+00104A  1  20 E6 11             JSR     CNVLWR          ;CONVERT TO UPPER CASE
+00104D  1  48                   PHA                     ;SAVE ANSWER
+00104E  1  20 B0 0D             JSR     CRLF            ;ECHO A CR AND LF
+001051  1  68                   PLA                     ;GET CHAR
+001052  1  C9 59                CMP     #'Y'            ;SEE IF Y
+001054  1  60                   RTS
+001055  1               ;TEST FOR DECIMAL (IF DECIMAL THEN C=1 ELSE C=0)
+001055  1               TSTDEC
+001055  1  A5 08                LDA     NXTCHR          ;GET CHAR
+001057  1  C9 30                CMP     #'0'            ;IF "0" OR MORE
+001059  1  B0 01                BCS     *+3             ;MAY BE DECIMAL
+00105B  1  60                   RTS                     ;ELSE IS NOT
+00105C  1  C9 3A                CMP     #'9'+1          ;IF > "9"
+00105E  1  B0 04                BCS     *+6             ;IS NOT DECIMAL
+001060  1  29 0F                AND     #$F             ;MAKE A NIBBLE
+001062  1  38                   SEC                     ;AND SET FLAG
+001063  1  60                   RTS
+001064  1  18                   CLC                     ;IS NOT DECIMAL
+001065  1  60                   RTS
+001066  1               ;BUILD DECIMAL NUMBER FROM INPUT
+001066  1               BLDNUM
+001066  1  20 DF 0E             JSR     STNM0           ;CLEAR NUMBER
+001069  1  20 55 10             JSR     TSTDEC          ;GET NEXT DIGIT
+00106C  1  B0 01                BCS     *+3             ;IF 0-9 USE
+00106E  1  60                   RTS                     ;ELSE DONE
+00106F  1  48                   PHA                     ;SAVE DIGIT
+001070  1  A5 03                LDA     NUMBER          ;GET LOW NUMBER
+001072  1  0A                   ASL     A               ;MULT BY TWO
+001073  1  85 22                STA     POINT           ;AND SAVE
+001075  1  A5 04                LDA     NUMBER+1        ;GET HIGH NUMBER
+001077  1  2A                   ROL     A               ;MULT IT BY TWO
+001078  1  85 23                STA     POINT+1         ;AND SAVE
+00107A  1  A2 03                LDX     #3              ;THEN
+00107C  1               MULN2
+00107C  1  06 03                ASL     NUMBER          ;MULTIPLY
+00107E  1  26 04                ROL     NUMBER+1        ;NUMBER
+001080  1  CA                   DEX                     ;BY
+001081  1  D0 F9                BNE     MULN2           ;EIGHT
+001083  1  18                   CLC                     ;ADD
+001084  1  A5 03                LDA     NUMBER          ;8X
+001086  1  65 22                ADC     POINT           ;TO
+001088  1  85 03                STA     NUMBER          ;2X
+00108A  1  A5 04                LDA     NUMBER+1        ;TO
+00108C  1  65 23                ADC     POINT+1         ;GET
+00108E  1  85 04                STA     NUMBER+1        ;10X
+001090  1  18                   CLC                     ;THEN
+001091  1  68                   PLA                     ;GET DIGIT
+001092  1  65 03                ADC     NUMBER          ;ADD IT
+001094  1  85 03                STA     NUMBER          ;AND SAVE
+001096  1  90 02                BCC     *+4             ;THEN PROPOGATE
+001098  1  E6 04                INC     NUMBER+1        ;CARRY
+00109A  1  20 7A 12             JSR     GTNXCH          ;GET NEXT CHAR
+00109D  1  4C 69 10             JMP     BLDNUM+3        ;AND LOOP
+0010A0  1               ;FILL STRING BUFFER UNTIL END
+0010A0  1               FLSTBF
+0010A0  1  20 EA 10             JSR     GTTSEN          ;GET CHAR AND TEST
+0010A3  1  D0 01                BNE     *+3             ;CONTINUE IF NOT END
+0010A5  1  60                   RTS                     ;ELSE DONE
+0010A6  1  C9 0C                CMP     #CTLL           ;IF NOT A CTL-L
+0010A8  1  D0 0B                BNE     FLSTNC          ;THEN CHECK FOR NULL
+0010AA  1  A9 0D                LDA     #CR             ;ELSE
+0010AC  1  85 08                STA     NXTCHR          ;INSERT
+0010AE  1  20 C2 10             JSR     STBFIN          ;A CR
+0010B1  1  A9 0A                LDA     #LF             ;THEN A
+0010B3  1  85 08                STA     NXTCHR          ;LF
+0010B5  1               FLSTNC
+0010B5  1  C9 00                CMP     #NULL           ;IF NOT A NULL
+0010B7  1  D0 03                BNE     *+5             ;USE IT
+0010B9  1  4C 84 09             JMP     UNRCCM          ;ELSE IS ERROR
+0010BC  1  20 C2 10             JSR     STBFIN          ;INSERT
+0010BF  1  4C A0 10             JMP     FLSTBF          ;AND LOOP
+0010C2  1               ;INSERT A CHAR INTO STRING BUFFER
+0010C2  1               STBFIN
+0010C2  1  A6 11                LDX     STRIND          ;GET INDEX
+0010C4  1  A5 08                LDA     NXTCHR          ;AND CHAR
+0010C6  1  9D 4A 19             STA     STRBUF,X        ;STORE IT
+0010C9  1  E8                   INX                     ;BUMP INDEX
+0010CA  1  86 11                STX     STRIND          ;AND SAVE
+0010CC  1  E0 64                CPX     #STRMAX         ;IF LESS THAN MAX
+0010CE  1  90 03                BCC     *+5             ;IS OK
+0010D0  1  4C 88 09             JMP     MMBFFL          ;ELSE IS TOO LONG
+0010D3  1  60                   RTS
+0010D4  1               ;INSERT CHAR INTO TEXT BUFFER
+0010D4  1               INSTCH
+0010D4  1  A5 12                LDA     NXTTXT          ;IF NEXT
+0010D6  1  C5 18                CMP     UPRTXT          ;LESS THAN
+0010D8  1  A5 13                LDA     NXTTXT+1        ;UPPER
+0010DA  1  E5 19                SBC     UPRTXT+1        ;THEN
+0010DC  1  90 03                BCC     *+5             ;USE IT
+0010DE  1  4C 88 09             JMP     MMBFFL          ;ELSE BUFFER FULL
+0010E1  1  A5 08                LDA     NXTCHR          ;GET CHAR
+0010E3  1  A0 00                LDY     #0              ;CLEAR INDEX
+0010E5  1  91 12                STA     (NXTTXT),Y      ;STORE CHAR
+0010E7  1  4C 02 0F             JMP     BPNXTX          ;BUMP POINTER
+0010EA  1               ;GET CHAR AND TEST FOR END OF STRING
+0010EA  1               ; IF END THEN Z=1 ELSE Z=0
+0010EA  1               GTTSEN
+0010EA  1  20 EE 11             JSR     GETCHR          ;GET CHAR
+0010ED  1  85 08                STA     NXTCHR          ;SAVE IT
+0010EF  1  C9 1A                CMP     #EOF            ;IF NOT AN EOF
+0010F1  1  D0 01                BNE     *+3             ;THEN TRY CR
+0010F3  1  60                   RTS                     ;ELSE DONE
+0010F4  1  C9 0D                CMP     #CR             ;IF A CR
+0010F6  1  F0 01                BEQ     *+3             ;MAY BE OK
+0010F8  1  60                   RTS                     ;ELSE IS NOT
+0010F9  1  A6 0C                LDX     INSFLG          ;IF NOT INSERT
+0010FB  1  60                   RTS                     ;THEN IS END
+0010FC  1               ;ADD LINE TO TEXT BUFFER
+0010FC  1               ADDLNE
+0010FC  1  A5 12                LDA     NXTTXT          ;IF NEXT
+0010FE  1  C5 18                CMP     UPRTXT          ;LESS
+001100  1  A5 13                LDA     NXTTXT+1        ;THAN
+001102  1  E5 19                SBC     UPRTXT+1        ;UPPER
+001104  1  90 03                BCC     *+5             ;USE
+001106  1  4C 88 09             JMP     MMBFFL          ;ELSE SEND FULL MESSAGE
+001109  1  20 40 0F             JSR     GETSRC          ;GET BYTE
+00110C  1  C9 1A                CMP     #EOF            ;IF NOT EOF
+00110E  1  D0 03                BNE     *+5             ;CONTINUE
+001110  1  4C DF 0E             JMP     STNM0           ;ELSE EXIT WITH N=0
+001113  1  A0 00                LDY     #0              ;CLEAR INDEX
+001115  1  91 12                STA     (NXTTXT),Y      ;STORE BYTE
+001117  1  20 02 0F             JSR     BPNXTX          ;BUMP NEXT POINTER
+00111A  1  C9 0A                CMP     #LF             ;IF NOT A LF
+00111C  1  D0 DE                BNE     ADDLNE          ;LOOP FOR MORE
+00111E  1  60                   RTS
+00111F  1               ;WRITE DESTINATION BUFFER
+00111F  1               WRTDST
+00111F  1  A5 07                LDA     DSTDRV          ;SET DRIVE
+001121  1  20 5A 0E             JSR     SETDRV          ;TO DESTINATION
+001124  1  38                   SEC                     ;THEN
+001125  1  A5 16                LDA     DSTIND          ;CALCULATE
+001127  1  E9 AE                SBC     #<DEST          ;LENGTH
+001129  1  85 22                STA     POINT           ;OF
+00112B  1  A5 17                LDA     DSTIND+1        ;BUFFER
+00112D  1  E9 1E                SBC     #>DEST          ;IN
+00112F  1  85 23                STA     POINT+1         ;BYTES
+001131  1  A2 07                LDX     #7              ;DIVIDE
+001133  1               WRTDV
+001133  1  46 23                LSR     POINT+1         ;BY 128
+001135  1  66 22                ROR     POINT           ;TO GET
+001137  1  CA                   DEX                     ;NUMBER
+001138  1  D0 F9                BNE     WRTDV           ;RECORDS
+00113A  1  E4 22                CPX     POINT           ;IF NUMBER
+00113C  1  D0 01                BNE     *+3             ;NON-ZERO OK
+00113E  1  60                   RTS                     ;ELSE EMPTY FILE
+00113F  1  20 0E 10             JSR     CLDIND          ;SET INDEX TO START
+001142  1               WRTDLP
+001142  1  A5 16                LDA     DSTIND          ;THEN
+001144  1  A4 17                LDY     DSTIND+1        ;SET BUFFER
+001146  1  20 5F 0E             JSR     SETBUF          ;ADDRESS
+001149  1  A9 29                LDA     #<DSTFCB        ;POINT TO
+00114B  1  A0 19                LDY     #>DSTFCB        ;FCB AND
+00114D  1  20 35 0E             JSR     WRTRCR          ;WRITE
+001150  1  F0 03                BEQ     *+5             ;OK IF ZERO
+001152  1  4C 78 0E             JMP     DOSERR          ;ELSE ERROR
+001155  1  18                   CLC                     ;ADD
+001156  1  A5 16                LDA     DSTIND          ;128
+001158  1  69 80                ADC     #128            ;TO
+00115A  1  85 16                STA     DSTIND          ;BUFFER
+00115C  1  90 02                BCC     *+4             ;ADDRESS
+00115E  1  E6 17                INC     DSTIND+1        ;FOR NEXT WRITE
+001160  1  C6 22                DEC     POINT           ;DROP SECTOR COUNT
+001162  1  D0 DE                BNE     WRTDLP          ;LOOP IF MORE
+001164  1  4C 0E 10             JMP     CLDIND          ;ELSE SET INDEX
+001167  1               ;PUT BYTE IN DESTINATION BUFFER
+001167  1               PUTDST
+001167  1  A6 16                LDX     DSTIND          ;IF LOW
+001169  1  E0 AE                CPX     #<(DEST+DSTLNG) ;NOT AT MAX
+00116B  1  D0 0B                BNE     NODSWR          ;THEN OK
+00116D  1  A6 17                LDX     DSTIND+1        ;OR IF HIGH
+00116F  1  E0 22                CPX     #>(DEST+DSTLNG) ;NOT AT MAX
+001171  1  D0 05                BNE     NODSWR          ;IS ALSO OK
+001173  1  48                   PHA                     ;SAVE CHAR
+001174  1  20 1F 11             JSR     WRTDST          ;WRITE BUFFER
+001177  1  68                   PLA                     ;GET CHAR
+001178  1               NODSWR
+001178  1  A0 00                LDY     #0              ;THEN INSERT
+00117A  1  91 16                STA     (DSTIND),Y      ;CHAR
+00117C  1  E6 16                INC     DSTIND          ;AND
+00117E  1  D0 02                BNE     *+4             ;BUMP
+001180  1  E6 17                INC     DSTIND+1        ;INDEX
+001182  1  60                   RTS
+001183  1               ;CLOSE DESTINATION FILE
+001183  1               CLSDST
+001183  1  38                   SEC                     ;GET LOW
+001184  1  A5 16                LDA     DSTIND          ;BYTE
+001186  1  E9 AE                SBC     #<DEST          ;OF OFFSET
+001188  1  29 7F                AND     #127            ;SEE IF MOD 128
+00118A  1  F0 08                BEQ     WHLREC          ;IF SO OK
+00118C  1  A9 1A                LDA     #EOF            ;ELSE INSERT
+00118E  1  20 67 11             JSR     PUTDST          ;AN EOF
+001191  1  4C 83 11             JMP     CLSDST          ;AND LOOP
+001194  1               WHLREC
+001194  1  20 1F 11             JSR     WRTDST          ;WRITE IT ALL
+001197  1  A9 29                LDA     #<DSTFCB        ;THEN
+001199  1  A0 19                LDY     #>DSTFCB        ;CLOSE
+00119B  1  20 23 0E             JSR     CLSFLE          ;.$$$
+00119E  1  D0 03                BNE     *+5             ;CONTINUE IF OK
+0011A0  1  4C 78 0E             JMP     DOSERR          ;ELSE ERROR
+0011A3  1  A9 A6                LDA     #<BAKSTR        ;CHANGE
+0011A5  1  A0 14                LDY     #>BAKSTR        ;.$$$
+0011A7  1  20 6B 12             JSR     CHGTYP          ;TO .BAK
+0011AA  1  20 17 10             JSR     MOVNME          ;THEN MOVE
+0011AD  1  A5 06                LDA     CURDRV          ;SET CURRENT
+0011AF  1  20 5A 0E             JSR     SETDRV          ;DRIVE
+0011B2  1  A2 0F                LDX     #15             ;THEN
+0011B4  1               DFDSMV
+0011B4  1  BD 07 01             LDA     DFLFCB,X        ;MOVE SOURCE
+0011B7  1  9D 29 19             STA     DSTFCB,X        ;NAME TO DEST
+0011BA  1  CA                   DEX                     ;FCB
+0011BB  1  10 F7                BPL     DFDSMV
+0011BD  1  A9 29                LDA     #<DSTFCB        ;POINT
+0011BF  1  A0 19                LDY     #>DSTFCB        ;TO IT
+0011C1  1  20 42 0E             JSR     RNMFLE          ;AND NAME IT .BAK
+0011C4  1  20 17 10             JSR     MOVNME          ;PUT IT IN SECOND
+0011C7  1  A9 A9                LDA     #<DLRSTR        ;CHANGE
+0011C9  1  A0 14                LDY     #>DLRSTR        ;TYPE
+0011CB  1  20 6B 12             JSR     CHGTYP          ;TO .$$$
+0011CE  1  A5 07                LDA     DSTDRV          ;GO TO
+0011D0  1  20 5A 0E             JSR     SETDRV          ;DESTINATION
+0011D3  1  A9 29                LDA     #<DSTFCB        ;AND END
+0011D5  1  A0 19                LDY     #>DSTFCB        ;WITH
+0011D7  1  4C 42 0E             JMP     RNMFLE          ;IT RENAMED
+0011DA  1               ;TEST FOR LOWER CASE (IF LOWER CASE THEN C=1 ELSE C=0)
+0011DA  1               TSTLWR
+0011DA  1  C9 41                CMP     #'A'            ;IF LESS THAN "A"
+0011DC  1  90 06                BCC     NTLWR           ;IS NOT LOWER CASE
+0011DE  1  C9 5B                CMP     #'Z'+1          ;IF Z+1 OR MORE
+0011E0  1  B0 02                BCS     NTLWR           ;IS NOT LOWER
+0011E2  1  38                   SEC                     ;IS LOWER
+0011E3  1  60                   RTS                     ;CASE
+0011E4  1               NTLWR
+0011E4  1  18                   CLC                     ;NOT LOWER
+0011E5  1  60                   RTS                     ;CASE
+0011E6  1               ;CONVERT CHARACTER TO UPPER CASE
+0011E6  1               CNVLWR
+0011E6  1  20 DA 11             JSR     TSTLWR          ;TEST FOR LOWER
+0011E9  1  90 02                BCC     *+4             ;EXIT IF NOT
+0011EB  1  29 5F                AND     #%01011111      ;ELSE CONVERT
+0011ED  1  60                   RTS
+0011EE  1               ;GET INPUT CHARACTER
+0011EE  1               GETCHR
+0011EE  1  A5 0A                LDA     MACFLG          ;GET FLAG
+0011F0  1  F0 2F                BEQ     NOTMCI          ;BRANCH IF NOT MACRO
+0011F2  1  20 47 0E             JSR     CONSTS          ;TEST FOR BREAK
+0011F5  1  F0 03                BEQ     *+5             ;CONTINUE IF NONE
+0011F7  1  4C 80 09             JMP     CNTDMR          ;ELSE DO BREAK
+0011FA  1  A6 0B                LDX     MACIND          ;GET INDEX
+0011FC  1  E4 0A                CPX     MACFLG          ;COMPARE TO MAX
+0011FE  1  90 1B                BCC     USMCIN          ;USE IF LESS
+001200  1  A5 24                LDA     MACCNT          ;IF COUNT
+001202  1  05 25                ORA     MACCNT+1        ;IS ZERO
+001204  1  F0 11                BEQ     CLMCIN          ;CLEAR INDEX
+001206  1  A5 24                LDA     MACCNT          ;ELSE
+001208  1  D0 02                BNE     *+4             ;DROP
+00120A  1  C6 25                DEC     MACCNT+1        ;COUNT
+00120C  1  C6 24                DEC     MACCNT          ;BY ONE
+00120E  1  A5 24                LDA     MACCNT          ;IF RESULT
+001210  1  05 25                ORA     MACCNT+1        ;IS NOT ZERO
+001212  1  D0 03                BNE     *+5             ;GO AHEAD
+001214  1  4C 80 09             JMP     CNTDMR          ;ELSE DONE
+001217  1               CLMCIN
+001217  1  A2 00                LDX     #0              ;CLEAR
+001219  1  86 0B                STX     MACIND          ;INDEX
+00121B  1               USMCIN
+00121B  1  E6 0B                INC     MACIND          ;BUMP FOR NEXT
+00121D  1  BD AE 19             LDA     MACBUF,X        ;GET CHAR
+001220  1  60                   RTS
+001221  1               ;NOT MACRO
+001221  1               NOTMCI
+001221  1  24 0C                BIT     INSFLG          ;TEST INSERT MODE
+001223  1  10 03                BPL     NTINMD          ;JUMP IF NOT
+001225  1  4C 05 0E             JMP     CNSIN           ;GET CHAR
+001228  1               ;COMMAND MODE
+001228  1               NTINMD
+001228  1  24 0D                BIT     NOMORE          ;TEST FOR NO INPUT
+00122A  1  10 1D                BPL     ISINPT          ;BRANCH IF INPUT
+00122C  1  A9 00                LDA     #0              ;ELSE CHANGE
+00122E  1  85 0D                STA     NOMORE          ;STATUS
+001230  1  A9 2A                LDA     #'*'            ;SEND PROMPT
+001232  1  20 B7 0D             JSR     CHROUT          ;TO CONSOLE
+001235  1  A9 65                LDA     #<CNSBUF        ;GET
+001237  1  A0 18                LDY     #>CNSBUF        ;INPUT
+001239  1  A2 0A                LDX     #10             ;LINE
+00123B  1  20 03 01             JSR     PEM             ;FROM DOS
+00123E  1  A9 0A                LDA     #LF             ;ECHO A
+001240  1  20 B7 0D             JSR     CHROUT          ;LINEFEED
+001243  1  A9 00                LDA     #0              ;CLEAR
+001245  1  85 05                STA     COLUMN          ;COLUMN AND
+001247  1  85 09                STA     CNSIND          ;INDEX
+001249  1               ISINPT
+001249  1  A9 00                LDA     #0              ;CLEAR ACCUM
+00124B  1  A6 09                LDX     CNSIND          ;GET INDEX
+00124D  1  EC 66 18             CPX     CNSLNG          ;COMPARE TO LENGTH
+001250  1  08                   PHP                     ;SAVE RESULT
+001251  1  D0 02                BNE     *+4             ;JUMP IF NOT SAME
+001253  1  A9 FF                LDA     #$FF            ;ELSE SET
+001255  1  85 0D                STA     NOMORE          ;NO MORE INPUT FLAG
+001257  1  28                   PLP                     ;GET RESULT
+001258  1  D0 05                BNE     NOTEQL          ;JUMP IF NOT EQUAL
+00125A  1  A9 0D                LDA     #CR             ;THEN INSERT
+00125C  1  9D 67 18             STA     CNSTXT,X        ;A CR
+00125F  1               NOTEQL
+00125F  1  E6 09                INC     CNSIND          ;BUMP NEXT INDEX
+001261  1  BD 67 18             LDA     CNSTXT,X        ;GET CHAR
+001264  1  60                   RTS
+001265  1               ;MOVE N LINES
+001265  1               MOVNLN
+001265  1  20 E9 12             JSR     LMTCLC          ;CALCULATE LIMITS
+001268  1  4C 6A 0F             JMP     MOVONL          ;AND MOVE
+00126B  1               ;CHANGE TYPE OF OUTPUT TO STRING POINTED TO BY YA
+00126B  1               CHGTYP
+00126B  1  85 22                STA     POINT           ;SET
+00126D  1  84 23                STY     POINT+1         ;POINTER
+00126F  1  A0 02                LDY     #2              ;SET INDEX
+001271  1               CHGTLP
+001271  1  B1 22                LDA     (POINT),Y       ;GET NEW VALUE
+001273  1  99 32 19             STA     DSTFCB+9,Y      ;STORE IN FCB
+001276  1  88                   DEY                     ;COUNT DOWN
+001277  1  10 F8                BPL     CHGTLP          ;LOOP FOR MORE
+001279  1  60                   RTS
+00127A  1               ;GET NEXT COMMAND CHARACTER
+00127A  1               GTNXCH
+00127A  1  20 EE 11             JSR     GETCHR          ;GET CHAR
+00127D  1  20 E6 11             JSR     CNVLWR          ;CONVERT
+001280  1  85 08                STA     NXTCHR          ;SAVE
+001282  1  60                   RTS
+001283  1               ;INSERT A CR AND LF
+001283  1               INCRLF
+001283  1  A9 0D                LDA     #CR             ;INSERT
+001285  1  85 08                STA     NXTCHR          ;THE
+001287  1  20 D4 10             JSR     INSTCH          ;CR
+00128A  1  A9 0A                LDA     #LF             ;THEN
+00128C  1  85 08                STA     NXTCHR          ;THE
+00128E  1  4C D4 10             JMP     INSTCH          ;LF
+001291  1               ;CALCULATE LIMITS FROM NUMBER CHARACTERS
+001291  1               CHRLMT
+001291  1  24 02                BIT     PRMSGN          ;TEST SIGN
+001293  1  30 2A                BMI     CHRPOS          ;BRANCH IF POSITIVE
+001295  1               ;NEGATIVE
+001295  1  A5 18                LDA     UPRTXT          ;SET UPPER
+001297  1  A4 19                LDY     UPRTXT+1        ;LIMIT
+001299  1  85 1C                STA     UPRLMT          ;TO CURRENT
+00129B  1  84 1D                STY     UPRLMT+1        ;MAXIMUM
+00129D  1  38                   SEC                     ;THEN
+00129E  1  A5 12                LDA     NXTTXT          ;SUBTRACT
+0012A0  1  E5 03                SBC     NUMBER          ;NUMBER
+0012A2  1  85 1A                STA     LWRLMT          ;FROM
+0012A4  1  A5 13                LDA     NXTTXT+1        ;NEXT
+0012A6  1  E5 04                SBC     NUMBER+1        ;POINTER
+0012A8  1  85 1B                STA     LWRLMT+1        ;AND SAVE
+0012AA  1  90 0A                BCC     CHTOSM          ;JUMP IF BORROW
+0012AC  1  A5 1A                LDA     LWRLMT          ;IF RESULT
+0012AE  1  C9 AF                CMP     #<(TXTBUF+1)    ;IS
+0012B0  1  A5 1B                LDA     LWRLMT+1        ;TXTBUF+1
+0012B2  1  E9 22                SBC     #>(TXTBUF+1)    ;OR MORE
+0012B4  1  B0 08                BCS     USCLPT          ;USE IT
+0012B6  1               CHTOSM
+0012B6  1  A9 AF                LDA     #<(TXTBUF+1)    ;ELSE
+0012B8  1  A0 22                LDY     #>(TXTBUF+1)    ;USE
+0012BA  1  85 1A                STA     LWRLMT          ;TXTBUF+1
+0012BC  1  84 1B                STY     LWRLMT+1        ;AS LOWER LIMIT
+0012BE  1               USCLPT
+0012BE  1  60                   RTS
+0012BF  1               ;POSITIVE
+0012BF  1               CHRPOS
+0012BF  1  A5 12                LDA     NXTTXT          ;SET LOWER
+0012C1  1  A4 13                LDY     NXTTXT+1        ;LIMIT
+0012C3  1  85 1A                STA     LWRLMT          ;TO NEXT
+0012C5  1  84 1B                STY     LWRLMT+1        ;POSITION
+0012C7  1  18                   CLC                     ;CALCULATE
+0012C8  1  A5 18                LDA     UPRTXT          ;UPPER
+0012CA  1  65 03                ADC     NUMBER          ;LIMIT
+0012CC  1  85 1C                STA     UPRLMT          ;AS
+0012CE  1  A5 19                LDA     UPRTXT+1        ;UPPER
+0012D0  1  65 04                ADC     NUMBER+1        ;PLUS
+0012D2  1  85 1D                STA     UPRLMT+1        ;NUMBER
+0012D4  1  B0 0A                BCS     CHTOBG          ;IF CARRY TOO BIG
+0012D6  1  A5 1C                LDA     UPRLMT          ;COMPARE
+0012D8  1  C5 20                CMP     TXTLMT          ;RESULT
+0012DA  1  A5 1D                LDA     UPRLMT+1        ;TO TEXT
+0012DC  1  E5 21                SBC     TXTLMT+1        ;LIMIT
+0012DE  1  90 08                BCC     NTTOBG          ;USE IF LESS
+0012E0  1               CHTOBG
+0012E0  1  A5 1E                LDA     MAXTXT          ;ELSE
+0012E2  1  A4 1F                LDY     MAXTXT+1        ;SET
+0012E4  1  85 1C                STA     UPRLMT          ;UPPER TO
+0012E6  1  84 1D                STY     UPRLMT+1        ;MAXIMUM
+0012E8  1               NTTOBG
+0012E8  1  60                   RTS
+0012E9  1               ;CALCULATE MOVE/DELETE LIMITS AS FUNCTION OF LINES
+0012E9  1               LMTCLC
+0012E9  1  24 02                BIT     PRMSGN          ;TEST SIGN
+0012EB  1  10 4B                BPL     LMTCMI          ;BRANCH IF MINUS
+0012ED  1               ;POSITIVE
+0012ED  1  A6 18                LDX     UPRTXT          ;GET UPPER LOW
+0012EF  1  A4 19                LDY     UPRTXT+1        ;AND HIGH
+0012F1  1  86 1C                STX     UPRLMT          ;SET
+0012F3  1  84 1D                STY     UPRLMT+1        ;POINTER
+0012F5  1  E8                   INX                     ;BUMP LOWER
+0012F6  1  D0 01                BNE     *+3             ;IF NOT ZERO SKIP
+0012F8  1  C8                   INY                     ;BUMP OF HIGH
+0012F9  1  86 1A                STX     LWRLMT          ;SAVE
+0012FB  1  84 1B                STY     LWRLMT+1        ;ALWAYS
+0012FD  1  A0 01                LDY     #1              ;SET INDEX
+0012FF  1               LMTPLP
+0012FF  1  A5 1C                LDA     UPRLMT          ;COMPARE UPPER
+001301  1  C5 1E                CMP     MAXTXT          ;LIMIT TO MAXIMUM
+001303  1  D0 0F                BNE     LMTPNE          ;BRANCH IF NOT EQUAL
+001305  1  A5 1D                LDA     UPRLMT+1        ;DO SAME FOR
+001307  1  C5 1F                CMP     MAXTXT+1        ;HIGH BYTES
+001309  1  D0 09                BNE     LMTPNE          ;BRANCH IF NOT SAME
+00130B  1  A5 03                LDA     NUMBER          ;DROP
+00130D  1  D0 02                BNE     *+4             ;NUMBER
+00130F  1  C6 04                DEC     NUMBER+1        ;BY
+001311  1  C6 03                DEC     NUMBER          ;ONE
+001313  1  60                   RTS                     ;AND EXIT
+001314  1               LMTPNE
+001314  1  B1 1C                LDA     (UPRLMT),Y      ;GET CHAR
+001316  1  C9 0A                CMP     #LF             ;IF A LF
+001318  1  F0 09                BEQ     LMTPLE          ;BRANCH
+00131A  1               LMTPAD
+00131A  1  E6 1C                INC     UPRLMT          ;ELSE
+00131C  1  D0 E1                BNE     LMTPLP          ;BUMP
+00131E  1  E6 1D                INC     UPRLMT+1        ;UPPER LIMIT
+001320  1  4C FF 12             JMP     LMTPLP          ;AND LOOP
+001323  1               LMTPLE
+001323  1  A5 03                LDA     NUMBER          ;DROP NUMBER
+001325  1  D0 02                BNE     *+4             ;FOR
+001327  1  C6 04                DEC     NUMBER+1        ;LINEFEED
+001329  1  C6 03                DEC     NUMBER          ;BY ONE
+00132B  1  D0 ED                BNE     LMTPAD          ;LOOP IF NOT ZERO
+00132D  1  A5 04                LDA     NUMBER+1        ;TEST HIGH
+00132F  1  D0 E9                BNE     LMTPAD          ;LOOP IF IT NOT ZERO
+001331  1  E6 1C                INC     UPRLMT          ;BUMP
+001333  1  D0 02                BNE     *+4             ;LIMIT
+001335  1  E6 1D                INC     UPRLMT+1        ;AND
+001337  1  60                   RTS                     ;EXIT
+001338  1               ;NEGATIVE
+001338  1               LMTCMI
+001338  1  A6 12                LDX     NXTTXT          ;GET NEXT
+00133A  1  A4 13                LDY     NXTTXT+1        ;POSITION
+00133C  1  86 1A                STX     LWRLMT          ;SET LOWER
+00133E  1  84 1B                STY     LWRLMT+1        ;LIMIT
+001340  1  E0 00                CPX     #0              ;IF LOW NOT ZERO
+001342  1  D0 01                BNE     *+3             ;DO NOT
+001344  1  88                   DEY                     ;DROP HIGH
+001345  1  CA                   DEX                     ;DROP LOW ALWAYS
+001346  1  86 1C                STX     UPRLMT          ;SET UPPER
+001348  1  84 1D                STY     UPRLMT+1        ;LIMIT
+00134A  1  E6 03                INC     NUMBER          ;BUMP
+00134C  1  D0 02                BNE     *+4             ;NUMBER
+00134E  1  E6 04                INC     NUMBER+1        ;BY ONE
+001350  1  A0 00                LDY     #0              ;CLEAR INDEX
+001352  1               LMTMLP
+001352  1  A5 1A                LDA     LWRLMT          ;COMPARE LOWER
+001354  1  C9 AE                CMP     #<TXTBUF        ;TO START
+001356  1  D0 15                BNE     LMTMNE          ;BRANCH IF DIFFERENT
+001358  1  A5 1B                LDA     LWRLMT+1        ;DO SAME
+00135A  1  C9 22                CMP     #>TXTBUF        ;FOR HIGH
+00135C  1  D0 0F                BNE     LMTMNE          ;BRANCH IF NOT SAME
+00135E  1  A5 03                LDA     NUMBER          ;DROP
+001360  1  D0 02                BNE     *+4             ;NUMBER
+001362  1  C6 04                DEC     NUMBER+1        ;BY
+001364  1  C6 03                DEC     NUMBER          ;ONE
+001366  1  E6 1A                INC     LWRLMT          ;BUMP
+001368  1  D0 02                BNE     *+4             ;LOWER
+00136A  1  E6 1B                INC     LWRLMT+1        ;BACK UP
+00136C  1  60                   RTS                     ;AND EXIT
+00136D  1               LMTMNE
+00136D  1  A5 1A                LDA     LWRLMT          ;DROP
+00136F  1  D0 02                BNE     *+4             ;LIMIT
+001371  1  C6 1B                DEC     LWRLMT+1        ;BY
+001373  1  C6 1A                DEC     LWRLMT          ;ONE
+001375  1  B1 1A                LDA     (LWRLMT),Y      ;GET CHAR
+001377  1  C9 0A                CMP     #LF             ;IF NOT A LF
+001379  1  D0 D7                BNE     LMTMLP          ;THEN BRANCH
+00137B  1  A5 03                LDA     NUMBER          ;ELSE
+00137D  1  D0 02                BNE     *+4             ;DROP
+00137F  1  C6 04                DEC     NUMBER+1        ;NUMBER
+001381  1  C6 03                DEC     NUMBER          ;BY ONE
+001383  1  D0 CD                BNE     LMTMLP          ;LOOP IF NOT ZERO
+001385  1  A5 04                LDA     NUMBER+1        ;IF HIGH NOT ZERO
+001387  1  D0 C9                BNE     LMTMLP          ;THEN LOOP
+001389  1  E6 1A                INC     LWRLMT          ;ELSE BUMP
+00138B  1  D0 02                BNE     *+4             ;BACK TO
+00138D  1  E6 1B                INC     LWRLMT+1        ;CHAR AFTER
+00138F  1  60                   RTS                     ;THE LF
+001390  1               ;WRITE N LINES TO DESTINATION
+001390  1               ; IF N=0 THEN N <-- 1
+001390  1               WRITE
+001390  1  A9 00                LDA     #MINUS          ;SET SIGN
+001392  1  85 02                STA     PRMSGN          ;TO MINUS
+001394  1  A9 AF                LDA     #<(TXTBUF+1)    ;THEN SET
+001396  1  A0 22                LDY     #>(TXTBUF+1)    ;POINTER
+001398  1  85 1A                STA     LWRLMT          ;FOR
+00139A  1  84 1B                STY     LWRLMT+1        ;MOVE
+00139C  1  A5 18                LDA     UPRTXT          ;TO BEGINNING
+00139E  1  A4 19                LDY     UPRTXT+1        ;OF THE
+0013A0  1  85 1C                STA     UPRLMT          ;TEXT
+0013A2  1  84 1D                STY     UPRLMT+1        ;BUFFER
+0013A4  1  20 6A 0F             JSR     MOVONL          ;DO THE MOVE
+0013A7  1  20 DA 0E             JSR     TSTNM0          ;TEST FOR ZERO
+0013AA  1  D0 02                BNE     *+4             ;JUMP IF NOT
+0013AC  1  E6 03                INC     NUMBER          ;ELSE MAKE IT ONE
+0013AE  1               WRLNLP
+0013AE  1  20 ED 0E             JSR     TSTADJ          ;TEST FOR END
+0013B1  1  F0 21                BEQ     WRLNEN          ;JUMP IF DONE
+0013B3  1               WRCHLP
+0013B3  1  A5 18                LDA     UPRTXT          ;COMPARE
+0013B5  1  C5 1E                CMP     MAXTXT          ;UPPER
+0013B7  1  A5 19                LDA     UPRTXT+1        ;POINTER
+0013B9  1  E5 1F                SBC     MAXTXT+1        ;TO LIMIT
+0013BB  1  90 05                BCC     *+7             ;BRANCH IF LESS
+0013BD  1  20 DF 0E             JSR     STNM0           ;ELSE CLEAR NUMBER
+0013C0  1  F0 12                BEQ     WRLNEN          ;AND EXIT
+0013C2  1  20 12 0F             JSR     BPUPTX          ;BUMP UPPER POINTER
+0013C5  1  A0 00                LDY     #0              ;CLEAR INDEX
+0013C7  1  B1 18                LDA     (UPRTXT),Y      ;GET CHAR
+0013C9  1  48                   PHA                     ;SAVE IT
+0013CA  1  20 67 11             JSR     PUTDST          ;INSERT IN DEST
+0013CD  1  68                   PLA                     ;RESTORE CHAR
+0013CE  1  C9 0A                CMP     #LF             ;IF NOT A LF
+0013D0  1  D0 E1                BNE     WRCHLP          ;LOOP FOR MORE CHAR
+0013D2  1  F0 DA                BEQ     WRLNLP          ;ELSE LOOP FOR LINE
+0013D4  1               WRLNEN
+0013D4  1  A5 18                LDA     UPRTXT          ;IF UPPER
+0013D6  1  C5 1C                CMP     UPRLMT          ;POINTER
+0013D8  1  A5 19                LDA     UPRTXT+1        ;IS NOT
+0013DA  1  E5 1D                SBC     UPRLMT+1        ;AT LIMIT
+0013DC  1  90 01                BCC     *+3             ;THEN MOVE
+0013DE  1  60                   RTS                     ;ELSE DONE
+0013DF  1  A9 FF                LDA     #PLUS           ;SET SIGN
+0013E1  1  85 02                STA     PRMSGN          ;TO PLUS
+0013E3  1  4C 6A 0F             JMP     MOVONL          ;AND MOVE
+0013E6  1               ;MATCH STRINGS
+0013E6  1               MATCH
+0013E6  1  20 52 14             JSR     COMPRE          ;DO COMPARISON
+0013E9  1  D0 01                BNE     *+3             ;JUMP IF NONE
+0013EB  1  60                   RTS                     ;ELSE OK
+0013EC  1  4C 80 09             JMP     CNTDMR          ;BREAK FOR NONE
+0013EF  1               ;TYPE N LINES
+0013EF  1               TYPE
+0013EF  1  20 E9 12             JSR     LMTCLC          ;CALCULATE LIMITS
+0013F2  1  A9 FF                LDA     #$FF            ;SET INSERT
+0013F4  1  85 0C                STA     INSFLG          ;MODE
+0013F6  1  24 02                BIT     PRMSGN          ;TEST SIGN
+0013F8  1  10 0B                BPL     TYPEMI          ;JUMP IF NEGATIVE
+0013FA  1  A5 12                LDA     NXTTXT          ;ELSE SET
+0013FC  1  A4 13                LDY     NXTTXT+1        ;TYPE POINTER
+0013FE  1  85 26                STA     TYPPNT          ;TO NEXT
+001400  1  84 27                STY     TYPPNT+1        ;CHAR POINTER
+001402  1  4C 0D 14             JMP     TYPEIT          ;AND CONTINUE
+001405  1               TYPEMI
+001405  1  A5 1A                LDA     LWRLMT          ;FOR NEGATIVE
+001407  1  A4 1B                LDY     LWRLMT+1        ;SET POINTER
+001409  1  85 26                STA     TYPPNT          ;TO LOWER
+00140B  1  84 27                STY     TYPPNT+1        ;LIMIT OF TEXT
+00140D  1               TYPEIT
+00140D  1  A5 26                LDA     TYPPNT          ;BACKUP
+00140F  1  D0 02                BNE     *+4             ;POINTER
+001411  1  C6 27                DEC     TYPPNT+1        ;BY
+001413  1  C6 26                DEC     TYPPNT          ;ONE
+001415  1  A0 00                LDY     #0              ;CLEAR INDEX
+001417  1  B1 26                LDA     (TYPPNT),Y      ;GET CHAR
+001419  1  C9 0A                CMP     #LF             ;IF NOT A LF
+00141B  1  D0 07                BNE     NTLNBG          ;THEN SKIP AHEAD
+00141D  1  A5 05                LDA     COLUMN          ;GET COLUMN
+00141F  1  F0 03                BEQ     NTLNBG          ;JUMP IF ZERO
+001421  1  20 B0 0D             JSR     CRLF            ;ELSE SEND CR AND LF
+001424  1               NTLNBG
+001424  1  A5 1A                LDA     LWRLMT          ;SET TYPE
+001426  1  A4 1B                LDY     LWRLMT+1        ;POINTER
+001428  1  85 26                STA     TYPPNT          ;TO LOWER
+00142A  1  84 27                STY     TYPPNT+1        ;LIMIT
+00142C  1               TYPELP
+00142C  1  A5 1C                LDA     UPRLMT          ;IF LIMIT
+00142E  1  C5 26                CMP     TYPPNT          ;GREATER THAN
+001430  1  A5 1D                LDA     UPRLMT+1        ;OR EQUAL
+001432  1  E5 27                SBC     TYPPNT+1        ;POINTER THEN
+001434  1  B0 01                BCS     TYPEMR          ;CONTINUE
+001436  1  60                   RTS
+001437  1               TYPEMR
+001437  1  A0 00                LDY     #0              ;CLEAR INDEX
+001439  1  B1 26                LDA     (TYPPNT),Y      ;GET CHAR
+00143B  1  48                   PHA                     ;SAVE IT
+00143C  1  20 B7 0D             JSR     CHROUT          ;SEND IT
+00143F  1  68                   PLA                     ;THEN GET IT BACK
+001440  1  E6 26                INC     TYPPNT          ;BUMP
+001442  1  D0 02                BNE     *+4             ;POINPER
+001444  1  E6 27                INC     TYPPNT+1        ;BY ONE
+001446  1  C9 0A                CMP     #LF             ;IF NOT A LF
+001448  1  D0 E2                BNE     TYPELP          ;THEN LOOP FOR MORE
+00144A  1  20 47 0E             JSR     CONSTS          ;ELSE SEE IF BREAK
+00144D  1  F0 DD                BEQ     TYPELP          ;LOOP IF NOT
+00144F  1  4C 80 09             JMP     CNTDMR          ;ELSE DO HALT
+001452  1               ;COMPARE STRING TO BUFFER CONTENTS
+001452  1               ; Z=1 IF COMPARE ELSE Z=0
+001452  1               COMPRE
+001452  1  A5 18                LDA     UPRTXT          ;SET COMPARE
+001454  1  A4 19                LDY     UPRTXT+1        ;POINTER TO
+001456  1  85 28                STA     CMPPNT          ;START OF
+001458  1  84 29                STY     CMPPNT+1        ;UPPER
+00145A  1               COMPLP
+00145A  1  A5 28                LDA     CMPPNT          ;IF COMPARE
+00145C  1  C5 1E                CMP     MAXTXT          ;POINTER
+00145E  1  A5 29                LDA     CMPPNT+1        ;IS LESS
+001460  1  E5 1F                SBC     MAXTXT+1        ;THAN MAX
+001462  1  90 03                BCC     *+5             ;THEN CONTINUE
+001464  1  4C 97 14             JMP     NOCOMP          ;ELSE NO COMPARE
+001467  1  E6 28                INC     CMPPNT          ;BUMP
+001469  1  D0 02                BNE     *+4             ;POINTER
+00146B  1  E6 29                INC     CMPPNT+1        ;BY ONE
+00146D  1  A5 28                LDA     CMPPNT          ;AND
+00146F  1  A4 29                LDY     CMPPNT+1        ;ALSO
+001471  1  85 1C                STA     UPRLMT          ;SET
+001473  1  84 1D                STY     UPRLMT+1        ;LIMIT
+001475  1  A0 00                LDY     #0              ;CLEAR INDEX
+001477  1               COMPNX
+001477  1  B9 4A 19             LDA     STRBUF,Y        ;GET STRING
+00147A  1  D1 28                CMP     (CMPPNT),Y      ;COMPARE TO TEXT
+00147C  1  D0 DC                BNE     COMPLP          ;RESTART IF NO MATCH
+00147E  1  E6 1C                INC     UPRLMT          ;BUMP UPPER
+001480  1  D0 02                BNE     *+4             ;LIMIT
+001482  1  E6 1D                INC     UPRLMT+1        ;AND
+001484  1  C8                   INY                     ;BUMP INDEX
+001485  1  C4 2B                CPY     ENDSTR          ;COMPARE TO END + 1
+001487  1  D0 EE                BNE     COMPNX          ;LOOP IF MORE
+001489  1  A5 1C                LDA     UPRLMT          ;DROP
+00148B  1  D0 02                BNE     *+4             ;UPPER
+00148D  1  C6 1D                DEC     UPRLMT+1        ;LIMIT
+00148F  1  C6 1C                DEC     UPRLMT          ;BY ONE
+001491  1  20 6A 0F             JSR     MOVONL          ;AND MOVE
+001494  1  A9 00                LDA     #0              ;RETURN WITH
+001496  1  60                   RTS                     ;Z=1
+001497  1               NOCOMP
+001497  1  A9 FF                LDA     #$FF            ;RETURN WITH
+001499  1  60                   RTS                     ;Z=0
+00149A  1               ;CLEAR STRING BUFFER INDEX AND FILL
+00149A  1               CLSTFL
+00149A  1  A9 00                LDA     #0              ;CLEAR
+00149C  1  85 11                STA     STRIND          ;INDEX
+00149E  1  20 A0 10             JSR     FLSTBF          ;FILL BUFFER
+0014A1  1  A5 11                LDA     STRIND          ;THEN SET
+0014A3  1  85 2B                STA     ENDSTR          ;END
+0014A5  1  60                   RTS
+0014A6  1               ;STRINGS AND MESSAGES
+0014A6  1               BAKSTR
+0014A6  1  42 41 4B             .BYTE   "BAK"
+0014A9  1               DLRSTR
+0014A9  1  24 24 24             .BYTE   "$$$"
+0014AC  1               OPNMSG
+0014AC  1  45 44 49 54          .BYTE   "EDIT - VERSION 2.03-A"
+0014B0  1  20 2D 20 56  
+0014B4  1  45 52 53 49  
+0014C1  1  0D 0A 24             .BYTE   CR,LF,"$"
+0014C4  1               HELP0
+0014C4  1  43 4F 4D 4D          .BYTE   "COMMAND SUMMARY - S IS SIGN"
+0014C8  1  41 4E 44 20  
+0014CC  1  53 55 4D 4D  
+0014DF  1  20 2D 20 4E          .BYTE   " - N IS NUMBER "
+0014E3  1  20 49 53 20  
+0014E7  1  4E 55 4D 42  
+0014EE  1  5B 54 59 50          .BYTE   "[TYPE # FOR MAX]"
+0014F2  1  45 20 23 20  
+0014F6  1  46 4F 52 20  
+0014FE  1  0D 0A 20 20          .BYTE   CR,LF,"  SN TO MOVE RIGHT [S=+]"
+001502  1  53 4E 20 54  
+001506  1  4F 20 4D 4F  
+001518  1  20 4F 52 20          .BYTE   " OR LEFT [S=-] N LINES"
+00151C  1  4C 45 46 54  
+001520  1  20 5B 53 3D  
+00152E  1  20 41 4E 44          .BYTE   " AND TYPE LINE"
+001532  1  20 54 59 50  
+001536  1  45 20 4C 49  
+00153C  1  0D 0A 20 20          .BYTE   CR,LF,"  NA TO APPEND N LINES"
+001540  1  4E 41 20 54  
+001544  1  4F 20 41 50  
+001554  1  0D 0A 20 20          .BYTE   CR,LF,"  SB TO MOVE TO BEGINNING"
+001558  1  53 42 20 54  
+00155C  1  4F 20 4D 4F  
+00156F  1  20 5B 53 3D          .BYTE   " [S=+] OR END [S=-]"
+001573  1  2B 5D 20 4F  
+001577  1  52 20 45 4E  
+001582  1  0D 0A 20 20          .BYTE   CR,LF,"  SNC TO MOVE N CHARACTERS"
+001586  1  53 4E 43 20  
+00158A  1  54 4F 20 4D  
+00159E  1  20 52 49 47          .BYTE   " RIGHT OR LEFT"
+0015A2  1  48 54 20 4F  
+0015A6  1  52 20 4C 45  
+0015AC  1  24                   .BYTE   "$"
+0015AD  1               HELP1
+0015AD  1  0D 0A 20 20          .BYTE   CR,LF,"  SND TO DELETE N "
+0015B1  1  53 4E 44 20  
+0015B5  1  54 4F 20 44  
+0015C1  1  43 48 41 52          .BYTE   "CHARACTERS RIGHT OR LEFT"
+0015C5  1  41 43 54 45  
+0015C9  1  52 53 20 52  
+0015D9  1  0D 0A 20 20          .BYTE   CR,LF,"  E TO EXIT"
+0015DD  1  45 20 54 4F  
+0015E1  1  20 45 58 49  
+0015E6  1  0D 0A 20 20          .BYTE   CR,LF,"  NFSTRING TO FIND NTH "
+0015EA  1  4E 46 53 54  
+0015EE  1  52 49 4E 47  
+0015FF  1  4F 43 43 55          .BYTE   "OCCURENCE OF STRING"
+001603  1  52 45 4E 43  
+001607  1  45 20 4F 46  
+001612  1  0D 0A 20 20          .BYTE   CR,LF,"  H TO RETURN TO HEAD OF FILE"
+001616  1  48 20 54 4F  
+00161A  1  20 52 45 54  
+001631  1  0D 0A 20 20          .BYTE   CR,LF,"  I TO INSERT TEXT"
+001635  1  49 20 54 4F  
+001639  1  20 49 4E 53  
+001645  1  0D 0A 20 20          .BYTE   CR,LF,"  SNK TO KILL N LINES RIGHT"
+001649  1  53 4E 4B 20  
+00164D  1  54 4F 20 4B  
+001662  1  20 4F 52 20          .BYTE   " OR LEFT"
+001666  1  4C 45 46 54  
+00166A  1  0D 0A 20 20          .BYTE   CR,LF,"  SNL TO MOVE N LINES RIGHT"
+00166E  1  53 4E 4C 20  
+001672  1  54 4F 20 4D  
+001687  1  20 4F 52 20          .BYTE   " OR LEFT"
+00168B  1  4C 45 46 54  
+00168F  1  24                   .BYTE   "$"
+001690  1               HELP2
+001690  1  0D 0A 20 20          .BYTE   CR,LF,"  NM TO DO MACRO N TIMES"
+001694  1  4E 4D 20 54  
+001698  1  4F 20 44 4F  
+0016AA  1  0D 0A 20 20          .BYTE   CR,LF,"  O TO RESTART WITH "
+0016AE  1  4F 20 54 4F  
+0016B2  1  20 52 45 53  
+0016C0  1  4F 52 49 47          .BYTE   "ORIGINAL FILE"
+0016C4  1  49 4E 41 4C  
+0016C8  1  20 46 49 4C  
+0016CD  1  0D 0A 20 20          .BYTE   CR,LF,"  Q TO QUIT WITHOUT "
+0016D1  1  51 20 54 4F  
+0016D5  1  20 51 55 49  
+0016E3  1  41 4C 54 45          .BYTE   "ALTERING FILE"
+0016E7  1  52 49 4E 47  
+0016EB  1  20 46 49 4C  
+0016F0  1  0D 0A 20 20          .BYTE   CR,LF,"  RNAME TO READ LIBRARY FILE"
+0016F4  1  52 4E 41 4D  
+0016F8  1  45 20 54 4F  
+00170E  1  0D 0A 20 20          .BYTE   CR,LF,"  NSSTRING1[CTL-Z]STRING2"
+001712  1  4E 53 53 54  
+001716  1  52 49 4E 47  
+001729  1  20 54 4F 20          .BYTE   " TO SUBSTITUTE"
+00172D  1  53 55 42 53  
+001731  1  54 49 54 55  
+001737  1  20 53 54 52          .BYTE   " STRING2 FOR STRING1"
+00173B  1  49 4E 47 32  
+00173F  1  20 46 4F 52  
+00174B  1  0D 0A 20 20          .BYTE   CR,LF,"  SNT TO TYPE N LINES RIGHT"
+00174F  1  53 4E 54 20  
+001753  1  54 4F 20 54  
+001768  1  20 4F 52 20          .BYTE   " OR LEFT"
+00176C  1  4C 45 46 54  
+001770  1  24                   .BYTE   "$"
+001771  1               HELP3
+001771  1  0D 0A 20 20          .BYTE   CR,LF,"  NW TO WRITE N LINES"
+001775  1  4E 57 20 54  
+001779  1  4F 20 57 52  
+001788  1  0D 0A 20 20          .BYTE   CR,LF,"  NX TO STORE N LINES IN"
+00178C  1  4E 58 20 54  
+001790  1  4F 20 53 54  
+0017A2  1  20 54 45 4D          .BYTE   " TEMP BUFFER"
+0017A6  1  50 20 42 55  
+0017AA  1  46 46 45 52  
+0017AE  1  0D 0A 24             .BYTE   CR,LF,"$"
+0017B1  1               NWFMSG
+0017B1  1  4E 45 57 20          .BYTE   "NEW FILE$"
+0017B5  1  46 49 4C 45  
+0017B9  1  24           
+0017BA  1               QUSMSG
+0017BA  1  2D 28 59 2F          .BYTE   "-(Y/N)?$"
+0017BE  1  4E 29 3F 24  
+0017C2  1               PEMERR
+0017C2  1  50 45 4D 20          .BYTE   "PEM FILE ERROR (FULL?)$"
+0017C6  1  46 49 4C 45  
+0017CA  1  20 45 52 52  
+0017D9  1               ATMSG
+0017D9  1  20 41 54 20          .BYTE   " AT $"
+0017DD  1  24           
+0017DE  1               BRKMSG
+0017DE  1  42 52 45 41          .BYTE   "BREAK - $"
+0017E2  1  4B 20 2D 20  
+0017E6  1  24           
+0017E7  1               FLXMSG
+0017E7  1  44 45 53 54          .BYTE   "DESTINATION FILE EXISTS$"
+0017EB  1  49 4E 41 54  
+0017EF  1  49 4F 4E 20  
+0017FF  1               MFLMSG
+0017FF  1  4D 45 4D 4F          .BYTE   "MEMORY BUFFER FULL$"
+001803  1  52 59 20 42  
+001807  1  55 46 46 45  
+001812  1               LFEMSG
+001812  1  4C 49 42 52          .BYTE   "LIBRARY FILE ERROR$"
+001816  1  41 52 59 20  
+00181A  1  46 49 4C 45  
+001825  1               CNCMSG
+001825  1  43 41 4E 20          .BYTE   "CAN NOT DO COMMAND "
+001829  1  4E 4F 54 20  
+00182D  1  44 4F 20 43  
+001838  1  53 50 45 43          .BYTE   "SPECIFIED TIMES$"
+00183C  1  49 46 49 45  
+001840  1  44 20 54 49  
+001848  1               URCMSG
+001848  1  55 4E 52 45          .BYTE   "UNRECOGNIZED COMMAND$"
+00184C  1  43 4F 47 4E  
+001850  1  49 5A 45 44  
+00185D  1               ;ERROR TABLE
+00185D  1               ERRTBL
+00185D  1  25 18                .WORD   CNCMSG
+00185F  1  48 18                .WORD   URCMSG
+001861  1  FF 17                .WORD   MFLMSG
+001863  1  12 18                .WORD   LFEMSG
+001865  1               ;BUFFERS AND FCBS
+001865  1               ;CONSOLE BUFFER
+001865  1               CNSBUF
+001865  1  80                   .BYTE   128
+001866  1               CNSLNG
+001866  1  00                   .BYTE   0
+001867  1               CNSTXT
+001867  1  xx xx xx xx          .RES    128
+00186B  1  xx xx xx xx  
+00186F  1  xx xx xx xx  
+0018E7  1               ;.LIB FILE FCB
+0018E7  1               LIBFCB
+0018E7  1  xx xx xx xx          .RES    9
+0018EB  1  xx xx xx xx  
+0018EF  1  xx           
+0018F0  1  4C 49 42             .BYTE   "LIB"
+0018F3  1  xx xx xx xx          .RES    21
+0018F7  1  xx xx xx xx  
+0018FB  1  xx xx xx xx  
+001908  1               ;X$$$$$$$.LIB FILE FCB
+001908  1               XLBFCB
+001908  1  xx                   .RES    1
+001909  1  58 24 24 24          .BYTE   "X$$$$$$$LIB"
+00190D  1  24 24 24 24  
+001911  1  4C 49 42     
+001914  1  xx xx xx xx          .RES    21
+001918  1  xx xx xx xx  
+00191C  1  xx xx xx xx  
+001929  1               ;DESTINATION FILE FCB
+001929  1               DSTFCB
+001929  1  xx xx xx xx          .RES    33
+00192D  1  xx xx xx xx  
+001931  1  xx xx xx xx  
+00194A  1               ;STRING BUFFER
+00194A  1               STRBUF
+00194A  1  xx xx xx xx          .RES    STRMAX
+00194E  1  xx xx xx xx  
+001952  1  xx xx xx xx  
+0019AE  1               ;MACRO BUFFER
+0019AE  1               MACBUF
+0019AE  1  xx xx xx xx          .RES    128
+0019B2  1  xx xx xx xx  
+0019B6  1  xx xx xx xx  
+001A2E  1               ;X$$$$$$$.LIB BUFFER
+001A2E  1               XLBBUF
+001A2E  1  xx xx xx xx          .RES    128
+001A32  1  xx xx xx xx  
+001A36  1  xx xx xx xx  
+001AAE  1               ;SOURCE BUFFER
+001AAE  1               SOURCE
+001AAE  1  xx xx xx xx          .RES    SRCLNG
+001AB2  1  xx xx xx xx  
+001AB6  1  xx xx xx xx  
+001EAE  1               ;DESTINATION BUFFER
+001EAE  1               DEST
+001EAE  1  xx xx xx xx          .RES    DSTLNG
+001EB2  1  xx xx xx xx  
+001EB6  1  xx xx xx xx  
+0022AE  1               ;TEXT BUFFER
+0022AE  1               TXTBUF
+0022AE  1                       .END

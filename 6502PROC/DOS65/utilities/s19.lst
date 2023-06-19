@@ -1,0 +1,35 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : s19.asm
+Current file: s19.asm
+
+000000r 1               ;FIXED PARAMETERS
+000000r 1               DFLFCB          = $107          ;DEFAULT FCB
+000000r 1               PEM             = $103          ;PEM ENTRY
+000000r 1               BOOT            = $100          ;WARM BOOT
+000000r 1               TEA             = $800          ;EXECUTION ORG
+000000r 1               CCMLNG          = 2048          ;CCM LENGTH
+000000r 1               ;MAIN PROGRAM
+000000r 1                       .SEGMENT "TEA"
+000000r 1                       .ORG    $0800
+000800  1               
+000800  1  A0 00                LDY     #$00
+000802  1               LOOP:
+000802  1  B9 10 08             LDA     START,Y
+000805  1  99 00 07             STA     $0700,Y
+000808  1  C8                   INY
+000809  1  C0 20                CPY     #$20
+00080B  1  D0 F5                BNE     LOOP
+00080D  1  4C 00 07             JMP     $0700
+000810  1               START:
+000810  1  A9 00                LDA     #$00
+000812  1  8D 78 03             STA     $0378
+000815  1  EA                   NOP
+000816  1  EA                   NOP
+000817  1  8D 7C 03             STA     $037C
+00081A  1  20 F0 FF             JSR     $FFF0           ; CALL S19 LOADER FROM BIOS
+00081D  1  A9 80                LDA     #$80
+00081F  1  8D 7C 03             STA     $037C
+000822  1  A9 8E                LDA     #$8E
+000824  1  8D 78 03             STA     $0378
+000827  1  4C 00 01             JMP     BOOT
+00082A  1                       .END
