@@ -11,7 +11,7 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 11214)
+    (start_pass_no 16724)
     (layer_rule F.Cu
       (active on)
       (preferred_direction vertical)
@@ -62,24 +62,25 @@
     A6 A15 A5 A4 D4 A3 D3 A2
     D5 A1 D6 A0 D2 ~{RFSH} D7 ~{M1}
     D0 ~{RESET} D1 ~{BUSRQ} ~{INT} ~{WAIT} ~{NMI} ~{BUSACK}
-    /bA7 /bA6 /bA5 /bA4 /bA3 /bA2 /bA1 "Net-(RR1-Pad2)"
-    ~{HALT} ~{WR} "Net-(RR1-Pad5)" "Net-(RR1-Pad6)" "Net-(RR1-Pad7)" "Net-(RR1-Pad8)" "Net-(RR1-Pad9)" "Net-(D2-Pad2)"
-    "Net-(D3-Pad1)" ~{MREQ} "Net-(D6-Pad1)" ~{RD} ~{IORQ} SPARE9 AUDIO RX1
-    TX1 RX TX SPARE0 "Net-(J6-Pad1)" SPARE8 SPARE1 SPARE7
-    SPARE2 SPARE6 SPARE3 SPARE5 CLK SPARE4 "Net-(RR1-Pad3)" "Net-(RR1-Pad4)"
-    "Net-(U1-Pad4)" "unconnected-(U1-Pad8)" bD7 bD6 bD5 KBDCLK KBDDAT MSEDAT
-    MSECLK bD4 bD3 bD2 bD1 "~{CS_ESP}" "unconnected-(SW1-Pad9)" bA0
-    bD0 "unconnected-(U4-Pad16)" "unconnected-(U4-Pad6)" "unconnected-(U4-Pad14)" "unconnected-(U4-Pad4)" "Net-(J6-Pad2)" "Net-(J6-Pad3)" "unconnected-(J6-Pad4)"
-    "unconnected-(J6-Pad9)" "unconnected-(J6-Pad11)" "unconnected-(J6-Pad12)" "VGA_HSYNC" "VGA_VSYNC" "unconnected-(J6-Pad15)" /b~{RD} /b~{WR}
-    "VGA_R1" "VGA_R0" "VGA_G1" "VGA_G0" "VGA_B1" "VGA_B0" /b~{M1} "unconnected-(U4-Pad8)"
-    "Net-(U1-Pad2)" "unconnected-(U1-Pad5)" "unconnected-(U1-Pad6)" "unconnected-(U1-Pad9)" "unconnected-(U1-Pad10)" "unconnected-(U1-Pad11)" "unconnected-(U1-Pad12)" "unconnected-(U1-Pad13)"
-    /b~{IORQ} "unconnected-(U4-Pad12)" b~{RESET} "~{ESP_WR}" "~{ESP1_WR}" "unconnected-(U5-Pad8)" "unconnected-(U5-Pad9)" "unconnected-(U5-Pad10)"
-    "unconnected-(U5-Pad11)" "~{ESP_RD}" "unconnected-(U5-Pad12)" "unconnected-(U5-Pad13)" "~{ESP0_RD}" "~{ESP1_RD}" "~{ESP0_WR}" "unconnected-(U7-Pad9)"
-    "ESP0_OUTCLK" "ESP0_OUT" "unconnected-(U12-Pad3)" "unconnected-(U12-Pad4)" "unconnected-(U12-Pad5)" "unconnected-(U12-Pad11)" "unconnected-(U12-Pad12)" "unconnected-(U12-Pad16)"
-    "unconnected-(U12-Pad19)" "ESP0_INCLK" "unconnected-(U13-Pad3)" "unconnected-(U13-Pad4)" "unconnected-(U13-Pad5)" "unconnected-(U13-Pad8)" "unconnected-(U13-Pad11)" "unconnected-(U13-Pad12)"
-    "unconnected-(U13-Pad16)" "unconnected-(U13-Pad18)" "unconnected-(U13-Pad19)" "unconnected-(U13-Pad20)" "unconnected-(U13-Pad23)" "unconnected-(U13-Pad24)" "unconnected-(U13-Pad25)" "unconnected-(U13-Pad26)"
-    "unconnected-(U13-Pad29)" "unconnected-(U13-Pad30)" "unconnected-(U8-Pad7)" "ESP0_IN" "unconnected-(U8-Pad10)" "unconnected-(U9-Pad9)" "ESP1_OUTCLK" "ESP1_OUT"
-    "ESP1_INCLK" "unconnected-(U11-Pad7)" "ESP1_IN" "unconnected-(U11-Pad10)"
+    /bA7 /bA6 /bA5 /bA4 /bA3 /bA2 "Net-(RR1-Pad2)" ~{HALT}
+    ~{WR} "Net-(RR1-Pad5)" "Net-(RR1-Pad6)" "Net-(RR1-Pad7)" "Net-(RR1-Pad8)" "Net-(RR1-Pad9)" "Net-(D2-Pad2)" "Net-(D3-Pad1)"
+    ~{MREQ} "Net-(D6-Pad1)" ~{RD} ~{IORQ} SPARE9 AUDIO RX1 TX1
+    RX TX SPARE0 "Net-(J6-Pad1)" SPARE8 SPARE1 SPARE7 SPARE2
+    SPARE6 SPARE3 SPARE5 CLK SPARE4 "Net-(RR1-Pad3)" "Net-(RR1-Pad4)" "Net-(U1-Pad4)"
+    "unconnected-(U1-Pad8)" bD7 bD6 bD5 KBDCLK KBDDAT MSEDAT MSECLK
+    bD4 bD3 bD2 bD1 "~{CS_ESP}" "unconnected-(SW1-Pad9)" bA0 bD0
+    "unconnected-(U4-Pad16)" "unconnected-(U4-Pad6)" "unconnected-(U4-Pad14)" "unconnected-(U4-Pad4)" "Net-(J6-Pad2)" "Net-(J6-Pad3)" "unconnected-(J6-Pad4)" "unconnected-(J6-Pad9)"
+    "unconnected-(J6-Pad11)" "unconnected-(J6-Pad12)" "VGA_HSYNC" "VGA_VSYNC" "unconnected-(J6-Pad15)" /b~{RD} /b~{WR} "VGA_R1"
+    "VGA_R0" "VGA_G1" "VGA_G0" "VGA_B1" "VGA_B0" /b~{M1} "unconnected-(U4-Pad8)" "Net-(U1-Pad2)"
+    "unconnected-(U1-Pad5)" "unconnected-(U1-Pad6)" "unconnected-(U1-Pad9)" "unconnected-(U1-Pad10)" "unconnected-(U1-Pad11)" "unconnected-(RR2-Pad2)" "unconnected-(RR2-Pad9)" /b~{IORQ}
+    "unconnected-(U4-Pad12)" b~{RESET} "~{ESP_WR}" "~{ESP1_WR}" "unconnected-(SW1-Pad10)" "Net-(U1-Pad12)" bA1 "Net-(U16-Pad3)"
+    "~{ESP_RD}" "Net-(U16-Pad1)" "Net-(U16-Pad5)" "~{ESP0_RD}" "~{ESP1_RD}" "~{ESP0_WR}" "unconnected-(U7-Pad9)" "ESP0_OUTCLK"
+    "ESP0_OUT" "unconnected-(U12-Pad3)" "unconnected-(U12-Pad4)" "unconnected-(U12-Pad5)" "Net-(U16-Pad9)" "Net-(U6-Pad11)" "Net-(U6-Pad4)" "Net-(U16-Pad13)"
+    "ESP0_INCLK" "unconnected-(U13-Pad3)" "unconnected-(U13-Pad4)" "unconnected-(U13-Pad5)" "unconnected-(U13-Pad8)" "Net-(U11-Pad9)" "ESP0_BUSY" "ESP0_RDYO"
+    "unconnected-(U13-Pad18)" "ESP0_SPAREO" "unconnected-(U13-Pad20)" "unconnected-(U13-Pad23)" "unconnected-(U13-Pad24)" "unconnected-(U13-Pad25)" "unconnected-(U13-Pad26)" "unconnected-(U13-Pad29)"
+    "unconnected-(U13-Pad30)" "unconnected-(U8-Pad7)" "ESP0_IN" "unconnected-(U8-Pad10)" "unconnected-(U9-Pad9)" "ESP1_OUTCLK" "ESP1_OUT" "ESP1_INCLK"
+    "unconnected-(U11-Pad7)" "ESP1_IN" "unconnected-(U11-Pad10)" "ESP1_BUSY" "ESP1_RDYO" "ESP1_SPAREO" "Net-(U14-Pad3)" "unconnected-(U14-Pad4)"
+    "unconnected-(U14-Pad5)" "unconnected-(U14-Pad6)" "unconnected-(U14-Pad8)" "unconnected-(U14-Pad9)" "unconnected-(U14-Pad10)" "unconnected-(U14-Pad11)" "unconnected-(U14-Pad12)" "unconnected-(U14-Pad13)"
     (clearance_class default)
     (via_rule default)
     (rule
@@ -100,7 +101,7 @@
     )
   )
   (class Power
-    VCC GND
+    VCC GND +3.3V
     (clearance_class Power)
     (via_rule Power)
     (rule
