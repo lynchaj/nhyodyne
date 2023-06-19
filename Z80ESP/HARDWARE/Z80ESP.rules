@@ -11,7 +11,7 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 16724)
+    (start_pass_no 22381)
     (layer_rule F.Cu
       (active on)
       (preferred_direction vertical)
@@ -81,6 +81,7 @@
     "unconnected-(U13-Pad30)" "unconnected-(U8-Pad7)" "ESP0_IN" "unconnected-(U8-Pad10)" "unconnected-(U9-Pad9)" "ESP1_OUTCLK" "ESP1_OUT" "ESP1_INCLK"
     "unconnected-(U11-Pad7)" "ESP1_IN" "unconnected-(U11-Pad10)" "ESP1_BUSY" "ESP1_RDYO" "ESP1_SPAREO" "Net-(U14-Pad3)" "unconnected-(U14-Pad4)"
     "unconnected-(U14-Pad5)" "unconnected-(U14-Pad6)" "unconnected-(U14-Pad8)" "unconnected-(U14-Pad9)" "unconnected-(U14-Pad10)" "unconnected-(U14-Pad11)" "unconnected-(U14-Pad12)" "unconnected-(U14-Pad13)"
+    "Net-(C15-Pad1)" "Net-(C16-Pad2)" "Net-(J7-Pad2)" "Net-(J7-Pad4)" "Net-(J7-Pad7)" "Net-(J7-Pad9)"
     (clearance_class default)
     (via_rule default)
     (rule
