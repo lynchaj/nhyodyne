@@ -1,8 +1,43 @@
 #include <fabgl.h>
-#include "sound.h"
+#include "interface.h"
 
 SoundGenerator       soundGenerator;
 SquareWaveformGenerator swg;
+static char song_buffer[256];
+static uint8_t song_pointer = 0;
+
+
+enum wavetype { WAVE_SQUARE, WAVE_SINE, WAVE_TRIANGLE, WAVE_SAW, WAVE_NOISE };
+enum modfreqmode { MODFREQ_NONE, MODFREQ_TO_END, MODFREQ_TO_RELEASE, MODFREQ_TO_SUSTAIN  };
+
+struct playsounddata
+{
+  long attack; // time in millis
+  long decay; // time in millis
+  int sustain; // 0-127 range (over volume)
+  long release; // time in millis
+  wavetype wave; // square, sine, triangle, saw, noise
+  int volume;
+  int durationms;
+  int freq_start;
+  int freq_end;
+  modfreqmode modfreq;
+};
+
+#define NOTESTEP 1.0594630943593
+
+
+void soundgeneratorinit()
+{
+    soundGenerator.setVolume(126);
+    soundGenerator.play(true);
+    soundGenerator.attach(&swg);
+}
+
+void setVolume(uint8_t b)
+{
+    soundGenerator.setVolume(b);
+}
 
 void iPlaySound( void *pvParameters )
 {
@@ -150,4 +185,50 @@ void play_song(char *m)
     playSound (  {250, 189, 120, 256, (wavetype)wave, 127, delms, freq, 0, MODFREQ_NONE} );
     delay(delms);
   }
+}
+
+
+void play_audio_string(uint8_t b)
+{
+    if (b == 0)
+    {
+        song_buffer[song_pointer++] = b;
+        play_song((char *)&song_buffer);
+    }
+    else
+    {
+        song_buffer[song_pointer++] = b;
+    }
+}
+
+int play_sound_string(uint8_t b)
+{
+    if (song_pointer < 23)
+    {
+        song_buffer[song_pointer++] = b;
+    }
+    else
+    {
+        song_buffer[song_pointer++] = b;
+
+        playsounddata sd;
+        sd.attack=toInt32(song_buffer[0],song_buffer[1],song_buffer[2],song_buffer[3]);  // time in millis
+        sd.decay=toInt32(song_buffer[4],song_buffer[5],song_buffer[6],song_buffer[7]);   // time in millis
+        sd.sustain=toInt16(song_buffer[8],song_buffer[9]); // 0-127 range (over volume)
+        sd.release=toInt32(song_buffer[10],song_buffer[11],song_buffer[12],song_buffer[13]);; // time in millis
+        sd.wave=(wavetype)song_buffer[14];    // square, sine, triangle, saw, noise
+        sd.volume=toInt16(song_buffer[15],song_buffer[16]);;
+        sd.durationms=toInt16(song_buffer[17],song_buffer[18]);;
+        sd.freq_start=toInt16(song_buffer[19],song_buffer[20]);;
+        sd.freq_end=toInt16(song_buffer[21],song_buffer[22]);;
+        sd.modfreq=(modfreqmode)song_buffer[23];
+        playSound(sd);
+        return 0;
+    }
+    return 1;
+}
+
+void newsong()
+{
+    song_pointer=0;
 }

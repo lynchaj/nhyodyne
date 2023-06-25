@@ -159,3 +159,15 @@ void load_font(uint8_t b)
 {
     Terminal.loadFont(FONTS_INFO[b]);
 }
+
+void process_setcursor(uint8_t b)
+{
+    if (b == 0)
+    {
+        Terminal.enableCursor(false);
+    }
+    else
+    {
+        Terminal.enableCursor(true);
+    }
+}
