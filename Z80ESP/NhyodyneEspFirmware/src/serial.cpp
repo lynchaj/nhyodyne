@@ -5,30 +5,11 @@
 static int serial_baud = 115200;
 static int serial_mode = SERIAL_8N1;
 
-static int baud_state = 1;
-
-void clearbaud()
+void setbaud(int b)
 {
-    baud_state = 1;
-    serial_baud =0;
+    serial_baud =b;
+    Serial.begin(serial_baud, serial_mode);
 }
-
-int setbaud(uint8_t b)
-{
-    serial_baud += ((int)popbyte() * baud_state);
-
-    if(baud_state==65536)
-    {
-        baud_state = 1;
-        return 0;
-    }
-    else
-    {
-        baud_state=baud_state*256;
-    }
-    return 1;
-}
-
 
 void initserial()
 {

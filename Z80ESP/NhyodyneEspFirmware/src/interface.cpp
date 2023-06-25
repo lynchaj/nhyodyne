@@ -10,10 +10,35 @@ static uint8_t tx_rpointer = 0;
 static uint8_t rx_rpointer = 0;
 static uint8_t byte_waiting = 0;
 
+int bufferlength()
+{
+    if (rx_wpointer == rx_rpointer)
+        return 0;
+    if (rx_wpointer > rx_rpointer)
+        rx_wpointer - rx_rpointer;
+    return ((int)rx_wpointer + 256) - rx_rpointer;
+}
 
 uint8_t popbyte()
 {
     return rx_ring[rx_rpointer++];
+}
+
+int popdoubleword()
+{
+    if (bufferlength() > 3)
+    {
+        return popbyte() + ((int)popbyte() * 256) + ((int)popbyte() * 65535) + ((int)popbyte() * 16776960);
+    }
+    return 0;
+}
+int popword()
+{
+    if (bufferlength() > 1)
+    {
+        return popbyte() + ((int)popbyte() * 256);
+    }
+    return 0;
 }
 
 uint8_t peekbyte()
@@ -21,12 +46,13 @@ uint8_t peekbyte()
     return rx_ring[rx_rpointer];
 }
 
-
 bool bufferempty()
 {
-     if (rx_wpointer == rx_rpointer) return true;
-     return false;
+    if (rx_wpointer == rx_rpointer)
+        return true;
+    return false;
 }
+
 
 void sendbyte(uint8_t b)
 {
@@ -86,13 +112,4 @@ void IRAM_ATTR RDISR()
         byte_waiting = 0;
         sendbyte(0);
     }
-}
-
-int toInt32(uint8_t b0,uint8_t b1,uint8_t b2,uint8_t b3)
-{
-    return b0+((int)b1*256)+((int)b2*65535)+((int)b3*16776960);
-}
-int toInt16(uint8_t b0,uint8_t b1)
-{
-    return b0+((int)b1*256);
 }

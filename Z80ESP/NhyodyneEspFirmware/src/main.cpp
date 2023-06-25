@@ -10,6 +10,7 @@
 fabgl::VGAController DisplayController;
 fabgl::Terminal Terminal;
 fabgl::PS2Controller PS2Controller;
+retroGraphics graphics;
 
 static uint8_t state_machine = 0;
 // states
@@ -46,6 +47,7 @@ void setup()
     Terminal.write("\e[2J");     // clear screen
     Terminal.write("\e[1;1H");   // move cursor to 1,1
 
+    graphics.initialize(&DisplayController,&Terminal);
     initserial();
     soundgeneratorinit();
 
@@ -100,12 +102,15 @@ void loop()
             }
             break;
         case 3: // 3 Set cursor, wait for parameter
-            process_setcursor(popbyte());
+            graphics.process_setcursor(popbyte());
             state_machine = 0;
             break;
         case 4: // 4 Serial Port Baud Rate wait for bytes
-            if (setbaud(popbyte()) == 0)
+            if(bufferlength()>3)
+            {
+                setbaud(popdoubleword());
                 state_machine = 0;
+            }
             break;
         case 5: // 5 Serial Port Baud Rate wait for byte of mode
             process_serial_mode(popbyte());
@@ -144,11 +149,11 @@ void loop()
             state_machine = 0;
             break;
         case 11: // 11 set resolution waiting for value
-            set_graphics_mode(popbyte());
+            graphics.set_graphics_mode(popbyte());
             state_machine = 0;
             break;
         case 12: // 12 LOAD FONT  waiting for value
-            load_font(popbyte());
+            graphics.load_font(popbyte());
             state_machine = 0;
             break;
         }
@@ -180,7 +185,6 @@ void process_opcode(uint8_t b)
         state_machine = 3;
         break;
     case 6: // GET SERIAL BAUD
-        clearbaud();
         state_machine = 4;
         break;
     case 7: // GET SERIAL MODE
@@ -216,6 +220,9 @@ void process_opcode(uint8_t b)
         break;
     case 16: // LOAD FONT
         state_machine = 12;
+        break;
+    case 17: // CLEAR SCREEN
+        graphics.cleardisplay();
         break;
     case 255: // HARDWARE DISCOVERY
         state_machine = 0;

@@ -24,6 +24,20 @@ struct playsounddata
   modfreqmode modfreq;
 };
 
+struct playsounddatain
+{
+  uint32_t attack;
+  uint32_t decay;
+  uint16_t sustain;
+  uint32_t release;
+  uint8_t wave;
+  uint16_t volume;
+  uint16_t durationms;
+  uint16_t freq_start;
+  uint16_t freq_end;
+  uint8_t modfreq;
+} __attribute__((packed));
+
 #define NOTESTEP 1.0594630943593
 
 
@@ -174,6 +188,7 @@ char * noteToWave(char * note, int * wave)
   return note + (val > 9 ? 2 : 1);
 }
 
+// BUG:THIS SHOULD RUN IN ITS OWN PROCESS/CORE!!!
 void play_song(char *m)
 {
   while (*m )
@@ -211,18 +226,20 @@ int play_sound_string(uint8_t b)
     {
         song_buffer[song_pointer++] = b;
 
-        playsounddata sd;
-        sd.attack=toInt32(song_buffer[0],song_buffer[1],song_buffer[2],song_buffer[3]);  // time in millis
-        sd.decay=toInt32(song_buffer[4],song_buffer[5],song_buffer[6],song_buffer[7]);   // time in millis
-        sd.sustain=toInt16(song_buffer[8],song_buffer[9]); // 0-127 range (over volume)
-        sd.release=toInt32(song_buffer[10],song_buffer[11],song_buffer[12],song_buffer[13]);; // time in millis
-        sd.wave=(wavetype)song_buffer[14];    // square, sine, triangle, saw, noise
-        sd.volume=toInt16(song_buffer[15],song_buffer[16]);;
-        sd.durationms=toInt16(song_buffer[17],song_buffer[18]);;
-        sd.freq_start=toInt16(song_buffer[19],song_buffer[20]);;
-        sd.freq_end=toInt16(song_buffer[21],song_buffer[22]);;
-        sd.modfreq=(modfreqmode)song_buffer[23];
-        playSound(sd);
+        playsounddatain P = *((playsounddatain *)&song_buffer);
+        playsounddata PD;
+        PD.attack= P.attack;
+        PD.decay= P.decay;
+        PD.sustain=P.sustain;
+        PD.release= P.release;
+        PD.wave=(wavetype)P.wave;
+        PD.volume=P.volume;
+        PD.durationms= P.durationms;
+        PD.freq_start= P.freq_start;
+        PD.freq_end= P.freq_end;
+        PD.modfreq=(modfreqmode)P.modfreq;
+
+        playSound(PD);
         return 0;
     }
     return 1;
