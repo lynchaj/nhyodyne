@@ -13,7 +13,7 @@
 #define READY 12
 #define SPARE 2
 
-fabgl::VGATextController DisplayController;
+fabgl::VGAController DisplayController;
 fabgl::Terminal Terminal;
 fabgl::PS2Controller PS2Controller;
 extern SoundGenerator soundGenerator;
@@ -50,6 +50,8 @@ static int serial_mode = SERIAL_8N1;
 // 10 play audio waiting for char
 // 11 play sound waiting for value
 // 12 set volume waiting for value
+// 13 set resolution waiting for value
+// 14 LOAD FONT  waiting for value
 
 void IRAM_ATTR WRISR();
 void IRAM_ATTR RDISR();
@@ -66,6 +68,8 @@ int toInt32(uint8_t b0,uint8_t b1,uint8_t b2,uint8_t b3);
 int toInt16(uint8_t b0,uint8_t b1);
 extern void playSound( playsounddata ps );
 extern void play_song(char *m);
+extern void set_graphics_mode(uint8_t b);
+extern void load_font(uint8_t b);
 
 void setup()
 {
@@ -75,10 +79,11 @@ void setup()
 
     PS2Controller.begin(PS2Preset::KeyboardPort0);
 
-    DisplayController.begin();
-    DisplayController.setResolution();
+    DisplayController.begin(GPIO_NUM_22, GPIO_NUM_21, GPIO_NUM_19, GPIO_NUM_18, GPIO_NUM_5,GPIO_NUM_4,GPIO_NUM_23,GPIO_NUM_15);
+    DisplayController.setResolution(VGA_640x480_60Hz);
 
     Terminal.begin(&DisplayController);
+
     Terminal.connectLocally();
     Terminal.enableCursor(true);
 
@@ -186,6 +191,14 @@ void loop()
             break;
         case 12:
             soundGenerator.setVolume(rx_ring[rx_rpointer++]);
+            state_machine = 0;
+            break;
+        case 13:
+            set_graphics_mode(rx_ring[rx_rpointer++]);
+            state_machine = 0;
+            break;
+        case 14:
+            load_font(rx_ring[rx_rpointer++]);
             state_machine = 0;
             break;
         }
@@ -307,7 +320,12 @@ void process_opcode(uint8_t b)
     case 14: // SET VOLUME
         state_machine = 12;
         break;
-
+    case 15: // SET GRAPHICS MODE
+        state_machine = 13;
+        break;
+    case 16: // LOAD FONT
+        state_machine = 14;
+        break;
     case 255: // HARDWARE DISCOVERY
         state_machine = 0;
         queuebyte('E');
