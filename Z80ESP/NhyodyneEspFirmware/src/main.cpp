@@ -6,11 +6,15 @@
 #include "ps2.h"
 #include "graphics.h"
 #include "serial.h"
+#include "sound.h"
 
 fabgl::VGAController DisplayController;
 fabgl::Terminal Terminal;
 fabgl::PS2Controller PS2Controller;
+fabgl::SoundGenerator soundGenerator;
+
 retroGraphics graphics;
+retroSound sound;
 
 static uint8_t state_machine = 0;
 // states
@@ -49,7 +53,7 @@ void setup()
 
     graphics.initialize(&DisplayController,&Terminal);
     initserial();
-    soundgeneratorinit();
+    sound.soundgeneratorinit(&soundGenerator);
 
     pinMode(WR, INPUT);
     pinMode(RD, INPUT);
@@ -133,19 +137,19 @@ void loop()
             break;
         case 8: // 8 play audio waiting for char
             tb = popbyte();
-            play_audio_string(tb);
+            sound.play_audio_string(tb);
             if (tb == 0)
             {
                 state_machine = 0;
             }
             break;
         case 9: // 9 play sound waiting for value
-            if (play_sound_string(popbyte()) == 0)
+            if (sound.play_sound_string(popbyte()) == 0)
                 state_machine = 0;
             ;
             break;
         case 10: // 10 set volume waiting for value
-            setVolume(popbyte());
+            sound.setVolume(popbyte());
             state_machine = 0;
             break;
         case 11: // 11 set resolution waiting for value
@@ -205,11 +209,11 @@ void process_opcode(uint8_t b)
         state_machine = 0;
         break;
     case 12: // GET AUDIO PLAY STRING
-        newsong();
+        sound.newsong();
         state_machine = 8;
         break;
     case 13: // PLAY SOUND
-        newsong();
+        sound.newsong();
         state_machine = 9;
         break;
     case 14: // SET VOLUME
@@ -231,6 +235,8 @@ void process_opcode(uint8_t b)
         queuebyte('P');
         queuebyte('3');
         queuebyte('2');
+        queuebyte('V');
+        queuebyte('1');
         break;
     }
 }

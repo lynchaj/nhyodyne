@@ -1,13 +1,11 @@
 #include <fabgl.h>
 #include "graphics.h"
 
-
-void retroGraphics::initialize(fabgl::VGAController *DisplayController,fabgl::Terminal *Terminal)
+void retroGraphics::initialize(fabgl::VGAController *DisplayController, fabgl::Terminal *Terminal)
 {
-    m_DisplayController=DisplayController;
-    m_Terminal=Terminal;
+    m_DisplayController = DisplayController;
+    m_Terminal = Terminal;
 }
-
 
 void retroGraphics::set_graphics_mode(uint8_t b)
 {
