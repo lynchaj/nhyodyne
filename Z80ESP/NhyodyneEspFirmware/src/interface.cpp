@@ -1,60 +1,63 @@
 #include <Arduino.h>
 #include "pins.h"
 
+// when I grow up, I should be a class . . . .
+
+
 // Setup Brain-dead simple ring buffers.  This should probably include mutexes, but I am going to skip for now.
-static uint8_t tx_ring[256];
-static uint8_t rx_ring[256];
-static uint8_t tx_wpointer = 0;
-static uint8_t rx_wpointer = 0;
-static uint8_t tx_rpointer = 0;
-static uint8_t rx_rpointer = 0;
-static uint8_t byte_waiting = 0;
+static uint8_t txRing[256];
+static uint8_t rxRing[256];
+static uint8_t txWPointer = 0;
+static uint8_t rxWPointer = 0;
+static uint8_t txRPointer = 0;
+static uint8_t rxRPointer = 0;
+static uint8_t byteWaiting = 0;
 
-int bufferlength()
+int bufferLength()
 {
-    if (rx_wpointer == rx_rpointer)
+    if (rxWPointer == rxRPointer)
         return 0;
-    if (rx_wpointer > rx_rpointer)
-        rx_wpointer - rx_rpointer;
-    return ((int)rx_wpointer + 256) - rx_rpointer;
+    if (rxWPointer > rxRPointer)
+        rxWPointer - rxRPointer;
+    return ((int)rxWPointer + 256) - rxRPointer;
 }
 
-uint8_t popbyte()
+uint8_t popByte()
 {
-    return rx_ring[rx_rpointer++];
+    return rxRing[rxRPointer++];
 }
 
-int popdoubleword()
+int popDoubleWord()
 {
-    if (bufferlength() > 3)
+    if (bufferLength() > 3)
     {
-        return popbyte() + ((int)popbyte() * 256) + ((int)popbyte() * 65535) + ((int)popbyte() * 16776960);
-    }
-    return 0;
-}
-int popword()
-{
-    if (bufferlength() > 1)
-    {
-        return popbyte() + ((int)popbyte() * 256);
+        return popByte() + ((int)popByte() * 256) + ((int)popByte() * 65535) + ((int)popByte() * 16776960);
     }
     return 0;
 }
 
-uint8_t peekbyte()
+int popWord()
 {
-    return rx_ring[rx_rpointer];
+    if (bufferLength() > 1)
+    {
+        return popByte() + ((int)popByte() * 256);
+    }
+    return 0;
 }
 
-bool bufferempty()
+uint8_t peekByte()
 {
-    if (rx_wpointer == rx_rpointer)
+    return rxRing[rxRPointer];
+}
+
+bool bufferEmpty()
+{
+    if (rxWPointer == rxRPointer)
         return true;
     return false;
 }
 
-
-void sendbyte(uint8_t b)
+void sendByte(uint8_t b)
 {
     for (int x = 0; x < 8; x++)
     {
@@ -67,18 +70,18 @@ void sendbyte(uint8_t b)
     digitalWrite(OUTCLK, HIGH);
 }
 
-void queuebyte(uint8_t b)
+void queueByte(uint8_t b)
 {
     // if !bytewaiting send, otherwise queue
-    if (byte_waiting == 0)
+    if (byteWaiting == 0)
     {
-        sendbyte(b);
-        byte_waiting = 1;
+        sendByte(b);
+        byteWaiting = 1;
         digitalWrite(READY, HIGH);
     }
     else
     {
-        tx_ring[tx_wpointer++] = b;
+        txRing[txWPointer++] = b;
     }
 }
 
@@ -93,8 +96,8 @@ void IRAM_ATTR WRISR()
         result += digitalRead(INDATA);
         digitalWrite(INCLK, HIGH);
     }
-    rx_ring[rx_wpointer] = result;
-    rx_wpointer++;
+    rxRing[rxWPointer] = result;
+    rxWPointer++;
     digitalWrite(INCLK, LOW);
     digitalWrite(BUSY, LOW);
 }
@@ -102,14 +105,14 @@ void IRAM_ATTR WRISR()
 void IRAM_ATTR RDISR()
 {
 
-    if (tx_wpointer != tx_rpointer)
+    if (txWPointer != txRPointer)
     {
-        sendbyte(tx_ring[tx_rpointer++]);
+        sendByte(txRing[txRPointer++]);
     }
     else
     {
         digitalWrite(READY, LOW);
-        byte_waiting = 0;
-        sendbyte(0);
+        byteWaiting = 0;
+        sendByte(0);
     }
 }

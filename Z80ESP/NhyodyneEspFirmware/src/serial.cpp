@@ -48,10 +48,10 @@ void do_serial_in()
 {
     if (Serial.available())
     {
-        queuebyte(Serial.read());
+        queueByte(Serial.read());
     }
     else
     {
-        queuebyte(0);
+        queueByte(0);
     }
 }

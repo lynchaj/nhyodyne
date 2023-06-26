@@ -16,7 +16,7 @@ fabgl::SoundGenerator soundGenerator;
 retroGraphics graphics;
 retroSound sound;
 
-static uint8_t state_machine = 0;
+static uint8_t stateMachine = 0;
 // states
 // 0 waiting for command
 // 1 vga term out single char, waiting for char
@@ -32,7 +32,7 @@ static uint8_t state_machine = 0;
 // 11 set resolution waiting for value
 // 12 LOAD FONT  waiting for value
 
-void process_opcode(uint8_t b);
+void processOpcode(uint8_t b);
 
 void setup()
 {
@@ -83,22 +83,22 @@ void loop()
 {
     int tb = 0;
 
-    if (!bufferempty())
+    if (!bufferEmpty())
     {
-        switch (state_machine)
+        switch (stateMachine)
         {
         case 0: // 0 waiting for command
-            process_opcode(popbyte());
+            processOpcode(popByte());
             break;
         case 1: // 1 vga term out single char, waiting for char
-            Terminal.write(popbyte());
-            state_machine = 0;
+            Terminal.write(popByte());
+            stateMachine = 0;
             break;
         case 2: // 2 vga term out multi, waiting for char
-            tb = popbyte();
+            tb = popByte();
             if (tb == 0)
             {
-                state_machine = 0;
+                stateMachine = 0;
             }
             else
             {
@@ -106,29 +106,29 @@ void loop()
             }
             break;
         case 3: // 3 Set cursor, wait for parameter
-            graphics.process_setcursor(popbyte());
-            state_machine = 0;
+            graphics.setCursor(popByte());
+            stateMachine = 0;
             break;
         case 4: // 4 Serial Port Baud Rate wait for bytes
-            if(bufferlength()>3)
+            if(bufferLength()>3)
             {
-                setbaud(popdoubleword());
-                state_machine = 0;
+                setbaud(popDoubleWord());
+                stateMachine = 0;
             }
             break;
         case 5: // 5 Serial Port Baud Rate wait for byte of mode
-            process_serial_mode(popbyte());
-            state_machine = 0;
+            process_serial_mode(popByte());
+            stateMachine = 0;
             break;
         case 6: // 6 Serial Port out single char, waiting for char
-            Serial.write(popbyte());
-            state_machine = 0;
+            Serial.write(popByte());
+            stateMachine = 0;
             break;
         case 7: // 7 Serial Port out multi, waiting for char
-            tb = popbyte();
+            tb = popByte();
             if (tb == 0)
             {
-                state_machine = 0;
+                stateMachine = 0;
             }
             else
             {
@@ -136,107 +136,107 @@ void loop()
             }
             break;
         case 8: // 8 play audio waiting for char
-            tb = popbyte();
+            tb = popByte();
             sound.play_audio_string(tb);
             if (tb == 0)
             {
-                state_machine = 0;
+                stateMachine = 0;
             }
             break;
         case 9: // 9 play sound waiting for value
-            if (sound.play_sound_string(popbyte()) == 0)
-                state_machine = 0;
+            if (sound.play_sound_string(popByte()) == 0)
+                stateMachine = 0;
             ;
             break;
         case 10: // 10 set volume waiting for value
-            sound.setVolume(popbyte());
-            state_machine = 0;
+            sound.setVolume(popByte());
+            stateMachine = 0;
             break;
         case 11: // 11 set resolution waiting for value
-            graphics.set_graphics_mode(popbyte());
-            state_machine = 0;
+            graphics.setGraphicsMode(popByte());
+            stateMachine = 0;
             break;
         case 12: // 12 LOAD FONT  waiting for value
-            graphics.load_font(popbyte());
-            state_machine = 0;
+            graphics.loadFont(popByte());
+            stateMachine = 0;
             break;
         }
     }
 }
 
-void process_opcode(uint8_t b)
+void processOpcode(uint8_t b)
 {
     switch (b)
     {
     case 0: // NOP
-        state_machine = 0;
+        stateMachine = 0;
         break;
     case 1: // OUT SINGLE CHAR
-        state_machine = 1;
+        stateMachine = 1;
         break;
     case 2: // OUT NULL TERM STRING
-        state_machine = 2;
+        stateMachine = 2;
         break;
     case 3: // GET KEYBOARD CHAR
         do_keyboard_in();
-        state_machine = 0;
+        stateMachine = 0;
         break;
     case 4: // GET KEYBOARD WAITING
-        queuebyte(Terminal.available());
-        state_machine = 0;
+        queueByte(Terminal.available());
+        stateMachine = 0;
         break;
     case 5: // SET DISPLAY CURSOR
-        state_machine = 3;
+        stateMachine = 3;
         break;
     case 6: // GET SERIAL BAUD
-        state_machine = 4;
+        stateMachine = 4;
         break;
     case 7: // GET SERIAL MODE
-        state_machine = 5;
+        stateMachine = 5;
         break;
     case 8: // OUT SERIAL CHAR
-        state_machine = 6;
+        stateMachine = 6;
         break;
     case 9: // OUT SERIAL NULL TERM STRING
-        state_machine = 7;
+        stateMachine = 7;
         break;
     case 10: // GET SERIAL CHAR
         do_serial_in();
-        state_machine = 0;
+        stateMachine = 0;
         break;
     case 11: // GET SERIAL WAITING
-        queuebyte(Serial.available());
-        state_machine = 0;
+        queueByte(Serial.available());
+        stateMachine = 0;
         break;
     case 12: // GET AUDIO PLAY STRING
         sound.newsong();
-        state_machine = 8;
+        stateMachine = 8;
         break;
     case 13: // PLAY SOUND
         sound.newsong();
-        state_machine = 9;
+        stateMachine = 9;
         break;
     case 14: // SET VOLUME
-        state_machine = 10;
+        stateMachine = 10;
         break;
     case 15: // SET GRAPHICS MODE
-        state_machine = 11;
+        stateMachine = 11;
         break;
     case 16: // LOAD FONT
-        state_machine = 12;
+        stateMachine = 12;
         break;
     case 17: // CLEAR SCREEN
-        graphics.cleardisplay();
+        graphics.clearDisplay();
         break;
     case 255: // HARDWARE DISCOVERY
-        state_machine = 0;
-        queuebyte('E');
-        queuebyte('S');
-        queuebyte('P');
-        queuebyte('3');
-        queuebyte('2');
-        queuebyte('V');
-        queuebyte('1');
+        stateMachine = 0;
+        queueByte('E');
+        queueByte('S');
+        queueByte('P');
+        queueByte('3');
+        queueByte('2');
+        queueByte('V');
+        queueByte('1');
         break;
     }
 }

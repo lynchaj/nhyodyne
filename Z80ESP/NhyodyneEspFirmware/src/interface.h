@@ -4,10 +4,10 @@
 
 extern void IRAM_ATTR WRISR();
 extern void IRAM_ATTR RDISR();
-extern void queuebyte(uint8_t b);
-extern bool bufferempty();
-extern uint8_t popbyte();
-extern uint8_t peekbyte();
-extern int popdoubleword();
-extern int popword();
-extern int bufferlength();
+extern void queueByte(uint8_t b);
+extern bool bufferEmpty();
+extern uint8_t popByte();
+extern uint8_t peekByte();
+extern int popDoubleWord();
+extern int popWord();
+extern int bufferLength();

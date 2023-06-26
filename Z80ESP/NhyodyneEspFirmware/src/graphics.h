@@ -5,10 +5,10 @@
 class retroGraphics
 {
 public:
-    void set_graphics_mode(uint8_t b);
-    void load_font(uint8_t b);
-    void process_setcursor(uint8_t b);
-    void cleardisplay();
+    void setGraphicsMode(uint8_t b);
+    void loadFont(uint8_t b);
+    void setCursor(uint8_t b);
+    void clearDisplay();
     void initialize(fabgl::VGAController *DisplayController, fabgl::Terminal *Terminal);
 
 private:

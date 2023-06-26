@@ -9,10 +9,10 @@ void do_keyboard_in()
 {
     if (Terminal.available())
     {
-        queuebyte(Terminal.read());
+        queueByte(Terminal.read());
     }
     else
     {
-        queuebyte(0);
+        queueByte(0);
     }
 }

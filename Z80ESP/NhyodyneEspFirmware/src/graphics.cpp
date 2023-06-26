@@ -7,7 +7,7 @@ void retroGraphics::initialize(fabgl::VGAController *DisplayController, fabgl::T
     m_Terminal = Terminal;
 }
 
-void retroGraphics::set_graphics_mode(uint8_t b)
+void retroGraphics::setGraphicsMode(uint8_t b)
 {
     switch (b)
     {
@@ -151,12 +151,12 @@ void retroGraphics::set_graphics_mode(uint8_t b)
     }
 }
 
-void retroGraphics::load_font(uint8_t b)
+void retroGraphics::loadFont(uint8_t b)
 {
     m_Terminal->loadFont(FONTS_INFO[b]);
 }
 
-void retroGraphics::process_setcursor(uint8_t b)
+void retroGraphics::setCursor(uint8_t b)
 {
     if (b == 0)
     {
@@ -168,7 +168,7 @@ void retroGraphics::process_setcursor(uint8_t b)
     }
 }
 
-void retroGraphics::cleardisplay()
+void retroGraphics::clearDisplay()
 {
     m_Terminal->canvas()->clear();
 }
