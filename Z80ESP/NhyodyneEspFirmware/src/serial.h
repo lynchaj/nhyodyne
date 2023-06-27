@@ -1,7 +1,15 @@
-#pragma Once
+#pragma once
 #include <Arduino.h>
 
-extern void initserial();
-extern int setbaud(int b);
-extern void process_serial_mode(uint8_t b);
-extern void do_serial_in();
+class serialHelper
+{
+public:
+    void initialize();
+    void setBaud(int b);
+    void setSerialMode(uint8_t b);
+    void serialIn();
+
+private:
+    int serialBaud = 115200;
+    int serialMode = SERIAL_8N1;
+};

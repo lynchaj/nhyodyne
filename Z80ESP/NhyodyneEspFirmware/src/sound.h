@@ -6,7 +6,7 @@ extern fabgl::SoundGenerator soundGenerator;
 class retroSound
 {
 public:
-    void soundgeneratorinit(fabgl::SoundGenerator *soundGenerator);
+    void initialize(fabgl::SoundGenerator *soundGenerator);
     void play_audio_string(uint8_t b);
     int play_sound_string(uint8_t b);
     void setVolume(uint8_t b);
@@ -48,7 +48,7 @@ private:
     char song_buffer[256];
     uint8_t song_pointer;
 
-    struct playsounddatain
+    struct soundDataParameter
     {
         uint32_t attack;
         uint32_t decay;

@@ -3,18 +3,18 @@
 #include "sound.h"
 #include "pins.h"
 #include "interface.h"
-#include "ps2.h"
 #include "graphics.h"
 #include "serial.h"
 #include "sound.h"
 
-fabgl::VGAController DisplayController;
+//fabgl::VGAController DisplayController;
 fabgl::Terminal Terminal;
 fabgl::PS2Controller PS2Controller;
 fabgl::SoundGenerator soundGenerator;
 
 retroGraphics graphics;
 retroSound sound;
+serialHelper serial;
 
 static uint8_t stateMachine = 0;
 // states
@@ -30,7 +30,8 @@ static uint8_t stateMachine = 0;
 // 9 play sound waiting for value
 // 10 set volume waiting for value
 // 11 set resolution waiting for value
-// 12 LOAD FONT  waiting for value
+// 12 loadFont  waiting for value
+// 13 copyRect  waiting for value
 
 void processOpcode(uint8_t b);
 
@@ -40,20 +41,21 @@ void setup()
     delay(200); // experienced crashes without this delay!
     disableCore1WDT();
 
+
     PS2Controller.begin(PS2Preset::KeyboardPort0);
-    DisplayController.begin(GPIO_NUM_22, GPIO_NUM_21, GPIO_NUM_19, GPIO_NUM_18, GPIO_NUM_5, GPIO_NUM_4, GPIO_NUM_23, GPIO_NUM_15);
-    DisplayController.setResolution(VGA_640x480_60Hz);
-    Terminal.begin(&DisplayController);
-    Terminal.connectLocally();
-    Terminal.enableCursor(true);
+  //  DisplayController.begin(GPIO_NUM_22, GPIO_NUM_21, GPIO_NUM_19, GPIO_NUM_18, GPIO_NUM_5, GPIO_NUM_4, GPIO_NUM_23, GPIO_NUM_15);
+  //  DisplayController.setResolution(VGA_640x480_60Hz);
+  //  Terminal.begin(&DisplayController);
+  //  Terminal.connectLocally();
+  //  Terminal.enableCursor(true);
 
-    Terminal.write("\e[40;92m"); // background: black, foreground: green
-    Terminal.write("\e[2J");     // clear screen
-    Terminal.write("\e[1;1H");   // move cursor to 1,1
+ //   Terminal.write("\e[40;92m"); // background: black, foreground: green
+ //   Terminal.write("\e[2J");     // clear screen
+  //  Terminal.write("\e[1;1H");   // move cursor to 1,1
 
-    graphics.initialize(&DisplayController,&Terminal);
-    initserial();
-    sound.soundgeneratorinit(&soundGenerator);
+    graphics.initialize( &Terminal);
+    serial.initialize();
+    sound.initialize(&soundGenerator);
 
     pinMode(WR, INPUT);
     pinMode(RD, INPUT);
@@ -110,14 +112,14 @@ void loop()
             stateMachine = 0;
             break;
         case 4: // 4 Serial Port Baud Rate wait for bytes
-            if(bufferLength()>3)
+            if (bufferLength() > 3)
             {
-                setbaud(popDoubleWord());
+                serial.setBaud(popDoubleWord());
                 stateMachine = 0;
             }
             break;
         case 5: // 5 Serial Port Baud Rate wait for byte of mode
-            process_serial_mode(popByte());
+            serial.setSerialMode(popByte());
             stateMachine = 0;
             break;
         case 6: // 6 Serial Port out single char, waiting for char
@@ -160,6 +162,10 @@ void loop()
             graphics.loadFont(popByte());
             stateMachine = 0;
             break;
+        case 13: // 13 copyRect waiting for value
+            if(graphics.copyRect(popByte())) stateMachine = 0;
+            break;
+
         }
     }
 }
@@ -178,7 +184,14 @@ void processOpcode(uint8_t b)
         stateMachine = 2;
         break;
     case 3: // GET KEYBOARD CHAR
-        do_keyboard_in();
+        if (Terminal.available())
+        {
+            queueByte(Terminal.read());
+        }
+        else
+        {
+            queueByte(0);
+        }
         stateMachine = 0;
         break;
     case 4: // GET KEYBOARD WAITING
@@ -201,7 +214,7 @@ void processOpcode(uint8_t b)
         stateMachine = 7;
         break;
     case 10: // GET SERIAL CHAR
-        do_serial_in();
+        serial.serialIn();
         stateMachine = 0;
         break;
     case 11: // GET SERIAL WAITING
@@ -227,6 +240,10 @@ void processOpcode(uint8_t b)
         break;
     case 17: // CLEAR SCREEN
         graphics.clearDisplay();
+        break;
+    case 18: // copyRect
+        graphics.resetPointer();
+        stateMachine = 12;
         break;
     case 255: // HARDWARE DISCOVERY
         stateMachine = 0;

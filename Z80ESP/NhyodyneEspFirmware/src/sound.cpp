@@ -1,7 +1,7 @@
 #include <fabgl.h>
 #include "sound.h"
 
-void retroSound::soundgeneratorinit(fabgl::SoundGenerator *soundGenerator)
+void retroSound::initialize(fabgl::SoundGenerator *soundGenerator)
 {
   m_soundGenerator = soundGenerator;
   song_pointer = 0;
@@ -194,7 +194,7 @@ int retroSound::play_sound_string(uint8_t b)
   {
     song_buffer[song_pointer++] = b;
 
-    playsounddatain P = *((playsounddatain *)&song_buffer);
+    soundDataParameter P = *((soundDataParameter *)&song_buffer);
     playsounddata PD;
     PD.attack = P.attack;
     PD.decay = P.decay;

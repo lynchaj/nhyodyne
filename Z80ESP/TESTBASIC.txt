@@ -11,8 +11,11 @@
 81 IF Y=4 THEN GOSUB 700:GOTO 10
 90 IF Y=5 THEN END
 99 REM OUT STRING TEST
-100 A$="HI FROM NHYODYNE"+CHR$(10)+CHR$(13)
-110 OUT 158, ASC("Y")
+100 A$=chr$(27)+"[40;31mH"+chr$(27)+"[40;32mI "+chr$(27)+"[40;33mF"+chr$(27)+"[40;34mR"
+101 A$=A$+chr$(27)+"[40;35mOM "+chr$(27)+"[40;36mN"+chr$(27)+"[40;37mH"+chr$(27)+"[40;91mY"
+102 A$=A$+chr$(27)+"[40;92mO"+chr$(27)+"[40;93mD"+chr$(27)+"[40;94mY"+chr$(27)+"[40;95mN"
+103 A$=A$+chr$(27)+"[40;96mE "+chr$(27)+"[40;97m."+CHR$(10)+CHR$(13)
+110 OUT 158, 0
 120 GOSUB 200
 130 RETURN
 149 REM OUT TUNE TEST
@@ -41,7 +44,10 @@
 540 OUT 156,A
 550 OUT 156,16
 560 OUT 156,B
-570 A$="HI FROM NHYODYNE"+CHR$(10)+CHR$(13)
+570 A$=chr$(27)+"[40;31mH"+chr$(27)+"[40;32mI "+chr$(27)+"[40;33mF"+chr$(27)+"[40;34mR"
+571 A$=A$+chr$(27)+"[40;35mOM "+chr$(27)+"[40;36mN"+chr$(27)+"[40;37mH"+chr$(27)+"[40;91mY"
+572 A$=A$+chr$(27)+"[40;92mO"+chr$(27)+"[40;93mD"+chr$(27)+"[40;94mY"+chr$(27)+"[40;95mN"
+573 A$=A$+chr$(27)+"[40;96mE "+chr$(27)+"[40;97m."+CHR$(10)+CHR$(13)
 580 OUT 158,0
 590 GOSUB 200
 600 RETURN

@@ -9,11 +9,25 @@ public:
     void loadFont(uint8_t b);
     void setCursor(uint8_t b);
     void clearDisplay();
-    void initialize(fabgl::VGAController *DisplayController, fabgl::Terminal *Terminal);
+    void initialize(fabgl::Terminal *Terminal);
+    bool copyRect(uint8_t b);
+    void resetPointer();
 
 private:
-    fabgl::VGAController *m_DisplayController;
+    fabgl::VGABaseController *m_Display;
     fabgl::Terminal *m_Terminal;
+    uint8_t * buffer;
+    uint8_t * currentPointer;
+
+    struct copyRectParameter
+    {
+        uint16_t sourceX;
+        uint16_t sourceY;
+        uint16_t destX;
+        uint16_t destY;
+        uint16_t width;
+        uint16_t height;
+    } __attribute__((packed));
 
     const fabgl::FontInfo *FONTS_INFO[31] = {&fabgl::FONT_4x6, &fabgl::FONT_5x7, &fabgl::FONT_5x8, &fabgl::FONT_6x8, &fabgl::FONT_6x9,
                                              &fabgl::FONT_6x10, &fabgl::FONT_6x12, &fabgl::FONT_6x13, &fabgl::FONT_7x13, &fabgl::FONT_7x14, &fabgl::FONT_8x8,
