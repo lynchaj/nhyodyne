@@ -59,7 +59,7 @@ MNULOOP:
         CP      'B'
         JP      Z,GET_SERIAL_IN
         CP      'C'
-        JP      Z,GET_KEY_CHARS_IN_BUFFER
+        JP      Z,GET_SERIAL_CHARS_IN_BUFFER
 
 ; GRAPHICS TESTS
 

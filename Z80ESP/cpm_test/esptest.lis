@@ -60,7 +60,7 @@ esptest.asm:
     59   000042 fe42                    CP      'B'
     60   000044 ca6201                  JP      Z,GET_SERIAL_IN
     61   000047 fe43                    CP      'C'
-    62   000049 caa000                  JP      Z,GET_KEY_CHARS_IN_BUFFER
+    62   000049 ca7301                  JP      Z,GET_SERIAL_CHARS_IN_BUFFER
     63                          
     64                          ; GRAPHICS TESTS
     65                          
