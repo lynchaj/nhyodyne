@@ -33,23 +33,38 @@ MNULOOP:
         LD      C,1
         CALL    BDOS            ; Get Menu Selection
 
-
+; TERMINAL TESTS
         CP      '1'
         JP      Z,VGA_SINGLE_CHAR
-
         CP      '2'
         JP      Z,VGA_100SINGLE_CHAR
-
         CP      '3'
         JP      Z,VGA_OUT_STRING
-
         CP      '4'
         JP      Z,GET_KEY_IN
-
         CP      '5'
         JP      Z,GET_KEY_CHARS_IN_BUFFER
+        CP      '6'
+        JP      Z,SET_CURSOR
 
-        CP      'E'
+; SERIAL TESTS
+        CP      '7'
+        JP      Z,SET_BAUD
+        CP      '8'
+        JP      Z,SET_MODE
+        CP      '9'
+        JP      Z,SERIAL_TX_CHAR
+        CP      'A'
+        JP      Z,SERIAL_TX_STRING
+        CP      'B'
+        JP      Z,GET_SERIAL_IN
+        CP      'C'
+        JP      Z,GET_KEY_CHARS_IN_BUFFER
+
+; GRAPHICS TESTS
+
+; EXIT
+        CP      'Z'
         JP      Z,EXIT
         JP      MNULOOP
 
@@ -108,6 +123,118 @@ GET_KEY_CHARS_IN_BUFFER:
         CALL    INESP0_WAIT
         CALL    prthex
         JP      MNULOOP
+
+
+SET_CURSOR:
+        LD      C,9
+        LD      DE,CURSOR_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,1
+        CALL    BDOS            ; Get Selection
+        AND     1
+        PUSH    AF
+        LD      A,5             ; SEND OPCODE 5 (SET CURSOR)
+        CALL    OUTESP0
+        POP     AF
+        CALL    OUTESP0
+        JP      MNULOOP
+
+
+SET_BAUD:
+        LD      C,9
+        LD      DE,BAUD_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+2),A
+        CALL    HEXBYTE
+        LD      (PARMS+1),A
+        CALL    HEXBYTE
+        LD      (PARMS),A
+
+        LD      A,(PARMS+2)
+        CALL    prthex
+        LD      A,(PARMS+1)
+        CALL    prthex
+        LD      A,(PARMS)
+        CALL    prthex
+
+        LD      A,6             ; SEND OPCODE 6 (SET BAUD)
+        CALL    OUTESP0
+        LD      A,(PARMS)
+        CALL    OUTESP0
+        LD      A,(PARMS+1)
+        CALL    OUTESP0
+        LD      A,(PARMS+2)
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP
+
+SET_MODE:
+        LD      C,9
+        LD      DE,MODE_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,1
+        CALL    BDOS            ; Get Selection
+        AND     7
+        PUSH    AF
+        LD      A,7             ; SEND OPCODE 7 (SET MODE)
+        CALL    OUTESP0
+        POP     AF
+        CALL    OUTESP0
+        JP      MNULOOP
+
+
+SERIAL_TX_CHAR:
+        LD      A,8             ; SEND OPCODE 8 (TX CHAR)
+        CALL    OUTESP0
+        LD      A,'*'
+        CALL    OUTESP0
+        JP      MNULOOP
+
+
+SERIAL_TX_STRING:
+        LD      HL,SERIAL_TEST
+        LD      A,9             ; SEND OPCODE 9 (OUT SERIAL NULL TERM STRING)
+        CALL    OUTESP0
+SERIAL_TX_STRING_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP0
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,SERIAL_TX_STRING_1
+        JP      MNULOOP
+
+
+GET_SERIAL_IN:
+        CALL    CLEARESP0
+        LD      A,10            ; SEND OPCODE 10 (GET SERIAL IN)
+        CALL    OUTESP0
+        CALL    INESP0_WAIT
+        CALL    prtchr
+        JP      MNULOOP
+
+
+GET_SERIAL_CHARS_IN_BUFFER:
+        CALL    CLEARESP0
+        LD      A,11            ; SEND OPCODE 11 (GET SERIAL BUFFER LENGTH)
+        CALL    OUTESP0
+        CALL    INESP0_WAIT
+        CALL    prthex
+        JP      MNULOOP
+
+
+;
+;
+;
+;
+;
+
 
 
 ;
@@ -170,6 +297,7 @@ INESP0_1:
         POP     AF
         RET
 
+
 ;
 ;
 ;
@@ -226,6 +354,41 @@ hexconv:
         DAA
         RET
 ;
+
+;
+;__HEXBYTE____________________________________________________________________
+;
+;	GET ONE BYTE OF HEX DATA FROM BUFFER IN HL, RETURN IN A
+;_____________________________________________________________________________
+;
+HEXBYTE:
+        CALL    NIBL            ; CONVERT HEX CHAR TO BINARY VALUE IN A & INC HL
+        SLA     A
+        SLA     A
+        SLA     A
+        SLA     A
+        LD      C,A
+        CALL    NIBL            ; CONVERT HEX CHAR TO BINARY VALUE IN A & INC HL
+        OR      C               ; COMBINE WITH WORKING VALUE
+        RET                     ; AND DONE
+;
+;
+;__NIBL_______________________________________________________________________
+;
+;	GET ONE BYTE OF HEX DATA FROM BUFFER IN HL, RETURN IN A
+;_____________________________________________________________________________
+;
+NIBL:
+        LD      A,(HL)          ; GET K B. DATA
+        INC     HL              ; INC KB POINTER
+        CP      40H             ; TEST FOR ALPHA
+        JR      NC,ALPH
+        AND     0FH             ; GET THE BITS
+        RET
+ALPH:
+        AND     0FH             ; GET THE BITS
+        ADD     A,09H           ; MAKE IT HEX A-F
+        RET
 ;
 ;
 ;
@@ -246,7 +409,21 @@ MENU:
         DM      "6> Set Cursor visibility"
         DB      0AH,0DH
         DB      0AH,0DH
-        DM      "E> Exit Program"
+        DM      "7> Set serial baud rate"
+        DB      0AH,0DH
+        DM      "8> Set serial mode"
+        DB      0AH,0DH
+        DM      "9> Serial TX single char"
+        DB      0AH,0DH
+        DM      "A> Serial TX string"
+        DB      0AH,0DH
+        DM      "B> Serial RX"
+        DB      0AH,0DH
+        DM      "C> Serial Buffer Length"
+
+        DB      0AH,0DH
+        DB      0AH,0DH
+        DM      "Z> Exit Program"
         DB      0AH,0DH
 
         DM      "$"
@@ -260,5 +437,33 @@ VGA_TEST:
         DB      0AH,0DH,00H
 
 
+CURSOR_PROMPT:
+        DB      0AH,0DH
+        DM      "0>DISABLE CURSOR"
+        DB      0AH,0DH
+        DM      "1>ENABLE CURSOR"
+        DB      0AH,0DH
+        DM      "$"
+
+BAUD_PROMPT:
+        DB      0AH,0DH
+        DM      "ENTER BAUD RATE (6 DIGITS HEX):"
+        DM      "$"
+
+SERIAL_TEST:
+        DB      0AH,0DH
+        DM      "SUCCESSFUL SERIAL STRING WRITE."
+        DB      0AH,0DH,00H
+
+MODE_PROMPT:
+        DB      0AH,0DH
+        DM      "ENTER SERIAL MODE: (8n1=0,8e1=1,8o1=2,7n1=3,7e1=4,7o1=5):"
+        DM      "$"
+
+
+PARMS:
+        DB      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+BUFFER:
+        DB      20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
         .END
