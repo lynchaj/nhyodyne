@@ -61,6 +61,14 @@ MNULOOP:
         CP      'C'
         JP      Z,GET_SERIAL_CHARS_IN_BUFFER
 
+; SOUND TESTS
+        CP      'D'
+        JP      Z,PLAY_STRING
+        CP      'E'
+        JP      Z,PLAY_SOUND
+        CP      'F'
+        JP      Z,SET_VOLUME
+
 ; GRAPHICS TESTS
 
 ; EXIT
@@ -229,7 +237,41 @@ GET_SERIAL_CHARS_IN_BUFFER:
         JP      MNULOOP
 
 
+PLAY_STRING:
+        LD      HL,PLAY_TEST
+        LD      A,12             ; SEND OPCODE 12 (PLAY SOUND STRING)
+        CALL    OUTESP0
+PLAY_STRING_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP0
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,PLAY_STRING_1
+        JP      MNULOOP
+
+PLAY_SOUND:
+        LD      HL,SOUND_TEST
+        LD      A,13             ; SEND OPCODE 13 (PLAY SOUND)
+        CALL    OUTESP0
+        LD      C,24
+PLAY_SOUND_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP0
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        DEC     C
+        JP      nz,PLAY_SOUND_1
+        JP      MNULOOP
+
+SET_VOLUME:
+        LD      A,14             ; SEND OPCODE 14 (SET VOLUME)
+        CALL    OUTESP0
+        LD      A,7
+        CALL    OUTESP0
+        JP      MNULOOP
 ;
+
 ;
 ;
 ;
@@ -420,8 +462,16 @@ MENU:
         DM      "B> Serial RX"
         DB      0AH,0DH
         DM      "C> Serial Buffer Length"
-
         DB      0AH,0DH
+        DB      0AH,0DH
+        DM      "D> Play String"
+        DB      0AH,0DH
+        DM      "E> Play Sound"
+        DB      0AH,0DH
+        DM      "F> Set Volume"
+        DB      0AH,0DH
+
+
         DB      0AH,0DH
         DM      "Z> Exit Program"
         DB      0AH,0DH
@@ -460,7 +510,11 @@ MODE_PROMPT:
         DM      "ENTER SERIAL MODE: (8n1=0,8e1=1,8o1=2,7n1=3,7e1=4,7o1=5):"
         DM      "$"
 
-
+PLAY_TEST:
+        DM      "A4 4 2 A4 4 2 A#4 4 2 C5 4 2 C5 4 2 A#4 4 2 A4 4 2 G4 4 2 F4 4 2 F4 4 2 G4 4 2 A4 4 2 A4 2 2 G4 16 2 G4 2 2 P 8 2 "
+        DB      00
+SOUND_TEST:
+        DB      5,0,0,0, 128,0,0,0 ,120,0, 0,1,0,0 ,4, 127, 0 ,0, 2 ,1, 0  ,1, 0 ,0
 PARMS:
         DB      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 BUFFER:
