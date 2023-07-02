@@ -93,6 +93,7 @@ VGA_OUT_STRING_1:
 
 
 GET_KEY_IN:
+        CALL    CLEARESP0
         LD      A,3             ; SEND OPCODE 3 (GET KEY IN)
         CALL    OUTESP0
         CALL    INESP0_WAIT
@@ -101,6 +102,7 @@ GET_KEY_IN:
 
 
 GET_KEY_CHARS_IN_BUFFER:
+        CALL    CLEARESP0
         LD      A,4             ; SEND OPCODE 4 (GET KEY BUFFER LENGTH)
         CALL    OUTESP0
         CALL    INESP0_WAIT
@@ -143,6 +145,28 @@ INESP0_WAIT_2:
         IN      A,(ESP_STATUS)  ; GET STATUS
         AND     2               ; Is ESP0 BUSY?
         JP      Z,INESP0_WAIT_2 ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        POP     AF
+        RET
+
+; CLEAR ESP0 INPUT BYTE QUEUE
+CLEARESP0:
+        CALL    INESP0
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     1               ; Is there MORE data?
+        JP      NZ,CLEARESP0    ; IF YES, LOOP
+        RET
+
+; GET BYTE FROM ESP0 (NON BLOCKING)
+INESP0:
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     2               ; Is ESP0 BUSY?
+        JP      NZ,INESP0       ; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
+        IN      A,(ESP0)        ; GET BYTE
+        PUSH    AF
+INESP0_1:
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     2               ; Is ESP0 BUSY?
+        JP      Z,INESP0_1      ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
         POP     AF
         RET
 
@@ -217,7 +241,7 @@ MENU:
         DB      0AH,0DH
         DM      "4> Get Keystroke"
         DB      0AH,0DH
-        DM      "5> Set Cursor visibility"
+        DM      "5> Get Key Buffer Length"
         DB      0AH,0DH
         DM      "6> Set Cursor visibility"
         DB      0AH,0DH
