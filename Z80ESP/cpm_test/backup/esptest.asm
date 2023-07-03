@@ -70,6 +70,13 @@ MNULOOP:
         JP      Z,SET_VOLUME
 
 ; GRAPHICS TESTS
+        CP      'G'
+        JP      Z,SET_RESOLUTION
+        CP      'H'
+        JP      Z,LOAD_FONT
+        CP      'I'
+        JP      Z,CLEAR_SCREEN
+
 
 ; EXIT
         CP      'Z'
@@ -163,13 +170,6 @@ SET_BAUD:
         CALL    HEXBYTE
         LD      (PARMS),A
 
-        LD      A,(PARMS+2)
-        CALL    prthex
-        LD      A,(PARMS+1)
-        CALL    prthex
-        LD      A,(PARMS)
-        CALL    prthex
-
         LD      A,6             ; SEND OPCODE 6 (SET BAUD)
         CALL    OUTESP0
         LD      A,(PARMS)
@@ -239,7 +239,7 @@ GET_SERIAL_CHARS_IN_BUFFER:
 
 PLAY_STRING:
         LD      HL,PLAY_TEST
-        LD      A,12             ; SEND OPCODE 12 (PLAY SOUND STRING)
+        LD      A,12            ; SEND OPCODE 12 (PLAY SOUND STRING)
         CALL    OUTESP0
 PLAY_STRING_1:
         LD      A,(HL)          ; SEND CHAR TO OUTPUT
@@ -252,7 +252,7 @@ PLAY_STRING_1:
 
 PLAY_SOUND:
         LD      HL,SOUND_TEST
-        LD      A,13             ; SEND OPCODE 13 (PLAY SOUND)
+        LD      A,13            ; SEND OPCODE 13 (PLAY SOUND)
         CALL    OUTESP0
         LD      C,24
 PLAY_SOUND_1:
@@ -265,11 +265,51 @@ PLAY_SOUND_1:
         JP      MNULOOP
 
 SET_VOLUME:
-        LD      A,14             ; SEND OPCODE 14 (SET VOLUME)
+        LD      A,14            ; SEND OPCODE 14 (SET VOLUME)
         CALL    OUTESP0
         LD      A,7
         CALL    OUTESP0
         JP      MNULOOP
+
+
+SET_RESOLUTION:
+        LD      C,9
+        LD      DE,RESOLUTION_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS),A
+        CALL    prthex
+        LD      A,15            ; SEND OPCODE 15 (SET RESOLUTION)
+        CALL    OUTESP0
+        LD      A,(PARMS)
+        CALL    OUTESP0
+        JP      MNULOOP
+LOAD_FONT:
+        LD      C,9
+        LD      DE,FONT_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS),A
+
+        LD      A,16            ; SEND OPCODE 16 (SET FONT)
+        CALL    OUTESP0
+        LD      A,(PARMS)
+        CALL    OUTESP0
+        JP      MNULOOP
+
+CLEAR_SCREEN:
+        LD      A,17            ; SEND OPCODE 17 (CLEAR SCREEN)
+        CALL    OUTESP0
+        JP      MNULOOP
+
 ;
 
 ;
@@ -470,7 +510,13 @@ MENU:
         DB      0AH,0DH
         DM      "F> Set Volume"
         DB      0AH,0DH
-
+        DB      0AH,0DH
+        DM      "G> Set Resolution"
+        DB      0AH,0DH
+        DM      "H> Load Font"
+        DB      0AH,0DH
+        DM      "I> Clear"
+        DB      0AH,0DH
 
         DB      0AH,0DH
         DM      "Z> Exit Program"
@@ -508,6 +554,15 @@ SERIAL_TEST:
 MODE_PROMPT:
         DB      0AH,0DH
         DM      "ENTER SERIAL MODE: (8n1=0,8e1=1,8o1=2,7n1=3,7e1=4,7o1=5):"
+        DM      "$"
+
+RESOLUTION_PROMPT:
+        DB      0AH,0DH
+        DM      "ENTER SCREEN RESOLUTION (2 DIGITS HEX):"
+        DM      "$"
+FONT_PROMPT:
+        DB      0AH,0DH
+        DM      "ENTER FONT (2 DIGITS HEX):"
         DM      "$"
 
 PLAY_TEST:
