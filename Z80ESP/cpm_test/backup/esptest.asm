@@ -80,6 +80,30 @@ MNULOOP:
         JP      Z,COPY_RECT
         CP      'K'
         JP      Z,DRAW_BITMAP
+        CP      'L'
+        JP      Z,DRAW_CHAR
+        CP      'M'
+        JP      Z,DRAW_ELLIPSE
+        CP      'N'
+        JP      Z,DRAW_GLYPH
+        CP      'O'
+        JP      Z,DRAW_LINE
+        CP      'P'
+        JP      Z,DRAW_RECTANGLE
+        CP      'Q'
+        JP      Z,DRAW_FILLED_ELLIPSE
+        CP      'R'
+        JP      Z,DRAW_FILLED_RECTANGLE
+        CP      'S'
+        JP      Z,GET_PIXEL
+        CP      'T'
+        JP      Z,INVERT_RECTANGLE
+        CP      'U'
+        JP      Z,LINETO
+        CP      'V'
+        JP      Z,MOVETO
+        CP      'W'
+        JP      Z,SCROLL
 
 
 ; EXIT
@@ -387,6 +411,259 @@ DRAW_BITMAP_1:
         JP      nz,DRAW_BITMAP_1
         POP     HL
         JP      MNULOOP
+
+
+DRAW_CHAR:
+        LD      A,20            ; SEND OPCODE 20 (DRAW CHAR)
+        CALL    OUTESP0
+        LD      A,120           ; SEND X CORD 120
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,120           ; SEND Y CORD 120
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,'$'           ; SEND CHAR
+        CALL    OUTESP0
+        LD      A,26            ; SEND FONTID
+        CALL    OUTESP0
+        JP      MNULOOP
+
+
+DRAW_ELLIPSE:
+        LD      A,21            ; SEND OPCODE 21 (DRAW ELLIPSE)
+        CALL    OUTESP0
+        LD      A,150           ; SEND X CORD 150
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,150           ; SEND Y CORD 150
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND WIDTH 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND HEIGHT 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP
+
+
+
+
+DRAW_GLYPH:
+        LD      A,22            ; SEND OPCODE 22 (DRAW GLYPH)
+        CALL    OUTESP0
+        LD      A,180           ; SEND X CORD 180
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,180           ; SEND Y CORD 180
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,16            ; SEND WIDTH 16
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,7             ; SEND HEIGHT 7
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,0             ; SEND INDEX
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,14            ; SEND LENGTH 14
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+
+        LD      HL,GLYPH_TEST
+        LD      C,14
+DRAW_GLYPH_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP0
+        INC     HL
+        DEC     C
+        JP      nz,DRAW_GLYPH_1
+        JP      MNULOOP
+
+
+
+DRAW_LINE:
+        LD      A,23            ; SEND OPCODE 23 (DRAW LINE)
+        CALL    OUTESP0
+        LD      A,50            ; SEND X CORD 50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,50            ; SEND Y CORD 50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND TO X 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND TO Y 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP
+
+DRAW_RECTANGLE:
+        LD      A,24            ; SEND OPCODE 24 (DRAW RECTANGLE)
+        CALL    OUTESP0
+        LD      A,50            ; SEND X CORD 50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,50            ; SEND Y CORD 50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND TO X 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND TO Y 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP
+
+DRAW_FILLED_ELLIPSE:
+        LD      A,25            ; SEND OPCODE 25 (DRAW FILLED ELLIPSE)
+        CALL    OUTESP0
+        LD      A,150           ; SEND X CORD 150
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,150           ; SEND Y CORD 150
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND WIDTH 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND HEIGHT 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP
+
+DRAW_FILLED_RECTANGLE:
+        LD      A,26            ; SEND OPCODE 26 (DRAW FILLED RECTANGLE)
+        CALL    OUTESP0
+        LD      A,50            ; SEND X CORD 50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,50            ; SEND Y CORD 50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND TO X 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND TO Y 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP
+
+
+
+GET_PIXEL:
+        CALL    CLEARESP0
+        LD      A,27            ; SEND OPCODE 27 (GET PIXEL)
+        CALL    OUTESP0
+        LD      A,50            ; SEND X CORD 50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,50            ; SEND Y CORD 50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        CALL    INESP0_WAIT
+        CALL    prthex
+        CALL    INESP0_WAIT
+        CALL    prthex
+        CALL    INESP0_WAIT
+        CALL    prthex
+        JP      MNULOOP
+
+
+INVERT_RECTANGLE:
+        LD      A,28            ; SEND OPCODE 28 (INVERT RECTANGLE)
+        CALL    OUTESP0
+        LD      A,50            ; SEND X CORD 50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,50            ; SEND Y CORD 50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND TO X 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,125           ; SEND TO Y 125
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP
+
+
+LINETO:
+        LD      A,29            ; SEND OPCODE 29 (LINETO)
+        CALL    OUTESP0
+        LD      A,250           ; SEND X CORD 250
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,250           ; SEND Y CORD 250
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP
+
+MOVETO:
+        LD      A,30            ; SEND OPCODE 30 (MOVETO)
+        CALL    OUTESP0
+        LD      A,20            ; SEND X CORD 20
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,20            ; SEND Y CORD 20
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP
+
+SCROLL:
+        LD      A,31            ; SEND OPCODE 31 (SCROLL)
+        CALL    OUTESP0
+        LD      A,1             ; SEND X OFFSET 1
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,1             ; SEND Y OFFSET 1
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP
+
+
 ;
 ;
 ;
@@ -712,6 +989,11 @@ BITMAP_TEST:                    ;   RGBA, 8 bits per channel. Four bytes contain
         DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 3A0
         DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 3B0
 BITMAP_TEST_END:
+
+GLYPH_TEST:
+        DB      0x07, 0xe0, 0x1f, 0xf8, 0x3f, 0xfc, 0x6d, 0xb6, 0xff, 0xff, 0x39, 0x9c, 0x10, 0x08
+
+
 
 
 PARMS:
