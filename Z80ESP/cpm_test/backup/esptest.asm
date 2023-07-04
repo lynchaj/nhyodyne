@@ -23,7 +23,7 @@ ESP_STATUS:     EQU 9EH         ; ESP  STATUS PORT
 
         LD      sp,8000H        ; setup our private stack
 ;
-
+MENU_PAGE_1:
         LD      C,9
         LD      DE,MENU
         CALL    BDOS            ; PRINT OPENING MENU
@@ -104,6 +104,10 @@ MNULOOP:
         JP      Z,MOVETO
         CP      'W'
         JP      Z,SCROLL
+        CP      'X'
+        JP      Z,BRUSH_COLOR
+        CP      'Y'
+        JP      Z,MENU_PAGE_2
 
 
 ; EXIT
@@ -117,6 +121,28 @@ EXIT:
         CALL    BDOS            ; return to CP/M via reset
 
 
+MENU_PAGE_2:
+
+        LD      C,9
+        LD      DE,MENU2
+        CALL    BDOS            ; PRINT OPENING MENU
+
+MNULOOP2:
+        LD      C,1
+        CALL    BDOS            ; Get Menu Selection
+
+        CP      '1'
+        JP      Z,LINE_ENDS
+        CP      '2'
+        JP      Z,PEN_COLOR
+        CP      '3'
+        JP      Z,PEN_WIDTH
+        CP      '4'
+        JP      Z,SET_PIXEL
+
+        CP      'Z'
+        JP      Z,MENU_PAGE_1
+        JP      MNULOOP2
 
 VGA_SINGLE_CHAR:
         LD      A,1             ; SEND OPCODE 1 (OUT VGA CHAR)
@@ -664,6 +690,88 @@ SCROLL:
         JP      MNULOOP
 
 
+
+BRUSH_COLOR:
+        LD      C,9
+        LD      DE,BRUSH_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS),A
+
+        LD      A,32            ; SEND OPCODE 32 (SET BRUSH COLOR)
+        CALL    OUTESP0
+        LD      A,(PARMS)
+        CALL    OUTESP0
+        JP      MNULOOP
+
+LINE_ENDS:
+        LD      C,9
+        LD      DE,LINE_ENDS_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS),A
+
+        LD      A,33            ; SEND OPCODE 33 (SET LINE ENDS)
+        CALL    OUTESP0
+        LD      A,(PARMS)
+        CALL    OUTESP0
+        JP      MNULOOP2
+
+PEN_COLOR:
+        LD      C,9
+        LD      DE,PEN_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS),A
+
+        LD      A,34            ; SEND OPCODE 34 (SET PEN COLOR)
+        CALL    OUTESP0
+        LD      A,(PARMS)
+        CALL    OUTESP0
+        JP      MNULOOP2
+
+PEN_WIDTH:
+        LD      C,9
+        LD      DE,PEN_WIDTH_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS),A
+
+        LD      A,35            ; SEND OPCODE 35 (SET PEN WIDTH)
+        CALL    OUTESP0
+        LD      A,(PARMS)
+        CALL    OUTESP0
+        JP      MNULOOP2
+
+
+SET_PIXEL:
+        LD      A,36            ; SEND OPCODE 36 (SET PIXEL)
+        CALL    OUTESP0
+        LD      A,100           ; SEND X  100
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,50            ; SEND Y  50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP2
 ;
 ;
 ;
@@ -879,6 +987,60 @@ MENU:
 
         DM      "$"
 
+
+MENU2:
+        DB      0AH,0DH
+        DM      "                       Nhodyne ESP32 IO board test PAGE 2"
+        DB      0AH,0DH,0AH,0DH,0AH,0DH
+;                12345678901234567890123456789012345678901234567890123456789012345678901234567890
+        DM      "1>  SET LINE END TYPE                         L.                               "
+        DB      0AH,0DH
+        DM      "2>  SET PEN COLOR                             M.                               "
+        DB      0AH,0DH
+        DM      "3>  SET PEN WIDTH                             N.                               "
+        DB      0AH,0DH
+        DM      "4>  SET PIXEL                                 O.                               "
+        DB      0AH,0DH
+        DM      "5>                                            P.                               "
+        DB      0AH,0DH
+        DM      "6>                                            Q.                               "
+        DB      0AH,0DH
+        DM      "7>                                            R.                               "
+        DB      0AH,0DH
+        DM      "8>                                            S.                               "
+        DB      0AH,0DH
+        DM      "9>                                            T.                               "
+        DB      0AH,0DH
+        DM      "A>                                            U.                               "
+        DB      0AH,0DH
+        DM      "B>                                            V.                               "
+        DB      0AH,0DH
+        DM      "C>                                            W.                               "
+        DB      0AH,0DH
+        DM      "D>                                            X.                               "
+        DB      0AH,0DH
+        DM      "E>                                            Y.                               "
+        DB      0AH,0DH
+        DM      "F>                                                                           "
+        DB      0AH,0DH
+        DM      "G>                                                                           "
+        DB      0AH,0DH
+        DM      "H>                                                                           "
+        DB      0AH,0DH
+        DB      0AH,0DH
+        DM      "I>                                                                           "
+        DB      0AH,0DH
+        DM      "J>                                                                           "
+        DB      0AH,0DH
+        DM      "K>                                                                           "
+        DB      0AH,0DH
+        DB      0AH,0DH
+        DM      "Z> MENU PAGE ONE"
+        DB      0AH,0DH
+
+        DM      "$"
+
+
 VGA_TEST:
         DB      0AH,0DH
         DM      27,"[40;31mH",27,"[40;32mI ",27,"[40;33mF",27,"[40;34mR"
@@ -919,6 +1081,27 @@ FONT_PROMPT:
         DB      0AH,0DH
         DM      "ENTER FONT (2 DIGITS HEX):"
         DM      "$"
+
+BRUSH_PROMPT:
+        DB      0AH,0DH
+        DM      "ENTER BRUSH COLOR (2 DIGITS HEX):"
+        DM      "$"
+
+LINE_ENDS_PROMPT:
+        DB      0AH,0DH
+        DM      "ENTER LINE END TYPE (2 DIGITS HEX):"
+        DM      "$"
+
+PEN_PROMPT:
+        DB      0AH,0DH
+        DM      "ENTER PEN COLOR (2 DIGITS HEX):"
+        DM      "$"
+
+PEN_WIDTH_PROMPT:
+        DB      0AH,0DH
+        DM      "ENTER PEN WIDTH (2 DIGITS HEX):"
+        DM      "$"
+
 
 PLAY_TEST:
         DM      "A4 4 2 A4 4 2 A#4 4 2 C5 4 2 C5 4 2 A#4 4 2 A4 4 2 G4 4 2 F4 4 2 F4 4 2 G4 4 2 A4 4 2 A4 2 2 G4 16 2 G4 2 2 P 8 2 "
