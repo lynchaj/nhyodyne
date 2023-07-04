@@ -26,7 +26,7 @@ esptest.asm:
     25                          ;
     26                          
     27   000003 0e09                    LD      C,9
-    28   000005 11c402                  LD      DE,MENU
+    28   000005 116b03                  LD      DE,MENU
     29   000008 cd0500                  CALL    BDOS            ; PRINT OPENING MENU
     30                          
     31                          
@@ -36,582 +36,780 @@ esptest.asm:
     35                          
     36                          ; TERMINAL TESTS
     37   000010 fe31                    CP      '1'
-    38   000012 ca7700                  JP      Z,VGA_SINGLE_CHAR
+    38   000012 ca8100                  JP      Z,VGA_SINGLE_CHAR
     39   000015 fe32                    CP      '2'
-    40   000017 ca8400                  JP      Z,VGA_100SINGLE_CHAR
+    40   000017 ca8e00                  JP      Z,VGA_100SINGLE_CHAR
     41   00001a fe33                    CP      '3'
-    42   00001c ca9700                  JP      Z,VGA_OUT_STRING
+    42   00001c caa100                  JP      Z,VGA_OUT_STRING
     43   00001f fe34                    CP      '4'
-    44   000021 caad00                  JP      Z,GET_KEY_IN
+    44   000021 cab700                  JP      Z,GET_KEY_IN
     45   000024 fe35                    CP      '5'
-    46   000026 cabe00                  JP      Z,GET_KEY_CHARS_IN_BUFFER
+    46   000026 cac800                  JP      Z,GET_KEY_CHARS_IN_BUFFER
     47   000029 fe36                    CP      '6'
-    48   00002b cacf00                  JP      Z,SET_CURSOR
+    48   00002b cad900                  JP      Z,SET_CURSOR
     49                          
     50                          ; SERIAL TESTS
     51   00002e fe37                    CP      '7'
-    52   000030 caeb00                  JP      Z,SET_BAUD
+    52   000030 caf500                  JP      Z,SET_BAUD
     53   000033 fe38                    CP      '8'
-    54   000035 ca2f01                  JP      Z,SET_MODE
+    54   000035 ca3901                  JP      Z,SET_MODE
     55   000038 fe39                    CP      '9'
-    56   00003a ca4b01                  JP      Z,SERIAL_TX_CHAR
+    56   00003a ca5501                  JP      Z,SERIAL_TX_CHAR
     57   00003d fe41                    CP      'A'
-    58   00003f ca5801                  JP      Z,SERIAL_TX_STRING
+    58   00003f ca6201                  JP      Z,SERIAL_TX_STRING
     59   000042 fe42                    CP      'B'
-    60   000044 ca6e01                  JP      Z,GET_SERIAL_IN
+    60   000044 ca7801                  JP      Z,GET_SERIAL_IN
     61   000047 fe43                    CP      'C'
-    62   000049 ca7f01                  JP      Z,GET_SERIAL_CHARS_IN_BUFFER
+    62   000049 ca8901                  JP      Z,GET_SERIAL_CHARS_IN_BUFFER
     63                          
     64                          ; SOUND TESTS
     65   00004c fe44                    CP      'D'
-    66   00004e ca9001                  JP      Z,PLAY_STRING
+    66   00004e ca9a01                  JP      Z,PLAY_STRING
     67   000051 fe45                    CP      'E'
-    68   000053 caa601                  JP      Z,PLAY_SOUND
+    68   000053 cab001                  JP      Z,PLAY_SOUND
     69   000056 fe46                    CP      'F'
-    70   000058 cabd01                  JP      Z,SET_VOLUME
+    70   000058 cac701                  JP      Z,SET_VOLUME
     71                          
     72                          ; GRAPHICS TESTS
     73   00005b fe47                    CP      'G'
-    74   00005d caca01                  JP      Z,SET_RESOLUTION
+    74   00005d cad401                  JP      Z,SET_RESOLUTION
     75   000060 fe48                    CP      'H'
-    76   000062 caf401                  JP      Z,LOAD_FONT
+    76   000062 cafe01                  JP      Z,LOAD_FONT
     77   000065 fe49                    CP      'I'
-    78   000067 ca1b02                  JP      Z,CLEAR_SCREEN
-    79                          
-    80                          
-    81                          ; EXIT
-    82   00006a fe5a                    CP      'Z'
-    83   00006c ca7200                  JP      Z,EXIT
-    84   00006f c30b00                  JP      MNULOOP
-    85                          
-    86                          EXIT:
-    87                          ;
-    88   000072 0e00                    LD      C,0
-    89   000074 cd0500                  CALL    BDOS            ; return to CP/M via reset
-    90                          
-    91                          
-    92                          
-    93                          VGA_SINGLE_CHAR:
-    94   000077 3e01                    LD      A,1             ; SEND OPCODE 1 (OUT VGA CHAR)
-    95   000079 cd2302                  CALL    OUTESP0
-    96   00007c 3e2a                    LD      A,'*'           ; SEND CHAR TO OUTPUT
-    97   00007e cd2302                  CALL    OUTESP0
-    98   000081 c30b00                  JP      MNULOOP
-    99                          
-   100                          VGA_100SINGLE_CHAR:
-   101   000084 0e64                    LD      c,100
-   102                          VGA_100SINGLE_CHAR_1:
-   103   000086 3e01                    LD      A,1             ; SEND OPCODE 1 (OUT VGA CHAR)
-   104   000088 cd2302                  CALL    OUTESP0
-   105   00008b 3e2a                    LD      A,'*'           ; SEND CHAR TO OUTPUT
-   106   00008d cd2302                  CALL    OUTESP0
-   107   000090 0d                      DEC     c
-   108   000091 c28600                  JP      nz,VGA_100SINGLE_CHAR_1
-   109   000094 c30b00                  JP      MNULOOP
-   110                          
-   111                          VGA_OUT_STRING:
-   112   000097 217d04                  LD      HL,VGA_TEST
-   113   00009a 3e02                    LD      A,2             ; SEND OPCODE 2 (OUT VGA NULL TERM STRING)
-   114   00009c cd2302                  CALL    OUTESP0
-   115                          VGA_OUT_STRING_1:
-   116   00009f 7e                      LD      A,(HL)          ; SEND CHAR TO OUTPUT
-   117   0000a0 cd2302                  CALL    OUTESP0
-   118   0000a3 7e                      LD      A,(HL)          ; GET CHAR
-   119   0000a4 23                      INC     HL
-   120   0000a5 fe00                    CP      0
-   121   0000a7 c29f00                  JP      nz,VGA_OUT_STRING_1
-   122   0000aa c30b00                  JP      MNULOOP
-   123                          
-   124                          
-   125                          GET_KEY_IN:
-   126   0000ad cd5002                  CALL    CLEARESP0
-   127   0000b0 3e03                    LD      A,3             ; SEND OPCODE 3 (GET KEY IN)
-   128   0000b2 cd2302                  CALL    OUTESP0
-   129   0000b5 cd3602                  CALL    INESP0_WAIT
-   130   0000b8 cd7e02                  CALL    prtchr
-   131   0000bb c30b00                  JP      MNULOOP
-   132                          
-   133                          
-   134                          GET_KEY_CHARS_IN_BUFFER:
-   135   0000be cd5002                  CALL    CLEARESP0
-   136   0000c1 3e04                    LD      A,4             ; SEND OPCODE 4 (GET KEY BUFFER LENGTH)
-   137   0000c3 cd2302                  CALL    OUTESP0
-   138   0000c6 cd3602                  CALL    INESP0_WAIT
-   139   0000c9 cd6e02                  CALL    prthex
-   140   0000cc c30b00                  JP      MNULOOP
-   141                          
-   142                          
-   143                          SET_CURSOR:
-   144   0000cf 0e09                    LD      C,9
-   145   0000d1 110405                  LD      DE,CURSOR_PROMPT
-   146   0000d4 cd0500                  CALL    BDOS            ; PRINT PROMPT
-   147   0000d7 0e01                    LD      C,1
-   148   0000d9 cd0500                  CALL    BDOS            ; Get Selection
-   149   0000dc e601                    AND     1
-   150   0000de f5                      PUSH    AF
-   151   0000df 3e05                    LD      A,5             ; SEND OPCODE 5 (SET CURSOR)
-   152   0000e1 cd2302                  CALL    OUTESP0
-   153   0000e4 f1                      POP     AF
-   154   0000e5 cd2302                  CALL    OUTESP0
-   155   0000e8 c30b00                  JP      MNULOOP
-   156                          
-   157                          
-   158                          SET_BAUD:
-   159   0000eb 0e09                    LD      C,9
-   160   0000ed 112a05                  LD      DE,BAUD_PROMPT
-   161   0000f0 cd0500                  CALL    BDOS            ; PRINT PROMPT
-   162   0000f3 0e0a                    LD      C,0AH
-   163   0000f5 119206                  LD      DE,BUFFER
-   164   0000f8 cd0500                  CALL    BDOS            ; GET INPUT
-   165   0000fb 219406                  LD      HL,BUFFER+2
-   166   0000fe cda502                  CALL    HEXBYTE
-   167   000101 328006                  LD      (PARMS+2),A
-   168   000104 cda502                  CALL    HEXBYTE
-   169   000107 327f06                  LD      (PARMS+1),A
-   170   00010a cda502                  CALL    HEXBYTE
-   171   00010d 327e06                  LD      (PARMS),A
-   172                          
-   173   000110 3e06                    LD      A,6             ; SEND OPCODE 6 (SET BAUD)
-   174   000112 cd2302                  CALL    OUTESP0
-   175   000115 3a7e06                  LD      A,(PARMS)
-   176   000118 cd2302                  CALL    OUTESP0
-   177   00011b 3a7f06                  LD      A,(PARMS+1)
-   178   00011e cd2302                  CALL    OUTESP0
-   179   000121 3a8006                  LD      A,(PARMS+2)
-   180   000124 cd2302                  CALL    OUTESP0
-   181   000127 3e00                    LD      A,0
-   182   000129 cd2302                  CALL    OUTESP0
-   183   00012c c30b00                  JP      MNULOOP
-   184                          
-   185                          SET_MODE:
-   186   00012f 0e09                    LD      C,9
-   187   000131 117005                  LD      DE,MODE_PROMPT
-   188   000134 cd0500                  CALL    BDOS            ; PRINT PROMPT
-   189   000137 0e01                    LD      C,1
-   190   000139 cd0500                  CALL    BDOS            ; Get Selection
-   191   00013c e607                    AND     7
-   192   00013e f5                      PUSH    AF
-   193   00013f 3e07                    LD      A,7             ; SEND OPCODE 7 (SET MODE)
-   194   000141 cd2302                  CALL    OUTESP0
-   195   000144 f1                      POP     AF
-   196   000145 cd2302                  CALL    OUTESP0
-   197   000148 c30b00                  JP      MNULOOP
-   198                          
-   199                          
-   200                          SERIAL_TX_CHAR:
-   201   00014b 3e08                    LD      A,8             ; SEND OPCODE 8 (TX CHAR)
-   202   00014d cd2302                  CALL    OUTESP0
-   203   000150 3e2a                    LD      A,'*'
-   204   000152 cd2302                  CALL    OUTESP0
-   205   000155 c30b00                  JP      MNULOOP
-   206                          
-   207                          
-   208                          SERIAL_TX_STRING:
-   209   000158 214c05                  LD      HL,SERIAL_TEST
-   210   00015b 3e09                    LD      A,9             ; SEND OPCODE 9 (OUT SERIAL NULL TERM STRING)
-   211   00015d cd2302                  CALL    OUTESP0
-   212                          SERIAL_TX_STRING_1:
-   213   000160 7e                      LD      A,(HL)          ; SEND CHAR TO OUTPUT
-   214   000161 cd2302                  CALL    OUTESP0
-   215   000164 7e                      LD      A,(HL)          ; GET CHAR
-   216   000165 23                      INC     HL
-   217   000166 fe00                    CP      0
-   218   000168 c26001                  JP      nz,SERIAL_TX_STRING_1
-   219   00016b c30b00                  JP      MNULOOP
-   220                          
-   221                          
-   222                          GET_SERIAL_IN:
-   223   00016e cd5002                  CALL    CLEARESP0
-   224   000171 3e0a                    LD      A,10            ; SEND OPCODE 10 (GET SERIAL IN)
-   225   000173 cd2302                  CALL    OUTESP0
-   226   000176 cd3602                  CALL    INESP0_WAIT
-   227   000179 cd7e02                  CALL    prtchr
-   228   00017c c30b00                  JP      MNULOOP
-   229                          
-   230                          
-   231                          GET_SERIAL_CHARS_IN_BUFFER:
-   232   00017f cd5002                  CALL    CLEARESP0
-   233   000182 3e0b                    LD      A,11            ; SEND OPCODE 11 (GET SERIAL BUFFER LENGTH)
-   234   000184 cd2302                  CALL    OUTESP0
-   235   000187 cd3602                  CALL    INESP0_WAIT
-   236   00018a cd6e02                  CALL    prthex
-   237   00018d c30b00                  JP      MNULOOP
-   238                          
-   239                          
-   240                          PLAY_STRING:
-   241   000190 21f305                  LD      HL,PLAY_TEST
-   242   000193 3e0c                    LD      A,12            ; SEND OPCODE 12 (PLAY SOUND STRING)
-   243   000195 cd2302                  CALL    OUTESP0
-   244                          PLAY_STRING_1:
-   245   000198 7e                      LD      A,(HL)          ; SEND CHAR TO OUTPUT
-   246   000199 cd2302                  CALL    OUTESP0
-   247   00019c 7e                      LD      A,(HL)          ; GET CHAR
-   248   00019d 23                      INC     HL
-   249   00019e fe00                    CP      0
-   250   0001a0 c29801                  JP      nz,PLAY_STRING_1
-   251   0001a3 c30b00                  JP      MNULOOP
-   252                          
-   253                          PLAY_SOUND:
-   254   0001a6 216606                  LD      HL,SOUND_TEST
-   255   0001a9 3e0d                    LD      A,13            ; SEND OPCODE 13 (PLAY SOUND)
-   256   0001ab cd2302                  CALL    OUTESP0
-   257   0001ae 0e18                    LD      C,24
-   258                          PLAY_SOUND_1:
-   259   0001b0 7e                      LD      A,(HL)          ; SEND CHAR TO OUTPUT
-   260   0001b1 cd2302                  CALL    OUTESP0
-   261   0001b4 7e                      LD      A,(HL)          ; GET CHAR
-   262   0001b5 23                      INC     HL
-   263   0001b6 0d                      DEC     C
-   264   0001b7 c2b001                  JP      nz,PLAY_SOUND_1
-   265   0001ba c30b00                  JP      MNULOOP
-   266                          
-   267                          SET_VOLUME:
-   268   0001bd 3e0e                    LD      A,14            ; SEND OPCODE 14 (SET VOLUME)
-   269   0001bf cd2302                  CALL    OUTESP0
-   270   0001c2 3e07                    LD      A,7
-   271   0001c4 cd2302                  CALL    OUTESP0
-   272   0001c7 c30b00                  JP      MNULOOP
-   273                          
-   274                          
-   275                          SET_RESOLUTION:
-   276   0001ca 0e09                    LD      C,9
-   277   0001cc 11ac05                  LD      DE,RESOLUTION_PROMPT
-   278   0001cf cd0500                  CALL    BDOS            ; PRINT PROMPT
-   279   0001d2 0e0a                    LD      C,0AH
-   280   0001d4 119206                  LD      DE,BUFFER
-   281   0001d7 cd0500                  CALL    BDOS            ; GET INPUT
-   282   0001da 219406                  LD      HL,BUFFER+2
-   283   0001dd cda502                  CALL    HEXBYTE
-   284   0001e0 327e06                  LD      (PARMS),A
-   285   0001e3 cd6e02                  CALL    prthex
-   286   0001e6 3e0f                    LD      A,15            ; SEND OPCODE 15 (SET RESOLUTION)
-   287   0001e8 cd2302                  CALL    OUTESP0
-   288   0001eb 3a7e06                  LD      A,(PARMS)
-   289   0001ee cd2302                  CALL    OUTESP0
-   290   0001f1 c30b00                  JP      MNULOOP
-   291                          LOAD_FONT:
-   292   0001f4 0e09                    LD      C,9
-   293   0001f6 11d605                  LD      DE,FONT_PROMPT
-   294   0001f9 cd0500                  CALL    BDOS            ; PRINT PROMPT
-   295   0001fc 0e0a                    LD      C,0AH
-   296   0001fe 119206                  LD      DE,BUFFER
-   297   000201 cd0500                  CALL    BDOS            ; GET INPUT
-   298   000204 219406                  LD      HL,BUFFER+2
-   299   000207 cda502                  CALL    HEXBYTE
-   300   00020a 327e06                  LD      (PARMS),A
-   301                          
-   302   00020d 3e10                    LD      A,16            ; SEND OPCODE 16 (SET FONT)
-   303   00020f cd2302                  CALL    OUTESP0
-   304   000212 3a7e06                  LD      A,(PARMS)
-   305   000215 cd2302                  CALL    OUTESP0
-   306   000218 c30b00                  JP      MNULOOP
-   307                          
-   308                          CLEAR_SCREEN:
-   309   00021b 3e11                    LD      A,17            ; SEND OPCODE 17 (CLEAR SCREEN)
-   310   00021d cd2302                  CALL    OUTESP0
-   311   000220 c30b00                  JP      MNULOOP
-   312                          
-   313                          ;
-   314                          
-   315                          ;
-   316                          ;
-   317                          ;
-   318                          ;
-   319                          
-   320                          
-   321                          
-   322                          ;
-   323                          ;
-   324                          ;
-   325                          
-   326                          ; SEND BYTE TO ESP0
-   327                          OUTESP0:
-   328   000223 f5                      PUSH    AF
-   329                          OUTESP0_1:
-   330   000224 db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
-   331   000226 e602                    AND     2               ; Is ESP0 BUSY?
-   332   000228 c22402                  JP      NZ,OUTESP0_1    ; IF BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
-   333   00022b f1                      POP     AF
-   334   00022c d39c                    OUT     (ESP0),A        ; SEND BYTE
-   335                          OUTESP0_2:
-   336   00022e db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
-   337   000230 e602                    AND     2               ; Is ESP0 BUSY?
-   338   000232 ca2e02                  JP      Z,OUTESP0_2     ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
-   339   000235 c9                      RET
-   340                          
-   341                          
-   342                          ; GET BYTE FROM ESP0 (BLOCKING)
-   343                          INESP0_WAIT:
-   344                          INESP0_WAIT_1:
-   345   000236 db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
-   346   000238 e602                    AND     2               ; Is ESP0 BUSY?
-   347   00023a c23602                  JP      NZ,INESP0_WAIT_1; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
-   348   00023d db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
-   349   00023f e601                    AND     1               ; Is there data?
-   350   000241 ca3602                  JP      Z,INESP0_WAIT_1 ; IF NO, BUSY WAIT
-   351   000244 db9c                    IN      A,(ESP0)        ; GET BYTE
-   352   000246 f5                      PUSH    AF
-   353                          INESP0_WAIT_2:
-   354   000247 db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
-   355   000249 e602                    AND     2               ; Is ESP0 BUSY?
-   356   00024b ca4702                  JP      Z,INESP0_WAIT_2 ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
-   357   00024e f1                      POP     AF
-   358   00024f c9                      RET
-   359                          
-   360                          ; CLEAR ESP0 INPUT BYTE QUEUE
-   361                          CLEARESP0:
-   362   000250 cd5b02                  CALL    INESP0
-   363   000253 db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
-   364   000255 e601                    AND     1               ; Is there MORE data?
-   365   000257 c25002                  JP      NZ,CLEARESP0    ; IF YES, LOOP
-   366   00025a c9                      RET
-   367                          
-   368                          ; GET BYTE FROM ESP0 (NON BLOCKING)
-   369                          INESP0:
-   370   00025b db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
-   371   00025d e602                    AND     2               ; Is ESP0 BUSY?
-   372   00025f c25b02                  JP      NZ,INESP0       ; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
-   373   000262 db9c                    IN      A,(ESP0)        ; GET BYTE
-   374   000264 f5                      PUSH    AF
-   375                          INESP0_1:
-   376   000265 db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
-   377   000267 e602                    AND     2               ; Is ESP0 BUSY?
-   378   000269 ca6502                  JP      Z,INESP0_1      ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
-   379   00026c f1                      POP     AF
-   380   00026d c9                      RET
-   381                          
-   382                          
-   383                          ;
-   384                          ;
-   385                          ;
-   386                          ;
-   387                          ;
-   388                          ;
-   389                          prthex:
-   390   00026e f5                      PUSH    af              ; save AF
-   391   00026f d5                      PUSH    de              ; save DE
-   392   000270 cd8d02                  CALL    hexascii        ; convert value in A to hex chars in DE
-   393   000273 7a                      LD      a,d             ; get the high order hex char
-   394   000274 cd7e02                  CALL    prtchr          ; print it
-   395   000277 7b                      LD      a,e             ; get the low order hex char
-   396   000278 cd7e02                  CALL    prtchr          ; print it
-   397   00027b d1                      POP     de              ; restore DE
-   398   00027c f1                      POP     af              ; restore AF
-   399   00027d c9                      RET                     ; done
-   400                          prtchr:
-   401   00027e f5                      PUSH    AF
-   402   00027f c5                      PUSH    bc              ; save registers
-   403   000280 d5                      PUSH    de
-   404   000281 e5                      PUSH    hl
-   405   000282 5f                      LD      E,A
-   406   000283 0e02                    LD      C,2
-   407   000285 cd0500                  CALL    BDOS            ; return to CP/M via reset
-   408   000288 e1                      POP     hl              ; restore registers
-   409   000289 d1                      POP     de
-   410   00028a c1                      POP     bc
-   411   00028b f1                      POP     AF
-   412   00028c c9                      RET
-   413                          ;
-   414                          ; Convert binary value in A to ascii hex characters in DE
-   415                          ;
-   416                          hexascii:
-   417   00028d 57                      LD      d,a             ; save A in D
-   418   00028e cd9c02                  CALL    hexconv         ; convert low nibble of A to hex
-   419   000291 5f                      LD      e,a             ; save it in E
-   420   000292 7a                      LD      a,d             ; get original value back
-   421   000293 07                      RLCA                    ; rotate high order nibble to low bits
-   422   000294 07                      RLCA
-   423   000295 07                      RLCA
-   424   000296 07                      RLCA
-   425   000297 cd9c02                  CALL    hexconv         ; convert nibble
-   426   00029a 57                      LD      d,a             ; save it in D
-   427   00029b c9                      RET                     ; done
-   428                          ;
-   429                          ; Convert low nibble of A to ascii hex
-   430                          ;
-   431                          hexconv:
-   432   00029c e60f                    AND     $0F             ; low nibble only
-   433   00029e c690                    ADD     a,$90
-   434   0002a0 27                      DAA
-   435   0002a1 ce40                    ADC     a,$40
-   436   0002a3 27                      DAA
-   437   0002a4 c9                      RET
-   438                          ;
-   439                          
-   440                          ;
-   441                          ;__HEXBYTE____________________________________________________________________
-   442                          ;
-   443                          ;	GET ONE BYTE OF HEX DATA FROM BUFFER IN HL, RETURN IN A
-   444                          ;_____________________________________________________________________________
-   445                          ;
-   446                          HEXBYTE:
-   447   0002a5 cdb602                  CALL    NIBL            ; CONVERT HEX CHAR TO BINARY VALUE IN A & INC HL
-   448   0002a8 cb27                    SLA     A
-   449   0002aa cb27                    SLA     A
-   450   0002ac cb27                    SLA     A
-   451   0002ae cb27                    SLA     A
-   452   0002b0 4f                      LD      C,A
-   453   0002b1 cdb602                  CALL    NIBL            ; CONVERT HEX CHAR TO BINARY VALUE IN A & INC HL
-   454   0002b4 b1                      OR      C               ; COMBINE WITH WORKING VALUE
-   455   0002b5 c9                      RET                     ; AND DONE
-   456                          ;
-   457                          ;
-   458                          ;__NIBL_______________________________________________________________________
+    78   000067 ca2502                  JP      Z,CLEAR_SCREEN
+    79   00006a fe4a                    CP      'J'
+    80   00006c ca2d02                  JP      Z,COPY_RECT
+    81   00006f fe4b                    CP      'K'
+    82   000071 ca7102                  JP      Z,DRAW_BITMAP
+    83                          
+    84                          
+    85                          ; EXIT
+    86   000074 fe5a                    CP      'Z'
+    87   000076 ca7c00                  JP      Z,EXIT
+    88   000079 c30b00                  JP      MNULOOP
+    89                          
+    90                          EXIT:
+    91                          ;
+    92   00007c 0e00                    LD      C,0
+    93   00007e cd0500                  CALL    BDOS            ; return to CP/M via reset
+    94                          
+    95                          
+    96                          
+    97                          VGA_SINGLE_CHAR:
+    98   000081 3e01                    LD      A,1             ; SEND OPCODE 1 (OUT VGA CHAR)
+    99   000083 cdca02                  CALL    OUTESP0
+   100   000086 3e2a                    LD      A,'*'           ; SEND CHAR TO OUTPUT
+   101   000088 cdca02                  CALL    OUTESP0
+   102   00008b c30b00                  JP      MNULOOP
+   103                          
+   104                          VGA_100SINGLE_CHAR:
+   105   00008e 0e64                    LD      c,100
+   106                          VGA_100SINGLE_CHAR_1:
+   107   000090 3e01                    LD      A,1             ; SEND OPCODE 1 (OUT VGA CHAR)
+   108   000092 cdca02                  CALL    OUTESP0
+   109   000095 3e2a                    LD      A,'*'           ; SEND CHAR TO OUTPUT
+   110   000097 cdca02                  CALL    OUTESP0
+   111   00009a 0d                      DEC     c
+   112   00009b c29000                  JP      nz,VGA_100SINGLE_CHAR_1
+   113   00009e c30b00                  JP      MNULOOP
+   114                          
+   115                          VGA_OUT_STRING:
+   116   0000a1 210a09                  LD      HL,VGA_TEST
+   117   0000a4 3e02                    LD      A,2             ; SEND OPCODE 2 (OUT VGA NULL TERM STRING)
+   118   0000a6 cdca02                  CALL    OUTESP0
+   119                          VGA_OUT_STRING_1:
+   120   0000a9 7e                      LD      A,(HL)          ; SEND CHAR TO OUTPUT
+   121   0000aa cdca02                  CALL    OUTESP0
+   122   0000ad 7e                      LD      A,(HL)          ; GET CHAR
+   123   0000ae 23                      INC     HL
+   124   0000af fe00                    CP      0
+   125   0000b1 c2a900                  JP      nz,VGA_OUT_STRING_1
+   126   0000b4 c30b00                  JP      MNULOOP
+   127                          
+   128                          
+   129                          GET_KEY_IN:
+   130   0000b7 cdf702                  CALL    CLEARESP0
+   131   0000ba 3e03                    LD      A,3             ; SEND OPCODE 3 (GET KEY IN)
+   132   0000bc cdca02                  CALL    OUTESP0
+   133   0000bf cddd02                  CALL    INESP0_WAIT
+   134   0000c2 cd2503                  CALL    prtchr
+   135   0000c5 c30b00                  JP      MNULOOP
+   136                          
+   137                          
+   138                          GET_KEY_CHARS_IN_BUFFER:
+   139   0000c8 cdf702                  CALL    CLEARESP0
+   140   0000cb 3e04                    LD      A,4             ; SEND OPCODE 4 (GET KEY BUFFER LENGTH)
+   141   0000cd cdca02                  CALL    OUTESP0
+   142   0000d0 cddd02                  CALL    INESP0_WAIT
+   143   0000d3 cd1503                  CALL    prthex
+   144   0000d6 c30b00                  JP      MNULOOP
+   145                          
+   146                          
+   147                          SET_CURSOR:
+   148   0000d9 0e09                    LD      C,9
+   149   0000db 119109                  LD      DE,CURSOR_PROMPT
+   150   0000de cd0500                  CALL    BDOS            ; PRINT PROMPT
+   151   0000e1 0e01                    LD      C,1
+   152   0000e3 cd0500                  CALL    BDOS            ; Get Selection
+   153   0000e6 e601                    AND     1
+   154   0000e8 f5                      PUSH    AF
+   155   0000e9 3e05                    LD      A,5             ; SEND OPCODE 5 (SET CURSOR)
+   156   0000eb cdca02                  CALL    OUTESP0
+   157   0000ee f1                      POP     AF
+   158   0000ef cdca02                  CALL    OUTESP0
+   159   0000f2 c30b00                  JP      MNULOOP
+   160                          
+   161                          
+   162                          SET_BAUD:
+   163   0000f5 0e09                    LD      C,9
+   164   0000f7 11b709                  LD      DE,BAUD_PROMPT
+   165   0000fa cd0500                  CALL    BDOS            ; PRINT PROMPT
+   166   0000fd 0e0a                    LD      C,0AH
+   167   0000ff 11df0e                  LD      DE,BUFFER
+   168   000102 cd0500                  CALL    BDOS            ; GET INPUT
+   169   000105 21e10e                  LD      HL,BUFFER+2
+   170   000108 cd4c03                  CALL    HEXBYTE
+   171   00010b 32cd0e                  LD      (PARMS+2),A
+   172   00010e cd4c03                  CALL    HEXBYTE
+   173   000111 32cc0e                  LD      (PARMS+1),A
+   174   000114 cd4c03                  CALL    HEXBYTE
+   175   000117 32cb0e                  LD      (PARMS),A
+   176                          
+   177   00011a 3e06                    LD      A,6             ; SEND OPCODE 6 (SET BAUD)
+   178   00011c cdca02                  CALL    OUTESP0
+   179   00011f 3acb0e                  LD      A,(PARMS)
+   180   000122 cdca02                  CALL    OUTESP0
+   181   000125 3acc0e                  LD      A,(PARMS+1)
+   182   000128 cdca02                  CALL    OUTESP0
+   183   00012b 3acd0e                  LD      A,(PARMS+2)
+   184   00012e cdca02                  CALL    OUTESP0
+   185   000131 3e00                    LD      A,0
+   186   000133 cdca02                  CALL    OUTESP0
+   187   000136 c30b00                  JP      MNULOOP
+   188                          
+   189                          SET_MODE:
+   190   000139 0e09                    LD      C,9
+   191   00013b 11fd09                  LD      DE,MODE_PROMPT
+   192   00013e cd0500                  CALL    BDOS            ; PRINT PROMPT
+   193   000141 0e01                    LD      C,1
+   194   000143 cd0500                  CALL    BDOS            ; Get Selection
+   195   000146 e607                    AND     7
+   196   000148 f5                      PUSH    AF
+   197   000149 3e07                    LD      A,7             ; SEND OPCODE 7 (SET MODE)
+   198   00014b cdca02                  CALL    OUTESP0
+   199   00014e f1                      POP     AF
+   200   00014f cdca02                  CALL    OUTESP0
+   201   000152 c30b00                  JP      MNULOOP
+   202                          
+   203                          
+   204                          SERIAL_TX_CHAR:
+   205   000155 3e08                    LD      A,8             ; SEND OPCODE 8 (TX CHAR)
+   206   000157 cdca02                  CALL    OUTESP0
+   207   00015a 3e2a                    LD      A,'*'
+   208   00015c cdca02                  CALL    OUTESP0
+   209   00015f c30b00                  JP      MNULOOP
+   210                          
+   211                          
+   212                          SERIAL_TX_STRING:
+   213   000162 21d909                  LD      HL,SERIAL_TEST
+   214   000165 3e09                    LD      A,9             ; SEND OPCODE 9 (OUT SERIAL NULL TERM STRING)
+   215   000167 cdca02                  CALL    OUTESP0
+   216                          SERIAL_TX_STRING_1:
+   217   00016a 7e                      LD      A,(HL)          ; SEND CHAR TO OUTPUT
+   218   00016b cdca02                  CALL    OUTESP0
+   219   00016e 7e                      LD      A,(HL)          ; GET CHAR
+   220   00016f 23                      INC     HL
+   221   000170 fe00                    CP      0
+   222   000172 c26a01                  JP      nz,SERIAL_TX_STRING_1
+   223   000175 c30b00                  JP      MNULOOP
+   224                          
+   225                          
+   226                          GET_SERIAL_IN:
+   227   000178 cdf702                  CALL    CLEARESP0
+   228   00017b 3e0a                    LD      A,10            ; SEND OPCODE 10 (GET SERIAL IN)
+   229   00017d cdca02                  CALL    OUTESP0
+   230   000180 cddd02                  CALL    INESP0_WAIT
+   231   000183 cd2503                  CALL    prtchr
+   232   000186 c30b00                  JP      MNULOOP
+   233                          
+   234                          
+   235                          GET_SERIAL_CHARS_IN_BUFFER:
+   236   000189 cdf702                  CALL    CLEARESP0
+   237   00018c 3e0b                    LD      A,11            ; SEND OPCODE 11 (GET SERIAL BUFFER LENGTH)
+   238   00018e cdca02                  CALL    OUTESP0
+   239   000191 cddd02                  CALL    INESP0_WAIT
+   240   000194 cd1503                  CALL    prthex
+   241   000197 c30b00                  JP      MNULOOP
+   242                          
+   243                          
+   244                          PLAY_STRING:
+   245   00019a 21800a                  LD      HL,PLAY_TEST
+   246   00019d 3e0c                    LD      A,12            ; SEND OPCODE 12 (PLAY SOUND STRING)
+   247   00019f cdca02                  CALL    OUTESP0
+   248                          PLAY_STRING_1:
+   249   0001a2 7e                      LD      A,(HL)          ; SEND CHAR TO OUTPUT
+   250   0001a3 cdca02                  CALL    OUTESP0
+   251   0001a6 7e                      LD      A,(HL)          ; GET CHAR
+   252   0001a7 23                      INC     HL
+   253   0001a8 fe00                    CP      0
+   254   0001aa c2a201                  JP      nz,PLAY_STRING_1
+   255   0001ad c30b00                  JP      MNULOOP
+   256                          
+   257                          PLAY_SOUND:
+   258   0001b0 21f30a                  LD      HL,SOUND_TEST
+   259   0001b3 3e0d                    LD      A,13            ; SEND OPCODE 13 (PLAY SOUND)
+   260   0001b5 cdca02                  CALL    OUTESP0
+   261   0001b8 0e18                    LD      C,24
+   262                          PLAY_SOUND_1:
+   263   0001ba 7e                      LD      A,(HL)          ; SEND CHAR TO OUTPUT
+   264   0001bb cdca02                  CALL    OUTESP0
+   265   0001be 7e                      LD      A,(HL)          ; GET CHAR
+   266   0001bf 23                      INC     HL
+   267   0001c0 0d                      DEC     C
+   268   0001c1 c2ba01                  JP      nz,PLAY_SOUND_1
+   269   0001c4 c30b00                  JP      MNULOOP
+   270                          
+   271                          SET_VOLUME:
+   272   0001c7 3e0e                    LD      A,14            ; SEND OPCODE 14 (SET VOLUME)
+   273   0001c9 cdca02                  CALL    OUTESP0
+   274   0001cc 3e07                    LD      A,7
+   275   0001ce cdca02                  CALL    OUTESP0
+   276   0001d1 c30b00                  JP      MNULOOP
+   277                          
+   278                          
+   279                          SET_RESOLUTION:
+   280   0001d4 0e09                    LD      C,9
+   281   0001d6 11390a                  LD      DE,RESOLUTION_PROMPT
+   282   0001d9 cd0500                  CALL    BDOS            ; PRINT PROMPT
+   283   0001dc 0e0a                    LD      C,0AH
+   284   0001de 11df0e                  LD      DE,BUFFER
+   285   0001e1 cd0500                  CALL    BDOS            ; GET INPUT
+   286   0001e4 21e10e                  LD      HL,BUFFER+2
+   287   0001e7 cd4c03                  CALL    HEXBYTE
+   288   0001ea 32cb0e                  LD      (PARMS),A
+   289   0001ed cd1503                  CALL    prthex
+   290   0001f0 3e0f                    LD      A,15            ; SEND OPCODE 15 (SET RESOLUTION)
+   291   0001f2 cdca02                  CALL    OUTESP0
+   292   0001f5 3acb0e                  LD      A,(PARMS)
+   293   0001f8 cdca02                  CALL    OUTESP0
+   294   0001fb c30b00                  JP      MNULOOP
+   295                          LOAD_FONT:
+   296   0001fe 0e09                    LD      C,9
+   297   000200 11630a                  LD      DE,FONT_PROMPT
+   298   000203 cd0500                  CALL    BDOS            ; PRINT PROMPT
+   299   000206 0e0a                    LD      C,0AH
+   300   000208 11df0e                  LD      DE,BUFFER
+   301   00020b cd0500                  CALL    BDOS            ; GET INPUT
+   302   00020e 21e10e                  LD      HL,BUFFER+2
+   303   000211 cd4c03                  CALL    HEXBYTE
+   304   000214 32cb0e                  LD      (PARMS),A
+   305                          
+   306   000217 3e10                    LD      A,16            ; SEND OPCODE 16 (SET FONT)
+   307   000219 cdca02                  CALL    OUTESP0
+   308   00021c 3acb0e                  LD      A,(PARMS)
+   309   00021f cdca02                  CALL    OUTESP0
+   310   000222 c30b00                  JP      MNULOOP
+   311                          
+   312                          CLEAR_SCREEN:
+   313   000225 3e11                    LD      A,17            ; SEND OPCODE 17 (CLEAR SCREEN)
+   314   000227 cdca02                  CALL    OUTESP0
+   315   00022a c30b00                  JP      MNULOOP
+   316                          
+   317                          COPY_RECT:
+   318   00022d 3e12                    LD      A,18            ; SEND OPCODE 18 (COPY RECT)
+   319   00022f cdca02                  CALL    OUTESP0
+   320   000232 3e0a                    LD      A,10            ; SEND X CORD 10
+   321   000234 cdca02                  CALL    OUTESP0
+   322   000237 3e00                    LD      A,0
+   323   000239 cdca02                  CALL    OUTESP0
+   324   00023c 3e0a                    LD      A,10            ; SEND Y CORD 10
+   325   00023e cdca02                  CALL    OUTESP0
+   326   000241 3e00                    LD      A,0
+   327   000243 cdca02                  CALL    OUTESP0
+   328   000246 3e64                    LD      A,100           ; SEND DEST X CORD 100
+   329   000248 cdca02                  CALL    OUTESP0
+   330   00024b 3e00                    LD      A,0
+   331   00024d cdca02                  CALL    OUTESP0
+   332   000250 3e64                    LD      A,100           ; SEND DEST Y CORD 100
+   333   000252 cdca02                  CALL    OUTESP0
+   334   000255 3e00                    LD      A,0
+   335   000257 cdca02                  CALL    OUTESP0
+   336   00025a 3e19                    LD      A,25            ; SEND WIDTH 25
+   337   00025c cdca02                  CALL    OUTESP0
+   338   00025f 3e00                    LD      A,0
+   339   000261 cdca02                  CALL    OUTESP0
+   340   000264 3e19                    LD      A,25            ; SEND HEIGHT 25
+   341   000266 cdca02                  CALL    OUTESP0
+   342   000269 3e00                    LD      A,0
+   343   00026b cdca02                  CALL    OUTESP0
+   344   00026e c30b00                  JP      MNULOOP
+   345                          
+   346                          
+   347                          DRAW_BITMAP:
+   348   000271 210b0b                  LD      HL,BITMAP_TEST
+   349   000274 3e13                    LD      A,19            ; SEND OPCODE 19 (DRAW BITMAP)
+   350   000276 cdca02                  CALL    OUTESP0
+   351                          
+   352   000279 3e7d                    LD      A,125           ; SEND X CORD 125
+   353   00027b cdca02                  CALL    OUTESP0
+   354   00027e 3e00                    LD      A,0
+   355   000280 cdca02                  CALL    OUTESP0
+   356   000283 3e7d                    LD      A,125           ; SEND Y CORD 125
+   357   000285 cdca02                  CALL    OUTESP0
+   358   000288 3e00                    LD      A,0
+   359   00028a cdca02                  CALL    OUTESP0
+   360   00028d 3e10                    LD      A,16            ; BITMAP WIDTH
+   361   00028f cdca02                  CALL    OUTESP0
+   362   000292 3e00                    LD      A,0
+   363   000294 cdca02                  CALL    OUTESP0
+   364   000297 3e0f                    LD      A, 15           ; BITMAP HEIGHT
+   365   000299 cdca02                  CALL    OUTESP0
+   366   00029c 3e00                    LD      A,0
+   367   00029e cdca02                  CALL    OUTESP0
+   368   0002a1 3e04                    LD      A, 4            ; BITMAP FORMAT  FORMAT=RGBA8888
+   369   0002a3 cdca02                  CALL    OUTESP0
+   370   0002a6 3ec0                    LD      A,0C0H          ; SEND BITMAP LENGTH (03C0)
+   371   0002a8 cdca02                  CALL    OUTESP0
+   372   0002ab 3e03                    LD      A,03H
+   373   0002ad cdca02                  CALL    OUTESP0
+   374   0002b0 210b0b                  LD      HL,BITMAP_TEST
+   375   0002b3 11cb0e                  LD      DE,BITMAP_TEST_END
+   376   0002b6 e5                      PUSH    HL
+   377                          DRAW_BITMAP_1:
+   378   0002b7 e1                      POP     HL
+   379   0002b8 7e                      LD      A,(HL)          ; SEND CHAR TO OUTPUT
+   380   0002b9 cdca02                  CALL    OUTESP0
+   381   0002bc 7e                      LD      A,(HL)          ; GET CHAR
+   382   0002bd 23                      INC     HL
+   383   0002be e5                      PUSH    HL
+   384   0002bf b7                      OR      a               ; AT THE END?
+   385   0002c0 ed52                    SBC     hl, de
+   386   0002c2 19                      ADD     hl, de
+   387   0002c3 c2b702                  JP      nz,DRAW_BITMAP_1
+   388   0002c6 e1                      POP     HL
+   389   0002c7 c30b00                  JP      MNULOOP
+   390                          ;
+   391                          ;
+   392                          ;
+   393                          ;
+   394                          
+   395                          
+   396                          
+   397                          ;
+   398                          ;
+   399                          ;
+   400                          
+   401                          ; SEND BYTE TO ESP0
+   402                          OUTESP0:
+   403   0002ca f5                      PUSH    AF
+   404                          OUTESP0_1:
+   405   0002cb db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
+   406   0002cd e602                    AND     2               ; Is ESP0 BUSY?
+   407   0002cf c2cb02                  JP      NZ,OUTESP0_1    ; IF BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+   408   0002d2 f1                      POP     AF
+   409   0002d3 d39c                    OUT     (ESP0),A        ; SEND BYTE
+   410                          OUTESP0_2:
+   411   0002d5 db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
+   412   0002d7 e602                    AND     2               ; Is ESP0 BUSY?
+   413   0002d9 cad502                  JP      Z,OUTESP0_2     ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+   414   0002dc c9                      RET
+   415                          
+   416                          
+   417                          ; GET BYTE FROM ESP0 (BLOCKING)
+   418                          INESP0_WAIT:
+   419                          INESP0_WAIT_1:
+   420   0002dd db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
+   421   0002df e602                    AND     2               ; Is ESP0 BUSY?
+   422   0002e1 c2dd02                  JP      NZ,INESP0_WAIT_1; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
+   423   0002e4 db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
+   424   0002e6 e601                    AND     1               ; Is there data?
+   425   0002e8 cadd02                  JP      Z,INESP0_WAIT_1 ; IF NO, BUSY WAIT
+   426   0002eb db9c                    IN      A,(ESP0)        ; GET BYTE
+   427   0002ed f5                      PUSH    AF
+   428                          INESP0_WAIT_2:
+   429   0002ee db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
+   430   0002f0 e602                    AND     2               ; Is ESP0 BUSY?
+   431   0002f2 caee02                  JP      Z,INESP0_WAIT_2 ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+   432   0002f5 f1                      POP     AF
+   433   0002f6 c9                      RET
+   434                          
+   435                          ; CLEAR ESP0 INPUT BYTE QUEUE
+   436                          CLEARESP0:
+   437   0002f7 cd0203                  CALL    INESP0
+   438   0002fa db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
+   439   0002fc e601                    AND     1               ; Is there MORE data?
+   440   0002fe c2f702                  JP      NZ,CLEARESP0    ; IF YES, LOOP
+   441   000301 c9                      RET
+   442                          
+   443                          ; GET BYTE FROM ESP0 (NON BLOCKING)
+   444                          INESP0:
+   445   000302 db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
+   446   000304 e602                    AND     2               ; Is ESP0 BUSY?
+   447   000306 c20203                  JP      NZ,INESP0       ; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
+   448   000309 db9c                    IN      A,(ESP0)        ; GET BYTE
+   449   00030b f5                      PUSH    AF
+   450                          INESP0_1:
+   451   00030c db9e                    IN      A,(ESP_STATUS)  ; GET STATUS
+   452   00030e e602                    AND     2               ; Is ESP0 BUSY?
+   453   000310 ca0c03                  JP      Z,INESP0_1      ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+   454   000313 f1                      POP     AF
+   455   000314 c9                      RET
+   456                          
+   457                          
+   458                          ;
    459                          ;
-   460                          ;	GET ONE BYTE OF HEX DATA FROM BUFFER IN HL, RETURN IN A
-   461                          ;_____________________________________________________________________________
+   460                          ;
+   461                          ;
    462                          ;
-   463                          NIBL:
-   464   0002b6 7e                      LD      A,(HL)          ; GET K B. DATA
-   465   0002b7 23                      INC     HL              ; INC KB POINTER
-   466   0002b8 fe40                    CP      40H             ; TEST FOR ALPHA
-   467   0002ba 3003                    JR      NC,ALPH
-   468   0002bc e60f                    AND     0FH             ; GET THE BITS
-   469   0002be c9                      RET
-   470                          ALPH:
-   471   0002bf e60f                    AND     0FH             ; GET THE BITS
-   472   0002c1 c609                    ADD     A,09H           ; MAKE IT HEX A-F
-   473   0002c3 c9                      RET
-   474                          ;
-   475                          ;
-   476                          ;
-   477                          MENU:
-   478   0002c4 0a0d                    DB      0AH,0DH
-   479   0002c6 4e686f64796e6520        DM      "Nhodyne ESP32 IO board test"
-                455350333220494f
-                20626f6172642074
-                657374          
-   480   0002e1 0a0d0a0d0a0d            DB      0AH,0DH,0AH,0DH,0AH,0DH
-   481   0002e7 313e204f75747075        DM      "1> Output single char to VGA"
+   463                          ;
+   464                          prthex:
+   465   000315 f5                      PUSH    af              ; save AF
+   466   000316 d5                      PUSH    de              ; save DE
+   467   000317 cd3403                  CALL    hexascii        ; convert value in A to hex chars in DE
+   468   00031a 7a                      LD      a,d             ; get the high order hex char
+   469   00031b cd2503                  CALL    prtchr          ; print it
+   470   00031e 7b                      LD      a,e             ; get the low order hex char
+   471   00031f cd2503                  CALL    prtchr          ; print it
+   472   000322 d1                      POP     de              ; restore DE
+   473   000323 f1                      POP     af              ; restore AF
+   474   000324 c9                      RET                     ; done
+   475                          prtchr:
+   476   000325 f5                      PUSH    AF
+   477   000326 c5                      PUSH    bc              ; save registers
+   478   000327 d5                      PUSH    de
+   479   000328 e5                      PUSH    hl
+   480   000329 5f                      LD      E,A
+   481   00032a 0e02                    LD      C,2
+   482   00032c cd0500                  CALL    BDOS            ; return to CP/M via reset
+   483   00032f e1                      POP     hl              ; restore registers
+   484   000330 d1                      POP     de
+   485   000331 c1                      POP     bc
+   486   000332 f1                      POP     AF
+   487   000333 c9                      RET
+   488                          ;
+   489                          ; Convert binary value in A to ascii hex characters in DE
+   490                          ;
+   491                          hexascii:
+   492   000334 57                      LD      d,a             ; save A in D
+   493   000335 cd4303                  CALL    hexconv         ; convert low nibble of A to hex
+   494   000338 5f                      LD      e,a             ; save it in E
+   495   000339 7a                      LD      a,d             ; get original value back
+   496   00033a 07                      RLCA                    ; rotate high order nibble to low bits
+   497   00033b 07                      RLCA
+   498   00033c 07                      RLCA
+   499   00033d 07                      RLCA
+   500   00033e cd4303                  CALL    hexconv         ; convert nibble
+   501   000341 57                      LD      d,a             ; save it in D
+   502   000342 c9                      RET                     ; done
+   503                          ;
+   504                          ; Convert low nibble of A to ascii hex
+   505                          ;
+   506                          hexconv:
+   507   000343 e60f                    AND     $0F             ; low nibble only
+   508   000345 c690                    ADD     a,$90
+   509   000347 27                      DAA
+   510   000348 ce40                    ADC     a,$40
+   511   00034a 27                      DAA
+   512   00034b c9                      RET
+   513                          ;
+   514                          
+   515                          ;
+   516                          ;__HEXBYTE____________________________________________________________________
+   517                          ;
+   518                          ;	GET ONE BYTE OF HEX DATA FROM BUFFER IN HL, RETURN IN A
+   519                          ;_____________________________________________________________________________
+   520                          ;
+   521                          HEXBYTE:
+   522   00034c cd5d03                  CALL    NIBL            ; CONVERT HEX CHAR TO BINARY VALUE IN A & INC HL
+   523   00034f cb27                    SLA     A
+   524   000351 cb27                    SLA     A
+   525   000353 cb27                    SLA     A
+   526   000355 cb27                    SLA     A
+   527   000357 4f                      LD      C,A
+   528   000358 cd5d03                  CALL    NIBL            ; CONVERT HEX CHAR TO BINARY VALUE IN A & INC HL
+   529   00035b b1                      OR      C               ; COMBINE WITH WORKING VALUE
+   530   00035c c9                      RET                     ; AND DONE
+   531                          ;
+   532                          ;
+   533                          ;__NIBL_______________________________________________________________________
+   534                          ;
+   535                          ;	GET ONE BYTE OF HEX DATA FROM BUFFER IN HL, RETURN IN A
+   536                          ;_____________________________________________________________________________
+   537                          ;
+   538                          NIBL:
+   539   00035d 7e                      LD      A,(HL)          ; GET K B. DATA
+   540   00035e 23                      INC     HL              ; INC KB POINTER
+   541   00035f fe40                    CP      40H             ; TEST FOR ALPHA
+   542   000361 3003                    JR      NC,ALPH
+   543   000363 e60f                    AND     0FH             ; GET THE BITS
+   544   000365 c9                      RET
+   545                          ALPH:
+   546   000366 e60f                    AND     0FH             ; GET THE BITS
+   547   000368 c609                    ADD     A,09H           ; MAKE IT HEX A-F
+   548   00036a c9                      RET
+   549                          ;
+   550                          ;
+   551                          ;
+   552                          MENU:
+   553   00036b 0a0d                    DB      0AH,0DH
+   554   00036d 2020202020202020        DM      "                            Nhodyne ESP32 IO board test"
+                2020202020202020
+                2020202020202020
+                202020204e686f64
+                796e652045535033
+                3220494f20626f61
+                72642074657374  
+   555   0003a4 0a0d0a0d0a0d            DB      0AH,0DH,0AH,0DH,0AH,0DH
+   556                          ;                12345678901234567890123456789012345678901234567890123456789012345678901234567890
+   557   0003aa 313e204f75747075        DM      "1> Output single char to VGA                  J.  COPY RECT                    "
                 742073696e676c65
                 206368617220746f
-                20564741        
-   482   000303 0a0d                    DB      0AH,0DH
-   483   000305 323e204f75747075        DM      "2> Output 100 single chars to VGA"
+                2056474120202020
+                2020202020202020
+                2020202020204a2e
+                2020434f50592052
+                4543542020202020
+                2020202020202020
+                20202020202020  
+   558   0003f9 0a0d                    DB      0AH,0DH
+   559   0003fb 323e204f75747075        DM      "2> Output 100 single chars to VGA             K.  DRAW BITMAP                  "
                 7420313030207369
                 6e676c6520636861
                 727320746f205647
-                41              
-   484   000326 0a0d                    DB      0AH,0DH
-   485   000328 333e204f75747075        DM      "3> Output string to VGA"
+                4120202020202020
+                2020202020204b2e
+                2020445241572042
+                49544d4150202020
+                2020202020202020
+                20202020202020  
+   560   00044a 0a0d                    DB      0AH,0DH
+   561   00044c 333e204f75747075        DM      "3> Output string to VGA                       L.  DRAW CHAR                    "
                 7420737472696e67
-                20746f20564741  
-   486   00033f 0a0d                    DB      0AH,0DH
-   487   000341 343e20476574204b        DM      "4> Get Keystroke"
+                20746f2056474120
+                2020202020202020
+                2020202020202020
+                2020202020204c2e
+                2020445241572043
+                4841522020202020
+                2020202020202020
+                20202020202020  
+   562   00049b 0a0d                    DB      0AH,0DH
+   563   00049d 343e20476574204b        DM      "4> Get Keystroke                              M.  DRAW ELLIPSE                 "
                 65797374726f6b65
-   488   000351 0a0d                    DB      0AH,0DH
-   489   000353 353e20476574204b        DM      "5> Get Key Buffer Length"
+                2020202020202020
+                2020202020202020
+                2020202020202020
+                2020202020204d2e
+                2020445241572045
+                4c4c495053452020
+                2020202020202020
+                20202020202020  
+   564   0004ec 0a0d                    DB      0AH,0DH
+   565   0004ee 353e20476574204b        DM      "5> Get Key Buffer Length                      N.  DRAW GLYPH                   "
                 6579204275666665
                 72204c656e677468
-   490   00036b 0a0d                    DB      0AH,0DH
-   491   00036d 363e205365742043        DM      "6> Set Cursor visibility"
+                2020202020202020
+                2020202020202020
+                2020202020204e2e
+                2020445241572047
+                4c59504820202020
+                2020202020202020
+                20202020202020  
+   566   00053d 0a0d                    DB      0AH,0DH
+   567   00053f 363e205365742043        DM      "6> Set Cursor visibility                      O.  DRAW LINE                    "
                 7572736f72207669
                 736962696c697479
-   492   000385 0a0d                    DB      0AH,0DH
-   493   000387 0a0d                    DB      0AH,0DH
-   494   000389 373e205365742073        DM      "7> Set serial baud rate"
+                2020202020202020
+                2020202020202020
+                2020202020204f2e
+                202044524157204c
+                494e452020202020
+                2020202020202020
+                20202020202020  
+   568   00058e 0a0d                    DB      0AH,0DH
+   569   000590 2020202020202020        DM      "                                              P.  DRAW RECTANGLE               "
+                2020202020202020
+                2020202020202020
+                2020202020202020
+                2020202020202020
+                202020202020502e
+                2020445241572052
+                454354414e474c45
+                2020202020202020
+                20202020202020  
+   570   0005df 0a0d                    DB      0AH,0DH
+   571   0005e1 373e205365742073        DM      "7> Set serial baud rate                       Q.  FILL ELLIPSE                 "
                 657269616c206261
-                75642072617465  
-   495   0003a0 0a0d                    DB      0AH,0DH
-   496   0003a2 383e205365742073        DM      "8> Set serial mode"
+                7564207261746520
+                2020202020202020
+                2020202020202020
+                202020202020512e
+                202046494c4c2045
+                4c4c495053452020
+                2020202020202020
+                20202020202020  
+   572   000630 0a0d                    DB      0AH,0DH
+   573   000632 383e205365742073        DM      "8> Set serial mode                            R.  FILL RECTANGLE               "
                 657269616c206d6f
-                6465            
-   497   0003b4 0a0d                    DB      0AH,0DH
-   498   0003b6 393e205365726961        DM      "9> Serial TX single char"
+                6465202020202020
+                2020202020202020
+                2020202020202020
+                202020202020522e
+                202046494c4c2052
+                454354414e474c45
+                2020202020202020
+                20202020202020  
+   574   000681 0a0d                    DB      0AH,0DH
+   575   000683 393e205365726961        DM      "9> Serial TX single char                      S.  GET PIXEL                    "
                 6c2054582073696e
                 676c652063686172
-   499   0003ce 0a0d                    DB      0AH,0DH
-   500   0003d0 413e205365726961        DM      "A> Serial TX string"
+                2020202020202020
+                2020202020202020
+                202020202020532e
+                2020474554205049
+                58454c2020202020
+                2020202020202020
+                20202020202020  
+   576   0006d2 0a0d                    DB      0AH,0DH
+   577   0006d4 413e205365726961        DM      "A> Serial TX string                           T.  INVERT RECTANGLE             "
                 6c20545820737472
-                696e67          
-   501   0003e3 0a0d                    DB      0AH,0DH
-   502   0003e5 423e205365726961        DM      "B> Serial RX"
-                6c205258        
-   503   0003f1 0a0d                    DB      0AH,0DH
-   504   0003f3 433e205365726961        DM      "C> Serial Buffer Length"
+                696e672020202020
+                2020202020202020
+                2020202020202020
+                202020202020542e
+                2020494e56455254
+                2052454354414e47
+                4c45202020202020
+                20202020202020  
+   578   000723 0a0d                    DB      0AH,0DH
+   579   000725 423e205365726961        DM      "B> Serial RX                                  U.  LINE TO                      "
+                6c20525820202020
+                2020202020202020
+                2020202020202020
+                2020202020202020
+                202020202020552e
+                20204c494e452054
+                4f20202020202020
+                2020202020202020
+                20202020202020  
+   580   000774 0a0d                    DB      0AH,0DH
+   581   000776 433e205365726961        DM      "C> Serial Buffer Length                       V.  MOVE TO                      "
                 6c20427566666572
-                204c656e677468  
-   505   00040a 0a0d                    DB      0AH,0DH
-   506   00040c 0a0d                    DB      0AH,0DH
-   507   00040e 443e20506c617920        DM      "D> Play String"
-                537472696e67    
-   508   00041c 0a0d                    DB      0AH,0DH
-   509   00041e 453e20506c617920        DM      "E> Play Sound"
-                536f756e64      
-   510   00042b 0a0d                    DB      0AH,0DH
-   511   00042d 463e205365742056        DM      "F> Set Volume"
+                204c656e67746820
+                2020202020202020
+                2020202020202020
+                202020202020562e
+                20204d4f56452054
+                4f20202020202020
+                2020202020202020
+                20202020202020  
+   582   0007c5 0a0d                    DB      0AH,0DH
+   583   0007c7 2020202020202020        DM      "                                              W.  SCROLL                       "
+                2020202020202020
+                2020202020202020
+                2020202020202020
+                2020202020202020
+                202020202020572e
+                20205343524f4c4c
+                2020202020202020
+                2020202020202020
+                20202020202020  
+   584   000816 0a0d                    DB      0AH,0DH
+   585   000818 443e20506c617920        DM      "D> Play String                                X.  SET BRUSH COLOR              "
+                537472696e672020
+                2020202020202020
+                2020202020202020
+                2020202020202020
+                202020202020582e
+                2020534554204252
+                55534820434f4c4f
+                5220202020202020
+                20202020202020  
+   586   000867 0a0d                    DB      0AH,0DH
+   587   000869 453e20506c617920        DM      "E> Play Sound                                 Y.  MENU PAGE TWO                "
+                536f756e64202020
+                2020202020202020
+                2020202020202020
+                2020202020202020
+                202020202020592e
+                20204d454e552050
+                4147452054574f20
+                2020202020202020
+                20202020202020  
+   588   0008b8 0a0d                    DB      0AH,0DH
+   589   0008ba 463e205365742056        DM      "F> Set Volume"
                 6f6c756d65      
-   512   00043a 0a0d                    DB      0AH,0DH
-   513   00043c 0a0d                    DB      0AH,0DH
-   514   00043e 473e205365742052        DM      "G> Set Resolution"
+   590   0008c7 0a0d                    DB      0AH,0DH
+   591   0008c9 0a0d                    DB      0AH,0DH
+   592   0008cb 473e205365742052        DM      "G> Set Resolution"
                 65736f6c7574696f
                 6e              
-   515   00044f 0a0d                    DB      0AH,0DH
-   516   000451 483e204c6f616420        DM      "H> Load Font"
+   593   0008dc 0a0d                    DB      0AH,0DH
+   594   0008de 483e204c6f616420        DM      "H> Load Font"
                 466f6e74        
-   517   00045d 0a0d                    DB      0AH,0DH
-   518   00045f 493e20436c656172        DM      "I> Clear"
-   519   000467 0a0d                    DB      0AH,0DH
-   520                          
-   521   000469 0a0d                    DB      0AH,0DH
-   522   00046b 5a3e204578697420        DM      "Z> Exit Program"
+   595   0008ea 0a0d                    DB      0AH,0DH
+   596   0008ec 493e20436c656172        DM      "I> Clear"
+   597   0008f4 0a0d                    DB      0AH,0DH
+   598                          
+   599   0008f6 0a0d                    DB      0AH,0DH
+   600   0008f8 5a3e204578697420        DM      "Z> Exit Program"
                 50726f6772616d  
-   523   00047a 0a0d                    DB      0AH,0DH
-   524                          
-   525   00047c 24                      DM      "$"
-   526                          
-   527                          VGA_TEST:
-   528   00047d 0a0d                    DB      0AH,0DH
-   529   00047f 1b5b34303b33316d        DM      27,"[40;31mH",27,"[40;32mI ",27,"[40;33mF",27,"[40;34mR"
+   601   000907 0a0d                    DB      0AH,0DH
+   602                          
+   603   000909 24                      DM      "$"
+   604                          
+   605                          VGA_TEST:
+   606   00090a 0a0d                    DB      0AH,0DH
+   607   00090c 1b5b34303b33316d        DM      27,"[40;31mH",27,"[40;32mI ",27,"[40;33mF",27,"[40;34mR"
                 481b5b34303b3332
                 6d49201b5b34303b
                 33336d461b5b3430
                 3b33346d52      
-   530   0004a4 1b5b34303b33356d        DM      27,"[40;35mOM ",27,"[40;36mN",27,"[40;37mH",27,"[40;91mY"
+   608   000931 1b5b34303b33356d        DM      27,"[40;35mOM ",27,"[40;36mN",27,"[40;37mH",27,"[40;91mY"
                 4f4d201b5b34303b
                 33366d4e1b5b3430
                 3b33376d481b5b34
                 303b39316d59    
-   531   0004ca 1b5b34303b39326d        DM      27,"[40;92mO",27,"[40;93mD",27,"[40;94mY",27,"[40;95mN"
+   609   000957 1b5b34303b39326d        DM      27,"[40;92mO",27,"[40;93mD",27,"[40;94mY",27,"[40;95mN"
                 4f1b5b34303b3933
                 6d441b5b34303b39
                 346d591b5b34303b
                 39356d4e        
-   532   0004ee 1b5b34303b39366d        DM      27,"[40;96mE ",27,"[40;97m."
+   610   00097b 1b5b34303b39366d        DM      27,"[40;96mE ",27,"[40;97m."
                 45201b5b34303b39
                 376d2e          
-   533   000501 0a0d00                  DB      0AH,0DH,00H
-   534                          
-   535                          
-   536                          CURSOR_PROMPT:
-   537   000504 0a0d                    DB      0AH,0DH
-   538   000506 303e44495341424c        DM      "0>DISABLE CURSOR"
+   611   00098e 0a0d00                  DB      0AH,0DH,00H
+   612                          
+   613                          
+   614                          CURSOR_PROMPT:
+   615   000991 0a0d                    DB      0AH,0DH
+   616   000993 303e44495341424c        DM      "0>DISABLE CURSOR"
                 4520435552534f52
-   539   000516 0a0d                    DB      0AH,0DH
-   540   000518 313e454e41424c45        DM      "1>ENABLE CURSOR"
+   617   0009a3 0a0d                    DB      0AH,0DH
+   618   0009a5 313e454e41424c45        DM      "1>ENABLE CURSOR"
                 20435552534f52  
-   541   000527 0a0d                    DB      0AH,0DH
-   542   000529 24                      DM      "$"
-   543                          
-   544                          BAUD_PROMPT:
-   545   00052a 0a0d                    DB      0AH,0DH
-   546   00052c 454e544552204241        DM      "ENTER BAUD RATE (6 DIGITS HEX):"
+   619   0009b4 0a0d                    DB      0AH,0DH
+   620   0009b6 24                      DM      "$"
+   621                          
+   622                          BAUD_PROMPT:
+   623   0009b7 0a0d                    DB      0AH,0DH
+   624   0009b9 454e544552204241        DM      "ENTER BAUD RATE (6 DIGITS HEX):"
                 5544205241544520
                 2836204449474954
                 5320484558293a  
-   547   00054b 24                      DM      "$"
-   548                          
-   549                          SERIAL_TEST:
-   550   00054c 0a0d                    DB      0AH,0DH
-   551   00054e 5355434345535346        DM      "SUCCESSFUL SERIAL STRING WRITE."
+   625   0009d8 24                      DM      "$"
+   626                          
+   627                          SERIAL_TEST:
+   628   0009d9 0a0d                    DB      0AH,0DH
+   629   0009db 5355434345535346        DM      "SUCCESSFUL SERIAL STRING WRITE."
                 554c205345524941
                 4c20535452494e47
                 2057524954452e  
-   552   00056d 0a0d00                  DB      0AH,0DH,00H
-   553                          
-   554                          MODE_PROMPT:
-   555   000570 0a0d                    DB      0AH,0DH
-   556   000572 454e544552205345        DM      "ENTER SERIAL MODE: (8n1=0,8e1=1,8o1=2,7n1=3,7e1=4,7o1=5):"
+   630   0009fa 0a0d00                  DB      0AH,0DH,00H
+   631                          
+   632                          MODE_PROMPT:
+   633   0009fd 0a0d                    DB      0AH,0DH
+   634   0009ff 454e544552205345        DM      "ENTER SERIAL MODE: (8n1=0,8e1=1,8o1=2,7n1=3,7e1=4,7o1=5):"
                 5249414c204d4f44
                 453a2028386e313d
                 302c3865313d312c
@@ -619,26 +817,26 @@ esptest.asm:
                 313d332c3765313d
                 342c376f313d3529
                 3a              
-   557   0005ab 24                      DM      "$"
-   558                          
-   559                          RESOLUTION_PROMPT:
-   560   0005ac 0a0d                    DB      0AH,0DH
-   561   0005ae 454e544552205343        DM      "ENTER SCREEN RESOLUTION (2 DIGITS HEX):"
+   635   000a38 24                      DM      "$"
+   636                          
+   637                          RESOLUTION_PROMPT:
+   638   000a39 0a0d                    DB      0AH,0DH
+   639   000a3b 454e544552205343        DM      "ENTER SCREEN RESOLUTION (2 DIGITS HEX):"
                 5245454e20524553
                 4f4c5554494f4e20
                 2832204449474954
                 5320484558293a  
-   562   0005d5 24                      DM      "$"
-   563                          FONT_PROMPT:
-   564   0005d6 0a0d                    DB      0AH,0DH
-   565   0005d8 454e54455220464f        DM      "ENTER FONT (2 DIGITS HEX):"
+   640   000a62 24                      DM      "$"
+   641                          FONT_PROMPT:
+   642   000a63 0a0d                    DB      0AH,0DH
+   643   000a65 454e54455220464f        DM      "ENTER FONT (2 DIGITS HEX):"
                 4e54202832204449
                 4749545320484558
                 293a            
-   566   0005f2 24                      DM      "$"
-   567                          
-   568                          PLAY_TEST:
-   569   0005f3 4134203420322041        DM      "A4 4 2 A4 4 2 A#4 4 2 C5 4 2 C5 4 2 A#4 4 2 A4 4 2 G4 4 2 F4 4 2 F4 4 2 G4 4 2 A4 4 2 A4 2 2 G4 16 2 G4 2 2 P 8 2 "
+   644   000a7f 24                      DM      "$"
+   645                          
+   646                          PLAY_TEST:
+   647   000a80 4134203420322041        DM      "A4 4 2 A4 4 2 A#4 4 2 C5 4 2 C5 4 2 A#4 4 2 A4 4 2 G4 4 2 F4 4 2 F4 4 2 G4 4 2 A4 4 2 A4 2 2 G4 16 2 G4 2 2 P 8 2 "
                 3420342032204123
                 3420342032204335
                 2034203220433520
@@ -653,19 +851,145 @@ esptest.asm:
                 3136203220473420
                 3220322050203820
                 3220            
-   570   000665 00                      DB      00
-   571                          SOUND_TEST:
-   572   000666 0500000080000000        DB      5,0,0,0, 128,0,0,0 ,120,0, 0,1,0,0 ,4, 127, 0 ,0, 2 ,1, 0  ,1, 0 ,0
+   648   000af2 00                      DB      00
+   649                          SOUND_TEST:
+   650   000af3 0500000080000000        DB      5,0,0,0, 128,0,0,0 ,120,0, 0,1,0,0 ,4, 127, 0 ,0, 2 ,1, 0  ,1, 0 ,0
                 780000010000047f
                 0000020100010000
-   573                          PARMS:
-   574   00067e 0000000000000000        DB      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+   651                          
+   652                          
+   653                          BITMAP_TEST:                    ;   RGBA, 8 bits per channel. Four bytes contains one pixel. -- LOOKS BEST IN A 64 COLOR MODE!
+   654   000b0b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 00
+                0000000000000000
+   655   000b1b 00000000000000ff        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff; // 10
+                000000ff000000ff
+   656   000b2b 000000ff00000000        DB      0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 20
+                0000000000000000
+   657   000b3b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 30
+                0000000000000000
+   658   000b4b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 40
+                0000000000000000
+   659   000b5b 000000ffb7b5ccff        DB      0x00, 0x00, 0x00, 0xff, 0xb7, 0xb5, 0xcc, 0xff, 0x00, 0x00, 0x00, 0xff, 0x80, 0x5e, 0x4d, 0xff; // 50
+                000000ff805e4dff
+   660   000b6b 000000ff00000000        DB      0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 60
+                0000000000000000
+   661   000b7b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 70
+                0000000000000000
+   662   000b8b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 80
+                0000000000000000
+   663   000b9b 000000ffb7b5ccff        DB      0x00, 0x00, 0x00, 0xff, 0xb7, 0xb5, 0xcc, 0xff, 0x9c, 0x9a, 0xba, 0xff, 0x00, 0x00, 0x00, 0xff; // 90
+                9c9abaff000000ff
+   664   000bab 000000ff00000000        DB      0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // A0
+                0000000000000000
+   665   000bbb 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // B0
+                0000000000000000
+   666   000bcb 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // C0
+                0000000000000000
+   667   000bdb 00000000000000ff        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x9c, 0x9a, 0xba, 0xff, 0x9c, 0x9a, 0xba, 0xff; // D0
+                9c9abaff9c9abaff
+   668   000beb b7b5ccff000000ff        DB      0xb7, 0xb5, 0xcc, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff; // E0
+                000000ff000000ff
+   669   000bfb 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff; // F0
+                000000ff000000ff
+   670   000c0b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 100
+                0000000000000000
+   671   000c1b 00000000000000ff        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff; // 110
+                000000ff000000ff
+   672   000c2b 9c9abaff9c9abaff        DB      0x9c, 0x9a, 0xba, 0xff, 0x9c, 0x9a, 0xba, 0xff, 0xb7, 0xb5, 0xcc, 0xff, 0xb7, 0xb5, 0xcc, 0xff; // 120
+                b7b5ccffb7b5ccff
+   673   000c3b 000000ff000000ff        DB      0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff, 0xdc, 0xdb, 0xe6, 0xff, 0x00, 0x00, 0x00, 0xff; // 130
+                dcdbe6ff000000ff
+   674   000c4b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 140
+                0000000000000000
+   675   000c5b 00000000000000ff        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x80, 0x5e, 0x4d, 0xff, 0x00, 0x00, 0x00, 0xff; // 150
+                805e4dff000000ff
+   676   000c6b 000000ffb7b5ccff        DB      0x00, 0x00, 0x00, 0xff, 0xb7, 0xb5, 0xcc, 0xff, 0x9c, 0x9a, 0xba, 0xff, 0x9c, 0x9a, 0xba, 0xff; // 160
+                9c9abaff9c9abaff
+   677   000c7b b7b5ccffb7b5ccff        DB      0xb7, 0xb5, 0xcc, 0xff, 0xb7, 0xb5, 0xcc, 0xff, 0xdc, 0xdb, 0xe6, 0xff, 0x00, 0x00, 0x00, 0xff; // 170
+                dcdbe6ff000000ff
+   678   000c8b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 180
+                0000000000000000
+   679   000c9b 00000000000000ff        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x80, 0x5e, 0x4d, 0xff, 0x00, 0x00, 0x00, 0xff; // 190
+                805e4dff000000ff
+   680   000cab 000000ff000000ff        DB      0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff, 0x9c, 0x9a, 0xba, 0xff, 0x9c, 0x9a, 0xba, 0xff; // 1A0
+                9c9abaff9c9abaff
+   681   000cbb 9c9abaffb7b5ccff        DB      0x9c, 0x9a, 0xba, 0xff, 0xb7, 0xb5, 0xcc, 0xff, 0xdc, 0xdb, 0xe6, 0xff, 0x00, 0x00, 0x00, 0xff; // 1B0
+                dcdbe6ff000000ff
+   682   000ccb 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 1C0
+                0000000000000000
+   683   000cdb 000000ff805e4dff        DB      0x00, 0x00, 0x00, 0xff, 0x80, 0x5e, 0x4d, 0xff, 0x3f, 0x2c, 0x16, 0xff, 0x00, 0x00, 0x00, 0xff; // 1D0
+                3f2c16ff000000ff
+   684   000ceb 00000000000000ff        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x9c, 0x9a, 0xba, 0xff, 0x9c, 0x9a, 0xba, 0xff; // 1E0
+                9c9abaff9c9abaff
+   685   000cfb 9c9abaffdcdbe6ff        DB      0x9c, 0x9a, 0xba, 0xff, 0xdc, 0xdb, 0xe6, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00; // 1F0
+                000000ff00000000
+   686   000d0b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 200
+                0000000000000000
+   687   000d1b 000000ff3f2c16ff        DB      0x00, 0x00, 0x00, 0xff, 0x3f, 0x2c, 0x16, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00; // 210
+                000000ff00000000
+   688   000d2b 00000000000000ff        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x9c, 0x9a, 0xba, 0xff, 0x9c, 0x9a, 0xba, 0xff; // 220
+                9c9abaff9c9abaff
+   689   000d3b b7b5ccffdcdbe6ff        DB      0xb7, 0xb5, 0xcc, 0xff, 0xdc, 0xdb, 0xe6, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00; // 230
+                000000ff00000000
+   690   000d4b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff; // 240
+                00000000000000ff
+   691   000d5b 805e4dff3f2c16ff        DB      0x80, 0x5e, 0x4d, 0xff, 0x3f, 0x2c, 0x16, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00; // 250
+                000000ff00000000
+   692   000d6b 00000000000000ff        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xb7, 0xb5, 0xcc, 0xff, 0xb7, 0xb5, 0xcc, 0xff; // 260
+                b7b5ccffb7b5ccff
+   693   000d7b dcdbe6ff000000ff        DB      0xdc, 0xdb, 0xe6, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 270
+                0000000000000000
+   694   000d8b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff; // 280
+                00000000000000ff
+   695   000d9b 805e4dff3f2c16ff        DB      0x80, 0x5e, 0x4d, 0xff, 0x3f, 0x2c, 0x16, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00; // 290
+                000000ff00000000
+   696   000dab 000000ffdcdbe6ff        DB      0x00, 0x00, 0x00, 0xff, 0xdc, 0xdb, 0xe6, 0xff, 0xdc, 0xdb, 0xe6, 0xff, 0xdc, 0xdb, 0xe6, 0xff; // 2A0
+                dcdbe6ffdcdbe6ff
+   697   000dbb 000000ff00000000        DB      0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 2B0
+                0000000000000000
+   698   000dcb 000000ff000000ff        DB      0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff, 0x80, 0x5e, 0x4d, 0xff; // 2C0
+                000000ff805e4dff
+   699   000ddb 3f2c16ff000000ff        DB      0x3f, 0x2c, 0x16, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 2D0
+                0000000000000000
+   700   000deb 000000ffdcdbe6ff        DB      0x00, 0x00, 0x00, 0xff, 0xdc, 0xdb, 0xe6, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff; // 2E0
+                000000ff000000ff
+   701   000dfb 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 2F0
+                0000000000000000
+   702   000e0b 000000ff805e4dff        DB      0x00, 0x00, 0x00, 0xff, 0x80, 0x5e, 0x4d, 0xff, 0x80, 0x5e, 0x4d, 0xff, 0x3f, 0x2c, 0x16, 0xff; // 300
+                805e4dff3f2c16ff
+   703   000e1b 000000ff00000000        DB      0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 310
+                0000000000000000
+   704   000e2b 000000ff000000ff        DB      0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 320
+                0000000000000000
+   705   000e3b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 330
+                0000000000000000
+   706   000e4b 000000ff3f2c16ff        DB      0x00, 0x00, 0x00, 0xff, 0x3f, 0x2c, 0x16, 0xff, 0x3f, 0x2c, 0x16, 0xff, 0x00, 0x00, 0x00, 0xff; // 340
+                3f2c16ff000000ff
+   707   000e5b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 350
+                0000000000000000
+   708   000e6b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 360
+                0000000000000000
+   709   000e7b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 370
+                0000000000000000
+   710   000e8b 00000000000000ff        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00; // 380
+                000000ff00000000
+   711   000e9b 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 390
+                0000000000000000
+   712   000eab 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 3A0
+                0000000000000000
+   713   000ebb 0000000000000000        DB      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00; // 3B0
+                0000000000000000
+   714                          BITMAP_TEST_END:
+   715                          
+   716                          
+   717                          PARMS:
+   718   000ecb 0000000000000000        DB      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
                 0000000000000000
                 00000000        
-   575                          BUFFER:
-   576   000692 1400000000000000        DB      20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+   719                          BUFFER:
+   720   000edf 1400000000000000        DB      20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
                 0000000000000000
                 00000000        
-   577                          
-   578                                  .END
-   579                          
+   721                          
+   722                                  .END
+   723                          
