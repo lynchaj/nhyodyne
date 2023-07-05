@@ -139,6 +139,14 @@ MNULOOP2:
         JP      Z,PEN_WIDTH
         CP      '4'
         JP      Z,SET_PIXEL
+        CP      '5'
+        JP      Z,SET_GLYPH_OPTIONS
+        CP      '6'
+        JP      Z,SET_PALETTE_ITEM
+        CP      '7'
+        JP      Z,SET_MOUSE_CURSOR
+        CP      '8'
+        JP      Z,SET_MOUSE_POSITION
 
         CP      'Z'
         JP      Z,MENU_PAGE_1
@@ -772,6 +780,159 @@ SET_PIXEL:
         LD      A,0
         CALL    OUTESP0
         JP      MNULOOP2
+
+
+SET_GLYPH_OPTIONS:
+        LD      C,9
+        LD      DE,GLYPH_PROMPT_1
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS),A
+        LD      C,9
+        LD      DE,GLYPH_PROMPT_2
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+1),A
+        LD      C,9
+        LD      DE,GLYPH_PROMPT_3
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+2),A
+        LD      C,9
+        LD      DE,GLYPH_PROMPT_4
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+3),A
+        LD      C,9
+        LD      DE,GLYPH_PROMPT_5
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+4),A
+        LD      C,9
+        LD      DE,GLYPH_PROMPT_6
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+5),A
+        LD      C,9
+        LD      DE,GLYPH_PROMPT_7
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+6),A
+        LD      A,37            ; SEND OPCODE 37 (SET GLYPH OPTIONS)
+        CALL    OUTESP0
+        LD      A,(PARMS)
+        CALL    OUTESP0
+        LD      A,(PARMS+1)
+        CALL    OUTESP0
+        LD      A,(PARMS+2)
+        CALL    OUTESP0
+        LD      A,(PARMS+3)
+        CALL    OUTESP0
+        LD      A,(PARMS+4)
+        CALL    OUTESP0
+        LD      A,(PARMS+5)
+        CALL    OUTESP0
+        LD      A,(PARMS+6)
+        CALL    OUTESP0
+
+        JP      MNULOOP2
+
+SET_PALETTE_ITEM:
+        LD      C,9
+        LD      DE,PALETTE_PROMPT_1
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS),A
+        LD      C,9
+        LD      DE,PALETTE_PROMPT_2
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+1),A
+        LD      C,9
+        LD      DE,PALETTE_PROMPT_3
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+2),A
+        LD      C,9
+        LD      DE,PALETTE_PROMPT_4
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+3),A
+        LD      A,38            ; SEND OPCODE 38 (SET PALETTE ITEM)
+        CALL    OUTESP0
+        LD      A,(PARMS)
+        CALL    OUTESP0
+        LD      A,(PARMS+1)
+        CALL    OUTESP0
+        LD      A,(PARMS+2)
+        CALL    OUTESP0
+        LD      A,(PARMS+3)
+        CALL    OUTESP0
+        JP      MNULOOP2
+
+SET_MOUSE_CURSOR:
+        LD      A,39            ; SEND OPCODE 39 (SET MOUSE CURSOR)
+        CALL    OUTESP0
+        LD      A,1             ; SEND CURSOR TYPE  1
+        CALL    OUTESP0
+        JP      MNULOOP2
+
+SET_MOUSE_POSITION:
+        LD      A,40            ; SEND OPCODE 40 (SET MOUSE CURSOR POSITION)
+        CALL    OUTESP0
+        LD      A,100           ; SEND X  100
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,50            ; SEND Y  50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        JP      MNULOOP2
 ;
 ;
 ;
@@ -969,7 +1130,7 @@ MENU:
         DB      0AH,0DH
         DM      "D> Play String                                X.  SET BRUSH COLOR              "
         DB      0AH,0DH
-        DM      "E> Play Sound                                 Y.  MENU PAGE TWO                "
+        DM      "E> Play Sound"
         DB      0AH,0DH
         DM      "F> Set Volume"
         DB      0AH,0DH
@@ -978,9 +1139,8 @@ MENU:
         DB      0AH,0DH
         DM      "H> Load Font"
         DB      0AH,0DH
-        DM      "I> Clear"
+        DM      "I> Clear                                      Y.  MENU PAGE TWO                "
         DB      0AH,0DH
-
         DB      0AH,0DH
         DM      "Z> Exit Program"
         DB      0AH,0DH
@@ -1001,13 +1161,13 @@ MENU2:
         DB      0AH,0DH
         DM      "4>  SET PIXEL                                 O.                               "
         DB      0AH,0DH
-        DM      "5>                                            P.                               "
+        DM      "5>  SET GLYPH OPTIONS                         P.                               "
         DB      0AH,0DH
-        DM      "6>                                            Q.                               "
+        DM      "6>  SET PALLETTE ITEM                         Q.                               "
         DB      0AH,0DH
-        DM      "7>                                            R.                               "
+        DM      "7>  SET MOUSE CURSOR                          R.                               "
         DB      0AH,0DH
-        DM      "8>                                            S.                               "
+        DM      "8>  SET MOUSE CURSOR POSITION                 S.                               "
         DB      0AH,0DH
         DM      "9>                                            T.                               "
         DB      0AH,0DH
@@ -1100,6 +1260,53 @@ PEN_PROMPT:
 PEN_WIDTH_PROMPT:
         DB      0AH,0DH
         DM      "ENTER PEN WIDTH (2 DIGITS HEX):"
+        DM      "$"
+
+GLYPH_PROMPT_1:
+        DB      0AH,0DH
+        DM      "GLYPH BLANK? (2 DIGITS HEX):"
+        DM      "$"
+
+GLYPH_PROMPT_2:
+        DB      0AH,0DH
+        DM      "GLYPH BOLD? (2 DIGITS HEX):"
+        DM      "$"
+GLYPH_PROMPT_3:
+        DB      0AH,0DH
+        DM      "GLYPH DOUBLE WIDE? (2 DIGITS HEX):"
+        DM      "$"
+GLYPH_PROMPT_4:
+        DB      0AH,0DH
+        DM      "GLYPH FILL BACKGROUND (2 DIGITS HEX):"
+        DM      "$"
+GLYPH_PROMPT_5:
+        DB      0AH,0DH
+        DM      "GLYPH INVERT (2 DIGITS HEX):"
+        DM      "$"
+GLYPH_PROMPT_6:
+        DB      0AH,0DH
+        DM      "GLYPH ITALIC (2 DIGITS HEX):"
+        DM      "$"
+GLYPH_PROMPT_7:
+        DB      0AH,0DH
+        DM      "GLYPH UNDERLINE (2 DIGITS HEX):"
+        DM      "$"
+
+PALETTE_PROMPT_1:
+        DB      0AH,0DH
+        DM      "PALETTE INDEX (2 DIGITS HEX):"
+        DM      "$"
+PALETTE_PROMPT_2:
+        DB      0AH,0DH
+        DM      "PALETTE B  (2 DIGITS HEX):"
+        DM      "$"
+PALETTE_PROMPT_3:
+        DB      0AH,0DH
+        DM      "PALETTE G (2 DIGITS HEX):"
+        DM      "$"
+PALETTE_PROMPT_4:
+        DB      0AH,0DH
+        DM      "PALETTE R (2 DIGITS HEX):"
         DM      "$"
 
 
