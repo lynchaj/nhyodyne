@@ -147,6 +147,16 @@ MNULOOP2:
         JP      Z,SET_MOUSE_CURSOR
         CP      '8'
         JP      Z,SET_MOUSE_POSITION
+        CP      '9'
+        JP      Z,ENABLE_SPRITES
+        CP      'A'
+        JP      Z,REMOVE_SPRITES
+        CP      'B'
+        JP      Z,SET_SPRITE_MAP
+        CP      'C'
+        JP      Z,SET_SPRITE_LOCATION
+        CP      'D'
+        JP      Z,SET_SPRITE_VISIBILITY
 
         CP      'Z'
         JP      Z,MENU_PAGE_1
@@ -933,6 +943,83 @@ SET_MOUSE_POSITION:
         LD      A,0
         CALL    OUTESP0
         JP      MNULOOP2
+
+
+ENABLE_SPRITES:
+        LD      A,41            ; SEND OPCODE 41 (ENABLE SPRITES)
+        CALL    OUTESP0
+        LD      A,1             ; SEND 1
+        CALL    OUTESP0
+        JP      MNULOOP2
+
+REMOVE_SPRITES:
+        LD      A,42            ; SEND OPCODE 42 (REMOVE SPRITES)
+        CALL    OUTESP0
+        JP      MNULOOP2
+
+
+SET_SPRITE_MAP:
+        LD      HL,BITMAP_TEST
+        LD      A,43            ; SEND OPCODE 43 (SET SPRITE MAP)
+        CALL    OUTESP0
+        LD      A,1             ; SEND INDEX 1
+        CALL    OUTESP0
+        LD      A,16            ; BITMAP WIDTH
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A, 15           ; BITMAP HEIGHT
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A, 4            ; BITMAP FORMAT  FORMAT=RGBA8888
+        CALL    OUTESP0
+        LD      A,0C0H          ; SEND BITMAP LENGTH (03C0)
+        CALL    OUTESP0
+        LD      A,03H
+        CALL    OUTESP0
+        LD      HL,BITMAP_TEST
+        LD      DE,BITMAP_TEST_END
+        PUSH    HL
+SET_SPRITE_MAP_1:
+        POP     HL
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP0
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        PUSH    HL
+        OR      a               ; AT THE END?
+        SBC     hl, de
+        ADD     hl, de
+        JP      nz,SET_SPRITE_MAP_1
+        POP     HL
+        JP      MNULOOP2
+
+
+SET_SPRITE_LOCATION:
+        LD      A,44            ; SEND OPCODE 44 (SET SPRITE LOCATION)
+        CALL    OUTESP0
+        LD      A,100           ; SEND X  100
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,50            ; SEND Y  50
+        CALL    OUTESP0
+        LD      A,0
+        CALL    OUTESP0
+        LD      A,1             ; SEND 1
+        CALL    OUTESP0
+        JP      MNULOOP2
+
+SET_SPRITE_VISIBILITY:
+        LD      A,45            ; SEND OPCODE 45 (SET SPRITE VISIBILITY)
+        CALL    OUTESP0
+        LD      A,1             ; SEND INDEX 1
+        CALL    OUTESP0
+        LD      A,1             ; SET VISIBLE
+        CALL    OUTESP0
+        JP      MNULOOP2
+
 ;
 ;
 ;
@@ -1153,31 +1240,35 @@ MENU2:
         DM      "                       Nhodyne ESP32 IO board test PAGE 2"
         DB      0AH,0DH,0AH,0DH,0AH,0DH
 ;                12345678901234567890123456789012345678901234567890123456789012345678901234567890
-        DM      "1>  SET LINE END TYPE                         L.                               "
+        DM      "1>  SET LINE END TYPE                         J.                               "
         DB      0AH,0DH
-        DM      "2>  SET PEN COLOR                             M.                               "
+        DM      "2>  SET PEN COLOR                             K.                               "
         DB      0AH,0DH
-        DM      "3>  SET PEN WIDTH                             N.                               "
+        DM      "3>  SET PEN WIDTH                             L.                               "
         DB      0AH,0DH
-        DM      "4>  SET PIXEL                                 O.                               "
+        DM      "4>  SET PIXEL                                 M.                               "
         DB      0AH,0DH
-        DM      "5>  SET GLYPH OPTIONS                         P.                               "
+        DM      "5>  SET GLYPH OPTIONS                         N.                               "
         DB      0AH,0DH
-        DM      "6>  SET PALLETTE ITEM                         Q.                               "
+        DM      "6>  SET PALLETTE ITEM                         O.                               "
         DB      0AH,0DH
-        DM      "7>  SET MOUSE CURSOR                          R.                               "
+        DM      "7>  SET MOUSE CURSOR                          P.                               "
         DB      0AH,0DH
-        DM      "8>  SET MOUSE CURSOR POSITION                 S.                               "
+        DM      "8>  SET MOUSE CURSOR POSITION                 Q.                               "
         DB      0AH,0DH
-        DM      "9>                                            T.                               "
+        DM      "                                              R.                               "
         DB      0AH,0DH
-        DM      "A>                                            U.                               "
+        DM      "9> ENABLE SPRITES                             S.                               "
         DB      0AH,0DH
-        DM      "B>                                            V.                               "
+        DM      "A> REMOVE SPRITES                             T.                               "
         DB      0AH,0DH
-        DM      "C>                                            W.                               "
+        DM      "B> SET SPRITE MAP                             U.                               "
         DB      0AH,0DH
-        DM      "D>                                            X.                               "
+        DM      "C> SET SPRITE LOCATION                        V.                               "
+        DB      0AH,0DH
+        DM      "D> SET SPRITE VISIBILITY                      W.                               "
+        DB      0AH,0DH
+        DM      "                                              X.                               "
         DB      0AH,0DH
         DM      "E>                                            Y.                               "
         DB      0AH,0DH
@@ -1187,12 +1278,7 @@ MENU2:
         DB      0AH,0DH
         DM      "H>                                                                           "
         DB      0AH,0DH
-        DB      0AH,0DH
         DM      "I>                                                                           "
-        DB      0AH,0DH
-        DM      "J>                                                                           "
-        DB      0AH,0DH
-        DM      "K>                                                                           "
         DB      0AH,0DH
         DB      0AH,0DH
         DM      "Z> MENU PAGE ONE"
