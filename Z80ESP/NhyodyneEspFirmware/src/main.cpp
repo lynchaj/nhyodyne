@@ -7,7 +7,7 @@
 #include "serial.h"
 #include "sound.h"
 
-//fabgl::VGAController DisplayController;
+// fabgl::VGAController DisplayController;
 fabgl::Terminal Terminal;
 fabgl::PS2Controller PS2Controller;
 fabgl::SoundGenerator soundGenerator;
@@ -30,8 +30,34 @@ static uint8_t stateMachine = 0;
 // 9 play sound waiting for value
 // 10 set volume waiting for value
 // 11 set resolution waiting for value
-// 12 loadFont  waiting for value
-// 13 copyRect  waiting for value
+// 12 loadFont waiting for value
+// 13 copyRect waiting for value
+// 14 drawBitmap waiting for value
+// 15 drawChar waiting for value
+// 16 drawEllipse waiting for value
+// 17 drawGlyph waiting for value
+// 18 drawLine waiting for value
+// 19 drawRectangle waiting for value
+// 20 fillEllipse waiting for value
+// 21 fillRectangle waiting for value
+// 22 getPixel waiting for value
+// 23 invertRectangle waiting for value
+// 24 lineTo waiting for value
+// 25 moveTo waiting for value
+// 26 scroll waiting for value
+// 27 setBrushColor waiting for value
+// 28 setLineEnds waiting for value
+// 29 setPenColor waiting for value
+// 30 setPenWidth waiting for value
+// 31 setPixel waiting for value
+// 32 setGlyphOptions waiting for value
+// 33 setPaletteItem waiting for value
+// 34 setMouseCursor waiting for value
+// 35 setMouseCursorPosition waiting for value
+// 36 enableSprites waiting for value
+// 37 setSpriteMap waiting for value
+// 38 setSpriteLocation waiting for value
+// 39 setSpriteVisibility waiting for value
 
 void processOpcode(uint8_t b);
 
@@ -41,19 +67,9 @@ void setup()
     delay(200); // experienced crashes without this delay!
     disableCore1WDT();
 
-
     PS2Controller.begin(PS2Preset::KeyboardPort0);
-  //  DisplayController.begin(GPIO_NUM_22, GPIO_NUM_21, GPIO_NUM_19, GPIO_NUM_18, GPIO_NUM_5, GPIO_NUM_4, GPIO_NUM_23, GPIO_NUM_15);
-  //  DisplayController.setResolution(VGA_640x480_60Hz);
-  //  Terminal.begin(&DisplayController);
-  //  Terminal.connectLocally();
-  //  Terminal.enableCursor(true);
 
- //   Terminal.write("\e[40;92m"); // background: black, foreground: green
- //   Terminal.write("\e[2J");     // clear screen
-  //  Terminal.write("\e[1;1H");   // move cursor to 1,1
-
-    graphics.initialize( &Terminal);
+    graphics.initialize(&Terminal);
     serial.initialize();
     sound.initialize(&soundGenerator);
 
@@ -163,11 +179,116 @@ void loop()
             stateMachine = 0;
             break;
         case 13: // 13 copyRect waiting for value
-            if(graphics.copyRect(popByte())) stateMachine = 0;
+            if (graphics.copyRect(popByte()))
+                stateMachine = 0;
             break;
-
+        case 14: // 14 drawBitmap waiting for value
+            if (graphics.drawBitmap(popByte()))
+                stateMachine = 0;
+            break;
+        case 15: // 15 drawChar waiting for value
+            if (graphics.drawChar(popByte()))
+                stateMachine = 0;
+            break;
+        case 16: // 16 drawEllipse waiting for value
+            if (graphics.drawEllipse(popByte()))
+                stateMachine = 0;
+            break;
+        case 17: // 17 drawGlyph waiting for value
+            if (graphics.drawGlyph(popByte()))
+                stateMachine = 0;
+            break;
+        case 18: // 18 drawLine waiting for value
+            if (graphics.drawLine(popByte()))
+                stateMachine = 0;
+            break;
+        case 19: // 19 drawRectangle waiting for value
+            if (graphics.drawRectangle(popByte()))
+                stateMachine = 0;
+            break;
+        case 20: // 20 fillEllipse waiting for value
+            if (graphics.fillEllipse(popByte()))
+                stateMachine = 0;
+            break;
+        case 21: // 21 fillRectangle waiting for value
+            if (graphics.fillRectangle(popByte()))
+                stateMachine = 0;
+            break;
+        case 22: // 22 getPixel waiting for value
+            if (graphics.getPixel(popByte()))
+                stateMachine = 0;
+            break;
+        case 23: // 23 invertRectangle waiting for value
+            if (graphics.invertRectangle(popByte()))
+                stateMachine = 0;
+            break;
+        case 24: // 24 lineTo waiting for value
+            if (graphics.lineTo(popByte()))
+                stateMachine = 0;
+            break;
+        case 25: // 25 moveTo waiting for value
+            if (graphics.moveTo(popByte()))
+                stateMachine = 0;
+            break;
+        case 26: // 26 scroll waiting for value
+            if (graphics.scroll(popByte()))
+                stateMachine = 0;
+            break;
+        case 27: // 27 setBrushColor waiting for value
+            graphics.setBrushColor(popByte());
+            stateMachine = 0;
+            break;
+        case 28: // 28 setLineEnds waiting for value
+            graphics.setLineEnds(popByte());
+            stateMachine = 0;
+            break;
+        case 29: // 29 setPenColor waiting for value
+            graphics.setPenColor(popByte());
+            stateMachine = 0;
+            break;
+        case 30: // 30 setPenWidth waiting for value
+            graphics.setPenWidth(popByte());
+            stateMachine = 0;
+            break;
+        case 31: // 31 setPixel waiting for value
+            if (graphics.setPixel(popByte()))
+                stateMachine = 0;
+            break;
+        case 32: // setGlyphOptions waiting for value
+            if (graphics.setGlyphOptions(popByte()))
+                stateMachine = 0;
+            break;
+        case 33: // setPaletteItem waiting for value
+            if (graphics.setPaletteItem(popByte()))
+                stateMachine = 0;
+            break;
+        case 34: // setMouseCursor waiting for value
+            graphics.setMouseCursor(popByte());
+            stateMachine = 0;
+            break;
+        case 35: // setMouseCursorPosition waiting for value
+            if (graphics.setMouseCursorPosition(popByte()))
+                stateMachine = 0;
+            break;
+        case 36: // enableSprites waiting for value
+            graphics.enableSprites(popByte());
+            stateMachine = 0;
+            break;
+        case 37: // setSpriteMap waiting for value
+            if (graphics.setSpriteMap(popByte()))
+                stateMachine = 0;
+            break;
+        case 38: // setSpriteLocation waiting for value
+            if (graphics.setSpriteLocation(popByte()))
+                stateMachine = 0;
+            break;
+        case 39: // setSpriteVisibility waiting for value
+            if (graphics.setSpriteLocation(popByte()))
+                stateMachine = 0;
+            break;
         }
     }
+    graphics.processSprite();
 }
 
 void processOpcode(uint8_t b)
@@ -243,8 +364,113 @@ void processOpcode(uint8_t b)
         break;
     case 18: // copyRect
         graphics.resetPointer();
-        stateMachine = 12;
+        stateMachine = 13;
         break;
+    case 19: // drawBitmap
+        graphics.resetPointer();
+        stateMachine = 14;
+        break;
+    case 20: // drawChar
+        graphics.resetPointer();
+        stateMachine = 15;
+        break;
+    case 21: // drawEllipse
+        graphics.resetPointer();
+        stateMachine = 16;
+        break;
+    case 22: // drawGlyph
+        graphics.resetPointer();
+        stateMachine = 17;
+        break;
+    case 23: // drawLine
+        graphics.resetPointer();
+        stateMachine = 18;
+        break;
+    case 24: // drawRectangle
+        graphics.resetPointer();
+        stateMachine = 19;
+        break;
+    case 25: // fillEllipse
+        graphics.resetPointer();
+        stateMachine = 20;
+        break;
+    case 26: // fillRectangle
+        graphics.resetPointer();
+        stateMachine = 21;
+        break;
+    case 27: // getPixel
+        graphics.resetPointer();
+        stateMachine = 22;
+        break;
+    case 28: // invertRectangle
+        graphics.resetPointer();
+        stateMachine = 23;
+        break;
+    case 29: // lineTo
+        graphics.resetPointer();
+        stateMachine = 24;
+        break;
+    case 30: // moveTo
+        graphics.resetPointer();
+        stateMachine = 25;
+        break;
+    case 31: // scroll
+        graphics.resetPointer();
+        stateMachine = 26;
+        break;
+    case 32: // setBrushColor
+        stateMachine = 27;
+        break;
+    case 33: // setLineEnds
+        graphics.resetPointer();
+        stateMachine = 28;
+        break;
+    case 34: // setPenColor
+        stateMachine = 29;
+        break;
+    case 35: // setPenWidth
+        graphics.resetPointer();
+        stateMachine = 30;
+        break;
+    case 36: // setPixel
+        graphics.resetPointer();
+        stateMachine = 31;
+        break;
+    case 37: // setPixelsetGlyphOptions
+        graphics.resetPointer();
+        stateMachine = 32;
+        break;
+    case 38: // setPixelsetPaletteItem
+        graphics.resetPointer();
+        stateMachine = 33;
+        break;
+    case 39: // setPixelsetMouseCursor
+        stateMachine = 34;
+        break;
+    case 40: // setPixelsetMouseCursorPosition
+        graphics.resetPointer();
+        stateMachine = 35;
+        break;
+    case 41: // setPixelenableSprites
+        stateMachine = 36;
+        break;
+    case 42: // setPixelremoveSprites()
+        graphics.removeSprites();
+        stateMachine = 0;
+        break;
+    case 43: // setPixelsetSpriteMap
+        graphics.resetPointer();
+        stateMachine = 37;
+        break;
+    case 44: // setPixelsetSpriteLocation
+        graphics.resetPointer();
+        stateMachine = 38;
+        break;
+    case 45: // setPixelsetSpriteVisibility
+        graphics.resetPointer();
+        stateMachine = 39;
+        break;
+
     case 255: // HARDWARE DISCOVERY
         stateMachine = 0;
         queueByte('E');

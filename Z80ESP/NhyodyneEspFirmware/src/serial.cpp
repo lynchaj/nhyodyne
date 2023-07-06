@@ -41,6 +41,7 @@ void serialHelper::setSerialMode(uint8_t b)
         serialMode = SERIAL_8N1;
         break;
     }
+     Serial.begin(serialBaud, serialMode);
 }
 
 void serialHelper::serialIn()
