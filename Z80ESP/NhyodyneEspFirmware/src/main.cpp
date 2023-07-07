@@ -54,12 +54,12 @@ static uint8_t stateMachine = 0;
 // 33 setPaletteItem waiting for value
 // 34 setMouseCursor waiting for value
 // 35 setMouseCursorPosition waiting for value
-// 36 enableSprites waiting for value
-// 37 setSpriteMap waiting for value
-// 38 setSpriteLocation waiting for value
-// 39 setSpriteVisibility waiting for value
+// 36 setSpriteMap waiting for value
+// 37 setSpriteLocation waiting for value
+// 38 setSpriteVisibility waiting for value
 
 void processOpcode(uint8_t b);
+void attachInterruptTask(void *pvParameters);
 
 void setup()
 {
@@ -73,8 +73,6 @@ void setup()
     serial.initialize();
     sound.initialize(&soundGenerator);
 
-    pinMode(WR, INPUT);
-    pinMode(RD, INPUT);
     pinMode(OUTCLK, OUTPUT);
     pinMode(INCLK, OUTPUT);
     pinMode(OUTDATA, OUTPUT);
@@ -93,8 +91,22 @@ void setup()
     digitalWrite(READY, LOW);
     digitalWrite(SPARE, LOW);
 
+    xTaskCreatePinnedToCore(attachInterruptTask, "Attach Interrupt Task", 1000, NULL, 6, NULL, 0);
+}
+
+void attachInterruptTask(void *pvParameters)
+{
+
+    pinMode(WR, INPUT);
+    pinMode(RD, INPUT);
     attachInterrupt(WR, WRISR, FALLING);
     attachInterrupt(RD, RDISR, FALLING);
+
+    while (true)
+    {
+        delay(500);
+    }
+    vTaskDelete(NULL);
 }
 
 void loop()
@@ -270,25 +282,20 @@ void loop()
             if (graphics.setMouseCursorPosition(popByte()))
                 stateMachine = 0;
             break;
-        case 36: // enableSprites waiting for value
-            graphics.enableSprites(popByte());
-            stateMachine = 0;
-            break;
-        case 37: // setSpriteMap waiting for value
+        case 36: // setSpriteMap waiting for value
             if (graphics.setSpriteMap(popByte()))
                 stateMachine = 0;
             break;
-        case 38: // setSpriteLocation waiting for value
+        case 37: // setSpriteLocation waiting for value
             if (graphics.setSpriteLocation(popByte()))
                 stateMachine = 0;
             break;
-        case 39: // setSpriteVisibility waiting for value
-            if (graphics.setSpriteLocation(popByte()))
+        case 38: // setSpriteVisibility waiting for value
+            if (graphics.setSpriteVisibility(popByte()))
                 stateMachine = 0;
             break;
         }
     }
-    graphics.processSprite();
 }
 
 void processOpcode(uint8_t b)
@@ -451,24 +458,21 @@ void processOpcode(uint8_t b)
         graphics.resetPointer();
         stateMachine = 35;
         break;
-    case 41: // setPixelenableSprites
-        stateMachine = 36;
-        break;
-    case 42: // setPixelremoveSprites()
+    case 41: // removeSprites()
         graphics.removeSprites();
         stateMachine = 0;
         break;
-    case 43: // setPixelsetSpriteMap
+    case 42: // setPixelsetSpriteMap
+        graphics.resetPointer();
+        stateMachine = 36;
+        break;
+    case 43: // setPixelsetSpriteLocation
         graphics.resetPointer();
         stateMachine = 37;
         break;
-    case 44: // setPixelsetSpriteLocation
+    case 44: // setPixelsetSpriteVisibility
         graphics.resetPointer();
         stateMachine = 38;
-        break;
-    case 45: // setPixelsetSpriteVisibility
-        graphics.resetPointer();
-        stateMachine = 39;
         break;
 
     case 255: // HARDWARE DISCOVERY

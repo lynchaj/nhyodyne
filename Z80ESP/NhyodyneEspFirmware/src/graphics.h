@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <Preferences.h>
 
-#define NumberOfSprites 16
+#define NumberOfSprites 32
 
 class retroGraphics
 {
@@ -56,8 +56,10 @@ private:
     uint8_t *buffer;
     uint8_t *currentPointer;
     fabgl::Sprite m_sprite[NumberOfSprites];
-    bool spritesEnabled=false;
+    fabgl::Bitmap m_spriteBitmap[NumberOfSprites];
     Preferences preferences;
+
+
 
     void setupDisplay();
     void m_setGraphicsMode(uint8_t b);

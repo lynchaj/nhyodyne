@@ -148,14 +148,12 @@ MNULOOP2:
         CP      '8'
         JP      Z,SET_MOUSE_POSITION
         CP      '9'
-        JP      Z,ENABLE_SPRITES
-        CP      'A'
         JP      Z,REMOVE_SPRITES
-        CP      'B'
+        CP      'A'
         JP      Z,SET_SPRITE_MAP
-        CP      'C'
+        CP      'B'
         JP      Z,SET_SPRITE_LOCATION
-        CP      'D'
+        CP      'C'
         JP      Z,SET_SPRITE_VISIBILITY
 
         CP      'Z'
@@ -945,24 +943,18 @@ SET_MOUSE_POSITION:
         JP      MNULOOP2
 
 
-ENABLE_SPRITES:
-        LD      A,41            ; SEND OPCODE 41 (ENABLE SPRITES)
-        CALL    OUTESP0
-        LD      A,1             ; SEND 1
-        CALL    OUTESP0
-        JP      MNULOOP2
 
 REMOVE_SPRITES:
-        LD      A,42            ; SEND OPCODE 42 (REMOVE SPRITES)
+        LD      A,41            ; SEND OPCODE 41 (REMOVE SPRITES)
         CALL    OUTESP0
         JP      MNULOOP2
 
 
 SET_SPRITE_MAP:
         LD      HL,BITMAP_TEST
-        LD      A,43            ; SEND OPCODE 43 (SET SPRITE MAP)
+        LD      A,42            ; SEND OPCODE 42 (SET SPRITE MAP)
         CALL    OUTESP0
-        LD      A,1             ; SEND INDEX 1
+        LD      A,0             ; SEND INDEX 1
         CALL    OUTESP0
         LD      A,16            ; BITMAP WIDTH
         CALL    OUTESP0
@@ -997,7 +989,7 @@ SET_SPRITE_MAP_1:
 
 
 SET_SPRITE_LOCATION:
-        LD      A,44            ; SEND OPCODE 44 (SET SPRITE LOCATION)
+        LD      A,43            ; SEND OPCODE 43 (SET SPRITE LOCATION)
         CALL    OUTESP0
         LD      A,100           ; SEND X  100
         CALL    OUTESP0
@@ -1007,12 +999,12 @@ SET_SPRITE_LOCATION:
         CALL    OUTESP0
         LD      A,0
         CALL    OUTESP0
-        LD      A,1             ; SEND 1
+        LD      A,0             ; SEND 1
         CALL    OUTESP0
         JP      MNULOOP2
 
 SET_SPRITE_VISIBILITY:
-        LD      A,45            ; SEND OPCODE 45 (SET SPRITE VISIBILITY)
+        LD      A,44            ; SEND OPCODE 44 (SET SPRITE VISIBILITY)
         CALL    OUTESP0
         LD      A,1             ; SEND INDEX 1
         CALL    OUTESP0
@@ -1258,15 +1250,15 @@ MENU2:
         DB      0AH,0DH
         DM      "                                              R.                               "
         DB      0AH,0DH
-        DM      "9> ENABLE SPRITES                             S.                               "
+        DM      "9> REMOVE SPRITES                             S.                               "
         DB      0AH,0DH
-        DM      "A> REMOVE SPRITES                             T.                               "
+        DM      "A> SET SPRITE MAP                             T.                               "
         DB      0AH,0DH
-        DM      "B> SET SPRITE MAP                             U.                               "
+        DM      "B> SET SPRITE LOCATION                        U.                               "
         DB      0AH,0DH
-        DM      "C> SET SPRITE LOCATION                        V.                               "
+        DM      "C> SET SPRITE VISIBILITY                      V.                               "
         DB      0AH,0DH
-        DM      "D> SET SPRITE VISIBILITY                      W.                               "
+        DM      "D>                                            W.                               "
         DB      0AH,0DH
         DM      "                                              X.                               "
         DB      0AH,0DH

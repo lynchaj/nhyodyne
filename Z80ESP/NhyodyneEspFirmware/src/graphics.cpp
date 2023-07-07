@@ -214,7 +214,6 @@ void retroGraphics::m_setGraphicsMode(uint8_t b)
     m_Terminal->write("\e[40;32m"); // background: black, foreground: green
     m_Terminal->write("\e[2J");     // clear screen
     m_Terminal->write("\e[1;1H");   // move cursor to 1,1
-    m_Display->setSprites(m_sprite, NumberOfSprites);
 }
 
 void retroGraphics::initVGA16Controller()
@@ -395,7 +394,7 @@ bool retroGraphics::drawGlyph(uint8_t b)
 
         if ((currentPointer - buffer) == (sizeof(drawGlyphParameter) + p->length))
         {
-            m_Terminal->canvas()->drawGlyph(p->X, p->Y, p->width, p->height,&buffer[sizeof(drawGlyphParameter)], p->index);
+            m_Terminal->canvas()->drawGlyph(p->X, p->Y, p->width, p->height, &buffer[sizeof(drawGlyphParameter)], p->index);
             m_Terminal->canvas()->waitCompletion(false);
             return true;
         }
@@ -579,20 +578,13 @@ bool retroGraphics::setMouseCursorPosition(uint8_t b)
     }
     return false;
 }
-void retroGraphics::enableSprites(uint8_t b)
-{
-    if (b == 0)
-    {
-        spritesEnabled = false;
-    }
-    else
-    {
-        spritesEnabled = true;
-        printf("sprites enabled\n\r");
-    }
-}
 void retroGraphics::removeSprites()
 {
+
+    for (int x = 0; x < NumberOfSprites; x++)
+    {
+        m_sprite->clearBitmaps();
+    }
     m_Display->removeSprites();
 }
 bool retroGraphics::setSpriteMap(uint8_t b)
@@ -605,14 +597,12 @@ bool retroGraphics::setSpriteMap(uint8_t b)
 
         if ((currentPointer - buffer) == (sizeof(spriteBitmapParameter) + p->length))
         {
-            printf("sprite map-> %i,%i,%i\n\r",p->width, p->height, p->format);
             if (p->index < NumberOfSprites)
             {
-                printf("did it\n\r");
-                fabgl::Bitmap map = Bitmap(p->width, p->height, &buffer[sizeof(spriteBitmapParameter)], p->format);
-                m_sprite[p->index].addBitmap(&map);
-                m_Display->setSprites(m_sprite, NumberOfSprites);
+                m_spriteBitmap[p->index] = Bitmap(p->width, p->height, &buffer[sizeof(spriteBitmapParameter)], p->format);
+                m_sprite[p->index].addBitmap(&m_spriteBitmap[p->index]);
                 m_Terminal->canvas()->waitCompletion(false);
+                m_Display->setSprites(m_sprite, 1);
             }
             return true;
         }
@@ -626,7 +616,6 @@ bool retroGraphics::setSpriteLocation(uint8_t b)
     {
         xyIndexParameter *p;
         p = (xyIndexParameter *)buffer;
-        printf("sprite move-> %i,%i,%i\n\r",p->index, p->X, p->Y);
         if (p->index < NumberOfSprites)
         {
             m_sprite[p->index].moveTo(p->X, p->Y);
@@ -639,23 +628,22 @@ bool retroGraphics::setSpriteLocation(uint8_t b)
 bool retroGraphics::setSpriteVisibility(uint8_t b)
 {
     *currentPointer++ = b;
-    if ((currentPointer - buffer) == 1)
+    if ((currentPointer - buffer) == sizeof(spriteVisibilityParameter))
     {
         spriteVisibilityParameter *p;
         p = (spriteVisibilityParameter *)buffer;
-         printf("sprite VISIBILITY-> %i,%i\n\r",p->index, p->visible);
         if (p->index < NumberOfSprites)
         {
-            m_sprite[p->index].visible = p->visible;
+            if (p->visible == 0)
+            {
+                m_sprite[p->index].visible = false;
+            }
+            else
+            {
+                m_sprite[p->index].visible = true;
+            }
         }
         return true;
     }
     return false;
-}
-void retroGraphics::processSprite()
-{
-    if (spritesEnabled)
-    {
-        m_Display->refreshSprites();
-    }
 }
