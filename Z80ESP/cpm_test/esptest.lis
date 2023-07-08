@@ -1060,7 +1060,7 @@ esptest.asm:
   1059   0008a0 cd5709                  CALL    OUTESP1
   1060   0008a3 3e00                    LD      A,0
   1061   0008a5 cd5709                  CALL    OUTESP1
-  1062   0008a8 c30b00                  JP      MNULOOP
+  1062   0008a8 c3cf00                  JP      MNULOOP2
   1063                          
   1064                          SET_MODE2:
   1065   0008ab 0e09                    LD      C,9
@@ -1074,7 +1074,7 @@ esptest.asm:
   1073   0008bd cd5709                  CALL    OUTESP1
   1074   0008c0 f1                      POP     AF
   1075   0008c1 cd5709                  CALL    OUTESP1
-  1076   0008c4 c30b00                  JP      MNULOOP
+  1076   0008c4 c3cf00                  JP      MNULOOP2
   1077                          
   1078                          
   1079                          SERIAL_TX_CHAR2:
@@ -1082,7 +1082,7 @@ esptest.asm:
   1081   0008c9 cd5709                  CALL    OUTESP1
   1082   0008cc 3e2a                    LD      A,'*'
   1083   0008ce cd5709                  CALL    OUTESP1
-  1084   0008d1 c30b00                  JP      MNULOOP
+  1084   0008d1 c3cf00                  JP      MNULOOP2
   1085                          
   1086                          
   1087                          SERIAL_TX_STRING2:
@@ -1096,7 +1096,7 @@ esptest.asm:
   1095   0008e1 23                      INC     HL
   1096   0008e2 fe00                    CP      0
   1097   0008e4 c2dc08                  JP      nz,SERIAL_TX_STRING2_1
-  1098   0008e7 c30b00                  JP      MNULOOP
+  1098   0008e7 c3cf00                  JP      MNULOOP2
   1099                          
   1100                          
   1101                          GET_SERIAL_IN2:
@@ -1105,7 +1105,7 @@ esptest.asm:
   1104   0008ef cd5709                  CALL    OUTESP1
   1105   0008f2 cd6a09                  CALL    INESP1_WAIT
   1106   0008f5 cdb209                  CALL    prtchr
-  1107   0008f8 c30b00                  JP      MNULOOP
+  1107   0008f8 c3cf00                  JP      MNULOOP2
   1108                          
   1109                          
   1110                          GET_SERIAL_CHARS_IN_BUFFER2:
@@ -1114,7 +1114,7 @@ esptest.asm:
   1113   000900 cd5709                  CALL    OUTESP1
   1114   000903 cd6a09                  CALL    INESP1_WAIT
   1115   000906 cda209                  CALL    prthex
-  1116   000909 c30b00                  JP      MNULOOP
+  1116   000909 c3cf00                  JP      MNULOOP2
   1117                          
   1118                          
   1119                          

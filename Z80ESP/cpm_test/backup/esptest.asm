@@ -9,6 +9,8 @@ BDOS:           EQU $0005       ; BDOS invocation vector
 
 ESP0:           EQU 9CH         ; ESP0 IO PORT
 
+ESP1:           EQU 9DH         ; ESP1 IO PORT
+
 ESP_STATUS:     EQU 9EH         ; ESP  STATUS PORT
                                 ; MSB XX S S S S S S
                                 ;        | | | | | |- ESP0 READY OUTPUT
@@ -1057,7 +1059,7 @@ SET_BAUD2:
         CALL    OUTESP1
         LD      A,0
         CALL    OUTESP1
-        JP      MNULOOP
+        JP      MNULOOP2
 
 SET_MODE2:
         LD      C,9
@@ -1071,7 +1073,7 @@ SET_MODE2:
         CALL    OUTESP1
         POP     AF
         CALL    OUTESP1
-        JP      MNULOOP
+        JP      MNULOOP2
 
 
 SERIAL_TX_CHAR2:
@@ -1079,7 +1081,7 @@ SERIAL_TX_CHAR2:
         CALL    OUTESP1
         LD      A,'*'
         CALL    OUTESP1
-        JP      MNULOOP
+        JP      MNULOOP2
 
 
 SERIAL_TX_STRING2:
@@ -1093,7 +1095,7 @@ SERIAL_TX_STRING2_1:
         INC     HL
         CP      0
         JP      nz,SERIAL_TX_STRING2_1
-        JP      MNULOOP
+        JP      MNULOOP2
 
 
 GET_SERIAL_IN2:
@@ -1102,7 +1104,7 @@ GET_SERIAL_IN2:
         CALL    OUTESP1
         CALL    INESP1_WAIT
         CALL    prtchr
-        JP      MNULOOP
+        JP      MNULOOP2
 
 
 GET_SERIAL_CHARS_IN_BUFFER2:
@@ -1111,7 +1113,7 @@ GET_SERIAL_CHARS_IN_BUFFER2:
         CALL    OUTESP1
         CALL    INESP1_WAIT
         CALL    prthex
-        JP      MNULOOP
+        JP      MNULOOP2
 
 
 

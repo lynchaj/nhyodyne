@@ -10,13 +10,13 @@ serialHelper serial;
 
 static uint8_t stateMachine = 0;
 // states
- // 0 waiting for command
- // 1 WIFI out single char, waiting for char
- // 2 WIFI out multi, waiting for char
- // 4 Serial Port Baud Rate wait for bytes
- // 5 Serial Port Baud Rate wait for byte of mode
- // 6 Serial Port out single char, waiting for char
- // 7 Serial Port out multi, waiting for char
+// 0 waiting for command
+// 1 WIFI out single char, waiting for char
+// 2 WIFI out multi, waiting for char
+// 4 Serial Port Baud Rate wait for bytes
+// 5 Serial Port Baud Rate wait for byte of mode
+// 6 Serial Port out single char, waiting for char
+// 7 Serial Port out multi, waiting for char
 
 void processOpcode(uint8_t b);
 void attachInterruptTask(void *pvParameters);
@@ -133,18 +133,18 @@ void processOpcode(uint8_t b)
         stateMachine = 2;
         break;
     case 3: // GET WIFI CHAR
-//        if (Terminal.available())
+            //        if (Terminal.available())
         {
-  //          queueByte(Terminal.read());
+            //          queueByte(Terminal.read());
         }
-    //    else
+        //    else
         {
-    //        queueByte(0);
+            //        queueByte(0);
         }
         stateMachine = 0;
         break;
     case 4: // GET KEYBOARD WAITING
-   //     queueByte(Terminal.available());
+            //     queueByte(Terminal.available());
         stateMachine = 0;
         break;
     case 6: // GET SERIAL BAUD

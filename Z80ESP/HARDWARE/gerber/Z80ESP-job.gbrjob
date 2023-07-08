@@ -5,13 +5,13 @@
       "Application": "Pcbnew",
       "Version": "(6.0.11)"
     },
-    "CreationDate": "2023-06-24T19:35:44-05:00"
+    "CreationDate": "2023-07-08T12:33:34-05:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
       "Name": "Z80ESP",
       "GUID": "5a383045-5350-42e6-9b69-6361645f7063",
-      "Revision": "V0.7"
+      "Revision": "V0.9"
     },
     "Size": {
       "X": 100.15,

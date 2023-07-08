@@ -1059,7 +1059,7 @@ SET_BAUD2:
         CALL    OUTESP1
         LD      A,0
         CALL    OUTESP1
-        JP      MNULOOP
+        JP      MNULOOP2
 
 SET_MODE2:
         LD      C,9
@@ -1073,7 +1073,7 @@ SET_MODE2:
         CALL    OUTESP1
         POP     AF
         CALL    OUTESP1
-        JP      MNULOOP
+        JP      MNULOOP2
 
 
 SERIAL_TX_CHAR2:
@@ -1081,7 +1081,7 @@ SERIAL_TX_CHAR2:
         CALL    OUTESP1
         LD      A,'*'
         CALL    OUTESP1
-        JP      MNULOOP
+        JP      MNULOOP2
 
 
 SERIAL_TX_STRING2:
@@ -1095,7 +1095,7 @@ SERIAL_TX_STRING2_1:
         INC     HL
         CP      0
         JP      nz,SERIAL_TX_STRING2_1
-        JP      MNULOOP
+        JP      MNULOOP2
 
 
 GET_SERIAL_IN2:
@@ -1104,7 +1104,7 @@ GET_SERIAL_IN2:
         CALL    OUTESP1
         CALL    INESP1_WAIT
         CALL    prtchr
-        JP      MNULOOP
+        JP      MNULOOP2
 
 
 GET_SERIAL_CHARS_IN_BUFFER2:
@@ -1113,7 +1113,7 @@ GET_SERIAL_CHARS_IN_BUFFER2:
         CALL    OUTESP1
         CALL    INESP1_WAIT
         CALL    prthex
-        JP      MNULOOP
+        JP      MNULOOP2
 
 
 
