@@ -37,12 +37,10 @@ public:
     bool setPaletteItem(uint8_t b);
     void setMouseCursor(uint8_t b);
     bool setMouseCursorPosition(uint8_t b);
-    void enableSprites(uint8_t b);
     void removeSprites();
     bool setSpriteMap(uint8_t b);
     bool setSpriteLocation(uint8_t b);
     bool setSpriteVisibility(uint8_t b);
-    void processSprite();
 
 
 private:

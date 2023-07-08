@@ -171,7 +171,17 @@ MNULOOP2:
         JP      Z,GET_SERIAL_IN2
         CP      'I'
         JP      Z,GET_SERIAL_CHARS_IN_BUFFER2
-
+; WiFi Tests
+         CP      'J'
+         JP      Z,Set_Wifi_SSID
+         CP      'K'
+         JP      Z,Set_WiFi_Password
+         CP      'L'
+         JP      Z,Connect_To_WiFi
+         CP      'M'
+         JP      Z,Get_WiFi_Status
+         CP      'N'
+         JP      Z,Get_WiFi_Signal_Strength
 
         CP      'Z'
         JP      Z,MENU_PAGE_1
@@ -1116,6 +1126,53 @@ GET_SERIAL_CHARS_IN_BUFFER2:
         JP      MNULOOP2
 
 
+Set_Wifi_SSID:
+        LD      HL,SSID_STRING
+        LD      A,1             ; SEND OPCODE 1 (Get SSID)
+        CALL    OUTESP1
+Set_Wifi_SSID_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP1
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,Set_Wifi_SSID_1
+        JP      MNULOOP2
+
+Set_WiFi_Password:
+        LD      HL,PASSWORD_STRING
+        LD      A,2             ; SEND OPCODE 9 (Get WiFi Password)
+        CALL    OUTESP1
+Set_WiFi_Password_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP1
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,Set_WiFi_Password_1
+        JP      MNULOOP2
+
+Connect_To_WiFi:
+        CALL    CLEARESP1
+        LD      A,3            ; SEND OPCODE 3 (Connect To WiFi)
+        CALL    OUTESP1
+        JP      MNULOOP2
+
+Get_WiFi_Status:
+        CALL    CLEARESP1
+        LD      A,4            ; SEND OPCODE 4 (GET WiFi Status)
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP2
+
+Get_WiFi_Signal_Strength:
+        CALL    CLEARESP1
+        LD      A,5            ; SEND OPCODE 5 (GET WiFi Signal Strength)
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP2
 
 
 ;
@@ -1390,15 +1447,15 @@ MENU2:
         DM      "                       Nhodyne ESP32 IO board test PAGE 2"
         DB      0AH,0DH,0AH,0DH,0AH,0DH
 ;                12345678901234567890123456789012345678901234567890123456789012345678901234567890
-        DM      "1>  SET LINE END TYPE                         J.                               "
+        DM      "1>  SET LINE END TYPE                         J. Set Wifi SSID                 "
         DB      0AH,0DH
-        DM      "2>  SET PEN COLOR                             K.                               "
+        DM      "2>  SET PEN COLOR                             K. Set WiFi Password             "
         DB      0AH,0DH
-        DM      "3>  SET PEN WIDTH                             L.                               "
+        DM      "3>  SET PEN WIDTH                             L. Connect To WiFi               "
         DB      0AH,0DH
-        DM      "4>  SET PIXEL                                 M.                               "
+        DM      "4>  SET PIXEL                                 M. Get WiFi Status               "
         DB      0AH,0DH
-        DM      "5>  SET GLYPH OPTIONS                         N.                               "
+        DM      "5>  SET GLYPH OPTIONS                         N. Get WiFi Signal Strength      "
         DB      0AH,0DH
         DM      "6>  SET PALLETTE ITEM                         O.                               "
         DB      0AH,0DH

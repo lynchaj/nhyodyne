@@ -1,18 +1,21 @@
 #include <Arduino.h>
 #include <fabgl.h>
+#include <WiFi.h>
 #include "pins.h"
 #include "interface.h"
 #include "serial.h"
+#include "retrowifi.h"
 
 fabgl::PS2Controller PS2Controller;
 
 serialHelper serial;
+retroWifi espWifi;
 
 static uint8_t stateMachine = 0;
 // states
 // 0 waiting for command
-// 1 WIFI out single char, waiting for char
-// 2 WIFI out multi, waiting for char
+// 1 WIFI Set SSID, waiting for char
+// 2 WIFI Set SSID Password, waiting for char
 // 4 Serial Port Baud Rate wait for bytes
 // 5 Serial Port Baud Rate wait for byte of mode
 // 6 Serial Port out single char, waiting for char
@@ -28,6 +31,7 @@ void setup()
     disableCore1WDT();
 
     PS2Controller.begin(PS2Preset::MousePort0);
+    espWifi.initialize();
 
     pinMode(OUTCLK, OUTPUT);
     pinMode(INCLK, OUTPUT);
@@ -76,18 +80,13 @@ void loop()
         case 0: // 0 waiting for command
             processOpcode(popByte());
             break;
-        case 1: // 1 WIFI out single char, waiting for char
-            stateMachine = 0;
-            break;
-        case 2: // 2 WIFI out multi, waiting for char
-            tb = popByte();
-            if (tb == 0)
-            {
+        case 1: // 1 WIFI Set SSID, waiting for char
+            if (espWifi.setSSID(popByte()))
                 stateMachine = 0;
-            }
-            else
-            {
-            }
+            break;
+        case 2: // 2 WIFI Set SSID Password, waiting for char
+                //   if (graphics.fillRectangle(popByte()))
+            stateMachine = 0;
             break;
         case 4: // 4 Serial Port Baud Rate wait for bytes
             if (bufferLength() > 3)
@@ -126,25 +125,24 @@ void processOpcode(uint8_t b)
     case 0: // NOP
         stateMachine = 0;
         break;
-    case 1: // OUT SINGLE CHAR
+    case 1: // Get SSID
+        espWifi.resetPointer();
         stateMachine = 1;
         break;
-    case 2: // OUT NULL TERM STRING
+    case 2: // Get Password
+        espWifi.resetPointer();
         stateMachine = 2;
         break;
-    case 3: // GET WIFI CHAR
-            //        if (Terminal.available())
-        {
-            //          queueByte(Terminal.read());
-        }
-        //    else
-        {
-            //        queueByte(0);
-        }
+    case 3: // WiFi Connect
+        espWifi.Connect();
         stateMachine = 0;
         break;
-    case 4: // GET KEYBOARD WAITING
-            //     queueByte(Terminal.available());
+    case 4: // Get Wifi Status
+        queueByte(espWifi.status());
+        stateMachine = 0;
+        break;
+    case 5: // Get Wifi Signal Strength
+        queueByte(espWifi.strength());
         stateMachine = 0;
         break;
     case 6: // GET SERIAL BAUD
