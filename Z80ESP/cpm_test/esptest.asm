@@ -9,6 +9,8 @@ BDOS:           EQU $0005       ; BDOS invocation vector
 
 ESP0:           EQU 9CH         ; ESP0 IO PORT
 
+ESP1:           EQU 9DH         ; ESP1 IO PORT
+
 ESP_STATUS:     EQU 9EH         ; ESP  STATUS PORT
                                 ; MSB XX S S S S S S
                                 ;        | | | | | |- ESP0 READY OUTPUT
@@ -155,6 +157,21 @@ MNULOOP2:
         JP      Z,SET_SPRITE_LOCATION
         CP      'C'
         JP      Z,SET_SPRITE_VISIBILITY
+
+; SERIAL TESTS
+        CP      'D'
+        JP      Z,SET_BAUD2
+        CP      'E'
+        JP      Z,SET_MODE2
+        CP      'F'
+        JP      Z,SERIAL_TX_CHAR2
+        CP      'G'
+        JP      Z,SERIAL_TX_STRING2
+        CP      'H'
+        JP      Z,GET_SERIAL_IN2
+        CP      'I'
+        JP      Z,GET_SERIAL_CHARS_IN_BUFFER2
+
 
         CP      'Z'
         JP      Z,MENU_PAGE_1
@@ -1017,6 +1034,88 @@ SET_SPRITE_VISIBILITY:
 ;
 ;
 
+SET_BAUD2:
+        LD      C,9
+        LD      DE,BAUD_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,0AH
+        LD      DE,BUFFER
+        CALL    BDOS            ; GET INPUT
+        LD      HL,BUFFER+2
+        CALL    HEXBYTE
+        LD      (PARMS+2),A
+        CALL    HEXBYTE
+        LD      (PARMS+1),A
+        CALL    HEXBYTE
+        LD      (PARMS),A
+
+        LD      A,6             ; SEND OPCODE 6 (SET BAUD)
+        CALL    OUTESP1
+        LD      A,(PARMS)
+        CALL    OUTESP1
+        LD      A,(PARMS+1)
+        CALL    OUTESP1
+        LD      A,(PARMS+2)
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+        JP      MNULOOP
+
+SET_MODE2:
+        LD      C,9
+        LD      DE,MODE_PROMPT
+        CALL    BDOS            ; PRINT PROMPT
+        LD      C,1
+        CALL    BDOS            ; Get Selection
+        AND     7
+        PUSH    AF
+        LD      A,7             ; SEND OPCODE 7 (SET MODE)
+        CALL    OUTESP1
+        POP     AF
+        CALL    OUTESP1
+        JP      MNULOOP
+
+
+SERIAL_TX_CHAR2:
+        LD      A,8             ; SEND OPCODE 8 (TX CHAR)
+        CALL    OUTESP1
+        LD      A,'*'
+        CALL    OUTESP1
+        JP      MNULOOP
+
+
+SERIAL_TX_STRING2:
+        LD      HL,SERIAL_TEST
+        LD      A,9             ; SEND OPCODE 9 (OUT SERIAL NULL TERM STRING)
+        CALL    OUTESP1
+SERIAL_TX_STRING2_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP1
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,SERIAL_TX_STRING2_1
+        JP      MNULOOP
+
+
+GET_SERIAL_IN2:
+        CALL    CLEARESP0
+        LD      A,10            ; SEND OPCODE 10 (GET SERIAL IN)
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prtchr
+        JP      MNULOOP
+
+
+GET_SERIAL_CHARS_IN_BUFFER2:
+        CALL    CLEARESP1
+        LD      A,11            ; SEND OPCODE 11 (GET SERIAL BUFFER LENGTH)
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP
+
+
 
 
 ;
@@ -1078,6 +1177,65 @@ INESP0_1:
         JP      Z,INESP0_1      ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
         POP     AF
         RET
+
+
+
+; SEND BYTE TO ESP1
+OUTESP1:
+        PUSH    AF
+OUTESP1_1:
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     10H             ; Is ESP1 BUSY?
+        JP      NZ,OUTESP1_1    ; IF BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        POP     AF
+        OUT     (ESP1),A        ; SEND BYTE
+OUTESP1_2:
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     10H             ; Is ESP1 BUSY?
+        JP      Z,OUTESP1_2     ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        RET
+
+
+; GET BYTE FROM ESP1 (BLOCKING)
+INESP1_WAIT:
+INESP1_WAIT_1:
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     10H             ; Is ESP1 BUSY?
+        JP      NZ,INESP1_WAIT_1; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     8H              ; Is there data?
+        JP      Z,INESP1_WAIT_1 ; IF NO, BUSY WAIT
+        IN      A,(ESP1)        ; GET BYTE
+        PUSH    AF
+INESP1_WAIT_2:
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     10H             ; Is ESP1 BUSY?
+        JP      Z,INESP1_WAIT_2 ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        POP     AF
+        RET
+
+; CLEAR ESP1 INPUT BYTE QUEUE
+CLEARESP1:
+        CALL    INESP1
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     8H              ; Is there MORE data?
+        JP      NZ,CLEARESP1    ; IF YES, LOOP
+        RET
+
+; GET BYTE FROM ESP1 (NON BLOCKING)
+INESP1:
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     10H             ; Is ESP1 BUSY?
+        JP      NZ,INESP1       ; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
+        IN      A,(ESP1)        ; GET BYTE
+        PUSH    AF
+INESP1_1:
+        IN      A,(ESP_STATUS)  ; GET STATUS
+        AND     10H             ; Is ESP1 BUSY?
+        JP      Z,INESP1_1      ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        POP     AF
+        RET
+
 
 
 ;
@@ -1258,19 +1416,19 @@ MENU2:
         DB      0AH,0DH
         DM      "C> SET SPRITE VISIBILITY                      V.                               "
         DB      0AH,0DH
-        DM      "D>                                            W.                               "
+        DM      "                                              W.                               "
         DB      0AH,0DH
-        DM      "                                              X.                               "
+        DM      "D> Set serial 2 baud rate                     X.                               "
         DB      0AH,0DH
-        DM      "E>                                            Y.                               "
+        DM      "E> Set serial 2 mode                          Y.                               "
         DB      0AH,0DH
-        DM      "F>                                                                           "
+        DM      "F> Serial 2 TX single char                                                     "
         DB      0AH,0DH
-        DM      "G>                                                                           "
+        DM      "G> Serial 2 TX string                                                          "
         DB      0AH,0DH
-        DM      "H>                                                                           "
+        DM      "H> Serial 2 RX                                                                 "
         DB      0AH,0DH
-        DM      "I>                                                                           "
+        DM      "I> Serial 2 Buffer Length                                                      "
         DB      0AH,0DH
         DB      0AH,0DH
         DM      "Z> MENU PAGE ONE"
