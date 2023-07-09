@@ -1602,7 +1602,7 @@ PALETTE_PROMPT_4:
         DM      "PALETTE R (2 DIGITS HEX):"
         DM      "$"
 
-        include "secrets.asm"
+        INCLUDE "secrets.asm"
 
 
 PLAY_TEST:

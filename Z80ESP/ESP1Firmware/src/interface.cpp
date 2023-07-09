@@ -57,7 +57,7 @@ bool bufferEmpty()
     return false;
 }
 
-void sendByte(uint8_t b)
+void IRAM_ATTR sendByte(uint8_t b)
 {
     for (int x = 0; x < 8; x++)
     {
@@ -105,7 +105,6 @@ void IRAM_ATTR WRISR()
 void IRAM_ATTR RDISR()
 {
     digitalWrite(BUSY, HIGH);
-
     if (txWPointer != txRPointer)
     {
         sendByte(txRing[txRPointer++]);

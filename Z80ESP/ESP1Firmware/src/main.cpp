@@ -26,13 +26,6 @@ void attachInterruptTask(void *pvParameters);
 
 void setup()
 {
-    disableCore0WDT();
-    delay(200); // experienced crashes without this delay!
-    disableCore1WDT();
-
-    PS2Controller.begin(PS2Preset::MousePort0);
-    espWifi.initialize();
-
     pinMode(OUTCLK, OUTPUT);
     pinMode(INCLK, OUTPUT);
     pinMode(OUTDATA, OUTPUT);
@@ -51,22 +44,13 @@ void setup()
     digitalWrite(READY, LOW);
     digitalWrite(SPARE, LOW);
 
-    xTaskCreatePinnedToCore(attachInterruptTask, "Attach Interrupt Task", 1000, NULL, 6, NULL, 0);
-}
-
-void attachInterruptTask(void *pvParameters)
-{
-
     pinMode(WR, INPUT);
     pinMode(RD, INPUT);
     attachInterrupt(WR, WRISR, FALLING);
     attachInterrupt(RD, RDISR, FALLING);
 
-    while (true)
-    {
-        delay(500);
-    }
-    vTaskDelete(NULL);
+    PS2Controller.begin(PS2Preset::MousePort0);
+    espWifi.initialize();
 }
 
 void loop()
@@ -85,8 +69,8 @@ void loop()
                 stateMachine = 0;
             break;
         case 2: // 2 WIFI Set SSID Password, waiting for char
-                //   if (graphics.fillRectangle(popByte()))
-            stateMachine = 0;
+            if (espWifi.setPassword(popByte()))
+                stateMachine = 0;
             break;
         case 4: // 4 Serial Port Baud Rate wait for bytes
             if (bufferLength() > 3)

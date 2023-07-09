@@ -172,16 +172,16 @@ MNULOOP2:
         CP      'I'
         JP      Z,GET_SERIAL_CHARS_IN_BUFFER2
 ; WiFi Tests
-         CP      'J'
-         JP      Z,Set_Wifi_SSID
-         CP      'K'
-         JP      Z,Set_WiFi_Password
-         CP      'L'
-         JP      Z,Connect_To_WiFi
-         CP      'M'
-         JP      Z,Get_WiFi_Status
-         CP      'N'
-         JP      Z,Get_WiFi_Signal_Strength
+        CP      'J'
+        JP      Z,Set_Wifi_SSID
+        CP      'K'
+        JP      Z,Set_WiFi_Password
+        CP      'L'
+        JP      Z,Connect_To_WiFi
+        CP      'M'
+        JP      Z,Get_WiFi_Status
+        CP      'N'
+        JP      Z,Get_WiFi_Signal_Strength
 
         CP      'Z'
         JP      Z,MENU_PAGE_1
@@ -1154,13 +1154,13 @@ Set_WiFi_Password_1:
 
 Connect_To_WiFi:
         CALL    CLEARESP1
-        LD      A,3            ; SEND OPCODE 3 (Connect To WiFi)
+        LD      A,3             ; SEND OPCODE 3 (Connect To WiFi)
         CALL    OUTESP1
         JP      MNULOOP2
 
 Get_WiFi_Status:
         CALL    CLEARESP1
-        LD      A,4            ; SEND OPCODE 4 (GET WiFi Status)
+        LD      A,4             ; SEND OPCODE 4 (GET WiFi Status)
         CALL    OUTESP1
         CALL    INESP1_WAIT
         CALL    prthex
@@ -1168,7 +1168,7 @@ Get_WiFi_Status:
 
 Get_WiFi_Signal_Strength:
         CALL    CLEARESP1
-        LD      A,5            ; SEND OPCODE 5 (GET WiFi Signal Strength)
+        LD      A,5             ; SEND OPCODE 5 (GET WiFi Signal Strength)
         CALL    OUTESP1
         CALL    INESP1_WAIT
         CALL    prthex
@@ -1601,6 +1601,8 @@ PALETTE_PROMPT_4:
         DB      0AH,0DH
         DM      "PALETTE R (2 DIGITS HEX):"
         DM      "$"
+
+        include "secrets.asm"
 
 
 PLAY_TEST:

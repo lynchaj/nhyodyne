@@ -18,7 +18,8 @@ private:
     uint8_t *buffer;
     uint8_t *currentPointer;
     Preferences preferences;
-    String m_ssid;
-    String m_password;
-    String m_hostname;
+    char m_ssid[64];
+    char m_password[64];
+    char m_hostname[64];
+
 };
