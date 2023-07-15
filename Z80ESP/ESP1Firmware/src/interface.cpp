@@ -111,12 +111,12 @@ void IRAM_ATTR RDISR()
     }
     else
     {
+        digitalWrite(READY, LOW);
         sendByte(0);
     }
 
     if (txWPointer == txRPointer)
     {
-        digitalWrite(READY, LOW);
         byteWaiting = 0;
     }
     digitalWrite(BUSY, LOW);

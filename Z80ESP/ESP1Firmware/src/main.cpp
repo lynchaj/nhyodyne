@@ -20,7 +20,11 @@ static uint8_t stateMachine = 0;
 // 5 Serial Port Baud Rate wait for byte of mode
 // 6 Serial Port out single char, waiting for char
 // 7 Serial Port out multi, waiting for char
-
+// 8 Set IP Address, waiting for char
+// 9 Set Subnet Mask, waiting for char
+// 10 Set Gateway,waiting for char
+// 11 Set Primary DNS, waiting for char
+// 12 Set Secondary DNS, waiting for char
 void processOpcode(uint8_t b);
 void attachInterruptTask(void *pvParameters);
 
@@ -33,7 +37,6 @@ void setup()
 
     pinMode(BUSY, OUTPUT);
     pinMode(READY, OUTPUT);
-    pinMode(SPARE, OUTPUT);
 
     digitalWrite(INCLK, LOW);
 
@@ -42,7 +45,6 @@ void setup()
 
     digitalWrite(BUSY, LOW);
     digitalWrite(READY, LOW);
-    digitalWrite(SPARE, LOW);
 
     pinMode(WR, INPUT);
     pinMode(RD, INPUT);
@@ -98,6 +100,26 @@ void loop()
                 Serial.write(tb);
             }
             break;
+        case 8: // 8 Set IP Address, waiting for char
+            if (espWifi.SetIpAddress(popByte()))
+                stateMachine = 0;
+            break;
+        case 9: // 9 Set Subnet Mask, waiting for char
+            if (espWifi.SetSubnet(popByte()))
+                stateMachine = 0;
+            break;
+        case 10: // 10 Set Gateway,waiting for char
+            if (espWifi.SetGateway(popByte()))
+                stateMachine = 0;
+            break;
+        case 11: // 11 Set Primary DNS, waiting for char
+            if (espWifi.SetPrimaryDns(popByte()))
+                stateMachine = 0;
+            break;
+        case 12: // 12 Set Secondary DNS, waiting for char
+            if (espWifi.SetSecondaryDns(popByte()))
+                stateMachine = 0;
+            break;
         }
     }
 }
@@ -148,6 +170,46 @@ void processOpcode(uint8_t b)
     case 11: // GET SERIAL WAITING
         queueByte(Serial.available());
         stateMachine = 0;
+        break;
+    case 12: // GET IP ADDRESS
+        espWifi.GetIpAddress();
+        stateMachine = 0;
+        break;
+    case 13: // GET SUBNET MASK
+        espWifi.GetSubnet();
+        stateMachine = 0;
+        break;
+    case 14: // GET GATEWAY
+        espWifi.GetGateway();
+        stateMachine = 0;
+        break;
+    case 15: // GET PRIMARY DNS
+        espWifi.GetPrimaryDns();
+        stateMachine = 0;
+        break;
+    case 16: // GET SECONDARY DNS
+        espWifi.GetSecondaryDns();
+        stateMachine = 0;
+        break;
+    case 17: // SET IP ADDRESS
+        espWifi.resetPointer();
+        stateMachine = 8;
+        break;
+    case 18: // SET SUBNET
+        espWifi.resetPointer();
+        stateMachine = 9;
+        break;
+    case 19: // SET GATEWAY
+        espWifi.resetPointer();
+        stateMachine = 10;
+        break;
+    case 20: // SET PRIMARY DNS
+        espWifi.resetPointer();
+        stateMachine = 11;
+        break;
+    case 21: // SET SECONDARY DNS
+        espWifi.resetPointer();
+        stateMachine = 12;
         break;
 
     case 255: // HARDWARE DISCOVERY

@@ -182,10 +182,52 @@ MNULOOP2:
         JP      Z,Get_WiFi_Status
         CP      'N'
         JP      Z,Get_WiFi_Signal_Strength
+        CP      'O'
+        JP      Z,Get_WiFi_IP_Address
+        CP      'P'
+        JP      Z,Get_WiFi_IP_Subnet_Mask
+        CP      'Q'
+        JP      Z,Get_WiFi_IP_Gateway
+        CP      'R'
+        JP      Z,Get_WiFi_IP_Primary_DNS
+        CP      'S'
+        JP      Z,Get_WiFi_IP_Secondary_DNS
+        CP      'T'
+        JP      Z,Set_WiFi_IP_Address
+        CP      'U'
+        JP      Z,Set_WiFi_IP_Subnet_Mask
+        CP      'V'
+        JP      Z,Set_WiFi_IP_Gateway
+        CP      'W'
+        JP      Z,Set_WiFi_IP_Primary_DNS
+        CP      'X'
+        JP      Z,Set_WiFi_IP_Secondary_DNS
+
+        CP      'Y'
+        JP      Z,MENU_PAGE_3
 
         CP      'Z'
         JP      Z,MENU_PAGE_1
         JP      MNULOOP2
+
+
+MENU_PAGE_3:
+
+        LD      C,9
+        LD      DE,MENU3
+        CALL    BDOS            ; PRINT OPENING MENU
+
+MNULOOP3:
+        LD      C,1
+        CALL    BDOS            ; Get Menu Selection
+
+        CP      '1'
+        JP      Z,SET_HOSTNAME
+
+        CP      'Z'
+        JP      Z,MENU_PAGE_2
+        JP      MNULOOP3
+
 
 VGA_SINGLE_CHAR:
         LD      A,1             ; SEND OPCODE 1 (OUT VGA CHAR)
@@ -1175,6 +1217,170 @@ Get_WiFi_Signal_Strength:
         JP      MNULOOP2
 
 
+Get_WiFi_IP_Address:
+        CALL    CLEARESP1
+        LD      A,12            ; SEND OPCODE 12 (GET WiFi IP Address)
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP2
+
+Get_WiFi_IP_Subnet_Mask:
+        CALL    CLEARESP1
+        LD      A,13            ; SEND OPCODE 13 (GET WiFi Subnet Mask)
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP2
+
+Get_WiFi_IP_Gateway:
+        CALL    CLEARESP1
+        LD      A,14            ; SEND OPCODE 14 (GET WiFi Gateway)
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP2
+
+Get_WiFi_IP_Primary_DNS:
+        CALL    CLEARESP1
+        LD      A,15            ; SEND OPCODE 15 (GET WiFi Primary DNS)
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP2
+
+Get_WiFi_IP_Secondary_DNS:
+        CALL    CLEARESP1
+        LD      A,16            ; SEND OPCODE 16 (GET WiFi Secondary DNS)
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    prtdot
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP2
+
+
+Set_WiFi_IP_Address:
+        LD      A,17            ; SEND OPCODE 17 (SET WiFi STATIC IP)
+        CALL    OUTESP1
+        LD      A,192
+        CALL    OUTESP1
+        LD      A,168
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+        LD      A,175
+        CALL    OUTESP1
+        JP      MNULOOP2
+
+Set_WiFi_IP_Subnet_Mask:
+        LD      A,18            ; SEND OPCODE 18 (SET WiFi SUBNET)
+        CALL    OUTESP1
+        LD      A,255
+        CALL    OUTESP1
+        LD      A,255
+        CALL    OUTESP1
+        LD      A,255
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+        JP      MNULOOP2
+
+Set_WiFi_IP_Gateway:
+        LD      A,19            ; SEND OPCODE 19 (SET WiFi GATEWAY)
+        CALL    OUTESP1
+        LD      A,192
+        CALL    OUTESP1
+        LD      A,168
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+        LD      A,1
+        CALL    OUTESP1
+        JP      MNULOOP2
+
+Set_WiFi_IP_Primary_DNS:
+        LD      A,20            ; SEND OPCODE 20 (SET WiFi PRIMARY DNS)
+        CALL    OUTESP1
+        LD      A,192
+        CALL    OUTESP1
+        LD      A,168
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+        LD      A,1
+        CALL    OUTESP1
+        JP      MNULOOP2
+
+Set_WiFi_IP_Secondary_DNS:
+        LD      A,21            ; SEND OPCODE 21 (SET WiFi sECONDARY DNS)
+        CALL    OUTESP1
+        LD      A,192
+        CALL    OUTESP1
+        LD      A,168
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+        LD      A,1
+        CALL    OUTESP1
+        JP      MNULOOP2
+
+
+SET_HOSTNAME:
+        LD      HL,HOSTNAME_TEST
+        LD      A,9             ; SEND OPCODE 9 (OUT SERIAL NULL TERM STRING)
+        CALL    OUTESP1
+SET_HOSTNAME_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP1
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,SET_HOSTNAME_1
+        JP      MNULOOP2
 ;
 ;
 ;
@@ -1350,6 +1556,21 @@ hexconv:
         ADC     a,$40
         DAA
         RET
+
+prtdot:
+        PUSH    AF
+        PUSH    bc              ; save registers
+        PUSH    de
+        PUSH    hl
+        LD      E,'.'
+        LD      C,2
+        CALL    BDOS            ; return to CP/M via reset
+        POP     hl              ; restore registers
+        POP     de
+        POP     bc
+        POP     AF
+        RET
+
 ;
 
 ;
@@ -1457,29 +1678,29 @@ MENU2:
         DB      0AH,0DH
         DM      "5>  SET GLYPH OPTIONS                         N. Get WiFi Signal Strength      "
         DB      0AH,0DH
-        DM      "6>  SET PALLETTE ITEM                         O.                               "
+        DM      "6>  SET PALLETTE ITEM                         O. Get IP Address                "
         DB      0AH,0DH
-        DM      "7>  SET MOUSE CURSOR                          P.                               "
+        DM      "7>  SET MOUSE CURSOR                          P. Get Subnet Mask               "
         DB      0AH,0DH
-        DM      "8>  SET MOUSE CURSOR POSITION                 Q.                               "
+        DM      "8>  SET MOUSE CURSOR POSITION                 Q. Get Gateway                   "
         DB      0AH,0DH
-        DM      "                                              R.                               "
+        DM      "                                              R. Get Primary DNS               "
         DB      0AH,0DH
-        DM      "9> REMOVE SPRITES                             S.                               "
+        DM      "9> REMOVE SPRITES                             S. Get Secondary DNS             "
         DB      0AH,0DH
-        DM      "A> SET SPRITE MAP                             T.                               "
+        DM      "A> SET SPRITE MAP                             T. Set IP Address                "
         DB      0AH,0DH
-        DM      "B> SET SPRITE LOCATION                        U.                               "
+        DM      "B> SET SPRITE LOCATION                        U. Set Subnet Mask               "
         DB      0AH,0DH
-        DM      "C> SET SPRITE VISIBILITY                      V.                               "
+        DM      "C> SET SPRITE VISIBILITY                      V. Set Gateway                   "
         DB      0AH,0DH
-        DM      "                                              W.                               "
+        DM      "                                              W. Set Primary DNS               "
         DB      0AH,0DH
-        DM      "D> Set serial 2 baud rate                     X.                               "
+        DM      "D> Set serial 2 baud rate                     X. Set Secondary DNS             "
         DB      0AH,0DH
-        DM      "E> Set serial 2 mode                          Y.                               "
+        DM      "E> Set serial 2 mode                                                           "
         DB      0AH,0DH
-        DM      "F> Serial 2 TX single char                                                     "
+        DM      "F> Serial 2 TX single char                    Y. Page Three                    "
         DB      0AH,0DH
         DM      "G> Serial 2 TX string                                                          "
         DB      0AH,0DH
@@ -1492,6 +1713,58 @@ MENU2:
         DB      0AH,0DH
 
         DM      "$"
+
+MENU3:
+        DB      0AH,0DH
+        DM      "                       Nhodyne ESP32 IO board test PAGE 3"
+        DB      0AH,0DH,0AH,0DH,0AH,0DH
+;                12345678901234567890123456789012345678901234567890123456789012345678901234567890
+        DM      "1>  SET HOSTNANE                              J.                               "
+        DB      0AH,0DH
+        DM      "2>                                            K.                               "
+        DB      0AH,0DH
+        DM      "3>                                            L.                               "
+        DB      0AH,0DH
+        DM      "4>                                            M.                               "
+        DB      0AH,0DH
+        DM      "5>                                            N.                               "
+        DB      0AH,0DH
+        DM      "6>                                            O.                               "
+        DB      0AH,0DH
+        DM      "7>                                            P.                               "
+        DB      0AH,0DH
+        DM      "8>                                            Q.                               "
+        DB      0AH,0DH
+        DM      "9>                                            R.                               "
+        DB      0AH,0DH
+        DM      "A>                                            S.                               "
+        DB      0AH,0DH
+        DM      "B>                                            T.                               "
+        DB      0AH,0DH
+        DM      "C>                                            U.                               "
+        DB      0AH,0DH
+        DM      "D>                                            V.                               "
+        DB      0AH,0DH
+        DM      "E>                                            W.                               "
+        DB      0AH,0DH
+        DM      "F>                                            X.                               "
+        DB      0AH,0DH
+        DM      "G>                                            Y.                               "
+        DB      0AH,0DH
+        DM      "H>                                                                             "
+        DB      0AH,0DH
+        DM      "I>                                                                             "
+        DB      0AH,0DH
+        DM      "                                                                               "
+        DB      0AH,0DH
+        DM      "                                                                               "
+        DB      0AH,0DH
+        DB      0AH,0DH
+        DM      "Z> MENU PAGE TWOE"
+        DB      0AH,0DH
+
+        DM      "$"
+
 
 
 VGA_TEST:
@@ -1604,6 +1877,9 @@ PALETTE_PROMPT_4:
 
         INCLUDE "secrets.asm"
 
+HOSTNAME_TEST:
+        DM      "TESTHOST"
+        DB      00
 
 PLAY_TEST:
         DM      "A4 4 2 A4 4 2 A#4 4 2 C5 4 2 C5 4 2 A#4 4 2 A4 4 2 G4 4 2 F4 4 2 F4 4 2 G4 4 2 A4 4 2 A4 2 2 G4 16 2 G4 2 2 P 8 2 "
