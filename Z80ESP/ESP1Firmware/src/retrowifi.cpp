@@ -17,14 +17,12 @@ void retroWifi::initialize()
     strncpy(m_hostname, ssid.c_str(), 64);
     buffer = new uint8_t[256];
     currentPointer = buffer;
-    staticIP= getStoredIP("static");
-    gateway=  getStoredIP("gateway");
-    subnet=  getStoredIP("subnet");
-    PrimaryDNS= getStoredIP("primaryDNS");
-    SecondaryDNS= getStoredIP("secondaryDNS");
+    staticIP = getStoredIP("static");
+    gateway = getStoredIP("gateway");
+    subnet = getStoredIP("subnet");
+    PrimaryDNS = getStoredIP("primaryDNS");
+    SecondaryDNS = getStoredIP("secondaryDNS");
 }
-
-
 
 bool retroWifi::setSSID(uint8_t b)
 {
@@ -57,8 +55,9 @@ void retroWifi::resetPointer()
 
 void retroWifi::Connect()
 {
-    if(staticIP[0]!=0) {
-        WiFi.config(staticIP,gateway,subnet,PrimaryDNS,SecondaryDNS);
+    if (staticIP[0] != 0)
+    {
+        WiFi.config(staticIP, gateway, subnet, PrimaryDNS, SecondaryDNS);
     }
     WiFi.setHostname(m_hostname);
     WiFi.begin(m_ssid, m_password);
@@ -125,11 +124,12 @@ bool retroWifi::SetIpAddress(uint8_t b)
     if ((currentPointer - buffer) == 4)
     {
         IPAddress i;
-        i[0]=buffer[0];
-        i[1]=buffer[1];
-        i[2]=buffer[2];
-        i[3]=buffer[3];
-        setStoredIP("static",i);
+        i[0] = buffer[0];
+        i[1] = buffer[1];
+        i[2] = buffer[2];
+        i[3] = buffer[3];
+        setStoredIP("static", i);
+        staticIP = getStoredIP("static");
         return true;
     }
     return false;
@@ -141,11 +141,12 @@ bool retroWifi::SetSubnet(uint8_t b)
     if ((currentPointer - buffer) == 4)
     {
         IPAddress i;
-        i[0]=buffer[0];
-        i[1]=buffer[1];
-        i[2]=buffer[2];
-        i[3]=buffer[3];
-        setStoredIP("subnet",i);
+        i[0] = buffer[0];
+        i[1] = buffer[1];
+        i[2] = buffer[2];
+        i[3] = buffer[3];
+        setStoredIP("subnet", i);
+        subnet = getStoredIP("subnet");
         return true;
     }
     return false;
@@ -157,11 +158,12 @@ bool retroWifi::SetGateway(uint8_t b)
     if ((currentPointer - buffer) == 4)
     {
         IPAddress i;
-        i[0]=buffer[0];
-        i[1]=buffer[1];
-        i[2]=buffer[2];
-        i[3]=buffer[3];
-        setStoredIP("gateway",i);
+        i[0] = buffer[0];
+        i[1] = buffer[1];
+        i[2] = buffer[2];
+        i[3] = buffer[3];
+        setStoredIP("gateway", i);
+        gateway = getStoredIP("gateway");
         return true;
     }
     return false;
@@ -172,11 +174,13 @@ bool retroWifi::SetPrimaryDns(uint8_t b)
     if ((currentPointer - buffer) == 4)
     {
         IPAddress i;
-        i[0]=buffer[0];
-        i[1]=buffer[1];
-        i[2]=buffer[2];
-        i[3]=buffer[3];
-        setStoredIP("primaryDNS",i);
+        i[0] = buffer[0];
+        i[1] = buffer[1];
+        i[2] = buffer[2];
+        i[3] = buffer[3];
+        setStoredIP("primaryDNS", i);
+        PrimaryDNS = getStoredIP("primaryDNS");
+
         return true;
     }
     return false;
@@ -187,37 +191,38 @@ bool retroWifi::SetSecondaryDns(uint8_t b)
     if ((currentPointer - buffer) == 4)
     {
         IPAddress i;
-        i[0]=buffer[0];
-        i[1]=buffer[1];
-        i[2]=buffer[2];
-        i[3]=buffer[3];
-        setStoredIP("secondaryDNS",i);
+        i[0] = buffer[0];
+        i[1] = buffer[1];
+        i[2] = buffer[2];
+        i[3] = buffer[3];
+        setStoredIP("secondaryDNS", i);
+        SecondaryDNS = getStoredIP("secondaryDNS");
         return true;
     }
     return false;
 }
 
-void retroWifi::setStoredIP(const char* Parameter,IPAddress i)
+void retroWifi::setStoredIP(const char *Parameter, IPAddress i)
 {
     uint8_t ip[4];
-    ip[0]=i[0];
-    ip[1]=i[1];
-    ip[2]=i[2];
-    ip[3]=i[3];
-    preferences.putBytes(Parameter,&ip,4);
-     printf("set=%s, %i.%i.%i.%i\n\r",Parameter,ip[0],ip[1],ip[2],ip[3]);
+    ip[0] = i[0];
+    ip[1] = i[1];
+    ip[2] = i[2];
+    ip[3] = i[3];
+    preferences.putBytes(Parameter, &ip, 4);
+    printf("set=%s, %i.%i.%i.%i\n\r", Parameter, ip[0], ip[1], ip[2], ip[3]);
 }
-IPAddress retroWifi::getStoredIP(const char* Parameter)
+IPAddress retroWifi::getStoredIP(const char *Parameter)
 {
-    uint8_t ip[4] = {0,0,0,0};
+    uint8_t ip[4] = {0, 0, 0, 0};
     IPAddress result;
-    preferences.getBytes(Parameter,&ip,4);
-    result[0]=ip[0];
-    result[1]=ip[1];
-    result[2]=ip[2];
-    result[3]=ip[3];
+    preferences.getBytes(Parameter, &ip, 4);
+    result[0] = ip[0];
+    result[1] = ip[1];
+    result[2] = ip[2];
+    result[3] = ip[3];
 
-    printf("get=%s, %i.%i.%i.%i\n\r",Parameter,result[0],result[1],result[2],result[3]);
+    printf("get=%s, %i.%i.%i.%i\n\r", Parameter, result[0], result[1], result[2], result[3]);
     return result;
 }
 
@@ -226,8 +231,9 @@ bool retroWifi::setHostname(uint8_t b)
     *currentPointer++ = b;
     if (b == 0)
     {
-        strncpy(m_ssid, reinterpret_cast<const char *>(buffer), 64);
-        preferences.putString("hostname", m_ssid);
+        strncpy(m_hostname, reinterpret_cast<const char *>(buffer), 64);
+        preferences.putString("hostname", m_hostname);
+        printf("HOSTNAME=%s\n\r", m_hostname);
         return true;
     }
     return false;
