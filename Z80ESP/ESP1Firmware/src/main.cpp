@@ -5,11 +5,13 @@
 #include "interface.h"
 #include "serial.h"
 #include "retrowifi.h"
+#include "retroMouse.h"
 
-fabgl::PS2Controller PS2Controller;
+
 
 serialHelper serial;
 retroWifi espWifi;
+retroMouse espMouse;
 
 static uint8_t stateMachine = 0;
 // states
@@ -59,7 +61,7 @@ void setup()
     attachInterrupt(WR, WRISR, FALLING);
     attachInterrupt(RD, RDISR, FALLING);
 
-    PS2Controller.begin(PS2Preset::MousePort0);
+    espMouse.initialize();
     espWifi.initialize();
 }
 
@@ -279,6 +281,10 @@ void processOpcode(uint8_t b)
     case 28: // NUMBER OF BYTES IN QUEUE FOR  CONNECTION
         espWifi.resetPointer();
         stateMachine = 19;
+        break;
+    case 29: // Get Mouse Buttons
+        espMouse.getMouse();
+        stateMachine = 0;
         break;
 
     case 255: // HARDWARE DISCOVERY

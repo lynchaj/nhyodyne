@@ -243,7 +243,8 @@ MNULOOP3:
         JP      Z,QUEUE_LENGTH_CONNECTION_0
         CP      'B'
         JP      Z,QUEUE_LENGTH_CONNECTION_1
-
+        CP      'C'
+        JP      Z,GET_MOUSE
 
         CP      'Z'
         JP      Z,MENU_PAGE_2
@@ -1520,6 +1521,28 @@ QUEUE_LENGTH_CONNECTION_1:
         JP      MNULOOP3
 
 
+GET_MOUSE:
+        CALL    CLEARESP1
+        LD      A,29            ; SEND OPCODE 29 (GET MOUSE)
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    INESP1_WAIT
+        CALL    prthex
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP3
+
 
 
 
@@ -1866,45 +1889,30 @@ MENU3:
         DM      "                       Nhodyne ESP32 IO board test PAGE 3"
         DB      0AH,0DH,0AH,0DH,0AH,0DH
 ;                12345678901234567890123456789012345678901234567890123456789012345678901234567890
-        DM      "1>  SET HOSTNANE                              J.                               "
+        DM      "1>  SET HOSTNAME"
         DB      0AH,0DH
-        DM      "2>  CREATE OUTGOING CONN                      K.                               "
+        DM      "2>  CREATE OUTGOING CONN"
         DB      0AH,0DH
-        DM      "3>  SET INCOMING PORT                         L.                               "
+        DM      "3>  SET INCOMING PORT"
         DB      0AH,0DH
-        DM      "4>  OUT BYTE TO CONNECTION 0                  M.                               "
+        DM      "4>  OUT BYTE TO CONNECTION 0"
         DB      0AH,0DH
-        DM      "5>  OUT BYTE TO CONNECTION 1                  N.                               "
+        DM      "5>  OUT BYTE TO CONNECTION 1"
         DB      0AH,0DH
-        DM      "6>  OUT STRING TO CONNECTION 0                O.                               "
+        DM      "6>  OUT STRING TO CONNECTION 0"
         DB      0AH,0DH
-        DM      "7>  OUT STRING TO CONNECTION 1                P.                               "
+        DM      "7>  OUT STRING TO CONNECTION 1"
         DB      0AH,0DH
-        DM      "8>  IN BYTE FROM CONNECTION 0                 Q.                               "
+        DM      "8>  IN BYTE FROM CONNECTION 0"
         DB      0AH,0DH
-        DM      "9>  IN BYTE FROM CONNECTION 1                 R.                               "
+        DM      "9>  IN BYTE FROM CONNECTION 1"
         DB      0AH,0DH
-        DM      "A>  QUEUE LENGTH CONNECTION 0                 S.                               "
+        DM      "A>  QUEUE LENGTH CONNECTION 0"
         DB      0AH,0DH
-        DM      "B>  QUEUE LENGTH CONNECTION 1                 T.                               "
+        DM      "B>  QUEUE LENGTH CONNECTION 1"
         DB      0AH,0DH
-        DM      "C>                                            U.                               "
         DB      0AH,0DH
-        DM      "D>                                            V.                               "
-        DB      0AH,0DH
-        DM      "E>                                            W.                               "
-        DB      0AH,0DH
-        DM      "F>                                            X.                               "
-        DB      0AH,0DH
-        DM      "G>                                            Y.                               "
-        DB      0AH,0DH
-        DM      "H>                                                                             "
-        DB      0AH,0DH
-        DM      "I>                                                                             "
-        DB      0AH,0DH
-        DM      "                                                                               "
-        DB      0AH,0DH
-        DM      "                                                                               "
+        DM      "C> GET MOUSE"
         DB      0AH,0DH
         DB      0AH,0DH
         DM      "Z> MENU PAGE TWO"
