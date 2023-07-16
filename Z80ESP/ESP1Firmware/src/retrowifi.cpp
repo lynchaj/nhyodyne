@@ -246,10 +246,12 @@ bool retroWifi::CreateOutgoingConnection(uint8_t b)
 
         if (b == 0)
         {
+
+            printf("Connection# %i = %s : %i\n\r",p->portNumber,&buffer[sizeof(OutgoingConnectionParameter)],p->portNumber);
             if (p->connectionNumber > 0)
             {
                 client[p->connectionNumber].stop();
-                client[p->connectionNumber].connect(buffer[sizeof(OutgoingConnectionParameter)], p->portNumber);
+                client[p->connectionNumber].connect((char *)&buffer[sizeof(OutgoingConnectionParameter)], p->portNumber);
             }
             return true;
         }
