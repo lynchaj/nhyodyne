@@ -210,7 +210,6 @@ void retroWifi::setStoredIP(const char *Parameter, IPAddress i)
     ip[2] = i[2];
     ip[3] = i[3];
     preferences.putBytes(Parameter, &ip, 4);
-    printf("set=%s, %i.%i.%i.%i\n\r", Parameter, ip[0], ip[1], ip[2], ip[3]);
 }
 IPAddress retroWifi::getStoredIP(const char *Parameter)
 {
@@ -222,7 +221,6 @@ IPAddress retroWifi::getStoredIP(const char *Parameter)
     result[2] = ip[2];
     result[3] = ip[3];
 
-    printf("get=%s, %i.%i.%i.%i\n\r", Parameter, result[0], result[1], result[2], result[3]);
     return result;
 }
 
@@ -233,8 +231,79 @@ bool retroWifi::setHostname(uint8_t b)
     {
         strncpy(m_hostname, reinterpret_cast<const char *>(buffer), 64);
         preferences.putString("hostname", m_hostname);
-        printf("HOSTNAME=%s\n\r", m_hostname);
         return true;
     }
     return false;
+}
+
+bool retroWifi::CreateOutgoingConnection(uint8_t b)
+{
+    *currentPointer++ = b;
+    if ((currentPointer - buffer) > sizeof(OutgoingConnectionParameter))
+    {
+        OutgoingConnectionParameter *p;
+        p = (OutgoingConnectionParameter *)buffer;
+
+        if (b == 0)
+        {
+            if (p->connectionNumber > 0)
+            {
+                client[p->connectionNumber].stop();
+                client[p->connectionNumber].connect(buffer[sizeof(OutgoingConnectionParameter)], p->portNumber);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void retroWifi::SetIncomingPort(uint16_t b)
+{
+    server.stopAll();
+    server.begin(b);
+}
+
+bool retroWifi::OutByteToConnection(uint8_t b)
+{
+    *currentPointer++ = b;
+    int len = (currentPointer - buffer);
+    if (len == 2)
+    {
+        client[buffer[0]].write(buffer[1]);
+        return true;
+    }
+    return false;
+}
+
+bool retroWifi::OutStringToConnection(uint8_t b)
+{
+    *currentPointer++ = b;
+    int len = (currentPointer - buffer);
+    if (len > 0)
+    {
+        if (b == 0)
+        {
+            client[buffer[0]].write((char *)&buffer[1]);
+            return true;
+        }
+    }
+    return false;
+}
+
+void retroWifi::InByteFromConnection(uint8_t b)
+{
+    queueByte(client[buffer[0]].read());
+}
+
+void retroWifi::QueuedBytesFromConnection(uint8_t b)
+{
+    queueByte(client[buffer[0]].available());
+}
+
+void retroWifi::listenForIncomingConnection()
+{
+    if (!client[0].connected())
+    {
+        client[0] = server.available();
+    }
 }

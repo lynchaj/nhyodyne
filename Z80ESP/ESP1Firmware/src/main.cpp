@@ -25,6 +25,14 @@ static uint8_t stateMachine = 0;
 // 10 Set Gateway,waiting for char
 // 11 Set Primary DNS, waiting for char
 // 12 Set Secondary DNS, waiting for char
+// 13 SET HOSTNAME, waiting for char
+// 14 CREATE OUTGOING CONNECTION, waiting for char
+// 15 SET INCOMING PORT, waiting for char
+// 16 OUT BYTE TO CONNECTION, waiting for char
+// 17 OUT STRING TO CONNECTION, waiting for char
+// 18 IN BYTE FROM CONNECTION, waiting for char
+// 19 NUMBER OF BYTES IN QUEUE FOR  CONNECTION, waiting for char
+
 void processOpcode(uint8_t b);
 void attachInterruptTask(void *pvParameters);
 
@@ -120,8 +128,41 @@ void loop()
             if (espWifi.SetSecondaryDns(popByte()))
                 stateMachine = 0;
             break;
+        case 13: // 13 SET HOSTNAME, waiting for char
+            if (espWifi.setHostname(popByte()))
+                stateMachine = 0;
+            break;
+        case 14: // 14 CREATE OUTGOING CONNECTION, waiting for char
+            if (espWifi.CreateOutgoingConnection(popByte()))
+                stateMachine = 0;
+            break;
+        case 15: // 15 SET INCOMING PORT, waiting for char
+            if (bufferLength() > 1)
+            {
+                espWifi.SetIncomingPort(popWord());
+                stateMachine = 0;
+            }
+            break;
+        case 16: // 16 OUT BYTE TO CONNECTION, waiting for char
+            if (espWifi.OutByteToConnection(popByte()))
+                stateMachine = 0;
+            break;
+        case 17: // 17 OUT STRING TO CONNECTION, waiting for char
+            if (espWifi.OutStringToConnection(popByte()))
+                stateMachine = 0;
+            break;
+        case 18: // 18 IN BYTE FROM CONNECTION, waiting for char
+            espWifi.InByteFromConnection(popByte());
+            stateMachine = 0;
+            break;
+        case 19: // 19 NUMBER OF BYTES IN QUEUE FOR  CONNECTION, waiting for char
+            espWifi.QueuedBytesFromConnection(popByte());
+            stateMachine = 0;
+            break;
         }
     }
+
+    espWifi.listenForIncomingConnection();
 }
 
 void processOpcode(uint8_t b)
@@ -210,6 +251,34 @@ void processOpcode(uint8_t b)
     case 21: // SET SECONDARY DNS
         espWifi.resetPointer();
         stateMachine = 12;
+        break;
+    case 22: // SET HOSTNAME
+        espWifi.resetPointer();
+        stateMachine = 13;
+        break;
+    case 23: // CREATE OUTGOING CONNECTION
+        espWifi.resetPointer();
+        stateMachine = 14;
+        break;
+    case 24: // SET INCOMING PORT
+        espWifi.resetPointer();
+        stateMachine = 15;
+        break;
+    case 25: // OUT BYTE TO CONNECTION
+        espWifi.resetPointer();
+        stateMachine = 16;
+        break;
+    case 26: // OUT STRING TO CONNECTION
+        espWifi.resetPointer();
+        stateMachine = 17;
+        break;
+    case 27: // IN BYTE FROM CONNECTION
+        espWifi.resetPointer();
+        stateMachine = 18;
+        break;
+    case 28: // NUMBER OF BYTES IN QUEUE FOR  CONNECTION
+        espWifi.resetPointer();
+        stateMachine = 19;
         break;
 
     case 255: // HARDWARE DISCOVERY

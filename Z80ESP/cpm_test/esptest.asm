@@ -223,6 +223,27 @@ MNULOOP3:
 
         CP      '1'
         JP      Z,SET_HOSTNAME
+        CP      '2'
+        JP      Z,CREATE_OUTGOING_CONN
+        CP      '3'
+        JP      Z,SET_INCOMING_PORT
+        CP      '4'
+        JP      Z,OUT_BYTE_TO_CONNECTION_0
+        CP      '5'
+        JP      Z,OUT_BYTE_TO_CONNECTION_1
+        CP      '6'
+        JP      Z,OUT_STRING_TO_CONNECTION_0
+        CP      '7'
+        JP      Z,OUT_STRING_TO_CONNECTION_1
+        CP      '8'
+        JP      Z,IN_BYTE_FROM_CONNECTION_0
+        CP      '9'
+        JP      Z,IN_BYTE_FROM_CONNECTION_1
+        CP      'A'
+        JP      Z,QUEUE_LENGTH_CONNECTION_0
+        CP      'B'
+        JP      Z,QUEUE_LENGTH_CONNECTION_1
+
 
         CP      'Z'
         JP      Z,MENU_PAGE_2
@@ -1151,7 +1172,7 @@ SERIAL_TX_STRING2_1:
 
 
 GET_SERIAL_IN2:
-        CALL    CLEARESP0
+        CALL    CLEARESP1
         LD      A,10            ; SEND OPCODE 10 (GET SERIAL IN)
         CALL    OUTESP1
         CALL    INESP1_WAIT
@@ -1371,7 +1392,7 @@ Set_WiFi_IP_Secondary_DNS:
 
 SET_HOSTNAME:
         LD      HL,HOSTNAME_TEST
-        LD      A,9             ; SEND OPCODE 9 (OUT SERIAL NULL TERM STRING)
+        LD      A,22            ; SEND OPCODE 22 (SEND HOSTNAME)
         CALL    OUTESP1
 SET_HOSTNAME_1:
         LD      A,(HL)          ; SEND CHAR TO OUTPUT
@@ -1380,7 +1401,133 @@ SET_HOSTNAME_1:
         INC     HL
         CP      0
         JP      nz,SET_HOSTNAME_1
-        JP      MNULOOP2
+        JP      MNULOOP3
+
+CREATE_OUTGOING_CONN:
+        LD      HL,OUTGOING_TEST
+        LD      A,23            ; SEND OPCODE 23 (OPEN OUTGOING CONNECTION)
+        CALL    OUTESP1
+        LD      A,1
+        CALL    OUTESP1
+        LD      A,90H           ; PORT 8080
+        CALL    OUTESP1
+        LD      A,1FH
+        CALL    OUTESP1
+CREATE_OUTGOING_CONN_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP1
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,CREATE_OUTGOING_CONN_1
+        JP      MNULOOP3
+
+SET_INCOMING_PORT:
+        LD      A,24            ; SEND OPCODE 24 (SET LISTEN PORT)
+        CALL    OUTESP1
+        LD      A,90H           ; PORT 8080
+        CALL    OUTESP1
+        LD      A,1FH
+        CALL    OUTESP1
+        JP      MNULOOP3
+
+OUT_BYTE_TO_CONNECTION_0:
+        LD      A,25            ; SEND OPCODE 25 (TX CHAR)
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+        LD      A,'*'
+        CALL    OUTESP1
+        JP      MNULOOP3
+
+OUT_BYTE_TO_CONNECTION_1:
+        LD      A,25            ; SEND OPCODE 25 (TX CHAR)
+        CALL    OUTESP1
+        LD      A,1
+        CALL    OUTESP1
+        LD      A,'*'
+        CALL    OUTESP1
+        JP      MNULOOP3
+
+OUT_STRING_TO_CONNECTION_0:
+        LD      HL,SERIAL_TEST
+        LD      A,26            ; SEND OPCODE 26 (OUT  NULL TERM STRING)
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+OUT_STRING_TO_CONNECTION_0_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP1
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,OUT_STRING_TO_CONNECTION_0_1
+        JP      MNULOOP3
+
+OUT_STRING_TO_CONNECTION_1:
+        LD      HL,SERIAL_TEST
+        LD      A,26            ; SEND OPCODE 26 (OUT  NULL TERM STRING)
+        CALL    OUTESP1
+        LD      A,1
+        CALL    OUTESP1
+OUT_STRING_TO_CONNECTION_1_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP1
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,OUT_STRING_TO_CONNECTION_1_1
+        JP      MNULOOP3
+
+IN_BYTE_FROM_CONNECTION_0:
+        CALL    CLEARESP1
+        LD      A,27            ; SEND OPCODE 27 (GET WIFI IN)
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prtchr
+        JP      MNULOOP3
+
+IN_BYTE_FROM_CONNECTION_1:
+        CALL    CLEARESP1
+        LD      A,27            ; SEND OPCODE 27 (GET WIFI IN)
+        CALL    OUTESP1
+        LD      A,1
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prtchr
+        JP      MNULOOP3
+
+QUEUE_LENGTH_CONNECTION_0:
+        CALL    CLEARESP1
+        LD      A,28            ; SEND OPCODE 28 (GET WIFI BUFFER LENGTH)
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP3
+
+QUEUE_LENGTH_CONNECTION_1:
+        CALL    CLEARESP1
+        LD      A,28            ; SEND OPCODE 28 (GET WIFI BUFFER LENGTH)
+        CALL    OUTESP1
+        LD      A,1
+        CALL    OUTESP1
+        CALL    INESP1_WAIT
+        CALL    prthex
+        JP      MNULOOP3
+
+
+
+
+
+
+
+
+
+
 ;
 ;
 ;
@@ -1721,25 +1868,25 @@ MENU3:
 ;                12345678901234567890123456789012345678901234567890123456789012345678901234567890
         DM      "1>  SET HOSTNANE                              J.                               "
         DB      0AH,0DH
-        DM      "2>                                            K.                               "
+        DM      "2>  CREATE OUTGOING CONN                      K.                               "
         DB      0AH,0DH
-        DM      "3>                                            L.                               "
+        DM      "3>  SET INCOMING PORT                         L.                               "
         DB      0AH,0DH
-        DM      "4>                                            M.                               "
+        DM      "4>  OUT BYTE TO CONNECTION 0                  M.                               "
         DB      0AH,0DH
-        DM      "5>                                            N.                               "
+        DM      "5>  OUT BYTE TO CONNECTION 1                  N.                               "
         DB      0AH,0DH
-        DM      "6>                                            O.                               "
+        DM      "6>  OUT STRING TO CONNECTION 0                O.                               "
         DB      0AH,0DH
-        DM      "7>                                            P.                               "
+        DM      "7>  OUT STRING TO CONNECTION 1                P.                               "
         DB      0AH,0DH
-        DM      "8>                                            Q.                               "
+        DM      "8>  IN BYTE FROM CONNECTION 0                 Q.                               "
         DB      0AH,0DH
-        DM      "9>                                            R.                               "
+        DM      "9>  IN BYTE FROM CONNECTION 1                 R.                               "
         DB      0AH,0DH
-        DM      "A>                                            S.                               "
+        DM      "A>  QUEUE LENGTH CONNECTION 0                 S.                               "
         DB      0AH,0DH
-        DM      "B>                                            T.                               "
+        DM      "B>  QUEUE LENGTH CONNECTION 1                 T.                               "
         DB      0AH,0DH
         DM      "C>                                            U.                               "
         DB      0AH,0DH
@@ -1760,7 +1907,7 @@ MENU3:
         DM      "                                                                               "
         DB      0AH,0DH
         DB      0AH,0DH
-        DM      "Z> MENU PAGE TWOE"
+        DM      "Z> MENU PAGE TWO"
         DB      0AH,0DH
 
         DM      "$"
@@ -1880,6 +2027,11 @@ PALETTE_PROMPT_4:
 HOSTNAME_TEST:
         DM      "TESTHOST"
         DB      00
+
+OUTGOING_TEST:
+        DM      "192.168.0.29"
+        DB      00
+
 
 PLAY_TEST:
         DM      "A4 4 2 A4 4 2 A#4 4 2 C5 4 2 C5 4 2 A#4 4 2 A4 4 2 G4 4 2 F4 4 2 F4 4 2 G4 4 2 A4 4 2 A4 2 2 G4 16 2 G4 2 2 P 8 2 "
