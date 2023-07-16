@@ -111,23 +111,23 @@ void loop()
             }
             break;
         case 8: // 8 Set IP Address, waiting for char
-            if (espWifi.SetIpAddress(popByte()))
+            if (espWifi.setIpAddress(popByte()))
                 stateMachine = 0;
             break;
         case 9: // 9 Set Subnet Mask, waiting for char
-            if (espWifi.SetSubnet(popByte()))
+            if (espWifi.setSubnet(popByte()))
                 stateMachine = 0;
             break;
         case 10: // 10 Set Gateway,waiting for char
-            if (espWifi.SetGateway(popByte()))
+            if (espWifi.setGateway(popByte()))
                 stateMachine = 0;
             break;
         case 11: // 11 Set Primary DNS, waiting for char
-            if (espWifi.SetPrimaryDns(popByte()))
+            if (espWifi.setPrimaryDns(popByte()))
                 stateMachine = 0;
             break;
         case 12: // 12 Set Secondary DNS, waiting for char
-            if (espWifi.SetSecondaryDns(popByte()))
+            if (espWifi.setSecondaryDns(popByte()))
                 stateMachine = 0;
             break;
         case 13: // 13 SET HOSTNAME, waiting for char
@@ -135,30 +135,30 @@ void loop()
                 stateMachine = 0;
             break;
         case 14: // 14 CREATE OUTGOING CONNECTION, waiting for char
-            if (espWifi.CreateOutgoingConnection(popByte()))
+            if (espWifi.createOutgoingConnection(popByte()))
                 stateMachine = 0;
             break;
         case 15: // 15 SET INCOMING PORT, waiting for char
             if (bufferLength() > 1)
             {
-                espWifi.SetIncomingPort(popWord());
+                espWifi.setIncomingPort(popWord());
                 stateMachine = 0;
             }
             break;
         case 16: // 16 OUT BYTE TO CONNECTION, waiting for char
-            if (espWifi.OutByteToConnection(popByte()))
+            if (espWifi.outByteToConnection(popByte()))
                 stateMachine = 0;
             break;
         case 17: // 17 OUT STRING TO CONNECTION, waiting for char
-            if (espWifi.OutStringToConnection(popByte()))
+            if (espWifi.outStringToConnection(popByte()))
                 stateMachine = 0;
             break;
         case 18: // 18 IN BYTE FROM CONNECTION, waiting for char
-            espWifi.InByteFromConnection(popByte());
+            espWifi.inByteFromConnection(popByte());
             stateMachine = 0;
             break;
         case 19: // 19 NUMBER OF BYTES IN QUEUE FOR  CONNECTION, waiting for char
-            espWifi.QueuedBytesFromConnection(popByte());
+            espWifi.queuedBytesFromConnection(popByte());
             stateMachine = 0;
             break;
         }
@@ -215,23 +215,23 @@ void processOpcode(uint8_t b)
         stateMachine = 0;
         break;
     case 12: // GET IP ADDRESS
-        espWifi.GetIpAddress();
+        espWifi.getIpAddress();
         stateMachine = 0;
         break;
     case 13: // GET SUBNET MASK
-        espWifi.GetSubnet();
+        espWifi.getSubnet();
         stateMachine = 0;
         break;
     case 14: // GET GATEWAY
-        espWifi.GetGateway();
+        espWifi.getGateway();
         stateMachine = 0;
         break;
     case 15: // GET PRIMARY DNS
-        espWifi.GetPrimaryDns();
+        espWifi.getPrimaryDns();
         stateMachine = 0;
         break;
     case 16: // GET SECONDARY DNS
-        espWifi.GetSecondaryDns();
+        espWifi.getSecondaryDns();
         stateMachine = 0;
         break;
     case 17: // SET IP ADDRESS

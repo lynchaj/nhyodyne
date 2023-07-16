@@ -13,23 +13,23 @@ public:
     void Connect();
     uint8_t status();
     uint8_t strength();
-    void GetIpAddress();
-    void GetSubnet();
-    void GetGateway();
-    void GetPrimaryDns();
-    void GetSecondaryDns();
-    bool SetIpAddress(uint8_t b);
-    bool SetSubnet(uint8_t b);
-    bool SetGateway(uint8_t b);
-    bool SetPrimaryDns(uint8_t b);
-    bool SetSecondaryDns(uint8_t b);
+    void getIpAddress();
+    void getSubnet();
+    void getGateway();
+    void getPrimaryDns();
+    void getSecondaryDns();
+    bool setIpAddress(uint8_t b);
+    bool setSubnet(uint8_t b);
+    bool setGateway(uint8_t b);
+    bool setPrimaryDns(uint8_t b);
+    bool setSecondaryDns(uint8_t b);
     bool setHostname(uint8_t b);
-    bool CreateOutgoingConnection(uint8_t b);
-    void SetIncomingPort(uint16_t b);
-    bool OutByteToConnection(uint8_t b);
-    bool OutStringToConnection(uint8_t b);
-    void InByteFromConnection(uint8_t b);
-    void QueuedBytesFromConnection(uint8_t b);
+    bool createOutgoingConnection(uint8_t b);
+    void setIncomingPort(uint16_t b);
+    bool outByteToConnection(uint8_t b);
+    bool outStringToConnection(uint8_t b);
+    void inByteFromConnection(uint8_t b);
+    void queuedBytesFromConnection(uint8_t b);
     void listenForIncomingConnection();
 
 private:
@@ -44,8 +44,8 @@ private:
     IPAddress staticIP;
     IPAddress subnet;
     IPAddress gateway;
-    IPAddress PrimaryDNS;
-    IPAddress SecondaryDNS;
+    IPAddress primaryDNS;
+    IPAddress secondaryDNS;
     WiFiClient client[64];
     WiFiServer server;
 

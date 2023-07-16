@@ -20,8 +20,8 @@ void retroWifi::initialize()
     staticIP = getStoredIP("static");
     gateway = getStoredIP("gateway");
     subnet = getStoredIP("subnet");
-    PrimaryDNS = getStoredIP("primaryDNS");
-    SecondaryDNS = getStoredIP("secondaryDNS");
+    primaryDNS = getStoredIP("primaryDNS");
+    secondaryDNS = getStoredIP("secondaryDNS");
 }
 
 bool retroWifi::setSSID(uint8_t b)
@@ -57,7 +57,7 @@ void retroWifi::Connect()
 {
     if (staticIP[0] != 0)
     {
-        WiFi.config(staticIP, gateway, subnet, PrimaryDNS, SecondaryDNS);
+        WiFi.config(staticIP, gateway, subnet, primaryDNS, secondaryDNS);
     }
     WiFi.setHostname(m_hostname);
     WiFi.begin(m_ssid, m_password);
@@ -73,7 +73,7 @@ uint8_t retroWifi::strength()
     return WiFi.RSSI();
 }
 
-void retroWifi::GetIpAddress()
+void retroWifi::getIpAddress()
 {
     IPAddress add = WiFi.localIP();
     queueByte(add[0]);
@@ -82,7 +82,7 @@ void retroWifi::GetIpAddress()
     queueByte(add[3]);
 }
 
-void retroWifi::GetSubnet()
+void retroWifi::getSubnet()
 {
     IPAddress add = WiFi.subnetMask();
     queueByte(add[0]);
@@ -91,7 +91,7 @@ void retroWifi::GetSubnet()
     queueByte(add[3]);
 }
 
-void retroWifi::GetGateway()
+void retroWifi::getGateway()
 {
     IPAddress add = WiFi.gatewayIP();
     queueByte(add[0]);
@@ -100,7 +100,7 @@ void retroWifi::GetGateway()
     queueByte(add[3]);
 }
 
-void retroWifi::GetPrimaryDns()
+void retroWifi::getPrimaryDns()
 {
     IPAddress add = WiFi.dnsIP(0);
     queueByte(add[0]);
@@ -109,7 +109,7 @@ void retroWifi::GetPrimaryDns()
     queueByte(add[3]);
 }
 
-void retroWifi::GetSecondaryDns()
+void retroWifi::getSecondaryDns()
 {
     IPAddress add = WiFi.dnsIP(1);
     queueByte(add[0]);
@@ -118,7 +118,7 @@ void retroWifi::GetSecondaryDns()
     queueByte(add[3]);
 }
 
-bool retroWifi::SetIpAddress(uint8_t b)
+bool retroWifi::setIpAddress(uint8_t b)
 {
     *currentPointer++ = b;
     if ((currentPointer - buffer) == 4)
@@ -135,7 +135,7 @@ bool retroWifi::SetIpAddress(uint8_t b)
     return false;
 }
 
-bool retroWifi::SetSubnet(uint8_t b)
+bool retroWifi::setSubnet(uint8_t b)
 {
     *currentPointer++ = b;
     if ((currentPointer - buffer) == 4)
@@ -152,7 +152,7 @@ bool retroWifi::SetSubnet(uint8_t b)
     return false;
 }
 
-bool retroWifi::SetGateway(uint8_t b)
+bool retroWifi::setGateway(uint8_t b)
 {
     *currentPointer++ = b;
     if ((currentPointer - buffer) == 4)
@@ -168,7 +168,7 @@ bool retroWifi::SetGateway(uint8_t b)
     }
     return false;
 }
-bool retroWifi::SetPrimaryDns(uint8_t b)
+bool retroWifi::setPrimaryDns(uint8_t b)
 {
     *currentPointer++ = b;
     if ((currentPointer - buffer) == 4)
@@ -179,13 +179,13 @@ bool retroWifi::SetPrimaryDns(uint8_t b)
         i[2] = buffer[2];
         i[3] = buffer[3];
         setStoredIP("primaryDNS", i);
-        PrimaryDNS = getStoredIP("primaryDNS");
+        primaryDNS = getStoredIP("primaryDNS");
 
         return true;
     }
     return false;
 }
-bool retroWifi::SetSecondaryDns(uint8_t b)
+bool retroWifi::setSecondaryDns(uint8_t b)
 {
     *currentPointer++ = b;
     if ((currentPointer - buffer) == 4)
@@ -196,7 +196,7 @@ bool retroWifi::SetSecondaryDns(uint8_t b)
         i[2] = buffer[2];
         i[3] = buffer[3];
         setStoredIP("secondaryDNS", i);
-        SecondaryDNS = getStoredIP("secondaryDNS");
+        secondaryDNS = getStoredIP("secondaryDNS");
         return true;
     }
     return false;
@@ -236,7 +236,7 @@ bool retroWifi::setHostname(uint8_t b)
     return false;
 }
 
-bool retroWifi::CreateOutgoingConnection(uint8_t b)
+bool retroWifi::createOutgoingConnection(uint8_t b)
 {
     *currentPointer++ = b;
     if ((currentPointer - buffer) > sizeof(OutgoingConnectionParameter))
@@ -257,13 +257,13 @@ bool retroWifi::CreateOutgoingConnection(uint8_t b)
     return false;
 }
 
-void retroWifi::SetIncomingPort(uint16_t b)
+void retroWifi::setIncomingPort(uint16_t b)
 {
     server.stopAll();
     server.begin(b);
 }
 
-bool retroWifi::OutByteToConnection(uint8_t b)
+bool retroWifi::outByteToConnection(uint8_t b)
 {
     *currentPointer++ = b;
     int len = (currentPointer - buffer);
@@ -275,7 +275,7 @@ bool retroWifi::OutByteToConnection(uint8_t b)
     return false;
 }
 
-bool retroWifi::OutStringToConnection(uint8_t b)
+bool retroWifi::outStringToConnection(uint8_t b)
 {
     *currentPointer++ = b;
     int len = (currentPointer - buffer);
@@ -290,12 +290,12 @@ bool retroWifi::OutStringToConnection(uint8_t b)
     return false;
 }
 
-void retroWifi::InByteFromConnection(uint8_t b)
+void retroWifi::inByteFromConnection(uint8_t b)
 {
     queueByte(client[buffer[0]].read());
 }
 
-void retroWifi::QueuedBytesFromConnection(uint8_t b)
+void retroWifi::queuedBytesFromConnection(uint8_t b)
 {
     queueByte(client[buffer[0]].available());
 }
