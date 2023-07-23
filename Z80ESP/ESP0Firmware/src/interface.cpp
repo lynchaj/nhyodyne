@@ -18,7 +18,7 @@ int bufferLength()
     if (rxWPointer == rxRPointer)
         return 0;
     if (rxWPointer > rxRPointer)
-        rxWPointer - rxRPointer;
+        return rxWPointer - rxRPointer;
     return ((int)rxWPointer + 256) - rxRPointer;
 }
 
@@ -31,7 +31,7 @@ int popDoubleWord()
 {
     if (bufferLength() > 3)
     {
-        return popByte() + ((int)popByte() * 256) + ((int)popByte() * 65535) + ((int)popByte() * 16776960);
+        return popByte() + ((int)popByte() * 256) + ((int)popByte() * 65536) + ((int)popByte() * 16777216);
     }
     return 0;
 }
@@ -104,6 +104,7 @@ void IRAM_ATTR WRISR()
 
 void IRAM_ATTR RDISR()
 {
+    digitalWrite(BUSY, HIGH);
 
     if (txWPointer != txRPointer)
     {
@@ -112,7 +113,12 @@ void IRAM_ATTR RDISR()
     else
     {
         digitalWrite(READY, LOW);
-        byteWaiting = 0;
         sendByte(0);
     }
+
+    if (txWPointer == txRPointer)
+    {
+        byteWaiting = 0;
+    }
+    digitalWrite(BUSY, LOW);
 }

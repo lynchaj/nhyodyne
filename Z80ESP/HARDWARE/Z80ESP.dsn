@@ -3428,7 +3428,7 @@
       (pins U2-14 U10-6)
     )
     (net +3.3V
-      (pins U12-16 U13-16 RR2-1 R13-2 R6-2 R4-2 R5-2)
+      (pins U12-1 U12-16 U13-1 U13-16 RR2-1 R13-2 R6-2 R4-2 R5-2)
     )
     (net "Net-(RR1-Pad2)"
       (pins U10-3 RR1-2)
@@ -3680,13 +3680,13 @@
       (pins U4-12)
     )
     (net "b~{RESET}"
-      (pins U4-18 U12-1 U13-1)
+      (pins U4-18)
     )
     (net "~{ESP_WR}"
       (pins U6-6 U5-2 U5-4)
     )
     (net "~{ESP1_WR}"
-      (pins U13-2 RR2-5 U16-4 U9-13)
+      (pins U13-2 RR2-5 U11-1 U16-4)
     )
     (net "unconnected-(SW1-Pad10)"
       (pins SW1-10)
@@ -3713,7 +3713,7 @@
       (pins U12-13 U7-13 RR2-6 U16-6)
     )
     (net "~{ESP1_RD}"
-      (pins U13-13 RR2-7 U11-1 U16-8)
+      (pins U13-29 RR2-7 U16-8 U9-13)
     )
     (net "~{ESP0_WR}"
       (pins U8-1 U12-2 RR2-4 U16-2)
@@ -3781,23 +3781,23 @@
     (net "unconnected-(U13-Pad20)"
       (pins U13-20)
     )
-    (net "unconnected-(U13-Pad23)"
-      (pins U13-23)
+    (net "unconnected-(U13-Pad9)"
+      (pins U13-9)
     )
-    (net "unconnected-(U13-Pad24)"
-      (pins U13-24)
+    (net "unconnected-(U13-Pad10)"
+      (pins U13-10)
     )
-    (net "unconnected-(U13-Pad25)"
-      (pins U13-25)
+    (net "unconnected-(U13-Pad11)"
+      (pins U13-11)
     )
-    (net "unconnected-(U13-Pad26)"
-      (pins U13-26)
+    (net "unconnected-(U13-Pad12)"
+      (pins U13-12)
     )
-    (net "unconnected-(U13-Pad29)"
-      (pins U13-29)
+    (net "unconnected-(U13-Pad13)"
+      (pins U13-13)
     )
-    (net "unconnected-(U13-Pad30)"
-      (pins U13-30)
+    (net "unconnected-(U13-Pad19)"
+      (pins U13-19)
     )
     (net "unconnected-(U8-Pad7)"
       (pins U8-7)
@@ -3812,13 +3812,13 @@
       (pins U9-9)
     )
     (net ESP1_OUTCLK
-      (pins U13-9 U9-11 U9-12)
+      (pins U13-26 U9-11 U9-12)
     )
     (net ESP1_OUT
       (pins U13-21 U9-14)
     )
     (net ESP1_INCLK
-      (pins U13-10 U11-2)
+      (pins U13-25 U11-2)
     )
     (net "unconnected-(U11-Pad7)"
       (pins U11-7)
@@ -3830,13 +3830,13 @@
       (pins U11-10)
     )
     (net ESP1_BUSY
-      (pins U13-11 U15-11)
+      (pins U13-24 U15-11)
     )
     (net ESP1_RDYO
-      (pins U13-12 U15-8)
+      (pins U13-23 U15-8)
     )
     (net ESP1_SPAREO
-      (pins U13-19 U15-13)
+      (pins U13-30 U15-13)
     )
     (net "Net-(U14-Pad3)"
       (pins U14-3 U14-5)
@@ -3900,8 +3900,11 @@
     )
   )
   (wiring
-    (wire (path F.Cu 1000  109600 -143540  109600 -145045  109220 -145425  65405 -145425)(net VCC)(type route))
-    (wire (path F.Cu 1000  63564.9 -143585  63564.9 -140335)(net VCC)(type route))
+    (wire (path F.Cu 1000  109672 -145118  135636 -145118)(net VCC)(type route))
+    (wire (path F.Cu 1000  109220 -145425  65405 -145425)(net VCC)(type route))
+    (wire (path F.Cu 1000  109600 -143540  109600 -145045  109220 -145425)(net VCC)(type route))
+    (wire (path F.Cu 1000  135636 -145118  136550 -144203)(net VCC)(type route))
+    (wire (path F.Cu 1000  109600 -145045  109672 -145118)(net VCC)(type route))
     (wire (path F.Cu 1000  65405 -145425  63564.9 -143585)(net VCC)(type route))
   )
 )
