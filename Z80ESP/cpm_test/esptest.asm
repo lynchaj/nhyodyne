@@ -244,8 +244,9 @@ MNULOOP3:
         CP      'B'
         JP      Z,QUEUE_LENGTH_CONNECTION_1
         CP      'C'
+        JP      Z,CONNECTION_0_TELNET_BYTE_MODE
+        CP      'D'
         JP      Z,GET_MOUSE
-
         CP      'Z'
         JP      Z,MENU_PAGE_2
         JP      MNULOOP3
@@ -1521,6 +1522,22 @@ QUEUE_LENGTH_CONNECTION_1:
         JP      MNULOOP3
 
 
+CONNECTION_0_TELNET_BYTE_MODE:
+        LD      HL,TELNET_CHAR_MODE
+        LD      A,26            ; SEND OPCODE 26 (OUT  NULL TERM STRING)
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+CONNECTION_0_TELNET_BYTE_MODE_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP1
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,CONNECTION_0_TELNET_BYTE_MODE_1
+        JP      MNULOOP3
+
+
 GET_MOUSE:
         CALL    CLEARESP1
         LD      A,29            ; SEND OPCODE 29 (GET MOUSE)
@@ -1912,15 +1929,17 @@ MENU3:
         DM      "B>  QUEUE LENGTH CONNECTION 1"
         DB      0AH,0DH
         DB      0AH,0DH
-        DM      "C> GET MOUSE"
+        DM      "C> PLACE CONNECTION 0 IN BYTE MODE (FOR TELNET CLIENTS)"
         DB      0AH,0DH
         DB      0AH,0DH
+        DM      "D> GET MOUSE"
+        DB      0AH,0DH
+        DB      0AH,0DH
+
         DM      "Z> MENU PAGE TWO"
         DB      0AH,0DH
 
         DM      "$"
-
-
 
 VGA_TEST:
         DB      0AH,0DH
@@ -2037,8 +2056,11 @@ HOSTNAME_TEST:
         DB      00
 
 OUTGOING_TEST:
-        DM      "192.168.0.29"
+        DM      "192.168.0.31"
         DB      00
+
+TELNET_CHAR_MODE:
+        DM      255,251,1,255,251,3,255,252,34,0,0
 
 
 PLAY_TEST:

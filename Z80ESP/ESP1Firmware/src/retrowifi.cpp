@@ -11,9 +11,9 @@ void retroWifi::initialize()
     WiFi.mode(WIFI_STA);
     String ssid = preferences.getString("ssid", "");
     String password = preferences.getString("password", "");
+    String hostname = preferences.getString("hostname", "nhyodyne");
     strncpy(m_ssid, ssid.c_str(), 64);
     strncpy(m_password, password.c_str(), 64);
-    String hostname = preferences.getString("hostname", "nhyodyne");
     strncpy(m_hostname, ssid.c_str(), 64);
     buffer = new uint8_t[256];
     currentPointer = buffer;
@@ -29,7 +29,7 @@ bool retroWifi::setSSID(uint8_t b)
     *currentPointer++ = b;
     if (b == 0)
     {
-        strncpy(m_ssid, reinterpret_cast<const char *>(buffer), 64);
+        strncpy(m_ssid,(char *)&buffer[0], 64);
         preferences.putString("ssid", m_ssid);
         return true;
     }
@@ -41,7 +41,7 @@ bool retroWifi::setPassword(uint8_t b)
     *currentPointer++ = b;
     if (b == 0)
     {
-        strncpy(m_password, reinterpret_cast<const char *>(buffer), 64);
+        strncpy(m_password,(char *)&buffer[0], 64);
         preferences.putString("password", m_password);
         return true;
     }
@@ -229,7 +229,7 @@ bool retroWifi::setHostname(uint8_t b)
     *currentPointer++ = b;
     if (b == 0)
     {
-        strncpy(m_hostname, reinterpret_cast<const char *>(buffer), 64);
+        strncpy(m_hostname,(char *)&buffer[0], 64);
         preferences.putString("hostname", m_hostname);
         return true;
     }
@@ -279,10 +279,11 @@ bool retroWifi::outStringToConnection(uint8_t b)
 {
     *currentPointer++ = b;
     int len = (currentPointer - buffer);
-    if (len > 0)
+    if (len > 1)
     {
         if (b == 0)
         {
+
             client[buffer[0]].write((char *)&buffer[1]);
             return true;
         }
@@ -292,12 +293,12 @@ bool retroWifi::outStringToConnection(uint8_t b)
 
 void retroWifi::inByteFromConnection(uint8_t b)
 {
-    queueByte(client[buffer[0]].read());
+    queueByte(client[b].read());
 }
 
 void retroWifi::queuedBytesFromConnection(uint8_t b)
 {
-    queueByte(client[buffer[0]].available());
+    queueByte(client[b].available());
 }
 
 void retroWifi::listenForIncomingConnection()
