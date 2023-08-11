@@ -1,0 +1,12 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Z80PROC3-rescue")(type "Legacy")(uri "${KIPRJMOD}/Z80PROC3-rescue.lib")(options "")(descr ""))
+  (lib (name "Z80DMA-rescue")(type "Legacy")(uri "${KIPRJMOD}/Z80DMA-rescue.lib")(options "")(descr ""))
+  (lib (name "Z80DMA2-rescue")(type "Legacy")(uri "${KIPRJMOD}/Z80DMA2-rescue.lib")(options "")(descr ""))
+  (lib (name "ECB-DMA-rescue")(type "Legacy")(uri "${KIPRJMOD}/ECB-DMA-rescue.lib")(options "")(descr ""))
+  (lib (name "Z80lib")(type "KiCad")(uri "${KIPRJMOD}/Z80lib.kicad_sym")(options "")(descr ""))
+  (lib (name "Zilog_z80")(type "KiCad")(uri "${KIPRJMOD}/Zilog_z80.kicad_sym")(options "")(descr ""))
+  (lib (name "Zilog_Z80_Peripherals")(type "KiCad")(uri "${KIPRJMOD}/Zilog_Z80_Peripherals.kicad_sym")(options "")(descr ""))
+  (lib (name "Zilog_Z80_graphic")(type "KiCad")(uri "${KIPRJMOD}/Zilog_Z80_graphic.kicad_sym")(options "")(descr ""))
+  (lib (name "ltc6904_msop")(type "KiCad")(uri "${KIPRJMOD}/ltc6904_msop.kicad_sym")(options "")(descr ""))
+)
