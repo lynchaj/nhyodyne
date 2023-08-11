@@ -1,0 +1,446 @@
+ca65 V2.18 - Ubuntu 2.19-1
+Main file   : compr202.asm
+Current file: compr202.asm
+
+000000r 1               ;FILE COMPARISON ROUTINE
+000000r 1               ;THE COMMAND SYNTAX FOR THIS ROUTINE IS
+000000r 1               ;	COMPARE FILE1 FILE2
+000000r 1               ;WHERE FILE1 AND FILE2 ARE BOTH UFNS.
+000000r 1               ;VERSION 2.02-
+000000r 1               ;RELEASED:	18 JULY 1983
+000000r 1               ;LAST REVISION:
+000000r 1               ;	28 DECEMBER 1985
+000000r 1               ;		INCREASED BYTE COUNT TO 3
+000000r 1               ;	31 MARCH 2008
+000000r 1               ;		CONVERTED TO TASM ASM21X FORMAT
+000000r 1               ;		ELIMINATED PAGE ZERO 0 & 1
+000000r 1               ;DEFINITIONS
+000000r 1               CR              = $D            ;CARRIAGE RETURN
+000000r 1               LF              = $A            ;LINEFEED
+000000r 1               EOF             = $1A           ;EOF CHARACTER
+000000r 1               BOOT            = $100          ;WARM BOOT ENTRY
+000000r 1               PEM             = $103          ;PEM ENTRY
+000000r 1               DFLFCB          = $107          ;DEFAULT FCB
+000000r 1               DFLBUF          = $128          ;DEFAULT BUFFER
+000000r 1               TEA             = $800          ;TEA START
+000000r 1               BUFLNG          = 1024          ;FILE BUFFER LENGTH
+000000r 1               ;PAGE ZERO DATA DEFINITIONS
+000000r 1               F1PNT           = $02           ;POINTER INTO FILE 1
+000000r 1               F1EOF           = $04           ;ONE PAST LAST VALID BYTE
+000000r 1               F2PNT           = $06           ;POINTER INTO FILE 2
+000000r 1               F2EOF           = $08           ;ONE PAST LAST VALID BYTE
+000000r 1               EOFFLG          = $0A           ;EOF FLAG
+000000r 1               BYTCNT          = $0B           ;BYTE COUNTER
+000000r 1               LEADZF          = $0E           ;LEADING ZERO FLAG
+000000r 1               MODULS          = $0F           ;DIGIT MODULUS
+000000r 1               BYTE1           = $12           ;BYTE FROM FILE ONE
+000000r 1               BYTE2           = $13           ;BYTE FROM FILE TWO
+000000r 1               ;START OF MAIN PROGRAM
+000000r 1                       .FEATURE labels_without_colons
+000000r 1                       .SEGMENT "TEA"
+000000r 1                       .ORG    $0800
+000800  1               
+000800  1  A9 00                LDA     #0              ;CLEAR EOF FLAG
+000802  1  85 0A                STA     EOFFLG
+000804  1  85 0B                STA     BYTCNT          ;AND BYTE COUNT
+000806  1  85 0C                STA     BYTCNT+1
+000808  1  85 0D                STA     BYTCNT+2
+00080A  1  A9 4D                LDA     #(F1MAX & $FF)  ;SET POINTERS TO ILLEGAL
+00080C  1  A0 0F                LDY     #((F1MAX / $100)& $FF)
+00080E  1  85 02                STA     F1PNT
+000810  1  84 03                STY     F1PNT+1
+000812  1  85 04                STA     F1EOF           ;ALSO PRESET EOF POINTER
+000814  1  84 05                STY     F1EOF+1
+000816  1  A9 4D                LDA     #(F2MAX & $FF)
+000818  1  A0 13                LDY     #((F2MAX / $100)& $FF)
+00081A  1  85 06                STA     F2PNT
+00081C  1  84 07                STY     F2PNT+1
+00081E  1  85 08                STA     F2EOF
+000820  1  84 09                STY     F2EOF+1
+000822  1  A9 3C                LDA     #(OPNMSG & $FF) ;POINT TO OPENING MESSAGE
+000824  1  A0 0A                LDY     #((OPNMSG / $100)& $FF)
+000826  1  20 57 09             JSR     MSGOUT          ;SEND IT
+000829  1  A2 00                LDX     #0              ;MOVE DEFAULT FCB DATA
+00082B  1               MVFCBS
+00082B  1  BD 07 01             LDA     DFLFCB,X        ;GET FILE 1
+00082E  1  9D 0B 0B             STA     F1FCB,X
+000831  1  BD 17 01             LDA     DFLFCB+16,X     ;THEN GET FILE 2
+000834  1  9D 2C 0B             STA     F2FCB,X
+000837  1  E8                   INX                     ;BUMP INDX
+000838  1  E0 0C                CPX     #12             ;SEE IF AT LIMIT
+00083A  1  D0 EF                BNE     MVFCBS          ;LOOP IF NOT
+00083C  1  A9 00                LDA     #0              ;CLEAR REST OF FCB
+00083E  1               CLFCBS
+00083E  1  9D 0B 0B             STA     F1FCB,X         ;BOTH 1
+000841  1  9D 2C 0B             STA     F2FCB,X         ;AND 2
+000844  1  E8                   INX
+000845  1  E0 10                CPX     #16             ;UNTIL END
+000847  1  D0 F5                BNE     CLFCBS
+000849  1  AD 2D 0B             LDA     F2FCB+1         ;NOW SEE IF FCB2 IS BLANK
+00084C  1  C9 20                CMP     #' '
+00084E  1  D0 14                BNE     NTBLNK          ;BRANCH IF NOT
+000850  1  AD 35 0B             LDA     F2FCB+9         ;CHECK TYPE ALSO
+000853  1  C9 20                CMP     #' '            ;BRANCH IF NOT BLANK
+000855  1  D0 0D                BNE     NTBLNK
+000857  1  A2 01                LDX     #1              ;NOW MOVE FCB ONE TO TWO
+000859  1               CPFCB
+000859  1  BD 0B 0B             LDA     F1FCB,X         ;GET FROM ONE
+00085C  1  9D 2C 0B             STA     F2FCB,X         ;PUT IN X
+00085F  1  E8                   INX                     ;BUMP INDEX
+000860  1  E0 0C                CPX     #12             ;SEE IF AT LIMIT
+000862  1  D0 F5                BNE     CPFCB           ;LOOP IF NOT
+000864  1               NTBLNK
+000864  1  20 61 09             JSR     OPEN1           ;OPEN FIRST
+000867  1  20 68 09             JSR     OPEN2           ;THEN SECOND
+00086A  1               COMPAR
+00086A  1  20 88 08             JSR     READ1           ;GET BYTE FROM ONE
+00086D  1  20 A9 08             JSR     READ2           ;GET BYTE FROM TWO
+000870  1  C5 12                CMP     BYTE1           ;COMPARE THE BYTES
+000872  1  F0 F6                BEQ     COMPAR          ;IF SAME KEEP LOOPING
+000874  1               UNEQUL
+000874  1  A9 B0                LDA     #(UNEMSG & $FF) ;SEND UNEQUAL MESSAGE
+000876  1  A0 0A                LDY     #((UNEMSG / $100)& $FF)
+000878  1  20 57 09             JSR     MSGOUT
+00087B  1  20 CA 08             JSR     OUTDEC          ;SEND COUNT
+00087E  1  A9 A5                LDA     #(DECMSG & $FF) ;THEN SEND DECIMAL MESSAGE
+000880  1  A0 0A                LDY     #((DECMSG / $100)& $FF)
+000882  1  20 57 09             JSR     MSGOUT
+000885  1  4C 00 01             JMP     BOOT            ;EXIT WITH BOOT
+000888  1               ;SUBROUTINES
+000888  1               ;BYTE READ ROUTINES
+000888  1               READ1
+000888  1  20 7E 09             JSR     F1GET           ;GET BYTE
+00088B  1  B0 0B                BCS     EOF1            ;BRANCH IF EOF
+00088D  1  E6 0B                INC     BYTCNT          ;ELSE BUMP COUNT
+00088F  1  D0 06                BNE     READ1X          ;EXIT IF NOT ZERO
+000891  1  E6 0C                INC     BYTCNT+1
+000893  1  D0 02                BNE     READ1X          ;EXIT IF NOT ZERO
+000895  1  E6 0D                INC     BYTCNT+2
+000897  1               READ1X
+000897  1  60                   RTS
+000898  1               ;EOF OF FILE 1
+000898  1               EOF1
+000898  1  A9 80                LDA     #128            ;SET FLAG
+00089A  1  85 0A                STA     EOFFLG
+00089C  1  20 A9 08             JSR     READ2           ;NOW READ FROM TWO
+00089F  1  A9 CD                LDA     #(EF1MSG & $FF) ;SEND EOF 1 NOT EOF 2
+0008A1  1  A0 0A                LDY     #((EF1MSG / $100)& $FF)
+0008A3  1  20 57 09             JSR     MSGOUT
+0008A6  1  4C 74 08             JMP     UNEQUL          ;THEN SAY UNEQUAL
+0008A9  1               ;FILE TWO
+0008A9  1               READ2
+0008A9  1  20 BF 09             JSR     F2GET           ;GET BYTE
+0008AC  1  90 1B                BCC     R2OK            ;EXIT IF OK
+0008AE  1               ;GOT EOF ON FILE 2 - DID WE GET IT ON FILE ONE
+0008AE  1  24 0A                BIT     EOFFLG          ;TEST FLAG
+0008B0  1  30 0A                BMI     AOK             ;IF SET IS OK
+0008B2  1  A9 EC                LDA     #(EF2MSG & $FF) ;ELSE SEND EOF 2 NOT 1
+0008B4  1  A0 0A                LDY     #((EF2MSG / $100)& $FF)
+0008B6  1  20 57 09             JSR     MSGOUT
+0008B9  1  4C 74 08             JMP     UNEQUL          ;THEN SAY UNEQUAL
+0008BC  1               ;FILES MATCH
+0008BC  1               AOK
+0008BC  1  A9 8A                LDA     #(MCHMSG & $FF) ;SO SEND MESSAGE
+0008BE  1  A0 0A                LDY     #((MCHMSG / $100)& $FF)
+0008C0  1  20 57 09             JSR     MSGOUT
+0008C3  1  20 CA 08             JSR     OUTDEC          ;PRINT LENGTH
+0008C6  1  4C 00 01             JMP     BOOT
+0008C9  1               R2OK
+0008C9  1  60                   RTS
+0008CA  1               ;CONVERT THREE BINARY BYTES TO DECIMAL
+0008CA  1               OUTDEC
+0008CA  1  A9 00                LDA     #0              ;CLEAR LEADING ZERO FLAG
+0008CC  1  85 0E                STA     LEADZF
+0008CE  1               ;SINCE ASSEMBLER CAN ONLY DO 16 BIT ARITHMETIC, THE
+0008CE  1               ;FOLLOWING NUMBERS ARE FOR 100000.
+0008CE  1  A9 A0                LDA     #$A0            ;100000 AND FF
+0008D0  1  A0 86                LDY     #$86            ;(100000/256) AND FF
+0008D2  1  A2 01                LDX     #$01            ;100000/65536
+0008D4  1  20 02 09             JSR     DODIGT
+0008D7  1  A9 10                LDA     #(10000 & $FF)  ;DO 10000S
+0008D9  1  A0 27                LDY     #((10000 / $100)& $FF)
+0008DB  1  A2 00                LDX     #0
+0008DD  1  20 02 09             JSR     DODIGT
+0008E0  1  A9 E8                LDA     #(1000 & $FF)   ;THEN 1000S
+0008E2  1  A0 03                LDY     #((1000 / $100)& $FF)
+0008E4  1  A2 00                LDX     #0
+0008E6  1  20 02 09             JSR     DODIGT
+0008E9  1  A9 64                LDA     #100            ;THEN 100S
+0008EB  1  A0 00                LDY     #0
+0008ED  1  A2 00                LDX     #0
+0008EF  1  20 02 09             JSR     DODIGT
+0008F2  1  A9 0A                LDA     #10             ;THEN 10S
+0008F4  1  A0 00                LDY     #0
+0008F6  1  A2 00                LDX     #0
+0008F8  1  20 02 09             JSR     DODIGT
+0008FB  1  A5 0B                LDA     BYTCNT          ;THEN ALWAYS DO 1S
+0008FD  1  09 30                ORA     #'0'
+0008FF  1  4C 52 09             JMP     CONOUT
+000902  1               ;DO A SINGLE DIGIT
+000902  1               DODIGT
+000902  1  85 0F                STA     MODULS          ;SAVE MODULUS
+000904  1  84 10                STY     MODULS+1
+000906  1  86 11                STX     MODULS+2
+000908  1  A2 FF                LDX     #$FF            ;CLEAR DIGIT
+00090A  1  38                   SEC
+00090B  1               DIGLPE
+00090B  1  A5 0B                LDA     BYTCNT          ;SUBTRACT UNTIL BORROW
+00090D  1  E5 0F                SBC     MODULS
+00090F  1  85 0B                STA     BYTCNT
+000911  1  A5 0C                LDA     BYTCNT+1
+000913  1  E5 10                SBC     MODULS+1
+000915  1  85 0C                STA     BYTCNT+1
+000917  1  A5 0D                LDA     BYTCNT+2
+000919  1  E5 11                SBC     MODULS+2
+00091B  1  85 0D                STA     BYTCNT+2
+00091D  1  E8                   INX                     ;BUMP DIGIT
+00091E  1  B0 EB                BCS     DIGLPE          ;LOOP IF NO BORROW
+000920  1  A5 0B                LDA     BYTCNT          ;NOW ADD MODULUS BACK
+000922  1  65 0F                ADC     MODULS
+000924  1  85 0B                STA     BYTCNT
+000926  1  A5 0C                LDA     BYTCNT+1
+000928  1  65 10                ADC     MODULS+1
+00092A  1  85 0C                STA     BYTCNT+1
+00092C  1  A5 0D                LDA     BYTCNT+2
+00092E  1  65 11                ADC     MODULS+2
+000930  1  85 0D                STA     BYTCNT+2
+000932  1  8A                   TXA                     ;TEST DIGIT
+000933  1  F0 03                BEQ     DIGZRO          ;SKIP IF ZERO
+000935  1  38                   SEC                     ;ELSE SET FLAG
+000936  1  66 0E                ROR     LEADZF
+000938  1               DIGZRO
+000938  1  24 0E                BIT     LEADZF          ;TEST FLAG
+00093A  1  10 05                BPL     DONTPR          ;SKIP IF CLEAR
+00093C  1  09 30                ORA     #'0'            ;ELSE MAKE ASCII
+00093E  1  20 52 09             JSR     CONOUT          ;AND SEND
+000941  1               DONTPR
+000941  1  60                   RTS
+000942  1               ;PEM ENTRIES
+000942  1               ;READ FILE ONE
+000942  1               F1RDE
+000942  1  A9 0B                LDA     #(F1FCB & $FF)  ;POINT TO FCB
+000944  1  A0 0B                LDY     #((F1FCB / $100)& $FF)
+000946  1  4C 4D 09             JMP     RDEFLE
+000949  1               ;READ FILE TWO
+000949  1               F2RDE
+000949  1  A9 2C                LDA     #(F2FCB & $FF)  ;POINT TO FCB
+00094B  1  A0 0B                LDY     #((F2FCB / $100)& $FF)
+00094D  1               RDEFLE
+00094D  1  A2 14                LDX     #20
+00094F  1  4C 03 01             JMP     PEM
+000952  1               ;OUTPUT CHAR TO CONSOLE
+000952  1               CONOUT
+000952  1  A2 02                LDX     #2
+000954  1  4C 03 01             JMP     PEM
+000957  1               ;SEND MESSAGE TO CONSOLE
+000957  1               MSGOUT
+000957  1  A2 09                LDX     #9              ;GET OPERATION NUMBER
+000959  1  4C 03 01             JMP     PEM             ;GO DO IT
+00095C  1               ;SET DMA ADDRESS TO VALUE IN AY
+00095C  1               SETDMA
+00095C  1  A2 1A                LDX     #26
+00095E  1  4C 03 01             JMP     PEM
+000961  1               ;OPEN FILE 1
+000961  1               OPEN1
+000961  1  A9 0B                LDA     #(F1FCB & $FF)  ;POINT TO FCB
+000963  1  A0 0B                LDY     #((F1FCB / $100)& $FF)
+000965  1  4C 6C 09             JMP     OPNFLE          ;THEN GO OPEN
+000968  1               ;OPEN FILE 2
+000968  1               OPEN2
+000968  1  A9 2C                LDA     #(F2FCB & $FF)  ;POINT TO FCB
+00096A  1  A0 0B                LDY     #((F2FCB / $100)& $FF)
+00096C  1               ;OPEN FILE
+00096C  1               OPNFLE
+00096C  1  A2 0F                LDX     #15             ;OPEN CODE
+00096E  1  20 03 01             JSR     PEM
+000971  1  10 0A                BPL     OPNIOK          ;OK IF POSITIVE
+000973  1  A9 64                LDA     #(NFLMSG & $FF) ;SAY NO FILE
+000975  1  A0 0A                LDY     #((NFLMSG / $100)& $FF)
+000977  1  20 57 09             JSR     MSGOUT
+00097A  1  4C 00 01             JMP     BOOT            ;AND EXIT
+00097D  1               OPNIOK
+00097D  1  60                   RTS
+00097E  1               ;GET BYTE FROM FILE ONE AND SET CARRY IF EOF
+00097E  1               F1GET
+00097E  1  20 00 0A             JSR     TF1PNT          ;TEST POINTER
+000981  1  90 1A                BCC     F1GNOW          ;IF SO GO GET BYTE
+000983  1  20 12 0A             JSR     CF1PNT          ;ELSE SET POINTER TO START
+000986  1               F1LPE
+000986  1  A5 02                LDA     F1PNT           ;SET ADDRESS
+000988  1  A4 03                LDY     F1PNT+1
+00098A  1  20 5C 09             JSR     SETDMA
+00098D  1  20 42 09             JSR     F1RDE           ;THEN READ RECORD
+000990  1  D0 22                BNE     F1END           ;IF NOT ZERO IS EOF
+000992  1  20 24 0A             JSR     BF1PNT          ;BUMP POINTER
+000995  1  20 00 0A             JSR     TF1PNT          ;AND TEST POINTER
+000998  1  90 EC                BCC     F1LPE           ;LOOP IF MORE TO READ
+00099A  1               F1CONT
+00099A  1  20 12 0A             JSR     CF1PNT          ;ELSE CLEAR POINTER
+00099D  1               F1GNOW
+00099D  1  A0 00                LDY     #0              ;GET BYTE
+00099F  1  B1 02                LDA     (F1PNT),Y
+0009A1  1  85 12                STA     BYTE1           ;SAVE IN REGISTER
+0009A3  1  A5 02                LDA     F1PNT           ;NOW SEE IF AT EOF
+0009A5  1  C5 04                CMP     F1EOF
+0009A7  1  A5 03                LDA     F1PNT+1
+0009A9  1  E5 05                SBC     F1EOF+1
+0009AB  1  E6 02                INC     F1PNT           ;NOW BUMP POINTER
+0009AD  1  D0 02                BNE     *+4
+0009AF  1  E6 03                INC     F1PNT+1
+0009B1  1  A5 12                LDA     BYTE1           ;GET BYTE BACK
+0009B3  1  60                   RTS
+0009B4  1               ;END OF FILE FOR FILE ONE
+0009B4  1               F1END
+0009B4  1  A5 02                LDA     F1PNT           ;SET EOF POINTER
+0009B6  1  A4 03                LDY     F1PNT+1
+0009B8  1  85 04                STA     F1EOF
+0009BA  1  84 05                STY     F1EOF+1
+0009BC  1  4C 9A 09             JMP     F1CONT
+0009BF  1               ;GET BYTE FROM FILE TWO AND SET CARRY IF EOF
+0009BF  1               F2GET
+0009BF  1  20 09 0A             JSR     TF2PNT          ;TEST POINTER
+0009C2  1  90 1A                BCC     F2GNOW          ;IF SO GO GET BYTE
+0009C4  1  20 1B 0A             JSR     CF2PNT          ;ELSE SET POINTER TO START
+0009C7  1               F2LPE
+0009C7  1  A5 06                LDA     F2PNT           ;SET ADDRESS
+0009C9  1  A4 07                LDY     F2PNT+1
+0009CB  1  20 5C 09             JSR     SETDMA
+0009CE  1  20 49 09             JSR     F2RDE           ;THEN READ RECORD
+0009D1  1  D0 22                BNE     F2END           ;IF NOT ZERO IS EOF
+0009D3  1  20 30 0A             JSR     BF2PNT          ;BUMP POINTER
+0009D6  1  20 09 0A             JSR     TF2PNT          ;AND TEST POINTER
+0009D9  1  90 EC                BCC     F2LPE           ;LOOP IF MORE TO READ
+0009DB  1               F2CONT
+0009DB  1  20 1B 0A             JSR     CF2PNT          ;ELSE CLEAR POINTER
+0009DE  1               F2GNOW
+0009DE  1  A0 00                LDY     #0              ;GET BYTE
+0009E0  1  B1 06                LDA     (F2PNT),Y
+0009E2  1  85 13                STA     BYTE2           ;SAVE IN REGISTER
+0009E4  1  A5 06                LDA     F2PNT           ;NOW SEE IF EOF
+0009E6  1  C5 08                CMP     F2EOF
+0009E8  1  A5 07                LDA     F2PNT+1
+0009EA  1  E5 09                SBC     F2EOF+1
+0009EC  1  E6 06                INC     F2PNT           ;NOW BUMP POINTER
+0009EE  1  D0 02                BNE     *+4
+0009F0  1  E6 07                INC     F2PNT+1
+0009F2  1  A5 13                LDA     BYTE2           ;GET BYTE BACK
+0009F4  1  60                   RTS
+0009F5  1               ;END OF FILE FOR FILE TWO
+0009F5  1               F2END
+0009F5  1  A5 06                LDA     F2PNT           ;SET EOF POINTER
+0009F7  1  A4 07                LDY     F2PNT+1
+0009F9  1  85 08                STA     F2EOF
+0009FB  1  84 09                STY     F2EOF+1
+0009FD  1  4C DB 09             JMP     F2CONT
+000A00  1               ;TEST FILE ONE POINTER AND SET CARRY IF TOO BIG
+000A00  1               TF1PNT
+000A00  1  A5 02                LDA     F1PNT           ;DO BY SUBTRACTING
+000A02  1  C9 4D                CMP     #(F1MAX & $FF)
+000A04  1  A5 03                LDA     F1PNT+1
+000A06  1  E9 0F                SBC     #((F1MAX / $100)& $FF)
+000A08  1  60                   RTS
+000A09  1               ;TEST FILE TWO POINTER AND SET CARRY IF TOO BIG
+000A09  1               TF2PNT
+000A09  1  A5 06                LDA     F2PNT           ;DO BY SUBTRACTING
+000A0B  1  C9 4D                CMP     #(F2MAX & $FF)
+000A0D  1  A5 07                LDA     F2PNT+1
+000A0F  1  E9 13                SBC     #((F2MAX / $100)& $FF)
+000A11  1  60                   RTS
+000A12  1               ;SET FILE ONE POINTER TO START
+000A12  1               CF1PNT
+000A12  1  A9 4D                LDA     #(F1BUF & $FF)  ;GET START
+000A14  1  A0 0B                LDY     #((F1BUF / $100)& $FF)
+000A16  1  85 02                STA     F1PNT           ;THEN SET
+000A18  1  84 03                STY     F1PNT+1
+000A1A  1  60                   RTS
+000A1B  1               ;SET FILE TWO POINTER TO START
+000A1B  1               CF2PNT
+000A1B  1  A9 4D                LDA     #(F2BUF & $FF)  ;GET START
+000A1D  1  A0 0F                LDY     #((F2BUF / $100)& $FF)
+000A1F  1  85 06                STA     F2PNT           ;AND SET
+000A21  1  84 07                STY     F2PNT+1
+000A23  1  60                   RTS
+000A24  1               ;BUMP FILE ONE POINTER BY 128
+000A24  1               BF1PNT
+000A24  1  18                   CLC                     ;CLEAR CARRY
+000A25  1  A5 02                LDA     F1PNT
+000A27  1  69 80                ADC     #128
+000A29  1  85 02                STA     F1PNT           ;SAVE LOW
+000A2B  1  90 02                BCC     *+4
+000A2D  1  E6 03                INC     F1PNT+1         ;DO HIGH IF NEEDED
+000A2F  1  60                   RTS
+000A30  1               ;BUMP FILE TWO POINTER BY 128
+000A30  1               BF2PNT
+000A30  1  18                   CLC                     ;CLEAR CARRY
+000A31  1  A5 06                LDA     F2PNT
+000A33  1  69 80                ADC     #128
+000A35  1  85 06                STA     F2PNT           ;SAVE LOW
+000A37  1  90 02                BCC     *+4
+000A39  1  E6 07                INC     F2PNT+1         ;DO HIGH IF NEEDED
+000A3B  1  60                   RTS
+000A3C  1               ;MESSAGES
+000A3C  1               OPNMSG
+000A3C  1  46 49 4C 45          .BYTE   "FILE COMPARISON ROUTINE"
+000A40  1  20 43 4F 4D  
+000A44  1  50 41 52 49  
+000A53  1  0D 0A 56 45          .BYTE   CR,LF,"VERSION 2.02-A$"
+000A57  1  52 53 49 4F  
+000A5B  1  4E 20 32 2E  
+000A64  1               NFLMSG
+000A64  1  0D 0A 4F 4E          .BYTE   CR,LF,"ONE OF THE FILES "
+000A68  1  45 20 4F 46  
+000A6C  1  20 54 48 45  
+000A77  1  44 4F 45 53          .BYTE   "DOES NOT EXIST!$"
+000A7B  1  20 4E 4F 54  
+000A7F  1  20 45 58 49  
+000A87  1               CRLMSG
+000A87  1  0D 0A 24             .BYTE   CR,LF,"$"
+000A8A  1               MCHMSG
+000A8A  1  0D 0A 46 49          .BYTE   CR,LF,"FILES MATCH - LENGTH IS $"
+000A8E  1  4C 45 53 20  
+000A92  1  4D 41 54 43  
+000AA5  1               DECMSG
+000AA5  1  20 28 44 45          .BYTE   " (DECIMAL)$"
+000AA9  1  43 49 4D 41  
+000AAD  1  4C 29 24     
+000AB0  1               UNEMSG
+000AB0  1  0D 0A 46 49          .BYTE   CR,LF,"FILES ARE UNEQUAL AT BYTE $"
+000AB4  1  4C 45 53 20  
+000AB8  1  41 52 45 20  
+000ACD  1               EF1MSG
+000ACD  1  0D 0A 45 4F          .BYTE   CR,LF,"EOF ON FILE 1 BUT"
+000AD1  1  46 20 4F 4E  
+000AD5  1  20 46 49 4C  
+000AE0  1  20 4E 4F 54          .BYTE   " NOT FILE 2$"
+000AE4  1  20 46 49 4C  
+000AE8  1  45 20 32 24  
+000AEC  1               EF2MSG
+000AEC  1  0D 0A 45 4F          .BYTE   CR,LF,"EOF ON FILE 2 BUT"
+000AF0  1  46 20 4F 4E  
+000AF4  1  20 46 49 4C  
+000AFF  1  20 4E 4F 54          .BYTE   " NOT FILE 1$"
+000B03  1  20 46 49 4C  
+000B07  1  45 20 31 24  
+000B0B  1               ;FCBS
+000B0B  1               F1FCB   ;FILE 1
+000B0B  1  xx xx xx xx          .RES    32
+000B0F  1  xx xx xx xx  
+000B13  1  xx xx xx xx  
+000B2B  1  00                   .BYTE   0               ;RECORD
+000B2C  1               F2FCB   ;FILE 2
+000B2C  1  xx xx xx xx          .RES    32
+000B30  1  xx xx xx xx  
+000B34  1  xx xx xx xx  
+000B4C  1  00                   .BYTE   0
+000B4D  1               ;BUFFERS
+000B4D  1               F1BUF   ;FILE 1
+000B4D  1  xx xx xx xx          .RES    BUFLNG
+000B51  1  xx xx xx xx  
+000B55  1  xx xx xx xx  
+000F4D  1               F1MAX
+000F4D  1               F2BUF   ;FILE 2
+000F4D  1  xx xx xx xx          .RES    BUFLNG
+000F51  1  xx xx xx xx  
+000F55  1  xx xx xx xx  
+00134D  1               F2MAX
+00134D  1                       .END

@@ -12,7 +12,11 @@ assign.co6: assign.c
 	cc65  -t none -O --cpu 65sc02  assign.c
 	ca65 --cpu 65sc02  assign.s
 	ld65 assign.o  ./nhyodyne/nhyodyne.lib -m assign.map -C dos65c.cfg -o assign.co6
+	srec_cat  assign.co6 -binary -offset 0x0800 -o  assign.s19  -data-only
 	cp assign.co6 ../bin/
+	sed -i -e '$$aS9' assign.s19
+	cp assign.s19 ../bin/
+
 
 alloc.out: alloc203.asm
 	ca65 --cpu 65sc02 alloc203.asm -l alloc.lst

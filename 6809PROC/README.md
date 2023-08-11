@@ -3,7 +3,7 @@
 
 
 # Bugs
-* The 6502 board cannot co-exist with the 6809 board. I am guessing it has to do with the way _BUSACK is used to toggle the activation of both boards.
+* I AM SURE THERE ARE SOME . . . .
 
 # JUMPER SETTINGS
 ## General
@@ -273,3 +273,14 @@ MEMORY MAP:
 * FLOPPY DRIVERS
 * RTC
 * VIDEO/KB SUPPORT
+* DOCUMENTATION
+* ALLOW MULTIPLE IMAGES ON CF
+* Document slices and drives
+* write assign program
+* C compiler?
+* CODE CLEANUP
+* SUPPORT FOR STAND ALONE FLEX
+* WRITE PRINTER DRIVER
+0145 CCC0 39         PINIT     RTS (jmp Printerinit)
+0149 CCD8 39         PCHK      RTS (jmp Check Printer)
+0153 CCE4 39         POUT      RTS (jmp output to Printer)

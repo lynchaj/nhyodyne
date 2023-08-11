@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "Z80ESP-rescue")(type "Legacy")(uri "${KIPRJMOD}/Z80ESP-rescue.lib")(options "")(descr ""))
+)

@@ -1,0 +1,664 @@
+Modules list:
+-------------
+assign.o:
+    CODE              Offs=000000  Size=0006D1  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=000386  Align=00001  Fill=0000
+    DATA              Offs=000000  Size=00003F  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(_hextab.o):
+    RODATA            Offs=000386  Size=000010  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(_longminstr.o):
+    RODATA            Offs=000396  Size=00000C  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(_printf.o):
+    CODE              Offs=0006D1  Size=0003A5  Align=00001  Fill=0000
+    BSS               Offs=000000  Size=00002B  Align=00001  Fill=0000
+    DATA              Offs=00003F  Size=000003  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(_seterrno.o):
+    CODE              Offs=000A76  Size=000009  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(add.o):
+    CODE              Offs=000A7F  Size=000018  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(addeqsp.o):
+    CODE              Offs=000A97  Size=000011  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(addysp.o):
+    CODE              Offs=000AA8  Size=00000E  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(asrax1.o):
+    CODE              Offs=000AB6  Size=00000A  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(axlong.o):
+    CODE              Offs=000AC0  Size=00000D  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(condes.o):
+    CODE              Offs=000ACD  Size=00000C  Align=00001  Fill=0000
+    DATA              Offs=000042  Size=000025  Align=00001  Fill=0000
+    ONCE              Offs=000000  Size=00000C  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(copydata.o):
+    CODE              Offs=000AD9  Size=00002D  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(cprintf.o):
+    CODE              Offs=000B06  Size=00002A  Align=00001  Fill=0000
+    BSS               Offs=00002B  Size=000001  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(cputs.o):
+    CODE              Offs=000B30  Size=000023  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(crt0.o):
+    STARTUP           Offs=000000  Size=00001E  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(ctype.o):
+    RODATA            Offs=0003A2  Size=00008B  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(ctypemask.o):
+    CODE              Offs=000B53  Size=00001E  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(decax1.o):
+    CODE              Offs=000B71  Size=000007  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(decaxy.o):
+    CODE              Offs=000B78  Size=000009  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(decsp2.o):
+    CODE              Offs=000B81  Size=00000D  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(decsp3.o):
+    CODE              Offs=000B8E  Size=00000D  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(decsp4.o):
+    CODE              Offs=000B9B  Size=00000D  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(decsp6.o):
+    CODE              Offs=000BA8  Size=00000D  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(errno.o):
+    BSS               Offs=00002C  Size=000002  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(incaxy.o):
+    CODE              Offs=000BB5  Size=00000B  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(incsp1.o):
+    CODE              Offs=000BC0  Size=000007  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(incsp2.o):
+    CODE              Offs=000BC7  Size=000015  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(incsp4.o):
+    CODE              Offs=000BDC  Size=000005  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(incsp7.o):
+    CODE              Offs=000BE1  Size=000005  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(isdigit.o):
+    CODE              Offs=000BE6  Size=000008  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(islower.o):
+    CODE              Offs=000BEE  Size=000008  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(isspace.o):
+    CODE              Offs=000BF6  Size=000008  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(isupper.o):
+    CODE              Offs=000BFE  Size=000008  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(ladd.o):
+    CODE              Offs=000C06  Size=000024  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(lcmp.o):
+    CODE              Offs=000C2A  Size=00003B  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(ldaxsp.o):
+    CODE              Offs=000C65  Size=000009  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(ldeaxysp.o):
+    CODE              Offs=000C6E  Size=000013  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(leaaxsp.o):
+    CODE              Offs=000C81  Size=00000C  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(leq.o):
+    CODE              Offs=000C8D  Size=000006  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(lmul.o):
+    CODE              Offs=000C93  Size=000059  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(lneg.o):
+    CODE              Offs=000CEC  Size=00001E  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(lpush.o):
+    CODE              Offs=000D0A  Size=00001E  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(ltoa.o):
+    CODE              Offs=000D28  Size=000093  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(ludiv.o):
+    CODE              Offs=000DBB  Size=000077  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(lugt.o):
+    CODE              Offs=000E32  Size=000006  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(lumod.o):
+    CODE              Offs=000E38  Size=000017  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(makebool.o):
+    CODE              Offs=000E4F  Size=00002C  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(popptr1.o):
+    CODE              Offs=000E7B  Size=00000E  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(push1.o):
+    CODE              Offs=000E89  Size=000005  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(pusha.o):
+    CODE              Offs=000E8E  Size=000016  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(pushax.o):
+    CODE              Offs=000EA4  Size=00001A  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(pushw.o):
+    CODE              Offs=000EBE  Size=00000F  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(pushwsp.o):
+    CODE              Offs=000ECD  Size=00001C  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(regswap2.o):
+    CODE              Offs=000EE9  Size=000016  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(staxsp.o):
+    CODE              Offs=000EFF  Size=00000B  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(steaxsp.o):
+    CODE              Offs=000F0A  Size=000015  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(strchr.o):
+    CODE              Offs=000F1F  Size=000025  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(strlen.o):
+    CODE              Offs=000F44  Size=000016  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(strlower.o):
+    CODE              Offs=000F5A  Size=000027  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(strncmp.o):
+    CODE              Offs=000F81  Size=000039  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(strncpy.o):
+    CODE              Offs=000FBA  Size=000042  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(strtok.o):
+    CODE              Offs=000FFC  Size=0000C2  Align=00001  Fill=0000
+    DATA              Offs=000067  Size=000002  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(strtoul.o):
+    CODE              Offs=0010BE  Size=000236  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(subysp.o):
+    CODE              Offs=0012F4  Size=00000D  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(vcprintf.o):
+    CODE              Offs=001301  Size=000078  Align=00001  Fill=0000
+    DATA              Offs=000069  Size=000008  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(zerobss.o):
+    CODE              Offs=001379  Size=000023  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(zeropage.o):
+    ZEROPAGE          Offs=000000  Size=00001A  Align=00001  Fill=0000
+./nhyodyne/nhyodyne.lib(nhyodyne.o):
+    CODE              Offs=00139C  Size=000007  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+ZEROPAGE              000050  000069  00001A  00001
+STARTUP               000800  00081D  00001E  00001
+ONCE                  00081E  000829  00000C  00001
+CODE                  00082A  001BCC  0013A3  00001
+DATA                  001BCD  001C3D  000071  00001
+RODATA                001C3E  00206A  00042D  00001
+BSS                   00206B  002098  00002E  00001
+
+
+Exports list by name:
+---------------------
+__BSS_RUN__               00206B RLA    __BSS_SIZE__              00002E REA    
+__CONSTRUCTOR_COUNT__     000000 REA    __CONSTRUCTOR_TABLE__     00081E RLA    
+__DATA_LOAD__             001BCD RLA    __DATA_RUN__              001BCD RLA    
+__DATA_SIZE__             000071 REA    __DESTRUCTOR_COUNT__      000000 REA    
+__DESTRUCTOR_TABLE__      00081E RLA    __RAM_SIZE__              00A800 REA    
+__RAM_START__             000800 RLA    __STARTUP__               000001 REA    
+__ctype                   001FE0 RLA    __ctypeidx                001FEB RLA    
+__errno                   002097 RLA    __hextab                  001FC4 RLA    
+__longminstr              001FD4 RLA    __printf                  000FEE RLA    
+__seterrno                0012A0 RLA    _cprintf                  001330 RLA    
+_cputc                    001BC6 RLA    _cputs                    001364 RLA    
+_isdigit                  001410 RLA    _islower                  001418 RLA    
+_isspace                  001420 RLA    _isupper                  001428 RLA    
+_ltoa                     00156A RLA    _main                     000E7E RLA    
+_strchr                   001749 RLA    _strlen                   00176E RLA    
+_strlower                 001784 RLA    _strncmp                  0017AB RLA    
+_strncpy                  0017E4 RLA    _strtok                   001826 RLA    
+_strtoul                  0018E8 RLA    _ultoa                    0015A9 RLA    
+_vcprintf                 001B73 RLA    addeqysp                  0012C3 RLA    
+addysp                    0012D3 RLA    addysp1                   0012D2 RLA    
+asrax1                    0012E0 RLA    axlong                    0012EA RLA    
+axulong                   0012F0 RLA    booleq                    00167F RLA    
+boolugt                   00169E RLA    copydata                  001303 RLA    
+ctypemask                 00137D RLA    ctypemaskdirect           001381 RLA    
+decax1                    00139B RLA    decaxy                    0013A2 RLA    
+decsp2                    0013AB RLA    decsp3                    0013B8 RLA    
+decsp4                    0013C5 RLA    decsp6                    0013D2 RLA    
+donelib                   0012F7 RLA    getlop                    0015F4 RLA    
+gotoxy                    001BCC RLA    incaxy                    0013E1 RLA    
+incsp1                    0013EA RLA    incsp2                    0013F8 RLA    
+incsp4                    001406 RLA    incsp7                    00140B RLA    
+initlib                   00081E RLA    ldax0sp                   00148F RLA    
+ldaxysp                   001491 RLA    ldeaxysp                  00149A RLA    
+leaa0sp                   0014AB RLA    negeax                    001516 RLA    
+popax                     0013F1 RLA    popptr1                   0016A5 RLA    
+ptr1                      000058 RLZ    ptr2                      00005A RLZ    
+ptr3                      00005C RLZ    ptr4                      00005E RLZ    
+push0                     0016CE RLA    push1                     0016B3 RLA    
+pusha                     0016BC RLA    pusha0                    0016D0 RLA    
+pushax                    0016D2 RLA    pusheax                   00153B RLA    
+pushl0                    001534 RLA    pushw                     0016E8 RLA    
+pushwysp                  0016F9 RLA    regbank                   000064 RLZ    
+regsave                   000054 RLZ    regswap2                  001713 RLA    
+sp                        000050 RLZ    sreg                      000052 RLZ    
+stax0sp                   001729 RLA    staxysp                   00172B RLA    
+steaxysp                  001736 RLA    subysp                    001B1E RLA    
+tmp1                      000060 RLZ    tmp2                      000061 RLZ    
+tmp3                      000062 RLZ    tmp4                      000063 RLZ    
+tosaddax                  0012AB RLA    tosaddeax                 001436 RLA    
+toseqeax                  0014B7 RLA    toslcmp                   001454 RLA    
+tosudiveax                0015E9 RLA    tosugteax                 00165C RLA    
+tosumodeax                001666 RLA    tosumuleax                0014C1 RLA    
+udiv32                    001617 RLA    zerobss                   001BA3 RLA    
+
+
+
+Exports list by value:
+----------------------
+__CONSTRUCTOR_COUNT__     000000 REA    __DESTRUCTOR_COUNT__      000000 REA    
+__STARTUP__               000001 REA    __BSS_SIZE__              00002E REA    
+sp                        000050 RLZ    sreg                      000052 RLZ    
+regsave                   000054 RLZ    ptr1                      000058 RLZ    
+ptr2                      00005A RLZ    ptr3                      00005C RLZ    
+ptr4                      00005E RLZ    tmp1                      000060 RLZ    
+tmp2                      000061 RLZ    tmp3                      000062 RLZ    
+tmp4                      000063 RLZ    regbank                   000064 RLZ    
+__DATA_SIZE__             000071 REA    __RAM_START__             000800 RLA    
+__CONSTRUCTOR_TABLE__     00081E RLA    __DESTRUCTOR_TABLE__      00081E RLA    
+initlib                   00081E RLA    _main                     000E7E RLA    
+__printf                  000FEE RLA    __seterrno                0012A0 RLA    
+tosaddax                  0012AB RLA    addeqysp                  0012C3 RLA    
+addysp1                   0012D2 RLA    addysp                    0012D3 RLA    
+asrax1                    0012E0 RLA    axlong                    0012EA RLA    
+axulong                   0012F0 RLA    donelib                   0012F7 RLA    
+copydata                  001303 RLA    _cprintf                  001330 RLA    
+_cputs                    001364 RLA    ctypemask                 00137D RLA    
+ctypemaskdirect           001381 RLA    decax1                    00139B RLA    
+decaxy                    0013A2 RLA    decsp2                    0013AB RLA    
+decsp3                    0013B8 RLA    decsp4                    0013C5 RLA    
+decsp6                    0013D2 RLA    incaxy                    0013E1 RLA    
+incsp1                    0013EA RLA    popax                     0013F1 RLA    
+incsp2                    0013F8 RLA    incsp4                    001406 RLA    
+incsp7                    00140B RLA    _isdigit                  001410 RLA    
+_islower                  001418 RLA    _isspace                  001420 RLA    
+_isupper                  001428 RLA    tosaddeax                 001436 RLA    
+toslcmp                   001454 RLA    ldax0sp                   00148F RLA    
+ldaxysp                   001491 RLA    ldeaxysp                  00149A RLA    
+leaa0sp                   0014AB RLA    toseqeax                  0014B7 RLA    
+tosumuleax                0014C1 RLA    negeax                    001516 RLA    
+pushl0                    001534 RLA    pusheax                   00153B RLA    
+_ltoa                     00156A RLA    _ultoa                    0015A9 RLA    
+tosudiveax                0015E9 RLA    getlop                    0015F4 RLA    
+udiv32                    001617 RLA    tosugteax                 00165C RLA    
+tosumodeax                001666 RLA    booleq                    00167F RLA    
+boolugt                   00169E RLA    popptr1                   0016A5 RLA    
+push1                     0016B3 RLA    pusha                     0016BC RLA    
+push0                     0016CE RLA    pusha0                    0016D0 RLA    
+pushax                    0016D2 RLA    pushw                     0016E8 RLA    
+pushwysp                  0016F9 RLA    regswap2                  001713 RLA    
+stax0sp                   001729 RLA    staxysp                   00172B RLA    
+steaxysp                  001736 RLA    _strchr                   001749 RLA    
+_strlen                   00176E RLA    _strlower                 001784 RLA    
+_strncmp                  0017AB RLA    _strncpy                  0017E4 RLA    
+_strtok                   001826 RLA    _strtoul                  0018E8 RLA    
+subysp                    001B1E RLA    _vcprintf                 001B73 RLA    
+zerobss                   001BA3 RLA    _cputc                    001BC6 RLA    
+gotoxy                    001BCC RLA    __DATA_LOAD__             001BCD RLA    
+__DATA_RUN__              001BCD RLA    __hextab                  001FC4 RLA    
+__longminstr              001FD4 RLA    __ctype                   001FE0 RLA    
+__ctypeidx                001FEB RLA    __BSS_RUN__               00206B RLA    
+__errno                   002097 RLA    __RAM_SIZE__              00A800 REA    
+
+
+
+Imports list:
+-------------
+__BSS_RUN__ ([linker generated]):
+    zerobss.o                 common/zerobss.s(8)
+__BSS_SIZE__ ([linker generated]):
+    zerobss.o                 common/zerobss.s(8)
+__CONSTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s(18)
+__CONSTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s(18)
+__DATA_LOAD__ ([linker generated]):
+    copydata.o                common/copydata.s(8)
+__DATA_RUN__ ([linker generated]):
+    copydata.o                common/copydata.s(8)
+__DATA_SIZE__ ([linker generated]):
+    copydata.o                common/copydata.s(8)
+__DESTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s(19)
+__DESTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s(19)
+__RAM_SIZE__ ([linker generated]):
+    crt0.o                    crt0.s(14)
+__RAM_START__ ([linker generated]):
+    crt0.o                    crt0.s(14)
+__STARTUP__ (crt0.o):
+    assign.o                  assign.s(13)
+__ctype (ctype.o):
+    ctypemask.o               common/ctypemask.s(23)
+__ctypeidx (ctype.o):
+    ctypemask.o               common/ctypemask.s(24)
+__errno (errno.o):
+    _seterrno.o               /home/dwerner/cc65/asminc/errno.inc(7)
+__hextab (_hextab.o):
+    ltoa.o                    common/ltoa.s(10)
+__longminstr (_longminstr.o):
+    ltoa.o                    common/ltoa.s(10)
+__printf (_printf.o):
+    vcprintf.o                conio/vcprintf.s(9)
+__seterrno (_seterrno.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(17)
+_cprintf (cprintf.o):
+    assign.o                  assign.s(15)
+_cputc (nhyodyne.o):
+    vcprintf.o                conio/vcprintf.s(9)
+    cputs.o                   conio/cputs.s(9)
+_cputs (cputs.o):
+    assign.o                  assign.s(14)
+_isdigit (isdigit.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(13)
+_islower (islower.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(14)
+_isspace (isspace.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(15)
+_isupper (isupper.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(16)
+_ltoa (ltoa.o):
+    _printf.o                 common/_printf.s(12)
+_main (assign.o):
+    crt0.o                    crt0.s(11)
+_strchr (strchr.o):
+    strtok.o                  ../libwrk/supervision/strtok.s(13)
+_strlen (strlen.o):
+    _printf.o                 common/_printf.s(13)
+_strlower (strlower.o):
+    _printf.o                 common/_printf.s(13)
+_strncmp (strncmp.o):
+    assign.o                  assign.s(16)
+_strncpy (strncpy.o):
+    assign.o                  assign.s(17)
+_strtok (strtok.o):
+    assign.o                  assign.s(18)
+_strtoul (strtoul.o):
+    assign.o                  assign.s(19)
+_ultoa (ltoa.o):
+    _printf.o                 common/_printf.s(12)
+_vcprintf (vcprintf.o):
+    cprintf.o                 conio/cprintf.s(8)
+addeqysp (addeqsp.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+addysp (addysp.o):
+    incsp7.o                  runtime/incsp7.s(8)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+    incsp4.o                  runtime/incsp4.s(8)
+    cprintf.o                 conio/cprintf.s(8)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+addysp1 (addysp.o):
+    ludiv.o                   runtime/ludiv.s(9)
+    lmul.o                    runtime/lmul.s(9)
+    ladd.o                    runtime/ladd.s(8)
+asrax1 (asrax1.o):
+    assign.o                  assign.s(1150)
+axlong (axlong.o):
+    _printf.o                 common/_printf.s(11)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+axulong (axlong.o):
+    _printf.o                 common/_printf.s(11)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+booleq (makebool.o):
+    leq.o                     runtime/leq.s(8)
+boolugt (makebool.o):
+    lugt.o                    runtime/lugt.s(8)
+copydata (copydata.o):
+    crt0.o                    crt0.s(16)
+ctypemask (ctypemask.o):
+    isupper.o                 common/isupper.s(15)
+    isspace.o                 common/isspace.s(15)
+    islower.o                 common/islower.s(15)
+    isdigit.o                 common/isdigit.s(15)
+ctypemaskdirect (ctypemask.o):
+    strlower.o                common/strlower.s(14)
+decax1 (decax1.o):
+    assign.o                  assign.s(1150)
+decaxy (decaxy.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+decsp2 (decsp2.o):
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+decsp3 (decsp3.o):
+    strtok.o                  ../libwrk/supervision/strtok.s(125)
+decsp4 (decsp4.o):
+    lpush.o                   runtime/lpush.s(12)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+decsp6 (decsp6.o):
+    _printf.o                 common/_printf.s(11)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+donelib (condes.o):
+    crt0.o                    crt0.s(16)
+getlop (ludiv.o):
+    lumod.o                   runtime/lumod.s(9)
+gotoxy (nhyodyne.o):
+    cputs.o                   conio/cputs.s(9)
+incaxy (incaxy.o):
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+incsp1 (incsp1.o):
+    assign.o                  assign.s(1150)
+incsp2 (incsp2.o):
+    popptr1.o                 runtime/popptr1.s(8)
+    assign.o                  assign.s(1150)
+incsp4 (incsp4.o):
+    lcmp.o                    runtime/lcmp.s(9)
+    assign.o                  assign.s(1150)
+incsp7 (incsp7.o):
+    strtok.o                  ../libwrk/supervision/strtok.s(125)
+initlib (condes.o):
+    crt0.o                    crt0.s(16)
+ldax0sp (ldaxsp.o):
+    strtok.o                  ../libwrk/supervision/strtok.s(125)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+ldaxysp (ldaxsp.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+ldeaxysp (ldeaxysp.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+leaa0sp (leaaxsp.o):
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+negeax (lneg.o):
+    ltoa.o                    common/ltoa.s(9)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+popax (incsp2.o):
+    strchr.o                  common/strchr.s(9)
+    ltoa.o                    common/ltoa.s(9)
+    _printf.o                 common/_printf.s(11)
+    vcprintf.o                conio/vcprintf.s(8)
+    strncpy.o                 common/strncpy.s(8)
+    strncmp.o                 common/strncmp.s(8)
+popptr1 (popptr1.o):
+    ltoa.o                    common/ltoa.s(9)
+    vcprintf.o                conio/vcprintf.s(8)
+    strncpy.o                 common/strncpy.s(8)
+    strncmp.o                 common/strncmp.s(8)
+ptr1 (zeropage.o):
+    lcmp.o                    runtime/lcmp.s(10)
+    strlower.o                common/strlower.s(13)
+    strchr.o                  common/strchr.s(10)
+    popptr1.o                 runtime/popptr1.s(9)
+    ludiv.o                   runtime/ludiv.s(10)
+    ltoa.o                    common/ltoa.s(11)
+    lmul.o                    runtime/lmul.s(10)
+    copydata.o                common/copydata.s(9)
+    _printf.o                 /home/dwerner/cc65/asminc/zeropage.inc(12)
+    zerobss.o                 common/zerobss.s(9)
+    vcprintf.o                conio/vcprintf.s(10)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(11)
+    strncpy.o                 common/strncpy.s(9)
+    strncmp.o                 common/strncmp.s(9)
+    pushw.o                   runtime/pushw.s(9)
+    cputs.o                   conio/cputs.s(10)
+    cprintf.o                 conio/cprintf.s(9)
+    assign.o                  assign.s(11)
+ptr2 (zeropage.o):
+    strlower.o                common/strlower.s(13)
+    strlen.o                  common/strlen.s(12)
+    lumod.o                   runtime/lumod.s(10)
+    ludiv.o                   runtime/ludiv.s(10)
+    ltoa.o                    common/ltoa.s(11)
+    copydata.o                common/copydata.s(9)
+    _printf.o                 /home/dwerner/cc65/asminc/zeropage.inc(12)
+    vcprintf.o                conio/vcprintf.s(10)
+    strncpy.o                 common/strncpy.s(9)
+    strncmp.o                 common/strncmp.s(9)
+ptr3 (zeropage.o):
+    ludiv.o                   runtime/ludiv.s(10)
+    ltoa.o                    common/ltoa.s(11)
+    lmul.o                    runtime/lmul.s(10)
+    vcprintf.o                conio/vcprintf.s(10)
+    strncmp.o                 common/strncmp.s(9)
+ptr4 (zeropage.o):
+    ludiv.o                   runtime/ludiv.s(10)
+    lmul.o                    runtime/lmul.s(10)
+push0 (pushax.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+push1 (push1.o):
+    _printf.o                 common/_printf.s(11)
+pusha (pusha.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+pusha0 (pushax.o):
+    push1.o                   runtime/push1.s(8)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+pushax (pushax.o):
+    _printf.o                 common/_printf.s(11)
+    vcprintf.o                conio/vcprintf.s(8)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+    strtok.o                  ../libwrk/supervision/strtok.s(125)
+    pushw.o                   runtime/pushw.s(8)
+    cprintf.o                 conio/cprintf.s(8)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+pusheax (lpush.o):
+    _printf.o                 common/_printf.s(11)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+pushl0 (lpush.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+pushw (pushw.o):
+    assign.o                  assign.s(1150)
+pushwysp (pushwsp.o):
+    strtok.o                  ../libwrk/supervision/strtok.s(125)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+regbank (zeropage.o):
+    regswap2.o                runtime/regswap2.s(8)
+    _printf.o                 /home/dwerner/cc65/asminc/zeropage.inc(14)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(10)
+    strtok.o                  ../libwrk/supervision/strtok.s(10)
+regsave (zeropage.o):
+    assign.o                  assign.s(10)
+regswap2 (regswap2.o):
+    strtok.o                  ../libwrk/supervision/strtok.s(125)
+sp (zeropage.o):
+    lcmp.o                    runtime/lcmp.s(10)
+    steaxsp.o                 runtime/steaxsp.s(8)
+    regswap2.o                runtime/regswap2.s(8)
+    popptr1.o                 runtime/popptr1.s(9)
+    ludiv.o                   runtime/ludiv.s(10)
+    lpush.o                   runtime/lpush.s(13)
+    lmul.o                    runtime/lmul.s(10)
+    ldeaxysp.o                runtime/ldeaxysp.s(12)
+    ladd.o                    runtime/ladd.s(9)
+    decsp6.o                  runtime/decsp6.s(8)
+    decsp3.o                  runtime/decsp3.s(8)
+    addeqsp.o                 runtime/addeqsp.s(8)
+    _printf.o                 /home/dwerner/cc65/asminc/zeropage.inc(11)
+    vcprintf.o                conio/vcprintf.s(10)
+    subysp.o                  runtime/subysp.s(9)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(10)
+    strtok.o                  ../libwrk/supervision/strtok.s(10)
+    staxsp.o                  runtime/staxsp.s(8)
+    pushwsp.o                 runtime/pushwsp.s(8)
+    pushax.o                  runtime/pushax.s(8)
+    pusha.o                   runtime/pusha.s(8)
+    leaaxsp.o                 runtime/leaaxsp.s(8)
+    ldaxsp.o                  runtime/ldaxsp.s(8)
+    incsp2.o                  runtime/incsp2.s(8)
+    incsp1.o                  runtime/incsp1.s(8)
+    decsp4.o                  runtime/decsp4.s(8)
+    decsp2.o                  runtime/decsp2.s(8)
+    crt0.o                    /usr/share/cc65/asminc/zeropage.inc(11)
+    cprintf.o                 conio/cprintf.s(9)
+    addysp.o                  runtime/addysp.s(8)
+    add.o                     runtime/add.s(12)
+    assign.o                  assign.s(10)
+sreg (zeropage.o):
+    lcmp.o                    runtime/lcmp.s(10)
+    steaxsp.o                 runtime/steaxsp.s(8)
+    lumod.o                   runtime/lumod.s(10)
+    ludiv.o                   runtime/ludiv.s(10)
+    ltoa.o                    common/ltoa.s(11)
+    lpush.o                   runtime/lpush.s(13)
+    lneg.o                    runtime/lneg.s(11)
+    lmul.o                    runtime/lmul.s(10)
+    ldeaxysp.o                runtime/ldeaxysp.s(12)
+    ladd.o                    runtime/ladd.s(9)
+    axlong.o                  runtime/axlong.s(9)
+    _printf.o                 /home/dwerner/cc65/asminc/zeropage.inc(11)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(10)
+    assign.o                  assign.s(10)
+stax0sp (staxsp.o):
+    strtok.o                  ../libwrk/supervision/strtok.s(125)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+staxysp (staxsp.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+    assign.o                  assign.s(1150)
+steaxysp (steaxsp.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+subysp (subysp.o):
+    assign.o                  assign.s(1150)
+tmp1 (zeropage.o):
+    strchr.o                  common/strchr.s(10)
+    ltoa.o                    common/ltoa.s(11)
+    ladd.o                    runtime/ladd.s(9)
+    copydata.o                common/copydata.s(9)
+    _printf.o                 /home/dwerner/cc65/asminc/zeropage.inc(13)
+    vcprintf.o                conio/vcprintf.s(10)
+    strtoul.o                 ../libwrk/supervision/strtoul.s(11)
+    strncpy.o                 common/strncpy.s(9)
+    incaxy.o                  runtime/incaxy.s(8)
+    decaxy.o                  runtime/decaxy.s(8)
+    cputs.o                   conio/cputs.s(10)
+    asrax1.o                  runtime/asrax1.s(8)
+    assign.o                  assign.s(11)
+tmp2 (zeropage.o):
+    lmul.o                    runtime/lmul.s(10)
+    strncpy.o                 common/strncpy.s(9)
+tmp3 (zeropage.o):
+    lumod.o                   runtime/lumod.s(10)
+    ludiv.o                   runtime/ludiv.s(10)
+    lmul.o                    runtime/lmul.s(10)
+    strncpy.o                 common/strncpy.s(9)
+tmp4 (zeropage.o):
+    lumod.o                   runtime/lumod.s(10)
+    ludiv.o                   runtime/ludiv.s(10)
+    lmul.o                    runtime/lmul.s(10)
+tosaddax (add.o):
+    assign.o                  assign.s(1150)
+tosaddeax (ladd.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+toseqeax (leq.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+toslcmp (lcmp.o):
+    lugt.o                    runtime/lugt.s(8)
+    leq.o                     runtime/leq.s(8)
+tosudiveax (ludiv.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+tosugteax (lugt.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+tosumodeax (lumod.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+tosumuleax (lmul.o):
+    strtoul.o                 ../libwrk/supervision/strtoul.s(298)
+udiv32 (ludiv.o):
+    lumod.o                   runtime/lumod.s(9)
+zerobss (zerobss.o):
+    crt0.o                    crt0.s(16)
+

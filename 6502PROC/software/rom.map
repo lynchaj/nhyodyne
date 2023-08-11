@@ -1,0 +1,30 @@
+Modules list:
+-------------
+rom.o:
+    TROM              Offs=000000  Size=000CD2  Align=00001  Fill=0000
+    IVECTOR           Offs=000000  Size=000003  Align=00001  Fill=0000
+    VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+TROM                  00F000  00FCD1  000CD2  00001
+IVECTOR               00FFF0  00FFF2  000003  00001
+VECTORS               00FFFA  00FFFF  000006  00001
+
+
+Exports list by name:
+---------------------
+
+
+
+Exports list by value:
+----------------------
+
+
+
+Imports list:
+-------------
+
