@@ -429,7 +429,7 @@ OP CODE|Description|Values
 -------|-----------|------
 15 |Set Display Resolution| OUT-BYTE
 
-The Set Display Resolution opcode sets the display resolution of the VGA output of the ESP32.   Note that this opcode can take a SECOND OR MORE to process as it requires the ESP to reboot, so leave plenty of time after issuing this command. 
+The Set Display Resolution opcode sets the display resolution of the VGA output of the ESP32. The specified display resolution is stored in flash memory and will survive a power cycle.  Note that this opcode can take a SECOND OR MORE to process as it requires the ESP to reboot, so leave plenty of time after issuing this command. 
 
 ID|Mode Name|Description|Color Depth
 --|---------|-----------|-----------
@@ -996,92 +996,64 @@ Returns: 7 bytes - "E" "S" "P" "3" "2" "V" "1"
 
 
 
-
 ## ESP32 WiFi Opcodes
-WiFi Set SSID	1	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL		(SSID and Password are retained in device flash)
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+1 |WiFi Set SSID| OUT-BYTE(s)
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The WiFi Set SSID opcode stores a null terminated string in the ESP flash memory and will survive a power cycle.  This value is then used during WiFi Connection.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: X bytes - string terminated by a null  
 Returns: None  
 
 
-
-WiFi Set Password	2	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+2 |WiFi Set Password| OUT-BYTE(s)
+The WiFi Set WiFi Password opcode stores a null terminated string in the ESP flash memory and will survive a power cycle.  This value is then used during WiFi Connection.
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
-
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: X bytes - string terminated by a null  
 Returns: None  
 
 
-
-WiFi Connect	3	 	(Connect will attempt DHCP, can be overriden manually)
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+3 |WiFi Connect| None
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The WiFi Connect opcode will attempt to connect to a WiFI access point using the stored configuration information.  If No TCP/IP address information is configured, DHCP will be attempted.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: None  
 Returns: None  
 
 
-
-WiFi Get Status	4	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+4 |WiFi Get Status| IN-BYTE  
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The WiFi Get Status opcode returns the current WiFi status.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
+Status Byte|Description
+-----------|-----------
+0|WL_IDLE_STATUS
+1|WL_NO_SSID_AVAIL
+2|WL_SCAN_COMPLETED
+3|WL_CONNECTED
+4|WL_CONNECT_FAILED
+5|WL_CONNECTION_LOST
+6|WL_DISCONNECTED
 
-Input Parameters: 5 bytes
-Returns: None  
+Input Parameters: None  
+Returns: 1 byte - WiFi Status
 
 
-
-WiFi Get Signal Strength	5	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+5 |WiFi Get Signal Strength| IN-BYTE  
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The WiFi Get Signal Strength opcode returns the current WiFi signal strength.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
-Returns: None  
-
-
+Input Parameters: None  
+Returns: 1 bytes- Signal Strength  
 
 
 ## ESP32 TCP/IP Opcodes
