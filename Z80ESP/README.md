@@ -49,14 +49,15 @@ Qty|Reference(s)|Value|Notes
 # ESP32 Firmware Installation
 The firmware for this board requires that platformio be installed on your system.
 
-To install platformio core for your operating system see the directions [HERE](https://platformio.org/install/cli)
+To install platformio core for your operating system see the directions [HERE](https://platformio.org/install/cli).
+
 Make sure you follow the additional directions to install the shell commands.
 
 On linux systems it may be necessary to update permissions for the device that is autocreated for the ESP32. [More details](https://docs.platformio.org/en/latest/core/installation/udev-rules.html)
 
 Once platformio is properly setup on your system, you should be able to build and deploy the firmware to the ESP32.
 
-###To build and install the ESP firmware:
+### To build and install the ESP firmware:
 Take the ESP32 device you have designated as ESP0 and with it NOT INSTALLED in the nhyodyne card, plug it into your computer via USB.
 change directory to the ESP0Firmware folder on your PC and from the operating system prompt type
 ```
