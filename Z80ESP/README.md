@@ -999,29 +999,380 @@ Returns: 7 bytes - "E" "S" "P" "3" "2" "V" "1"
 
 ## ESP32 WiFi Opcodes
 WiFi Set SSID	1	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL		(SSID and Password are retained in device flash)
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 WiFi Set Password	2	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 WiFi Connect	3	 	(Connect will attempt DHCP, can be overriden manually)
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 WiFi Get Status	4	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 WiFi Get Signal Strength	5	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 
 ## ESP32 TCP/IP Opcodes
 Get IP Address	12	BYTE	BYTE	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Get Subnet Mask	13	BYTE	BYTE	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Get Gateway	14	BYTE	BYTE	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Get Primary DNS	15	BYTE	BYTE	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Get Secondary DNS	16	BYTE	BYTE	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Set IP Address	17	BYTE	BYTE	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Set Subnet Mask	18	BYTE	BYTE	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Set Gateway	19	BYTE	BYTE	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Set Primary DNS	20	BYTE	BYTE	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Set Secondary DNS	21	BYTE	BYTE	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Set Hostname	22	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
-Create Outgoing Connection	23	Conn#	Port	Port	Hostname	Hostname	Hostname	…	…	…	…	NULL		(0 is for incoming connection, 1-63 is outgoing)
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
+Create Outgoing Connection	23	Conn#	Port	Port	Hostname	Hostname	Hostname	…	…	…	…	NULL		(0 is for incoming 
+connection, 1-63 is outgoing)
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Set Incoming Port	24	Port	Port		(sets listen port for connection 0)
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Out Byte to Connection#	25	Conn#	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Out String to Connection#	26	Conn#	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 In Byte From Connection#	27	Conn#	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
+
+
 Chars in Buffer from Connection#	28	Conn#	BYTE	BYTE
+OP CODE|Description|Values
+-------|-----------|------
+43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+
+The Set Sprite Location opcode moves a specified sprite to a specified location.
+
+The following parameters need to be specified in the following order:
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Sprite Index, 1 byte
+
+Input Parameters: 5 bytes
+Returns: None  
+
 
 ## ESP32 Serial Opcodes
 
@@ -1034,7 +1385,6 @@ The Set Baud Rate opcode sets the baud rate for the ESP async serial port.  This
 
 Input Parameters: 4 bytes - Baud Rate
 Returns: None  
-
 
 
 OP CODE|Description|Values
@@ -1098,7 +1448,27 @@ Returns: 1 byte - serial buffer length
 
 
 ## ESP32 Mouse Opcodes
+OP CODE|Description|Values
+-------|-----------|------
+29 |Get Mouse| IN-BYTE  IN-BYTE  IN-BYTE  IN-BYTE  IN-BYTE  IN-BYTE  IN-BYTE  IN-BYTE  
+
 GetMouse	29	left btn	middle btn	right btn	Wheel Delta	X	X	Y	Y
+
+The Get Mouse opcode gets the current mouse information.
+
+The following information is returned in the following order:
+* Left Button Status, 1 byte
+* Middle Button Status, 1 byte
+* Right Button Status, 1 byte
+* Wheel location Delta, 1 byte
+* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
+
+Input Parameters: None  
+Returns: 8 bytes  
+
+
+
 
 ### TO DO
 * Improve formatting of README file
