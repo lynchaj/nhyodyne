@@ -1064,8 +1064,8 @@ OP CODE|Description|Values
 
 The Get IP Address opcode returns the current IP address.
 
-Input Parameters: 4 bytes (octet 1,2,3,4)
-Returns: None  
+Input Parameters: None  
+Returns: 4 bytes (octet 1,2,3,4)  
 
 
 OP CODE|Description|Values
@@ -1074,8 +1074,8 @@ OP CODE|Description|Values
 
 The Get Subnet Mask opcode returns the current submet mask.
 
-Input Parameters: 4 bytes (octet 1,2,3,4)
-Returns: None  
+Input Parameters: None  
+Returns: 4 bytes (octet 1,2,3,4)  
 
 
 OP CODE|Description|Values
@@ -1084,8 +1084,8 @@ OP CODE|Description|Values
 
 The Get Gateway opcode returns the current IP default gateway.
 
-Input Parameters: 4 bytes (octet 1,2,3,4)
-Returns: None  
+Input Parameters: None  
+Returns: 4 bytes (octet 1,2,3,4)  
 
 
 OP CODE|Description|Values
@@ -1094,8 +1094,8 @@ OP CODE|Description|Values
 
 The Get Primary DNS returns the current primary DNS address.
 
-Input Parameters: 4 bytes (octet 1,2,3,4)
-Returns: None  
+Input Parameters: None  
+Returns: 4 bytes (octet 1,2,3,4)  
 
 
 OP CODE|Description|Values
@@ -1104,212 +1104,146 @@ OP CODE|Description|Values
 
 The Get Secondary DNS opcode returns the current secondary DNS IP address.
 
-Input Parameters: 4 bytes (octet 1,2,3,4)
-Returns: None  
+Input Parameters: None  
+Returns: 4 bytes (octet 1,2,3,4)  
 
 
-Set IP Address	17	BYTE	BYTE	BYTE	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+17 |Set IP Address| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Set IP Address opcode sets the IP address. 0.0.0.0 value enables DHCP.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: 4 bytes (octet 1,2,3,4)  
 Returns: None  
 
 
-
-Set Subnet Mask	18	BYTE	BYTE	BYTE	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+18 |Set Subnet Mask| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Set Subnet Mask opcode sets the subnet mask.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: 4 bytes (octet 1,2,3,4)  
 Returns: None  
 
 
 
-Set Gateway	19	BYTE	BYTE	BYTE	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+19 |Set Gateway	| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Set Gateway	opcode sets the Gateway IP Address.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: 4 bytes (octet 1,2,3,4)  
 Returns: None  
 
 
-
-Set Primary DNS	20	BYTE	BYTE	BYTE	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+20 |Set Primary DNS| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Set Primary DNS opcode sets the primary DNS IP address.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: 4 bytes (octet 1,2,3,4)  
 Returns: None  
 
 
-
-Set Secondary DNS	21	BYTE	BYTE	BYTE	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+21 |Set Secondary DNS| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Set Secondary DNS opcode sets the secondary DNS IP address.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: 4 bytes (octet 1,2,3,4)  
 Returns: None  
 
 
-
-Set Hostname	22	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+22 |Set Hostname| OUT-BYTE(s)
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Set Hostname opcode stores a null terminated string in the ESP flash memory and will survive a power cycle.  This value is then used during WiFi Connection.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: X bytes - string terminated by a null  
 Returns: None  
 
 
-
-Create Outgoing Connection	23	Conn#	Port	Port	Hostname	Hostname	Hostname	…	…	…	…	NULL		(0 is for incoming 
-connection, 1-63 is outgoing)
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+23 |Create Outgoing Connection| OUT-BYTEs
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Create Outgoing Connection opcode creates an outgoing TCP/IP socket connection to a specified host.
 
 The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
+* Connection Number, 1 byte, Must be from 1-63, connection 0 is reserved for incoming connections.
+* Port, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Hostname, x bytes, null terminated string.
 
-Input Parameters: 5 bytes
+Input Parameters: x bytes
 Returns: None  
 
 
-
-Set Incoming Port	24	Port	Port		(sets listen port for connection 0)
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+24 |Set Incoming Port| OUT-BYTE   OUT-BYTE
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Set Incoming Port opcode sets listen port for connection 0.
 
 The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
+* Port Number, 2 bytes, Byte order is least signifigant byte to most significant byte.
 
-Input Parameters: 5 bytes
+Input Parameters: 2 bytes
 Returns: None  
 
 
-
-Out Byte to Connection#	25	Conn#	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+25 |Out Byte to Connection#| OUT-BYTE   OUT-BYTE
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Out Byte to Connection# opcode sends a byte to the specified connection.
 
 The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
+* Connetion #, 1 byte
+* Char, 1 byte
 
-Input Parameters: 5 bytes
+Input Parameters: 2 bytes
 Returns: None  
 
 
-
-Out String to Connection#	26	Conn#	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+26 |Out String to Connection#| OUT-BYTE   OUT-BYTE(s)
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Out String to Connection# opcode sends a null terminated string to the specified connection.
 
 The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
+* Connetion #, 1 byte
+* string, x bytes null terminated
 
-Input Parameters: 5 bytes
+Input Parameters: x bytes
 Returns: None  
 
 
 
-In Byte From Connection#	27	Conn#	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+27 |In Byte From Connection#| OUT-BYTE   IN-BYTE
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The In Byte From Connection# opcode returns a byte from the connection communication buffer.  If there are no values in the buffer, the opcode will return a null.  
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
-Returns: None  
+Input Parameters: 1 byte - Connection Number  
+Returns: 1 byte - input value or null    
 
 
-
-Chars in Buffer from Connection#	28	Conn#	BYTE	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+28 |Chars in Buffer from Connection#| OUT-BYTE   IN-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Chars in Buffer from Connection# opcode returns the numbser of bytes in the connection communication buffer.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.   
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
-Returns: None  
+Input Parameters: 1 byte - Connection Number  
+Returns: 1 byte - number of bytes in the buffer 
 
 
 ## ESP32 Serial Opcodes
