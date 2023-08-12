@@ -49,15 +49,13 @@ Qty|Reference(s)|Value|Notes
 # ESP32 Firmware Installation
 The firmware for this board requires that platformio be installed on your system.
 
-To install platformio core for your operating system see the directions [HERE](https://platformio.org/install/cli).
-
+To install platformio core for your operating system see the directions [HERE](https://platformio.org/install/cli).  
 Make sure you follow the additional directions to install the shell commands.
 
-On linux systems it may be necessary to update permissions for the device that is autocreated for the ESP32. [More details](https://docs.platformio.org/en/latest/core/installation/udev-rules.html)
+On linux systems it may be necessary to update permissions for the device that is autocreated for the ESP32. [More details](https://docs.platformio.org/en/latest/core/installation/udev-rules.html)  
+Once platformio is properly setup on your system, you should be able to build and deploy the firmware to the ESP32.  
 
-Once platformio is properly setup on your system, you should be able to build and deploy the firmware to the ESP32.
-
-### To build and install the ESP firmware:
+## To build and install the ESP firmware:
 Take the ESP32 device you have designated as ESP0 and with it NOT INSTALLED in the nhyodyne card, plug it into your computer via USB.
 change directory to the ESP0Firmware folder on your PC and from the operating system prompt type
 ```
@@ -163,7 +161,7 @@ Hard resetting via RTS pin...
 Once this is done you can install ESP0 into U12 on your nhyodyne board.  Then repeat the process for the ESP1 and install into U13.
 
 
-### ESP32 Communication Protocol
+# ESP32 Communication Protocol
 
 The ESP32 board communicates with your system via 3 ports, two IO ports and one status port.
 
@@ -177,11 +175,11 @@ ESP1:           EQU ESPBASE+1   ; ESP1 IO PORT
 
 ESP_STATUS:     EQU ESPBASE+2   ; ESP  STATUS PORT
                                 ; MSB XX XX S S S S S
-                                ;          | | | | |- ESP0 READY_OUTPUT
-                                ;          | | | |--- ESP0 BUSY
-                                ;          | | |----- ESP0 SPARE (unused)
-                                ;          | |------- ESP1 READY_OUTPUT
-                                ;          |--------- ESP1 BUSY
+                                ;           | | | | |- ESP0 READY_OUTPUT
+                                ;           | | | |--- ESP0 BUSY
+                                ;           | | |----- ESP0 SPARE (unused)
+                                ;           | |------- ESP1 READY_OUTPUT
+                                ;           |--------- ESP1 BUSY
 ```
 
 The communication process is fairly straight forward.  Upon reset, the ESP will initialize, set BUSY and READY_OUTPUT to low and wait for an opcode.
@@ -208,7 +206,7 @@ It is also a best practice to empty the ESP send buffer before sending an opcode
 For example code, see the ESPTEST.ASM program in this repo.
 
 
-### ESP32 ESP0 Opcode Reference
+# ESP32 ESP0 Opcode Reference
 
 ## ESP32 Misc Opcodes
 
@@ -218,8 +216,9 @@ OP CODE|Description|Values
 
 The NO OPERATION opcode is used to sync the ESP32 communications stream to a known state, "Waiting for opcode".
 
-Input Parameters: None
-Returns: None
+Input Parameters: None  
+Returns: None  
+
 
 
 OP CODE|Description|Values
@@ -228,26 +227,141 @@ OP CODE|Description|Values
 
 The DISCOVER opcode is used by host systems to verify the presence and version of the ESP hardware and firmware.
 
-Input Parameters: None
-Returns: 7 bytes - "E" "S" "P" "3" "2" "V" "1"
+Input Parameters: None  
+Returns: 7 bytes - "E" "S" "P" "3" "2" "V" "1"  
 
 
 
 ## ESP32 Terminal Opcodes
-VGA ANSI TERM OUT SINGLE CHAR	1	BYTE
-VGA ANSI TERM OUT NULL TERMINATED STRING	2	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
-KEYBOARD IN SINGLE BYTE	3	INBYTE
-Chars in Keyboard Buffer	4	INBYTE
-Set display cursor	5	BYTE	(0=off, 1=on)
+	
+OP CODE|Description|Values
+-------|-----------|------
+1 |VGA ANSI TERM OUT SINGLE CHAR| OUT-BYTE
+
+The VGA ANSI TERM OUT SINGLE CHAR opcode sends a single byte to the ANSI terminal subsystem of the ESP32.  Using the ANSI escape sequence set, this byte is rendered to the VGA terminal console.
+
+Input Parameters: 1 byte - "OUT CHAR"  
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+2 |VGA ANSI TERM OUT NULL TERMINATED STRING| OUT-BYTE	OUT-BYTE	OUT-BYTE	OUT-BYTE	OUT-BYTE	OUT-BYTE	…	…	…	…	NULL
+
+The VGA ANSI TERM OUT NULL TERMINATED STRING opcode sends a null terminated string to the ANSI terminal subsystem of the ESP32.  Using the ANSI escape sequence set, this string is rendered to the VGA terminal console.
+
+
+Input Parameters: X bytes - string terminated by a null  
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+3 |VGA ANSI TERM KEYBOARD IN| IN-BYTE	
+
+The VGA ANSI TERM KEYBOARD IN opcode returns a byte from the terminal keyboard buffer.   If there is no keystrokes in the buffer, the opcode will return a null.
+
+
+Input Parameters: None  
+Returns: 1 byte - input keystroke or null  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+4 |VGA ANSI TERM KEYBOARD BUFFER LENGTH| IN-BYTE
+
+The VGA ANSI TERM KEYBOARD BUFFER LENGTH opcode returns the numbser of keystrokes in the ANSI terminal keyboard buffer.
+
+
+Input Parameters: None  
+Returns: 1 byte - keystroke buffer length  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+5 |VGA ANSI TERM SET CURSOR| OUT-BYTE
+
+The VGA ANSI TERM SET CURSOR opcode sets the visibility of the terminal cursor.
+* 0 = cursor off
+* 1 = cursor on
+
+
+Input Parameters: 1 byte - Cursor status  
+Returns: None  
 
 
 ## ESP32 Serial Opcodes
-Set Baud Rate	6	BYTE	BYTE	BYTE	BYTE
-Set Serial Mode	7	BYTE	(8n1=0,8e1=1,8o1=2,7n1=3,7e1=4,7o1=5)
-Serial TX Single char	8	BYTE
-Serial TX Null Terminated String	9	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
-Serial RX	10	INBYTE
-Chars in Serial Buffer	11	INBYTE
+
+OP CODE|Description|Values
+-------|-----------|------
+6 |Set Baud Rate| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE
+
+The Set Baud Rate opcode sets the baud rate for the ESP async serial port.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.   Byte order is least signifigant byte to most significant byte.
+
+
+Input Parameters: 4 bytes - Baud Rate
+Returns: None  
+
+
+
+OP CODE|Description|Values
+-------|-----------|------
+7 |Set Serial Mode| OUT-BYTE
+
+The Set Seriam Mode opcode sets the serial communication parameters for the ESP async serial port.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.
+Parameters are set as follows:
+* 0 = 8 data bits, no parity, 1 stop bits
+* 1 = 8 data bits, even parity, 1 stop bits
+* 2 = 8 data bits, odd parity, 1 stop bits
+* 3 = 7 data bits, no parity, 1 stop bits
+* 4 = 7 data bits, even parity, 1 stop bits
+* 5 = 7 data bits, odd parity, 1 stop bits
+
+Input Parameters: 1 byte - Serial Mode  
+Returns: None  
+
+
+
+OP CODE|Description|Values
+-------|-----------|------
+8 |Serial TX Single char| OUT-BYTE
+
+The Serial TX Single char opcode transmits a single byte through the serial communication port.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.
+
+Input Parameters: 1 byte - char  
+Returns: None  
+
+
+
+OP CODE|Description|Values
+-------|-----------|------
+9 |Serial TX Null Terminated String| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE	…	…	…	…	NULL
+
+The Serial TX Null Terminated String opcode transmits a null terminated string through the serial communication port.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.
+
+Input Parameters: X bytes - string terminated by a null  
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+10 |Serial RX| IN-BYTE
+
+The Serial RX opcode returns a byte from the serial communication port buffer.  If there are no values in the buffer, the opcode will return a null.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.   
+
+Input Parameters: None  
+Returns: 1 byte - input value or null    
+
+
+OP CODE|Description|Values
+-------|-----------|------
+11 |Chars in Serial Buffer| IN-BYTE
+
+The Chars in Serial Buffer opcode returns the numbser of keystrokes in the serial communication port buffer.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.   
+
+
+Input Parameters: None  
+Returns: 1 byte - serial buffer length  
 
 
 ## ESP32 Audio Opcodes
@@ -294,6 +408,29 @@ setSpriteVisibility	44	index	visible
 
 ## ESP32 Misc Opcodes
 
+OP CODE|Description|Values
+-------|-----------|------
+00|NO OPERATION|NONE
+
+The NO OPERATION opcode is used to sync the ESP32 communications stream to a known state, "Waiting for opcode".
+
+Input Parameters: None  
+Returns: None  
+
+
+
+OP CODE|Description|Values
+-------|-----------|------
+255|DISCOVER|"E" "S" "P" "3" "2" "V" "1"
+
+The DISCOVER opcode is used by host systems to verify the presence and version of the ESP hardware and firmware.
+
+Input Parameters: None  
+Returns: 7 bytes - "E" "S" "P" "3" "2" "V" "1"  
+
+
+
+
 ## ESP32 WiFi Opcodes
 WiFi Set SSID	1	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL		(SSID and Password are retained in device flash)
 WiFi Set Password	2	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
@@ -321,6 +458,78 @@ In Byte From Connection#	27	Conn#	BYTE
 Chars in Buffer from Connection#	28	Conn#	BYTE	BYTE
 
 ## ESP32 Serial Opcodes
+
+OP CODE|Description|Values
+-------|-----------|------
+6 |Set Baud Rate| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE
+
+The Set Baud Rate opcode sets the baud rate for the ESP async serial port.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.   Byte order is least signifigant byte to most significant byte.
+
+
+Input Parameters: 4 bytes - Baud Rate
+Returns: None  
+
+
+
+OP CODE|Description|Values
+-------|-----------|------
+7 |Set Serial Mode| OUT-BYTE
+
+The Set Seriam Mode opcode sets the serial communication parameters for the ESP async serial port.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.
+Parameters are set as follows:
+* 0 = 8 data bits, no parity, 1 stop bits
+* 1 = 8 data bits, even parity, 1 stop bits
+* 2 = 8 data bits, odd parity, 1 stop bits
+* 3 = 7 data bits, no parity, 1 stop bits
+* 4 = 7 data bits, even parity, 1 stop bits
+* 5 = 7 data bits, odd parity, 1 stop bits
+
+Input Parameters: 1 byte - Serial Mode  
+Returns: None  
+
+
+
+OP CODE|Description|Values
+-------|-----------|------
+8 |Serial TX Single char| OUT-BYTE
+
+The Serial TX Single char opcode transmits a single byte through the serial communication port.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.
+
+Input Parameters: 1 byte - char  
+Returns: None  
+
+
+
+OP CODE|Description|Values
+-------|-----------|------
+9 |Serial TX Null Terminated String| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE	…	…	…	…	NULL
+
+The Serial TX Null Terminated String opcode transmits a null terminated string through the serial communication port.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.
+
+Input Parameters: X bytes - string terminated by a null  
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+10 |Serial RX| IN-BYTE
+
+The Serial RX opcode returns a byte from the serial communication port buffer.  If there are no values in the buffer, the opcode will return a null.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.   
+
+Input Parameters: None  
+Returns: 1 byte - input value or null    
+
+
+OP CODE|Description|Values
+-------|-----------|------
+11 |Chars in Serial Buffer| IN-BYTE
+
+The Chars in Serial Buffer opcode returns the numbser of keystrokes in the serial communication port buffer.  This port is exposed through the header on the top of the card and through the USB port on the ESP32 module.   
+
+
+Input Parameters: None  
+Returns: 1 byte - serial buffer length  
+
 
 ## ESP32 Mouse Opcodes
 GetMouse	29	left btn	middle btn	right btn	Wheel Delta	X	X	Y	Y
