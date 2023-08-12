@@ -9,7 +9,7 @@ The Nhyodyne ESP32 board provides the following functions for your Nhyodyne comp
 * Keyboard
 * Mouse
 
-This board relies heavily on the FabGL library from Fabrizio Di Vittorio.   More innformation can be found [HERE](http://www.fabglib.org/)
+This board relies heavily on the FabGL library from Fabrizio Di Vittorio.   More information can be found [HERE](http://www.fabglib.org/)
 
 # ESP32 BOM
 Qty|Reference(s)|Value|Notes
@@ -425,36 +425,502 @@ Returns: None
 
 
 ## ESP32 Graphics Opcodes
-Set resolution	15	BYTE	(see video resolutions tab)			* Takes a second or two to process, leave plenty of time as ESP needs to reset
-Load Font	16	BYTE	(See Fonts tab)
-Clear	17
-copyRect	18	source x	source x	source y	source y	dest x 	dest x	dest y 	dest y	width	width	height	height
-drawBitmap	19	x	x	y	y	width	width	height	height	PixelFormat	length	length	byte	byte	byte	…	…	byte		(bitmap size cannot exceed 31.5K)				FORMATS=1:NATIVE DEVICE,2:MASK(1=OPAQUE 0=TRANSP),3: 8 BITS PIXEL aabbggrr, 4:32BITS PIXEL RGBA
-drawChar	20	x	x	y	y	char	font
-drawEllipse	21	x	x	y	y	width	width	height	height
-drawGlyph	22	x	x	y	y	width	width	height	height	index	index	length	length	byte	byte	byte	…	…	byte
-drawLine	23	x	x	y	y	end x	end x	end y	end y
-drawRectangle	24	x	x	y	y	end x	end x	end y	end y
-fillEllipse	25	x	x	y	y	width	width	height	height
-fillRectangle	26	x	x	y	y	end x	end x	end y	end y
-getPixel	27	x	x	y	y	B 	G	R
-invertRectangle	28	x	x	y	y	end x	end x	end y	end y
+OP CODE|Description|Values
+-------|-----------|------
+15 |Set Display Resolution| OUT-BYTE
+
+The Set Display Resolution opcode sets the display resolution of the VGA output of the ESP32.   Note that this opcode can take a SECOND OR MORE to process as it requires the ESP to reboot, so leave plenty of time after issuing this command. 
+
+ID|Mode Name|Description|Color Depth
+--|---------|-----------|-----------
+00|VGA_320x200_70Hz|320x200@70Hz resolution - the same of VGA_640x200_70Hz with horizontal halved|64
+01|VGA_320x200_75Hz|320x200@75Hz resolution|64
+02|VGA_320x200_75HzRetro|320x200@75Hz retro resolution|64
+03|QVGA_320x240_60Hz|320x240@60Hz resolution|64
+04|VGA_400x300_60Hz|400x300@60Hz resolution|64
+05|VGA_480x300_75Hz|480x300@75Hz resolution|64
+06|VGA_512x192_60Hz|512x192@60Hz resolution|16
+07|VGA_512x384_60Hz	|512x384@60Hz resolution|16
+08|VGA_512x448_60Hz|512x448@60Hz resolution|16
+09|VGA_512x512_58Hz|512x512@58Hz resolution|16
+10|VGA_640x200_60HzD|640x200@60Hz doublescan resolution|16
+11|VGA_640x200_70Hz|640x200@70Hz resolution - the same of VGA_640x400_70Hz with vertical halved|16
+12|VGA_640x200_70HzRetro|640x200@70Hz retro resolution|16
+13|VGA_640x240_60Hz|640x240@60Hz (DoubleScan) resolution|16
+14|VGA_640x350_70Hz|640x350@70Hz resolution|16
+15|VGA_640x350_70HzAlt1|640x350@70HzAlt1 resolution|16
+16|VESA_640x350_85Hz|640x350@85Hz resolution|16
+17|VGA_640x382_60Hz|640x382@60Hz resolution|16
+18|VGA_640x384_60Hz|640x384@60Hz resolution|16
+19|VGA_640x400_70Hz|640x400@70Hz resolution|16
+20|VGA_640x400_60Hz|640x400@60Hz (actually 640x480 but with less lines)|16
+21|VGA_640x480_60Hz|640x480@60Hz resolution|16
+22|VGA_640x480_60HzAlt1|640x480@60HzAlt1 resolution|16
+23|VGA_640x480_60HzD|640x480@60Hz doublescan resolution|16
+24|VGA_640x480_73Hz|640x480@73Hz resolution|16
+25|VESA_640x480_75Hz|640x480@75Hz resolution|16
+26|VGA_720x348_50HzD|720x348@50Hz doublescan resolution|16
+27|VGA_720x348_59HzD|720x348@59Hz doublescan resolution|16
+28|VGA_720x348_73Hz|720x348@73Hz resolution|16
+29|VGA_720x350_70Hz|720x350@70Hz resolution|16
+30|VGA_720x400_70Hz|720x400@70Hz resolution|16
+31|VESA_720x400_85Hz|720x400@85Hz resolution|16
+32|PAL_720x576_50Hz|720x576@50Hz resolution|8
+33|VESA_768x576_60Hz|768x576@60Hz resolution|8
+34|SVGA_800x300_60Hz|800x300@60Hz resolution|8
+35|SVGA_800x600_56Hz|800x600@56Hz resolution|4
+36|SVGA_800x600_60Hz|800x600@60Hz resolution|4
+37|SVGA_960x540_60Hz|960x540@60Hz resolution|4
+38|SVGA_1024x768_60Hz|1024x768@60Hz resolution|2
+39|SVGA_1024x768_70Hz|1024x768@70Hz resolution|2
+40|SVGA_1024x768_75Hz|1024x768@75Hz resolution|2
+41|SVGA_1280x600_60Hz|1280x600@60Hz resolution|2
+42|SVGA_1280x720_60Hz|1280x720@60Hz resolution|2
+43|SVGA_1280x720_60HzAlt1|1280x720@60Hz resolution|2
+44|SVGA_1280x768_50Hz|1280x768@50Hz resolution|2
+
+
+Input Parameters: 1 byte - Video Mode
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+16 |Load Font| OUT-BYTE
+
+The Load Font opcode sets the display font for the VGA ANSI Terminal.
+
+ID|Font Name	
+--|---------
+00|FONT_4X6
+01|FONT_5X7
+02|FONT_5X8
+03|FONT_6X8
+04|FONT_6X9
+05|FONT_6X10
+06|FONT_6X12
+07|FONT_6X13
+08|FONT_7X13
+09|FONT_7X14
+10|FONT_8X8
+11|FONT_8X9
+12|FONT_8X13
+13|FONT_8X14
+14|FONT_8X16
+15|FONT_8X19
+16|FONT_9X15
+17|FONT_9X18
+18|FONT_10X20
+19|FONT_BIGSERIF_8X14
+20|FONT_BIGSERIF_8X16
+21|FONT_BLOCK_8X14
+22|FONT_BROADWAY_8X14
+23|FONT_COMPUTER_8X14
+24|FONT_COURIER_8X14
+25|FONT_LCD_8X14
+26|FONT_OLDENGL_8X16
+27|FONT_SANSERIF_8X14
+28|FONT_SANSERIF_8X16
+29|FONT_SLANT_8X14
+30|FONT_WIGGLY_8X16
+
+Input Parameters: 1 byte - Font
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+17|Clear Display| NONE
+
+The Clear Display opcode clears the VGA.
+
+Input Parameters: None
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+18 |Copy Rectangle| OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE
+
+
+The Copy Rectangle opcode copyies a rectangle shaped area from one part of the bitmapped display to another.
+
+The following parameters need to be specified in the following order:
+* Source X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Source Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Destination X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Destination Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Area Width, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Area Hight, 2 bytes, Byte order is least signifigant byte to most significant byte.
+
+All Parameters above are in display pixels with 0,0 being the upper left of the VGA screen.
+
+Input Parameters: 12 bytes
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+19 |Draw Bitmap| OUT-BYTE(s)
+
+The Draw Bitmap opcode draws a specified bitmap on the VGA display.
+
+The following parameters need to be specified in the following order:
+* X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Width, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Hight, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Pixel Format, 1 byte, FORMAT=1:NATIVE DEVICE(usually 1 BIT/PIXEL),2:MASK(1=OPAQUE 0=TRANSP),3: 8 BITS/PIXEL aabbggrr, 4:32 BITS/PIXEL RGBA
+* Bitmap Length, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Bitmap Data, X bytes, bitmap size cannot exceed 31.5K
+
+Input Parameters: X bytes
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+20 |Draw Char| OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE OUT-BYTE
+
+The Draw Char opcode draws a specified character, at a specified location, in a specified font, in the current Pen color.
+
+The following parameters need to be specified in the following order:
+* X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Character to Draw, 1 byte
+* Font, 1 bytes, See Font Table from Set Font opcode
+
+Input Parameters: 6 bytes
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+21 |Draw Ellipse| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  
+
+The Draw Ellipse opcode draws an ellpise on the bitmapped display, in the current Pen color.
+
+The following parameters need to be specified in the following order:
+* X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Width, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Height, 2 bytes, Byte order is least signifigant byte to most significant byte.
+
+Input Parameters: 6 bytes
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+22 |Draw Gliph| OUT-BYTE(s)
+
+The Draw Glyph opcode draws a Glyph on the bitmapped display, in the current Pen color.
+
+The following parameters need to be specified in the following order:
+* X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Width, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Height, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Index, 2 bytes, Byte order is least signifigant byte to most significant byte.  Usually 0, Use when the buffer contains multiple glyphs.
+* Glyph Length, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Glyph Data, X bytes, glyph size cannot exceed 255 bytes, and is stored as a 1 bit/pixel bitmap
+
+Input Parameters: X bytes
+Returns: None  
+
+
+
+OP CODE|Description|Values
+-------|-----------|------
+23 |Draw Line| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  
+
+The Draw Line opcode draws a line on the bitmapped display, in the current Pen color.
+
+The following parameters need to be specified in the following order:
+* Start X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Start Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* End X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* End Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+
+Input Parameters: 8 bytes
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+24 |Draw Rectangle| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  
+
+The Draw Rectangle opcode draws a Rectangle on the bitmapped display, in the current Pen color.
+
+The following parameters need to be specified in the following order:
+* Start X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Start Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* End X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* End Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+
+Input Parameters: 8 bytes
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+25 |Draw Filled Ellipse| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  
+
+The Draw Filled Ellipse opcode draws a filled ellipse on the bitmapped display, in the current Pen color, filled with the current Brush color.
+
+The following parameters need to be specified in the following order:
+* Start X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Start Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* width, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Height, 2 bytes, Byte order is least signifigant byte to most significant byte.
+
+Input Parameters: 8 bytes
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+26 |Draw Filled Rectangle| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  
+
+The Draw Filled Rectangle opcode draws a filled rectangle on the bitmapped display, in the current Pen color, filled with the current Brush color.
+
+The following parameters need to be specified in the following order:
+* Start X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Start Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* End X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* End Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+
+Input Parameters: 8 bytes
+Returns: None  
+
+
+OP CODE|Description|Values
+-------|-----------|------
+27 |Get Pixel Value| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  IN-BYTE    IN-BYTE    IN-BYTE  
+
+The Get Pixel Value opcode returns the current color value of the specified display pixel.
+
+The following parameters need to be specified in the following order:
+* X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+
+The ESP will then return:
+* Blue value, 1 byte
+* Green value, 1 byte
+* Red value, 1 byte
+
+
+Input Parameters: 4 bytes
+Returns: 3 bytes
+
+
+OP CODE|Description|Values
+-------|-----------|------
+28 |Invert Rectangle| OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  OUT-BYTE  
+
+The Invert Rectangle opcode will invert all of the pixels within a specified area on the bitmapped display.
+
+The following parameters need to be specified in the following order:
+* Start X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* Start Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* End X coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+* End Y coordinate, 2 bytes, Byte order is least signifigant byte to most significant byte.
+
+Input Parameters: 8 bytes
+Returns: None  
+
+
 lineTo	29	x	x	y	y
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 moveTo	30	x	x	y	y
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 scroll	31	x	x	y	y
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setBrushColor	32	Color
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setLineEnds	33	LineEnds		0=NONE, 1=ROUNDED
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setPenColor	34	Color
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setPenWidth	35	Width
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setPixel	36	x	x	y	y
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setGlyphOptions	37	blank	bold	doubleWidth	FillBackground	Invert	Italic	Underline
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setPaletteItem	38	index	b	g	r
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setMouseCursor	39	index
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setMouseCursorPosition	40	x	x	y	y
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 removeSprites	41
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setSpriteMap	42	index	width	width	height	height	pixelformat	length	length	byte	byte	byte	…	…	byte		*AWAYS SET THE HIGHEST INDEX SPRITE LAST, AND THE MAX CONFIGURED SPRITE NUMBER IS 31. (0-32)
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setSpriteLocation	43	x	x	y	y	index
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 setSpriteVisibility	44	index	visible
+
+
+OP CODE|Description|Values
+-------|-----------|------
+14 |Set Volume| OUT-BYTE
+
+The Set Volume opcode sets the overall volume of the sound generated by the audio port on the top of the ESP32 card.  The audio port is at line level and requires amplification.
+
+
+Input Parameters: 1 byte - Volume
+Returns: None  
 
 
 
