@@ -9,29 +9,61 @@ The Nhyodyne ESP32 board provides the following functions for your Nhyodyne comp
 * Keyboard
 * Mouse
 
-See the Z80ESP commands spread sheet and the cpm test program located in the cpm_test folder
+# ESP32 BOM
+Qty|Reference(s)|Value|Notes
+---|------------|-----|-----
+12|C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C13, C14|0.1uF
+3|C11, C12, C16|10uF
+1|C15|100nf
+1|D2|LED
+2|D3, D6|1N4001
+1|J3|Pin Header, right angle 1x2
+1|J4|Pin Header, right angle 1x3
+1|J5|Pin Header, right angle 1x3
+1|J6|DB15 Female High Density PCB VGA Connector
+1|J7|Pin Header, right angle 2x5
+1|P2|Pin Header Right Angle 2x25
+4|R1, R3, R14, R15|120ohm
+1|R2|470ohm
+2|R4, R6|2Kohm
+2|R5, R13|1Kohm
+3|R7, R9, R11|400ohm
+3|R8, R10, R12|800ohm
+1|R16|270ohm
+1|R17|150ohm
+1|RR1|10Kohm, networked, 9 pin, 8 resistor
+1|RR2|1Kohm, networked, 9 pin, 8 resistor
+1|SW1|8 position DIP switch
+1|U1|74LS04
+2|U2, U4|74LS244
+1|U3|74LS245
+3|U5, U6, U14|74LS32
+2|U7, U9|74HC595
+2|U8, U11|74HC165
+1|U10|74LS688
+2|U12, U13|ESP-WROOM-32 Dev Module|Such As: https://www.amazon.com/ESP-WROOM-32-Development-Microcontroller-Integrated-Compatible/dp/B08D5ZD528
+1|U15|74LS244
+1|U16|74LS07
 
 
+# ESP32 Firmware Installation
 The firmware for this board requires that platformio be installed on your system.
 
-install platformio core for your operating system:  https://platformio.org/install/cli (make sure you follow the additional directions to install the shell commands)
+To install platformio core for your operating system see the directions [HERE](https://platformio.org/install/cli)
+Make sure you follow the additional directions to install the shell commands.
 
-on linux it may be necessary to update permissions for the device that is autocreated for the ESP32.
-More details: https://docs.platformio.org/en/latest/core/installation/udev-rules.html
+On linux systems it may be necessary to update permissions for the device that is autocreated for the ESP32. [More details](https://docs.platformio.org/en/latest/core/installation/udev-rules.html)
 
+Once platformio is properly setup on your system, you should be able to build and deploy the firmware to the ESP32.
 
-Once platformio is properly setup on your system, it should be able to build and deploy the firmware to the ESP32.
-
-To build and install the ESP firmware:
-take the device you have designated as ESP0  and With the ESP32 NOT INSTALLED in the nhyodyne card, plug it into your computer.
-change directory to the ESP0Firmware folder
-from the operating system prompt type
+###To build and install the ESP firmware:
+Take the ESP32 device you have designated as ESP0 and with it NOT INSTALLED in the nhyodyne card, plug it into your computer via USB.
+change directory to the ESP0Firmware folder on your PC and from the operating system prompt type
 ```
 pio run -t upload
 ```
 
 Over the next couple of minutes you should see the build and upload process
-
 something like this:
 
 ```
@@ -127,9 +159,13 @@ Hard resetting via RTS pin...
 ============================================ [SUCCESS] Took 22.49 seconds ============================================
 ```
 
-once this is done install ESP0 into U12 on your nhyodyne board
+Once this is done you can install ESP0 into U12 on your nhyodyne board.  Then repeat the process for the ESP1 and install into U13.
 
-Repeat with ESP1 and install ESP1 into U13
+
+# ESP32 Communication Protocol
+
+# ESP32 Opcode Reference
+See the Z80ESP commands spread sheet and the cpm test program located in the cpm_test folder
 
 
 
