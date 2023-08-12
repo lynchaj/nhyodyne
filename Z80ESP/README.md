@@ -163,7 +163,7 @@ Hard resetting via RTS pin...
 Once this is done you can install ESP0 into U12 on your nhyodyne board.  Then repeat the process for the ESP1 and install into U13.
 
 
-# ESP32 Communication Protocol
+### ESP32 Communication Protocol
 
 The ESP32 board communicates with your system via 3 ports, two IO ports and one status port.
 
@@ -208,10 +208,121 @@ It is also a best practice to empty the ESP send buffer before sending an opcode
 For example code, see the ESPTEST.ASM program in this repo.
 
 
-# ESP32 Opcode Reference
-See the Z80ESP commands spread sheet and the cpm test program located in the cpm_test folder
+### ESP32 ESP0 Opcode Reference
+
+## ESP32 Misc Opcodes
+
+OP CODE|Description|Values
+-------|-----------|------
+00|NO OPERATION|NONE
+
+The NO OPERATION opcode is used to sync the ESP32 communications stream to a known state, "Waiting for opcode".
+
+Input Parameters: None
+Returns: None
+
+
+OP CODE|Description|Values
+-------|-----------|------
+255|DISCOVER|"E" "S" "P" "3" "2" "V" "1"
+
+The DISCOVER opcode is used by host systems to verify the presence and version of the ESP hardware and firmware.
+
+Input Parameters: None
+Returns: 7 bytes - "E" "S" "P" "3" "2" "V" "1"
 
 
 
-## TO DO
-* Write Docs
+## ESP32 Terminal Opcodes
+VGA ANSI TERM OUT SINGLE CHAR	1	BYTE
+VGA ANSI TERM OUT NULL TERMINATED STRING	2	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
+KEYBOARD IN SINGLE BYTE	3	INBYTE
+Chars in Keyboard Buffer	4	INBYTE
+Set display cursor	5	BYTE	(0=off, 1=on)
+
+
+## ESP32 Serial Opcodes
+Set Baud Rate	6	BYTE	BYTE	BYTE	BYTE
+Set Serial Mode	7	BYTE	(8n1=0,8e1=1,8o1=2,7n1=3,7e1=4,7o1=5)
+Serial TX Single char	8	BYTE
+Serial TX Null Terminated String	9	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
+Serial RX	10	INBYTE
+Chars in Serial Buffer	11	INBYTE
+
+
+## ESP32 Audio Opcodes
+Play Null Terminated String	12	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
+Play Sound	13	attack	attack	attack	attack	decay	decay	decay	decay	Sustain	Sustain	Release	Release	Release	Release	WaveType	Volume	Volume	Duration	Duration	FreqStart	FreqStart	FreqEnd	FreqEnd	ModFreqMode
+Set Volume	14	Volume
+
+
+## ESP32 Graphics Opcodes
+Set resolution	15	BYTE	(see video resolutions tab)			* Takes a second or two to process, leave plenty of time as ESP needs to reset
+Load Font	16	BYTE	(See Fonts tab)
+Clear	17
+copyRect	18	source x	source x	source y	source y	dest x 	dest x	dest y 	dest y	width	width	height	height
+drawBitmap	19	x	x	y	y	width	width	height	height	PixelFormat	length	length	byte	byte	byte	…	…	byte		(bitmap size cannot exceed 31.5K)				FORMATS=1:NATIVE DEVICE,2:MASK(1=OPAQUE 0=TRANSP),3: 8 BITS PIXEL aabbggrr, 4:32BITS PIXEL RGBA
+drawChar	20	x	x	y	y	char	font
+drawEllipse	21	x	x	y	y	width	width	height	height
+drawGlyph	22	x	x	y	y	width	width	height	height	index	index	length	length	byte	byte	byte	…	…	byte
+drawLine	23	x	x	y	y	end x	end x	end y	end y
+drawRectangle	24	x	x	y	y	end x	end x	end y	end y
+fillEllipse	25	x	x	y	y	width	width	height	height
+fillRectangle	26	x	x	y	y	end x	end x	end y	end y
+getPixel	27	x	x	y	y	B 	G	R
+invertRectangle	28	x	x	y	y	end x	end x	end y	end y
+lineTo	29	x	x	y	y
+moveTo	30	x	x	y	y
+scroll	31	x	x	y	y
+setBrushColor	32	Color
+setLineEnds	33	LineEnds		0=NONE, 1=ROUNDED
+setPenColor	34	Color
+setPenWidth	35	Width
+setPixel	36	x	x	y	y
+setGlyphOptions	37	blank	bold	doubleWidth	FillBackground	Invert	Italic	Underline
+setPaletteItem	38	index	b	g	r
+setMouseCursor	39	index
+setMouseCursorPosition	40	x	x	y	y
+removeSprites	41
+setSpriteMap	42	index	width	width	height	height	pixelformat	length	length	byte	byte	byte	…	…	byte		*AWAYS SET THE HIGHEST INDEX SPRITE LAST, AND THE MAX CONFIGURED SPRITE NUMBER IS 31. (0-32)
+setSpriteLocation	43	x	x	y	y	index
+setSpriteVisibility	44	index	visible
+
+
+
+### ESP32 ESP1 Opcode Reference
+
+## ESP32 Misc Opcodes
+
+## ESP32 WiFi Opcodes
+WiFi Set SSID	1	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL		(SSID and Password are retained in device flash)
+WiFi Set Password	2	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
+WiFi Connect	3	 	(Connect will attempt DHCP, can be overriden manually)
+WiFi Get Status	4	BYTE
+WiFi Get Signal Strength	5	BYTE
+
+## ESP32 TCP/IP Opcodes
+Get IP Address	12	BYTE	BYTE	BYTE	BYTE
+Get Subnet Mask	13	BYTE	BYTE	BYTE	BYTE
+Get Gateway	14	BYTE	BYTE	BYTE	BYTE
+Get Primary DNS	15	BYTE	BYTE	BYTE	BYTE
+Get Secondary DNS	16	BYTE	BYTE	BYTE	BYTE
+Set IP Address	17	BYTE	BYTE	BYTE	BYTE
+Set Subnet Mask	18	BYTE	BYTE	BYTE	BYTE
+Set Gateway	19	BYTE	BYTE	BYTE	BYTE
+Set Primary DNS	20	BYTE	BYTE	BYTE	BYTE
+Set Secondary DNS	21	BYTE	BYTE	BYTE	BYTE
+Set Hostname	22	BYTE	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
+Create Outgoing Connection	23	Conn#	Port	Port	Hostname	Hostname	Hostname	…	…	…	…	NULL		(0 is for incoming connection, 1-63 is outgoing)
+Set Incoming Port	24	Port	Port		(sets listen port for connection 0)
+Out Byte to Connection#	25	Conn#	BYTE
+Out String to Connection#	26	Conn#	BYTE	BYTE	BYTE	BYTE	BYTE	…	…	…	…	NULL
+In Byte From Connection#	27	Conn#	BYTE
+Chars in Buffer from Connection#	28	Conn#	BYTE	BYTE
+
+## ESP32 Serial Opcodes
+
+## ESP32 Mouse Opcodes
+GetMouse	29	left btn	middle btn	right btn	Wheel Delta	X	X	Y	Y
+
+### TO DO
