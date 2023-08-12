@@ -165,6 +165,49 @@ Once this is done you can install ESP0 into U12 on your nhyodyne board.  Then re
 
 # ESP32 Communication Protocol
 
+The ESP32 board communicates with your system via 3 ports, two IO ports and one status port.
+
+The default configuration sets the base IO to $9C.  IO Communication with ESP0 is at base port, ESP1 is at base port +1 and the status register is at base port +2.
+
+```
+ESPBASE         EQU $9C         ; Base Port
+ESP0:           EQU ESPBASE     ; ESP0 IO PORT
+
+ESP1:           EQU ESPBASE+1   ; ESP1 IO PORT
+
+ESP_STATUS:     EQU ESPBASE+2   ; ESP  STATUS PORT
+                                ; MSB XX XX S S S S S
+                                ;          | | | | |- ESP0 READY_OUTPUT
+                                ;          | | | |--- ESP0 BUSY
+                                ;          | | |----- ESP0 SPARE (unused)
+                                ;          | |------- ESP1 READY_OUTPUT
+                                ;          |--------- ESP1 BUSY
+```
+
+The communication process is fairly straight forward.  Upon reset, the ESP will initialize, set BUSY and READY_OUTPUT to low and wait for an opcode.
+
+To send an opcode or data to the ESP:
+
+* wait for ESPx BUSY bit to go low (a timeout is suggested)
+* write the opcode or data to the ESPx IO port
+* it is a best practice to wait for ESPx BUSY bit to go high then low (a timeout is suggested) before sending the next byte
+
+If an "out of sync" occurrs, where the ESP is waiting for data rather than an opcode and the host driver is unsure of the state of the ESP, it is possible to resync the ESP back to the "waiting for opcode" state by sending a stream of NULL bytes to the IO port. A stream of more than 25 NULLS should always safely return the ESP back to the "waiting for opcode" state.
+
+Some Opcodes will return one or more bytes to the host system.   For those opcodes
+
+* wait for ESPx BUSY bit to go low (a timeout is suggested)
+* wait for ESPx READY_OUTPUT bit to go high (a timeout is suggested)
+* Read the ESPx IO port
+* it is a best practice to wait for ESPx BUSY bit to go high then low (a timeout is suggested) before sending the next byte
+
+Note that the BUSY bit transitions after a command is written or data is read can happen very fast.   On slower systems a timeout is required as it is possible for the host system to miss this transition if it is not polling fast enough.
+
+It is also a best practice to empty the ESP send buffer before sending an opcode that returns data.
+
+For example code, see the ESPTEST.ASM program in this repo.
+
+
 # ESP32 Opcode Reference
 See the Z80ESP commands spread sheet and the cpm test program located in the cpm_test folder
 
