@@ -1057,89 +1057,55 @@ Returns: 1 bytes- Signal Strength
 
 
 ## ESP32 TCP/IP Opcodes
-Get IP Address	12	BYTE	BYTE	BYTE	BYTE
+
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+12|Get IP Address| IN-BYTE   IN-BYTE   IN-BYTE   IN-BYTE
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Get IP Address opcode returns the current IP address.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: 4 bytes (octet 1,2,3,4)
 Returns: None  
 
 
-
-Get Subnet Mask	13	BYTE	BYTE	BYTE	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+13 |Get Subnet Mask| IN-BYTE   IN-BYTE   IN-BYTE   IN-BYTE
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Get Subnet Mask opcode returns the current submet mask.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: 4 bytes (octet 1,2,3,4)
 Returns: None  
 
 
-
-Get Gateway	14	BYTE	BYTE	BYTE	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+14 |Get Gateway| IN-BYTE   IN-BYTE   IN-BYTE   IN-BYTE
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Get Gateway opcode returns the current IP default gateway.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: 4 bytes (octet 1,2,3,4)
 Returns: None  
 
 
-
-Get Primary DNS	15	BYTE	BYTE	BYTE	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+15 |Get Primary DNS| IN-BYTE   IN-BYTE   IN-BYTE   IN-BYTE
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Get Primary DNS returns the current primary DNS address.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: 4 bytes (octet 1,2,3,4)
 Returns: None  
 
 
-
-Get Secondary DNS	16	BYTE	BYTE	BYTE	BYTE
 OP CODE|Description|Values
 -------|-----------|------
-43 |Set Sprite Location| OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE   OUT-BYTE  
+16 |Get Secondary DNS| IN-BYTE   IN-BYTE   IN-BYTE   IN-BYTE
 
-The Set Sprite Location opcode moves a specified sprite to a specified location.
+The Get Secondary DNS opcode returns the current secondary DNS IP address.
 
-The following parameters need to be specified in the following order:
-* X Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Y Coordinate Location, 2 bytes, Byte order is least signifigant byte to most significant byte.
-* Sprite Index, 1 byte
-
-Input Parameters: 5 bytes
+Input Parameters: 4 bytes (octet 1,2,3,4)
 Returns: None  
-
 
 
 Set IP Address	17	BYTE	BYTE	BYTE	BYTE
