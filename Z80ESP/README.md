@@ -429,7 +429,14 @@ OP CODE|Description|Values
 -------|-----------|------
 15 |Set Display Resolution| OUT-BYTE
 
-The Set Display Resolution opcode sets the display resolution of the VGA output of the ESP32. The specified display resolution is stored in flash memory and will survive a power cycle.  Note that this opcode can take a SECOND OR MORE to process as it requires the ESP to reboot, so leave plenty of time after issuing this command. 
+The Set Display Resolution opcode sets the display resolution of the VGA output of the ESP32. The specified display resolution is stored in flash memory and will survive a power cycle.  Note that this opcode can take a SECOND OR MORE to process as it requires the ESP to reboot, so leave plenty of time after issuing this command. ALWAYS issue a Clear Display(17) command after changing video mode. 
+
+The proper sequence is as follows:
+* issue Set Display Resolution opcode
+* send one byte for new video mode
+* wait at least 3 seconds
+* issue clear display command
+ 
 
 ID|Mode Name|Description|Color Depth
 --|---------|-----------|-----------

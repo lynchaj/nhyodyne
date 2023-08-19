@@ -6,6 +6,8 @@
 #include "graphics.h"
 #include "serial.h"
 #include "sound.h"
+#include <esp_int_wdt.h>
+#include <esp_task_wdt.h>
 
 // fabgl::VGAController DisplayController;
 fabgl::Terminal Terminal;
@@ -60,13 +62,15 @@ static uint8_t stateMachine = 0;
 
 void processOpcode(uint8_t b);
 void attachInterruptTask(void *pvParameters);
+void forcedReset();
 
 void setup()
 {
-    disableCore0WDT();
-    delay(200); // experienced crashes without this delay!
-    disableCore1WDT();
+   // disableCore0WDT();
+  //  delay(200); // experienced crashes without this delay!
+  //  disableCore1WDT();
 
+    initialize();
     PS2Controller.begin(PS2Preset::KeyboardPort0);
 
     graphics.initialize(&Terminal);
@@ -92,6 +96,10 @@ void setup()
     digitalWrite(SPARE, LOW);
 
     xTaskCreatePinnedToCore(attachInterruptTask, "Attach Interrupt Task", 1000, NULL, 6, NULL, 0);
+    popByte();
+    popByte();
+    popByte();
+    popByte();
 }
 
 void attachInterruptTask(void *pvParameters)
@@ -185,6 +193,7 @@ void loop()
         case 11: // 11 set resolution waiting for value
             graphics.setGraphicsMode(popByte());
             stateMachine = 0;
+            ESP.restart();
             break;
         case 12: // 12 LOAD FONT  waiting for value
             graphics.loadFont(popByte());

@@ -11,3 +11,4 @@ extern uint8_t peekByte();
 extern int popDoubleWord();
 extern int popWord();
 extern int bufferLength();
+extern int initialize();
