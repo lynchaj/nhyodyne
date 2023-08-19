@@ -244,8 +244,9 @@ MNULOOP3:
         CP      'B'
         JP      Z,QUEUE_LENGTH_CONNECTION_1
         CP      'C'
+        JP      Z,CONNECTION_0_TELNET_BYTE_MODE
+        CP      'D'
         JP      Z,GET_MOUSE
-
         CP      'Z'
         JP      Z,MENU_PAGE_2
         JP      MNULOOP3
@@ -1521,6 +1522,22 @@ QUEUE_LENGTH_CONNECTION_1:
         JP      MNULOOP3
 
 
+CONNECTION_0_TELNET_BYTE_MODE:
+        LD      HL,TELNET_CHAR_MODE
+        LD      A,26            ; SEND OPCODE 26 (OUT  NULL TERM STRING)
+        CALL    OUTESP1
+        LD      A,0
+        CALL    OUTESP1
+CONNECTION_0_TELNET_BYTE_MODE_1:
+        LD      A,(HL)          ; SEND CHAR TO OUTPUT
+        CALL    OUTESP1
+        LD      A,(HL)          ; GET CHAR
+        INC     HL
+        CP      0
+        JP      nz,CONNECTION_0_TELNET_BYTE_MODE_1
+        JP      MNULOOP3
+
+
 GET_MOUSE:
         CALL    CLEARESP1
         LD      A,29            ; SEND OPCODE 29 (GET MOUSE)
@@ -1542,51 +1559,67 @@ GET_MOUSE:
         CALL    INESP1_WAIT
         CALL    prthex
         JP      MNULOOP3
-
-
-
-
-
-
-
-
-
 ;
 ;
 ;
-
 ; SEND BYTE TO ESP0
 OUTESP0:
+        PUSH    BC
         PUSH    AF
+        LD      C,0
 OUTESP0_1:
+        INC     C
+        JP      Z,OUTESP0_TIMEOUT
         IN      A,(ESP_STATUS)  ; GET STATUS
         AND     2               ; Is ESP0 BUSY?
-        JP      NZ,OUTESP0_1    ; IF BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        JP      NZ,OUTESP0_1    ; IF BUSY WAIT
         POP     AF
         OUT     (ESP0),A        ; SEND BYTE
+        LD      C,$E0
 OUTESP0_2:
+        INC     C
+        JP      Z,OUTESP0_3
         IN      A,(ESP_STATUS)  ; GET STATUS
         AND     2               ; Is ESP0 BUSY?
-        JP      Z,OUTESP0_2     ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        JP      Z,OUTESP0_2     ; IF NOT BUSY WAIT
+OUTESP0_3:
+        POP     BC
+        RET
+OUTESP0_TIMEOUT:
+        POP     AF
+        POP     BC
         RET
 
 
 ; GET BYTE FROM ESP0 (BLOCKING)
 INESP0_WAIT:
+        PUSH    BC
+        LD      C,0
 INESP0_WAIT_1:
+        INC     C
+        JP      Z,INESP0_TIMEOUT
         IN      A,(ESP_STATUS)  ; GET STATUS
         AND     2               ; Is ESP0 BUSY?
-        JP      NZ,INESP0_WAIT_1; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
+        JP      NZ,INESP0_WAIT_1; IF BUSY, WAIT
         IN      A,(ESP_STATUS)  ; GET STATUS
         AND     1               ; Is there data?
         JP      Z,INESP0_WAIT_1 ; IF NO, BUSY WAIT
         IN      A,(ESP0)        ; GET BYTE
         PUSH    AF
+        LD      C,$E0
 INESP0_WAIT_2:
+        INC     C
+        JP      Z,INESP0_3
         IN      A,(ESP_STATUS)  ; GET STATUS
         AND     2               ; Is ESP0 BUSY?
         JP      Z,INESP0_WAIT_2 ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+INESP0_3:
         POP     AF
+        POP     BC
+        RET
+INESP0_TIMEOUT:
+        LD      a,0
+        POP     BC
         RET
 
 ; CLEAR ESP0 INPUT BYTE QUEUE
@@ -1599,52 +1632,88 @@ CLEARESP0:
 
 ; GET BYTE FROM ESP0 (NON BLOCKING)
 INESP0:
+        PUSH    BC
+        LD      C,0
+INESP0_1:
+        INC     C
+        JP      Z,INESP0_TIMEOUT
         IN      A,(ESP_STATUS)  ; GET STATUS
         AND     2               ; Is ESP0 BUSY?
-        JP      NZ,INESP0       ; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
+        JP      NZ,INESP0_1     ; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
         IN      A,(ESP0)        ; GET BYTE
         PUSH    AF
-INESP0_1:
+        LD      C,$E0
+INESP0_2:
+        INC     C
+        JP      Z,INESP0_4
         IN      A,(ESP_STATUS)  ; GET STATUS
         AND     2               ; Is ESP0 BUSY?
-        JP      Z,INESP0_1      ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        JP      Z,INESP0_2      ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+INESP0_4:
         POP     AF
+        POP     bc
         RET
 
 
 
 ; SEND BYTE TO ESP1
 OUTESP1:
+        PUSH    BC
         PUSH    AF
+        LD      C,0
 OUTESP1_1:
+        INC     C
+        JP      Z,OUTESP1_TIMEOUT
         IN      A,(ESP_STATUS)  ; GET STATUS
-        AND     10H             ; Is ESP1 BUSY?
-        JP      NZ,OUTESP1_1    ; IF BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        AND     10H             ; Is ESP0 BUSY?
+        JP      NZ,OUTESP1_1    ; IF BUSY WAIT
         POP     AF
         OUT     (ESP1),A        ; SEND BYTE
+        LD      C,$E0
 OUTESP1_2:
+        INC     C
+        JP      Z,OUTESP1_3
         IN      A,(ESP_STATUS)  ; GET STATUS
-        AND     10H             ; Is ESP1 BUSY?
-        JP      Z,OUTESP1_2     ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        AND     10H             ; Is ESP0 BUSY?
+        JP      Z,OUTESP1_2     ; IF NOT BUSY WAIT
+OUTESP1_3:
+        POP     BC
+        RET
+OUTESP1_TIMEOUT:
+        POP     AF
+        POP     BC
         RET
 
 
 ; GET BYTE FROM ESP1 (BLOCKING)
 INESP1_WAIT:
+        PUSH    BC
+        LD      C,0
 INESP1_WAIT_1:
+        INC     C
+        JP      Z,INESP1_TIMEOUT
         IN      A,(ESP_STATUS)  ; GET STATUS
-        AND     10H             ; Is ESP1 BUSY?
-        JP      NZ,INESP1_WAIT_1; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
+        AND     10H             ; Is ESP0 BUSY?
+        JP      NZ,INESP1_WAIT_1; IF BUSY, WAIT
         IN      A,(ESP_STATUS)  ; GET STATUS
         AND     8H              ; Is there data?
         JP      Z,INESP1_WAIT_1 ; IF NO, BUSY WAIT
         IN      A,(ESP1)        ; GET BYTE
         PUSH    AF
+        LD      C,$E0
 INESP1_WAIT_2:
+        INC     C
+        JP      Z,INESP1_3
         IN      A,(ESP_STATUS)  ; GET STATUS
-        AND     10H             ; Is ESP1 BUSY?
+        AND     10H             ; Is ESP0 BUSY?
         JP      Z,INESP1_WAIT_2 ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+INESP1_3:
         POP     AF
+        POP     BC
+        RET
+INESP1_TIMEOUT:
+        LD      a,0
+        POP     BC
         RET
 
 ; CLEAR ESP1 INPUT BYTE QUEUE
@@ -1655,21 +1724,30 @@ CLEARESP1:
         JP      NZ,CLEARESP1    ; IF YES, LOOP
         RET
 
+
 ; GET BYTE FROM ESP1 (NON BLOCKING)
 INESP1:
+        PUSH    BC
+        LD      C,0
+INESP1_1:
+        INC     C
+        JP      Z,INESP0_TIMEOUT
         IN      A,(ESP_STATUS)  ; GET STATUS
-        AND     10H             ; Is ESP1 BUSY?
-        JP      NZ,INESP1       ; IF BUSY, WAIT (SHOULD HAVE TIMEOUT HERE)
+        AND     10H               ; Is ESP1 BUSY?
+        JP      NZ,INESP1_1       ; IF BUSY, WAIT
         IN      A,(ESP1)        ; GET BYTE
         PUSH    AF
-INESP1_1:
+        LD      C,$E0
+INESP1_2:
+        INC     C
+        JP      Z,INESP1_4
         IN      A,(ESP_STATUS)  ; GET STATUS
-        AND     10H             ; Is ESP1 BUSY?
-        JP      Z,INESP1_1      ; IF NOT BUSY WAIT (SHOULD HAVE TIMEOUT HERE)
+        AND     10H               ; Is ESP1 BUSY?
+        JP      Z,INESP1_2      ; IF NOT BUSY WAIT
+INESP1_4:
         POP     AF
+        pop     bc
         RET
-
-
 
 ;
 ;
@@ -1912,22 +1990,24 @@ MENU3:
         DM      "B>  QUEUE LENGTH CONNECTION 1"
         DB      0AH,0DH
         DB      0AH,0DH
-        DM      "C> GET MOUSE"
+        DM      "C> PLACE CONNECTION 0 IN BYTE MODE (FOR TELNET CLIENTS)"
         DB      0AH,0DH
         DB      0AH,0DH
+        DM      "D> GET MOUSE"
+        DB      0AH,0DH
+        DB      0AH,0DH
+
         DM      "Z> MENU PAGE TWO"
         DB      0AH,0DH
 
         DM      "$"
-
-
 
 VGA_TEST:
         DB      0AH,0DH
         DM      27,"[40;31mH",27,"[40;32mI ",27,"[40;33mF",27,"[40;34mR"
         DM      27,"[40;35mOM ",27,"[40;36mN",27,"[40;37mH",27,"[40;91mY"
         DM      27,"[40;92mO",27,"[40;93mD",27,"[40;94mY",27,"[40;95mN"
-        DM      27,"[40;96mE ",27,"[40;97m."
+        DM      27,"[40;96mE",27,"[40;97m."
         DB      0AH,0DH,00H
 
 
@@ -2037,8 +2117,11 @@ HOSTNAME_TEST:
         DB      00
 
 OUTGOING_TEST:
-        DM      "192.168.0.29"
+        DM      "192.168.0.31"
         DB      00
+
+TELNET_CHAR_MODE:
+        DM      255,251,1,255,251,3,255,252,34,0,0
 
 
 PLAY_TEST:
