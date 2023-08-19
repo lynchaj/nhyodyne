@@ -17,7 +17,7 @@ void retroGraphics::initialize(fabgl::Terminal *Terminal)
 void retroGraphics::setGraphicsMode(uint8_t b)
 {
     preferences.putUInt("gMode", b);
-    ESP.restart();
+    delay(500); // should be enough time to ensure stable write
 }
 
 void retroGraphics::m_setGraphicsMode(uint8_t b)
@@ -646,4 +646,9 @@ bool retroGraphics::setSpriteVisibility(uint8_t b)
         return true;
     }
     return false;
+}
+
+void retroGraphics::end()
+{
+    m_Display->end();
 }

@@ -13,6 +13,15 @@ static uint8_t txRPointer = 0;
 static uint8_t rxRPointer = 0;
 static uint8_t byteWaiting = 0;
 
+int initialize()
+{
+            txWPointer = 0;
+            rxWPointer = 0;
+            txRPointer = 0;
+            rxRPointer = 0;
+            byteWaiting = 0;
+}
+
 int bufferLength()
 {
     if (rxWPointer == rxRPointer)

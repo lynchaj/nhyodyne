@@ -41,7 +41,7 @@ public:
     bool setSpriteMap(uint8_t b);
     bool setSpriteLocation(uint8_t b);
     bool setSpriteVisibility(uint8_t b);
-
+    void end();
 
 private:
     fabgl::VGABaseController *m_Display;
