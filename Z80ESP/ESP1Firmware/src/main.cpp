@@ -63,6 +63,7 @@ void setup()
 
     espMouse.initialize();
     espWifi.initialize();
+    serial.initialize();
 }
 
 void loop()
