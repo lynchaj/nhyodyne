@@ -1,5 +1,5 @@
 
-all:  	esptest.com
+all:  	esptest.com testesp.com
 
 esptest.com: esptest.asm
 	z80asm -b -l -m esptest.asm  2> esptest.err
@@ -7,6 +7,8 @@ esptest.com: esptest.asm
 	@rm esptest.bin
 	@rm esptest.o
 
+testesp.com: testesp.c
+	zcc +cpm testesp.c -create-app -o testesp
 
 pretty:
 	cp *.asm ./backup
@@ -19,6 +21,7 @@ clean:
 	@rm -f *.err
 	@rm -f *.out
 	@rm -f *.com
+	@rm -f *.COM
 	@rm -f *.map
 	@rm -f *.lst
 	@rm -f *.hex
