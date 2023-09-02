@@ -63,6 +63,7 @@ void setup()
 
     espMouse.initialize();
     espWifi.initialize();
+    serial.initialize();
 }
 
 void loop()
@@ -284,6 +285,10 @@ void processOpcode(uint8_t b)
         break;
     case 29: // Get Mouse Buttons
         espMouse.getMouse();
+        stateMachine = 0;
+        break;
+    case 30: // Get MAC Address
+        espWifi.getMacAddress();
         stateMachine = 0;
         break;
 

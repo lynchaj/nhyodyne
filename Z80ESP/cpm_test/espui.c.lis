@@ -1,0 +1,2187 @@
+/tmp/tmpXXwVRdqg.asm:
+     1                          MODULE espui_c
+     2                          LINE 0, "espui.c"
+espui.c:
+                                
+     1                          ;* * * * *  Small-C/Plus z88dk * * * * *
+     2                          ;  Version: 19460-7def40868-20220403
+     3                          ;
+     4                          ;	Reconstructed for z80 Module Assembler
+     5                          ;
+     6                          ;	Module compile time: Tue Aug 22 13:06:54 2023
+     7                          
+     8                          
+     9                          	C_LINE	0,"espui.c"
+                                
+                                	MODULE	espui_c
+                                
+                                
+                                	INCLUDE "z80_crt0.hdr"
+/usr/local/share/z88dk/lib/z80_crt0.hdr:
+     1                          ;
+     2                          ;	Header file which contains all required variables from the
+     3                          ;	startup that need to be exposed to individual C files
+     4                          ;
+     5                          ;	Stick in this file any routines which are needed or implicitly
+     6                          ;	implied by sccz80.
+     7                          ;
+     8                          ;	This file is included by every module
+     9                          ;	To handle multi module programs which use floating point
+    10                          ;	routines in different modules, we have got rid of
+    11                          ;	the conditional assembly around the float routines
+    12                          
+    13                          
+    14                          	EXTERN	base_graphics	; Address of graphics screen
+    15                          
+    16                          	EXTERN	_cpfar2near	; Far->near conversion (z88)
+    17                          	EXTERN	packintrout	; Process interrupt (z88 apps)
+    18                          
+    19                          	EXTERN	l_dcal		; jp(hl)
+    20                          	EXTERN	cleanup		; cleanup before program exit
+    21                          
+    22                          
+    23                          	EXTERN	l_jphl		; another jp(hl)
+    24                          	EXTERN	l_jpix		; jp(ix)
+    25                          	EXTERN	l_jpiy		; jp(iy)
+    26                          
+    27                          	EXTERN	l_ldi
+    28                          	EXTERN	l_ldi_128
+    29                          	EXTERN	l_ldi_256
+    30                          
+    31                          	EXTERN	l_outi
+    32                          	EXTERN	l_outi_128
+    33                          	EXTERN	l_outi_256
+    34                          
+    35                          	EXTERN	l_ini
+    36                          	EXTERN	l_ini_128
+    37                          	EXTERN	l_ini_256
+    38                          	EXTERN	l_ini_512
+    39                          
+    40                          
+    41                          	; Used for banked calls for __banked for sccz80 + sdcc
+    42                          	EXTERN	banked_call
+    43                          
+    44                          
+    45                          ;------------------------------------
+    46                          ; Scopes for integer library routines
+    47                          ;------------------------------------
+    48                          
+    49                          	EXTERN	l_getptr	;Get 3 byte pointer
+    50                          	EXTERN	l_putptr	;Put 3 byte pointer
+    51                          	EXTERN	l_gchar		;Get signed char
+    52                          	EXTERN	l_gcharsp	;Get signed char  (peephole opt)
+    53                          	EXTERN	l_gcharspsp	;Get signed char and push  (peephole opt)
+    54                          	EXTERN	l_g2charspsp	;Get 2 signed char and push  (peephole opt)
+    55                          	EXTERN	l_sxt		;Sign extend char
+    56                          	EXTERN	l_gint		;Get int ld hl,(hl)
+    57                          	EXTERN	l_gintsp	;Get int (peephole opt)
+    58                          	EXTERN	l_gintspchar	;Get int,char (peephole opt)
+    59                          	EXTERN	l_gintspsp	;Get int and push (peephole opt)
+    60                          	EXTERN	l_g2intspsp	;Get 2 int and push (peephole opt)
+    61                          	EXTERN	l_gintsp2de	;Get int, multiply by 2 and add from SP by de
+    62                          	EXTERN	l_gint7de	;Get int, multiply by 7 and add from SP by de
+    63                          	EXTERN	l_gint_eq	;Get int and test == 0
+    64                          	EXTERN	l_ghtonsint	;Get reverse order int
+    65                          	EXTERN	l_pint		;Put int: ld (de),hl
+    66                          	EXTERN	l_pint_eq	;Put int and test == 0
+    67                          	EXTERN	l_pint_pop	;Put int and pop place address
+    68                          	EXTERN	l_or		;Int logical or
+    69                          	EXTERN	l_xor		;Int logical xor
+    70                          	EXTERN	l_and		;Int logical and
+    71                          	EXTERN	l_eq		;Int equality
+    72                          	EXTERN	l_ne		;Int inequality
+    73                          	EXTERN	l_gt		;Int signed de >  hl
+    74                          	EXTERN	l_le		;Int signed de <= hl
+    75                          	EXTERN	l_ge		;Int signed de >= hl
+    76                          	EXTERN	l_lt		;Int signed de <  hl
+    77                          	EXTERN	l_uge		;Int unsigned de >= hl
+    78                          	EXTERN	l_ult		;Int unsigned de <  hl
+    79                          	EXTERN	l_ugt		;Int unsigned de >  hl
+    80                          	EXTERN	l_ule		;Int unsigned de <= hl
+    81                          	EXTERN	l_cmp		;Int signed compare
+    82                          	EXTERN	l_ucmp		;Int unsigned compare
+    83                          	EXTERN	l_asr		;Int signed de >> hl
+    84                          	EXTERN	l_asr_hl_by_e	;Int signed hl >> e
+    85                          	EXTERN	l_asr_u		;Int unsigned de >> hl
+    86                          	EXTERN	l_asr_u_hl_by_e	;Int unsigned hl >> e
+    87                          	EXTERN	l_asl		;Int de << hl
+    88                          	EXTERN	l_sub		;Int subtract hl = de - hl
+    89                          	EXTERN	l_neg		;Int negate
+    90                          	EXTERN	l_com		;Int ~
+    91                          	EXTERN	l_lneg		;Int logical negate
+    92                          	EXTERN	l_bool		;Int boolean test
+    93                          	EXTERN	l_cm_de	;
+    94                          	EXTERN	l_cm_bc
+    95                          	EXTERN	l_deneg
+    96                          	EXTERN	l_bcneg
+    97                          	EXTERN	l_case		;Integer case
+    98                          	EXTERN	l_mult		;Integer hl = hl * de
+    99                          	EXTERN	l_mult_u	;Integer unsigned *
+   100                          	EXTERN	l_div		;Integer signed / hl=de/hl, de=de%hl
+   101                          	EXTERN	l_div_u		;Integer unsigned /
+   102                          	EXTERN	l_mod		;Integer % (for gbz80) hl=de%hl
+   103                          	EXTERN	l_mod_u		;Integer unsigned % (for gbz80)
+   104                          
+   105                          ;------------------
+   106                          ;Long functions now
+   107                          ;------------------
+   108                          
+   109                          	EXTERN	lpush2		;Push a long under the stack
+   110                          	EXTERN	l_int2long_s	;Int->long signed conversion
+   111                          	EXTERN	l_int2long_s_float	;Int->long->float signed conversion (optimizer: use -O3)
+   112                          	EXTERN	l_int2long_u_float	;uInt->ulong->float signed conversion
+   113                          	EXTERN	l_glong		;Get long
+   114                          	EXTERN	l_glongsp	;Get long (peephole opt)
+   115                          	EXTERN	l_glonghlp	;Get pointer, then get long
+   116                          	EXTERN	l_glong2sp	;Get long and copy on stack (peephole opt)
+   117                          	EXTERN	l_glong2sp_hlp
+   118                          	EXTERN	l_long_add
+   119                          	EXTERN	l_long_and
+   120                          	EXTERN	l_long_asl
+   121                          	EXTERN	l_long_asr
+   122                          	EXTERN	l_long_aslo	;Long << shift in c
+   123                          	EXTERN	l_long_asro	;Long >> shift in c (signed)
+   124                          	EXTERN	l_long_bool
+   125                          	EXTERN	l_long_cmp
+   126                          	EXTERN	l_long_com
+   127                          	EXTERN	l_long_eq
+   128                          	EXTERN	l_long_ge
+   129                          	EXTERN	l_long_gt
+   130                          	EXTERN	l_long_le
+   131                          	EXTERN	l_long_lneg
+   132                          	EXTERN	l_long_lt
+   133                          	EXTERN	l_long_ne
+   134                          	EXTERN	l_long_neg
+   135                          	EXTERN	l_long_or
+   136                          	EXTERN	l_long_sub
+   137                          	EXTERN	l_long_ucmp
+   138                          	EXTERN	l_long_uge
+   139                          	EXTERN	l_long_ugt
+   140                          	EXTERN	l_long_ule
+   141                          	EXTERN	l_long_ult
+   142                          	EXTERN	l_long_xor
+   143                          	EXTERN	l_plong
+   144                          	EXTERN	l_inclong	;Increment long
+   145                          	EXTERN	l_declong	;Decrement long
+   146                          	EXTERN	l_long_div
+   147                          	EXTERN	l_long_div_u
+   148                          	EXTERN	l_long_mod
+   149                          	EXTERN	l_long_mod_u
+   150                          	EXTERN	l_long_mult
+   151                          	EXTERN	l_long_mult_u
+   152                          	EXTERN	l_long_asr_u	;Long unsigned >>
+   153                          	EXTERN	l_long_asr_uo	;Long unsigned >> shift in c
+   154                          	EXTERN	l_long_case
+   155                          
+   156                          ;--------------------------------------------------------------
+   157                          ; Floating point support routines, mostly in library
+   158                          ;--------------------------------------------------------------
+   159                          
+   160                          	EXTERN	dadd
+   161                          	EXTERN	ddiv
+   162                          	EXTERN	dsub
+   163                          	EXTERN	dmul
+   164                          
+   165                          	EXTERN	dge
+   166                          	EXTERN	dgt
+   167                          	EXTERN	dleq
+   168                          	EXTERN	dlt
+   169                          	EXTERN	deq
+   170                          	EXTERN	dne
+   171                          
+   172                          	EXTERN	minusfa		;FA=-FA
+   173                          
+   174                          	EXTERN	dswap		;Exchange FA with top of stack
+   175                          	EXTERN	float		;Convert int to float
+   176                          	EXTERN	ufloat		;unsigned int to float
+   177                          	EXTERN	ifix		;Convert float to int
+   178                          
+   179                          	EXTERN	dstore		;FA->(de)
+   180                          	EXTERN	dload		;FA<-(hl)
+   181                          	EXTERN	dldpsh		;(hl)->(stack)
+   182                          	EXTERN	dpush		;FA->(stack)
+   183                          	EXTERN	dpush2		;FA->(stack under)
+   184                          	EXTERN	dpush3		;FA->(stack under,long)
+   185                          
+   186                          	EXTERN	fa		;may not be needed in this file
+   187                          	EXTERN	extra		;ditto
+   188                          	EXTERN	__atof2		;string->fa conversion
+   189                          	EXTERN	l_f48_ldexp	;FA * pow2(N)
+   190                          	EXTERN	l_f48_f16tof	;Convert _Float16 to float
+   191                          	EXTERN	l_f48_ftof16	;Convert float to _Float16
+   192                          
+   193                          	; 16 bit float ABI
+   194                          	EXTERN	l_f16_add
+   195                          	EXTERN	l_f16_sub
+   196                          	EXTERN	l_f16_mul
+   197                          	EXTERN	l_f16_div
+   198                          	EXTERN	l_f16_le
+   199                          	EXTERN	l_f16_lt
+   200                          	EXTERN	l_f16_ge
+   201                          	EXTERN	l_f16_gt
+   202                          	EXTERN	l_f16_eq
+   203                          	EXTERN	l_f16_ne
+   204                          	EXTERN	l_f16_swap
+   205                          	EXTERN	l_f16_schar2f
+   206                          	EXTERN	l_f16_uchar2f
+   207                          	EXTERN	l_f16_sint2f
+   208                          	EXTERN	l_f16_uint2f
+   209                          	EXTERN	l_f16_slong2f
+   210                          	EXTERN	l_f16_ulong2f
+   211                          	EXTERN	l_f16_f2sint
+   212                          	EXTERN	l_f16_f2uint
+   213                          	EXTERN	l_f16_f2slong
+   214                          	EXTERN	l_f16_f2ulong
+   215                          	EXTERN	l_f16_ldexp
+   216                          	EXTERN	l_f16_invf	;Only for ieee16
+   217                          	EXTERN	l_f16_f16tof	;A noop
+   218                          	EXTERN	l_f16_ftof16	;A noop
+   219                          
+   220                          	; 32 bit float ABI
+   221                          	EXTERN	l_f32_add
+   222                          	EXTERN	l_f32_sub
+   223                          	EXTERN	l_f32_mul
+   224                          	EXTERN	l_f32_div
+   225                          	EXTERN	l_f32_le
+   226                          	EXTERN	l_f32_lt
+   227                          	EXTERN	l_f32_ge
+   228                          	EXTERN	l_f32_gt
+   229                          	EXTERN	l_f32_eq
+   230                          	EXTERN	l_f32_ne
+   231                          	EXTERN	l_f32_swap
+   232                          	EXTERN	l_f32_negate
+   233                          	EXTERN	l_f32_schar2f
+   234                          	EXTERN	l_f32_uchar2f
+   235                          	EXTERN	l_f32_sint2f
+   236                          	EXTERN	l_f32_uint2f
+   237                          	EXTERN	l_f32_slong2f
+   238                          	EXTERN	l_f32_ulong2f
+   239                          	EXTERN	l_f32_f2sint
+   240                          	EXTERN	l_f32_f2uint
+   241                          	EXTERN	l_f32_f2slong
+   242                          	EXTERN	l_f32_f2ulong
+   243                          	EXTERN	l_f32_ldexp
+   244                          	EXTERN	l_f32_invf	;Only for math32
+   245                          	EXTERN	l_f32_f16tof	;Convert _Float16 to float
+   246                          	EXTERN	l_f32_ftof16	;Convert float to _Float16
+   247                          
+   248                          	; 64 bit float ABI
+   249                          	EXTERN	l_f64_load
+   250                          	EXTERN	l_f64_add
+   251                          	EXTERN	l_f64_sub
+   252                          	EXTERN	l_f64_mul
+   253                          	EXTERN	l_f64_div
+   254                          	EXTERN	l_f64_le
+   255                          	EXTERN	l_f64_lt
+   256                          	EXTERN	l_f64_ge
+   257                          	EXTERN	l_f64_gt
+   258                          	EXTERN	l_f64_eq
+   259                          	EXTERN	l_f64_ne
+   260                          	EXTERN	l_f64_negate
+   261                          	EXTERN	l_f64_swap
+   262                          	EXTERN	l_f64_store
+   263                          	EXTERN	l_f64_dpush
+   264                          	EXTERN	l_f64_dldpsh
+   265                          	EXTERN	l_f64_dpush2
+   266                          	EXTERN	l_f64_dpush3
+   267                          	EXTERN	l_f64_schar2f
+   268                          	EXTERN	l_f64_uchar2f
+   269                          	EXTERN	l_f64_sint2f
+   270                          	EXTERN	l_f64_uint2f
+   271                          	EXTERN	l_f64_slong2f
+   272                          	EXTERN	l_f64_ulong2f
+   273                          	EXTERN	l_f64_f2sint
+   274                          	EXTERN	l_f64_f2uint
+   275                          	EXTERN	l_f64_f2slong
+   276                          	EXTERN	l_f64_f2ulong
+   277                          	EXTERN	l_f64_ldexp
+   278                          	EXTERN	l_f64_f16tof	;Convert _Float16 to float
+   279                          	EXTERN	l_f64_ftof16	;Convert float to _Float16
+   280                          
+   281                          
+   282                          ;--------------------------------------------------
+   283                          ; Routines for picking up variables from far memory
+   284                          ;--------------------------------------------------
+   285                          
+   286                          	EXTERN	lp_gchar
+   287                          	EXTERN	lp_gdoub
+   288                          	EXTERN	lp_gint
+   289                          	EXTERN	lp_glong
+   290                          	EXTERN	lp_gptr
+   291                          	EXTERN	lp_pchar
+   292                          	EXTERN	lp_pdoub
+   293                          	EXTERN	lp_pint
+   294                          	EXTERN	lp_plong
+   295                          	EXTERN	lp_pptr
+   296                          
+   297                          	EXTERN	l_farcall	; Long call
+   298                          
+   299                          
+   300                          ;--------------------------------------------------
+   301                          ; Routines for handling 64 bit integers for sccz80
+   302                          ;--------------------------------------------------
+   303                          
+   304                          	EXTERN	__i64_acc
+   305                          	EXTERN	l_i64_load
+   306                          	EXTERN	l_i64_store
+   307                          	EXTERN	l_i64_push
+   308                          	EXTERN	l_i64_add
+   309                          	EXTERN	l_i64_sub
+   310                          	EXTERN	l_i64_mult
+   311                          	EXTERN	l_i64_mult_u
+   312                          	EXTERN	l_i64_mod
+   313                          	EXTERN	l_i64_mod_u
+   314                          	EXTERN	l_i64_div
+   315                          	EXTERN	l_i64_div_u
+   316                          	EXTERN	l_i64_or
+   317                          	EXTERN	l_i64_xor
+   318                          	EXTERN	l_i64_and
+   319                          	EXTERN	l_i64_asr_u
+   320                          	EXTERN	l_i64_asr_uo
+   321                          	EXTERN	l_i64_asr
+   322                          	EXTERN	l_i64_asro
+   323                          	EXTERN	l_i64_asl
+   324                          	EXTERN	l_i64_aslo
+   325                          	EXTERN	l_i64_inc
+   326                          	EXTERN	l_i64_dec
+   327                          	EXTERN	l_i64_eq0
+   328                          	EXTERN	l_i64_eq
+   329                          	EXTERN	l_i64_ne
+   330                          	EXTERN	l_i64_ge
+   331                          	EXTERN	l_i64_gt
+   332                          	EXTERN	l_i64_uge
+   333                          	EXTERN	l_i64_ugt
+   334                          	EXTERN	l_i64_le
+   335                          	EXTERN	l_i64_lt
+   336                          	EXTERN	l_i64_ule
+   337                          	EXTERN	l_i64_ult
+   338                          	EXTERN	l_i64_lneg
+   339                          	EXTERN	l_i64_neg
+   340                          	EXTERN	l_i64_com
+   341                          	EXTERN	l_i64_case
+   342                          	EXTERN	l_i64_push_under_int
+   343                          	EXTERN	l_i64_push_under_int_mhl
+   344                          	EXTERN	l_i64_copy
+   345                          	EXTERN	l_i64_slong2i64
+   346                          	EXTERN	l_i64_ulong2i64
+   347                          	EXTERN	l_i64_sint2i64
+   348                          	EXTERN	l_i64_uint2i64
+   349                          	EXTERN	l_i64_u64_toi32
+   350                          
+   351                          
+   352                          ;-------------------
+   353                          ; Routines for SDCC
+   354                          ;-------------------
+   355                          
+   356                          	EXTERN	__divsint_rrx_s
+   357                          	EXTERN	__divsint_rrx_hds
+   358                          	EXTERN	__divuint_rrx_s
+   359                          	EXTERN	__divuint_rrx_hds
+   360                          	EXTERN	__divsuchar_rrx_s
+   361                          	EXTERN	__divuschar_rrx_s
+   362                          	EXTERN	__divuchar_rrx_s
+   363                          	EXTERN	__divuchar_rrx_hds
+   364                          	EXTERN	__moduchar_rrx_s
+   365                          	EXTERN	__moduchar_rrx_hds
+   366                          	EXTERN	__moduschar_rrx_s
+   367                          	EXTERN	__modsuchar_rrx_s
+   368                          	EXTERN	__modschar_rrx_s
+   369                          	EXTERN	__modschar_rrx_hds
+   370                          	EXTERN	__modsint_rrx_s
+   371                          	EXTERN	__modsint_rrx_hds
+   372                          	EXTERN	__moduint_rrx_s
+   373                          	EXTERN	__moduint_rrx_hds
+   374                          	EXTERN	__get_remainder
+   375                          	EXTERN	__divunsigned
+   376                          	EXTERN	__div_signexte
+   377                          	EXTERN	__divu16
+   378                          	EXTERN	__div16
+   379                          	EXTERN	__div8
+   380                          	EXTERN	__muluchar_rrx_s
+   381                          	EXTERN	__muluchar_rrx_hds
+   382                          	EXTERN	__mulsuchar_rrx_s
+   383                          	EXTERN	__muluschar_rrx_s
+   384                          	EXTERN	__mulschar_rrx_s
+   385                          	EXTERN	__mulschar_rrx_hds
+   386                          	EXTERN	__mulint_rrx_s
+   387                          	EXTERN	__mulint_rrx_hds
+   388                          	EXTERN	__mul16
+   389                          	EXTERN	__rrulong_rrx_s
+   390                          	EXTERN	__rrslong_rrx_s
+   391                          	EXTERN	__rlslong_rrx_s
+   392                          	EXTERN	__rlulong_rrx_s
+   393                          	EXTERN	__muluchar
+   394                          	EXTERN	__mulschar
+   395                          
+   396                          	EXTERN	l_push_di
+   397                          	EXTERN	l_pop_ei
+   398                          
+   399                          	EXTERN	l_debug_push_frame
+   400                          	EXTERN	l_debug_pop_frame
+   401                          
+   402                          
+espui.c:
+                                
+                                
+                                	C_LINE	0,"/usr/local/share/z88dk//include/stdio.h"
+/usr/local/share/z88dk//include/stdio.h:
+                                	C_LINE	0,"/usr/local/share/z88dk//include/sys/compiler.h"
+/usr/local/share/z88dk//include/sys/compiler.h:
+                                	C_LINE	4,"/usr/local/share/z88dk//include/stdio.h"
+/usr/local/share/z88dk//include/stdio.h:
+     4                          	C_LINE	0,"/usr/local/share/z88dk//include/stdint.h"
+/usr/local/share/z88dk//include/stdint.h:
+                                	C_LINE	0,"/usr/local/share/z88dk//include/sys/types.h"
+/usr/local/share/z88dk//include/sys/types.h:
+                                	C_LINE	17,"/usr/local/share/z88dk//include/sys/types.h"
+    17                          	C_LINE	26,"/usr/local/share/z88dk//include/sys/types.h"
+    26                          	C_LINE	35,"/usr/local/share/z88dk//include/sys/types.h"
+    35                          	C_LINE	40,"/usr/local/share/z88dk//include/sys/types.h"
+    40                          	C_LINE	45,"/usr/local/share/z88dk//include/sys/types.h"
+    45                          	C_LINE	50,"/usr/local/share/z88dk//include/sys/types.h"
+    50                          	C_LINE	55,"/usr/local/share/z88dk//include/sys/types.h"
+    55                          	C_LINE	60,"/usr/local/share/z88dk//include/sys/types.h"
+    60                          	C_LINE	65,"/usr/local/share/z88dk//include/sys/types.h"
+    65                          	C_LINE	70,"/usr/local/share/z88dk//include/sys/types.h"
+    70                          	C_LINE	75,"/usr/local/share/z88dk//include/sys/types.h"
+    75                          	C_LINE	80,"/usr/local/share/z88dk//include/sys/types.h"
+    80                          	C_LINE	85,"/usr/local/share/z88dk//include/sys/types.h"
+    85                          	C_LINE	89,"/usr/local/share/z88dk//include/sys/types.h"
+    89                          	C_LINE	90,"/usr/local/share/z88dk//include/sys/types.h"
+    90                          	C_LINE	91,"/usr/local/share/z88dk//include/sys/types.h"
+    91                          	C_LINE	93,"/usr/local/share/z88dk//include/sys/types.h"
+    93                          	C_LINE	94,"/usr/local/share/z88dk//include/sys/types.h"
+    94                          	C_LINE	95,"/usr/local/share/z88dk//include/sys/types.h"
+    95                          	C_LINE	101,"/usr/local/share/z88dk//include/sys/types.h"
+   101                          	C_LINE	106,"/usr/local/share/z88dk//include/sys/types.h"
+   106                          	C_LINE	11,"/usr/local/share/z88dk//include/stdint.h"
+/usr/local/share/z88dk//include/stdint.h:
+    11                          	C_LINE	13,"/usr/local/share/z88dk//include/stdint.h"
+    13                          	C_LINE	14,"/usr/local/share/z88dk//include/stdint.h"
+    14                          	C_LINE	15,"/usr/local/share/z88dk//include/stdint.h"
+    15                          	C_LINE	17,"/usr/local/share/z88dk//include/stdint.h"
+    17                          	C_LINE	18,"/usr/local/share/z88dk//include/stdint.h"
+    18                          	C_LINE	19,"/usr/local/share/z88dk//include/stdint.h"
+    19                          	C_LINE	21,"/usr/local/share/z88dk//include/stdint.h"
+    21                          	C_LINE	22,"/usr/local/share/z88dk//include/stdint.h"
+    22                          	C_LINE	23,"/usr/local/share/z88dk//include/stdint.h"
+    23                          	C_LINE	25,"/usr/local/share/z88dk//include/stdint.h"
+    25                          	C_LINE	26,"/usr/local/share/z88dk//include/stdint.h"
+    26                          	C_LINE	27,"/usr/local/share/z88dk//include/stdint.h"
+    27                          	C_LINE	29,"/usr/local/share/z88dk//include/stdint.h"
+    29                          	C_LINE	30,"/usr/local/share/z88dk//include/stdint.h"
+    30                          	C_LINE	31,"/usr/local/share/z88dk//include/stdint.h"
+    31                          	C_LINE	33,"/usr/local/share/z88dk//include/stdint.h"
+    33                          	C_LINE	34,"/usr/local/share/z88dk//include/stdint.h"
+    34                          	C_LINE	35,"/usr/local/share/z88dk//include/stdint.h"
+    35                          	C_LINE	37,"/usr/local/share/z88dk//include/stdint.h"
+    37                          	C_LINE	38,"/usr/local/share/z88dk//include/stdint.h"
+    38                          	C_LINE	40,"/usr/local/share/z88dk//include/stdint.h"
+    40                          	C_LINE	41,"/usr/local/share/z88dk//include/stdint.h"
+    41                          	C_LINE	43,"/usr/local/share/z88dk//include/stdint.h"
+    43                          	C_LINE	44,"/usr/local/share/z88dk//include/stdint.h"
+    44                          	C_LINE	49,"/usr/local/share/z88dk//include/stdint.h"
+    49                          	C_LINE	52,"/usr/local/share/z88dk//include/stdint.h"
+    52                          	C_LINE	54,"/usr/local/share/z88dk//include/stdint.h"
+    54                          	C_LINE	55,"/usr/local/share/z88dk//include/stdint.h"
+    55                          	C_LINE	5,"/usr/local/share/z88dk//include/stdio.h"
+/usr/local/share/z88dk//include/stdio.h:
+     5                          	C_LINE	0,"/usr/local/share/z88dk//include/cpm.h"
+/usr/local/share/z88dk//include/cpm.h:
+                                	C_LINE	21,"/usr/local/share/z88dk//include/cpm.h"
+    21                          	C_LINE	52,"/usr/local/share/z88dk//include/cpm.h"
+    52                          	C_LINE	78,"/usr/local/share/z88dk//include/cpm.h"
+    78                          	C_LINE	93,"/usr/local/share/z88dk//include/cpm.h"
+    93                          	C_LINE	131,"/usr/local/share/z88dk//include/cpm.h"
+   131                          	C_LINE	132,"/usr/local/share/z88dk//include/cpm.h"
+   132                          	C_LINE	137,"/usr/local/share/z88dk//include/cpm.h"
+   137                          	C_LINE	140,"/usr/local/share/z88dk//include/cpm.h"
+   140                          	C_LINE	141,"/usr/local/share/z88dk//include/cpm.h"
+   141                          	C_LINE	144,"/usr/local/share/z88dk//include/cpm.h"
+   144                          	C_LINE	145,"/usr/local/share/z88dk//include/cpm.h"
+   145                          	C_LINE	147,"/usr/local/share/z88dk//include/cpm.h"
+   147                          	C_LINE	154,"/usr/local/share/z88dk//include/cpm.h"
+   154                          	C_LINE	157,"/usr/local/share/z88dk//include/cpm.h"
+   157                          	C_LINE	166,"/usr/local/share/z88dk//include/cpm.h"
+   166                          	C_LINE	167,"/usr/local/share/z88dk//include/cpm.h"
+   167                          	C_LINE	168,"/usr/local/share/z88dk//include/cpm.h"
+   168                          	C_LINE	171,"/usr/local/share/z88dk//include/cpm.h"
+   171                          	C_LINE	172,"/usr/local/share/z88dk//include/cpm.h"
+   172                          	C_LINE	174,"/usr/local/share/z88dk//include/cpm.h"
+   174                          	C_LINE	175,"/usr/local/share/z88dk//include/cpm.h"
+   175                          	C_LINE	176,"/usr/local/share/z88dk//include/cpm.h"
+   176                          	C_LINE	177,"/usr/local/share/z88dk//include/cpm.h"
+   177                          	C_LINE	178,"/usr/local/share/z88dk//include/cpm.h"
+   178                          	C_LINE	179,"/usr/local/share/z88dk//include/cpm.h"
+   179                          	C_LINE	187,"/usr/local/share/z88dk//include/cpm.h"
+   187                          	C_LINE	189,"/usr/local/share/z88dk//include/cpm.h"
+   189                          	C_LINE	191,"/usr/local/share/z88dk//include/cpm.h"
+   191                          	C_LINE	193,"/usr/local/share/z88dk//include/cpm.h"
+   193                          	C_LINE	195,"/usr/local/share/z88dk//include/cpm.h"
+   195                          	C_LINE	197,"/usr/local/share/z88dk//include/cpm.h"
+   197                          	C_LINE	199,"/usr/local/share/z88dk//include/cpm.h"
+   199                          	C_LINE	202,"/usr/local/share/z88dk//include/cpm.h"
+   202                          	C_LINE	209,"/usr/local/share/z88dk//include/cpm.h"
+   209                          	C_LINE	211,"/usr/local/share/z88dk//include/cpm.h"
+   211                          	C_LINE	214,"/usr/local/share/z88dk//include/cpm.h"
+   214                          	C_LINE	216,"/usr/local/share/z88dk//include/cpm.h"
+   216                          	C_LINE	218,"/usr/local/share/z88dk//include/cpm.h"
+   218                          	C_LINE	228,"/usr/local/share/z88dk//include/cpm.h"
+   228                          	C_LINE	237,"/usr/local/share/z88dk//include/cpm.h"
+   237                          	C_LINE	303,"/usr/local/share/z88dk//include/cpm.h"
+   303                          	C_LINE	306,"/usr/local/share/z88dk//include/cpm.h"
+   306                          	C_LINE	310,"/usr/local/share/z88dk//include/cpm.h"
+   310                          	C_LINE	313,"/usr/local/share/z88dk//include/cpm.h"
+   313                          	C_LINE	316,"/usr/local/share/z88dk//include/cpm.h"
+   316                          	C_LINE	319,"/usr/local/share/z88dk//include/cpm.h"
+   319                          	C_LINE	324,"/usr/local/share/z88dk//include/cpm.h"
+   324                          	C_LINE	330,"/usr/local/share/z88dk//include/cpm.h"
+   330                          	C_LINE	331,"/usr/local/share/z88dk//include/cpm.h"
+   331                          	C_LINE	335,"/usr/local/share/z88dk//include/cpm.h"
+   335                          	C_LINE	336,"/usr/local/share/z88dk//include/cpm.h"
+   336                          	C_LINE	340,"/usr/local/share/z88dk//include/cpm.h"
+   340                          	C_LINE	341,"/usr/local/share/z88dk//include/cpm.h"
+   341                          	C_LINE	346,"/usr/local/share/z88dk//include/cpm.h"
+   346                          	C_LINE	481,"/usr/local/share/z88dk//include/cpm.h"
+   481                          	C_LINE	30,"/usr/local/share/z88dk//include/stdio.h"
+/usr/local/share/z88dk//include/stdio.h:
+    30                          	C_LINE	0,"/usr/local/share/z88dk//include/fcntl.h"
+/usr/local/share/z88dk//include/fcntl.h:
+                                	C_LINE	34,"/usr/local/share/z88dk//include/fcntl.h"
+    34                          	C_LINE	37,"/usr/local/share/z88dk//include/fcntl.h"
+    37                          	C_LINE	38,"/usr/local/share/z88dk//include/fcntl.h"
+    38                          	C_LINE	39,"/usr/local/share/z88dk//include/fcntl.h"
+    39                          	C_LINE	40,"/usr/local/share/z88dk//include/fcntl.h"
+    40                          	C_LINE	41,"/usr/local/share/z88dk//include/fcntl.h"
+    41                          	C_LINE	42,"/usr/local/share/z88dk//include/fcntl.h"
+    42                          	C_LINE	44,"/usr/local/share/z88dk//include/fcntl.h"
+    44                          	C_LINE	45,"/usr/local/share/z88dk//include/fcntl.h"
+    45                          	C_LINE	52,"/usr/local/share/z88dk//include/fcntl.h"
+    52                          	C_LINE	53,"/usr/local/share/z88dk//include/fcntl.h"
+    53                          	C_LINE	54,"/usr/local/share/z88dk//include/fcntl.h"
+    54                          	C_LINE	57,"/usr/local/share/z88dk//include/fcntl.h"
+    57                          	C_LINE	76,"/usr/local/share/z88dk//include/fcntl.h"
+    76                          	C_LINE	85,"/usr/local/share/z88dk//include/fcntl.h"
+    85                          	C_LINE	98,"/usr/local/share/z88dk//include/fcntl.h"
+    98                          	C_LINE	99,"/usr/local/share/z88dk//include/fcntl.h"
+    99                          	C_LINE	100,"/usr/local/share/z88dk//include/fcntl.h"
+   100                          	C_LINE	74,"/usr/local/share/z88dk//include/stdio.h"
+/usr/local/share/z88dk//include/stdio.h:
+    74                          	C_LINE	87,"/usr/local/share/z88dk//include/stdio.h"
+    87                          	C_LINE	137,"/usr/local/share/z88dk//include/stdio.h"
+   137                          	C_LINE	156,"/usr/local/share/z88dk//include/stdio.h"
+   156                          	C_LINE	161,"/usr/local/share/z88dk//include/stdio.h"
+   161                          	C_LINE	162,"/usr/local/share/z88dk//include/stdio.h"
+   162                          	C_LINE	171,"/usr/local/share/z88dk//include/stdio.h"
+   171                          	C_LINE	174,"/usr/local/share/z88dk//include/stdio.h"
+   174                          	C_LINE	178,"/usr/local/share/z88dk//include/stdio.h"
+   178                          	C_LINE	179,"/usr/local/share/z88dk//include/stdio.h"
+   179                          	C_LINE	180,"/usr/local/share/z88dk//include/stdio.h"
+   180                          	C_LINE	181,"/usr/local/share/z88dk//include/stdio.h"
+   181                          	C_LINE	182,"/usr/local/share/z88dk//include/stdio.h"
+   182                          	C_LINE	183,"/usr/local/share/z88dk//include/stdio.h"
+   183                          	C_LINE	187,"/usr/local/share/z88dk//include/stdio.h"
+   187                          	C_LINE	188,"/usr/local/share/z88dk//include/stdio.h"
+   188                          	C_LINE	190,"/usr/local/share/z88dk//include/stdio.h"
+   190                          	C_LINE	221,"/usr/local/share/z88dk//include/stdio.h"
+   221                          	C_LINE	223,"/usr/local/share/z88dk//include/stdio.h"
+   223                          	C_LINE	224,"/usr/local/share/z88dk//include/stdio.h"
+   224                          	C_LINE	226,"/usr/local/share/z88dk//include/stdio.h"
+   226                          	C_LINE	227,"/usr/local/share/z88dk//include/stdio.h"
+   227                          	C_LINE	228,"/usr/local/share/z88dk//include/stdio.h"
+   228                          	C_LINE	231,"/usr/local/share/z88dk//include/stdio.h"
+   231                          	C_LINE	232,"/usr/local/share/z88dk//include/stdio.h"
+   232                          	C_LINE	233,"/usr/local/share/z88dk//include/stdio.h"
+   233                          	C_LINE	234,"/usr/local/share/z88dk//include/stdio.h"
+   234                          	C_LINE	249,"/usr/local/share/z88dk//include/stdio.h"
+   249                          	C_LINE	250,"/usr/local/share/z88dk//include/stdio.h"
+   250                          	C_LINE	253,"/usr/local/share/z88dk//include/stdio.h"
+   253                          	C_LINE	256,"/usr/local/share/z88dk//include/stdio.h"
+   256                          	C_LINE	257,"/usr/local/share/z88dk//include/stdio.h"
+   257                          	C_LINE	264,"/usr/local/share/z88dk//include/stdio.h"
+   264                          	C_LINE	267,"/usr/local/share/z88dk//include/stdio.h"
+   267                          	C_LINE	268,"/usr/local/share/z88dk//include/stdio.h"
+   268                          	C_LINE	269,"/usr/local/share/z88dk//include/stdio.h"
+   269                          	C_LINE	270,"/usr/local/share/z88dk//include/stdio.h"
+   270                          	C_LINE	271,"/usr/local/share/z88dk//include/stdio.h"
+   271                          	C_LINE	272,"/usr/local/share/z88dk//include/stdio.h"
+   272                          	C_LINE	278,"/usr/local/share/z88dk//include/stdio.h"
+   278                          	C_LINE	285,"/usr/local/share/z88dk//include/stdio.h"
+   285                          	C_LINE	286,"/usr/local/share/z88dk//include/stdio.h"
+   286                          	C_LINE	287,"/usr/local/share/z88dk//include/stdio.h"
+   287                          	C_LINE	288,"/usr/local/share/z88dk//include/stdio.h"
+   288                          	C_LINE	289,"/usr/local/share/z88dk//include/stdio.h"
+   289                          	C_LINE	299,"/usr/local/share/z88dk//include/stdio.h"
+   299                          	C_LINE	304,"/usr/local/share/z88dk//include/stdio.h"
+   304                          	C_LINE	309,"/usr/local/share/z88dk//include/stdio.h"
+   309                          	C_LINE	312,"/usr/local/share/z88dk//include/stdio.h"
+   312                          	C_LINE	315,"/usr/local/share/z88dk//include/stdio.h"
+   315                          	C_LINE	318,"/usr/local/share/z88dk//include/stdio.h"
+   318                          	C_LINE	320,"/usr/local/share/z88dk//include/stdio.h"
+   320                          	C_LINE	323,"/usr/local/share/z88dk//include/stdio.h"
+   323                          	C_LINE	325,"/usr/local/share/z88dk//include/stdio.h"
+   325                          	C_LINE	326,"/usr/local/share/z88dk//include/stdio.h"
+   326                          	C_LINE	328,"/usr/local/share/z88dk//include/stdio.h"
+   328                          	C_LINE	330,"/usr/local/share/z88dk//include/stdio.h"
+   330                          	C_LINE	334,"/usr/local/share/z88dk//include/stdio.h"
+   334                          	C_LINE	336,"/usr/local/share/z88dk//include/stdio.h"
+   336                          	C_LINE	340,"/usr/local/share/z88dk//include/stdio.h"
+   340                          	C_LINE	343,"/usr/local/share/z88dk//include/stdio.h"
+   343                          	C_LINE	352,"/usr/local/share/z88dk//include/stdio.h"
+   352                          	C_LINE	354,"/usr/local/share/z88dk//include/stdio.h"
+   354                          	C_LINE	357,"/usr/local/share/z88dk//include/stdio.h"
+   357                          	C_LINE	359,"/usr/local/share/z88dk//include/stdio.h"
+   359                          	C_LINE	361,"/usr/local/share/z88dk//include/stdio.h"
+   361                          	C_LINE	3,"espui.c"
+espui.c:
+     3                          	C_LINE	0,"/usr/local/share/z88dk//include/conio.h"
+/usr/local/share/z88dk//include/conio.h:
+                                	C_LINE	0,"/usr/local/share/z88dk//include/stdlib.h"
+/usr/local/share/z88dk//include/stdlib.h:
+                                	C_LINE	27,"/usr/local/share/z88dk//include/stdlib.h"
+    27                          	C_LINE	28,"/usr/local/share/z88dk//include/stdlib.h"
+    28                          	C_LINE	30,"/usr/local/share/z88dk//include/stdlib.h"
+    30                          	C_LINE	31,"/usr/local/share/z88dk//include/stdlib.h"
+    31                          	C_LINE	34,"/usr/local/share/z88dk//include/stdlib.h"
+    34                          	C_LINE	35,"/usr/local/share/z88dk//include/stdlib.h"
+    35                          	C_LINE	38,"/usr/local/share/z88dk//include/stdlib.h"
+    38                          	C_LINE	39,"/usr/local/share/z88dk//include/stdlib.h"
+    39                          	C_LINE	43,"/usr/local/share/z88dk//include/stdlib.h"
+    43                          	C_LINE	44,"/usr/local/share/z88dk//include/stdlib.h"
+    44                          	C_LINE	47,"/usr/local/share/z88dk//include/stdlib.h"
+    47                          	C_LINE	48,"/usr/local/share/z88dk//include/stdlib.h"
+    48                          	C_LINE	52,"/usr/local/share/z88dk//include/stdlib.h"
+    52                          	C_LINE	53,"/usr/local/share/z88dk//include/stdlib.h"
+    53                          	C_LINE	92,"/usr/local/share/z88dk//include/stdlib.h"
+    92                          	C_LINE	93,"/usr/local/share/z88dk//include/stdlib.h"
+    93                          	C_LINE	0,"/usr/local/share/z88dk//include/malloc.h"
+/usr/local/share/z88dk//include/malloc.h:
+                                	C_LINE	69,"/usr/local/share/z88dk//include/malloc.h"
+    69                          	C_LINE	70,"/usr/local/share/z88dk//include/malloc.h"
+    70                          	C_LINE	71,"/usr/local/share/z88dk//include/malloc.h"
+    71                          	C_LINE	72,"/usr/local/share/z88dk//include/malloc.h"
+    72                          	C_LINE	73,"/usr/local/share/z88dk//include/malloc.h"
+    73                          	C_LINE	74,"/usr/local/share/z88dk//include/malloc.h"
+    74                          	C_LINE	75,"/usr/local/share/z88dk//include/malloc.h"
+    75                          	C_LINE	76,"/usr/local/share/z88dk//include/malloc.h"
+    76                          	C_LINE	77,"/usr/local/share/z88dk//include/malloc.h"
+    77                          	C_LINE	78,"/usr/local/share/z88dk//include/malloc.h"
+    78                          	C_LINE	79,"/usr/local/share/z88dk//include/malloc.h"
+    79                          	C_LINE	131,"/usr/local/share/z88dk//include/malloc.h"
+   131                          	C_LINE	132,"/usr/local/share/z88dk//include/malloc.h"
+   132                          	C_LINE	133,"/usr/local/share/z88dk//include/malloc.h"
+   133                          	C_LINE	134,"/usr/local/share/z88dk//include/malloc.h"
+   134                          	C_LINE	135,"/usr/local/share/z88dk//include/malloc.h"
+   135                          	C_LINE	136,"/usr/local/share/z88dk//include/malloc.h"
+   136                          	C_LINE	137,"/usr/local/share/z88dk//include/malloc.h"
+   137                          	C_LINE	138,"/usr/local/share/z88dk//include/malloc.h"
+   138                          	C_LINE	139,"/usr/local/share/z88dk//include/malloc.h"
+   139                          	C_LINE	140,"/usr/local/share/z88dk//include/malloc.h"
+   140                          	C_LINE	141,"/usr/local/share/z88dk//include/malloc.h"
+   141                          	C_LINE	142,"/usr/local/share/z88dk//include/malloc.h"
+   142                          	C_LINE	143,"/usr/local/share/z88dk//include/malloc.h"
+   143                          	C_LINE	107,"/usr/local/share/z88dk//include/stdlib.h"
+/usr/local/share/z88dk//include/stdlib.h:
+   107                          	C_LINE	120,"/usr/local/share/z88dk//include/stdlib.h"
+   120                          	C_LINE	121,"/usr/local/share/z88dk//include/stdlib.h"
+   121                          	C_LINE	126,"/usr/local/share/z88dk//include/stdlib.h"
+   126                          	C_LINE	127,"/usr/local/share/z88dk//include/stdlib.h"
+   127                          	C_LINE	128,"/usr/local/share/z88dk//include/stdlib.h"
+   128                          	C_LINE	129,"/usr/local/share/z88dk//include/stdlib.h"
+   129                          	C_LINE	134,"/usr/local/share/z88dk//include/stdlib.h"
+   134                          	C_LINE	137,"/usr/local/share/z88dk//include/stdlib.h"
+   137                          	C_LINE	138,"/usr/local/share/z88dk//include/stdlib.h"
+   138                          	C_LINE	139,"/usr/local/share/z88dk//include/stdlib.h"
+   139                          	C_LINE	140,"/usr/local/share/z88dk//include/stdlib.h"
+   140                          	C_LINE	141,"/usr/local/share/z88dk//include/stdlib.h"
+   141                          	C_LINE	153,"/usr/local/share/z88dk//include/stdlib.h"
+   153                          	C_LINE	154,"/usr/local/share/z88dk//include/stdlib.h"
+   154                          	C_LINE	155,"/usr/local/share/z88dk//include/stdlib.h"
+   155                          	C_LINE	156,"/usr/local/share/z88dk//include/stdlib.h"
+   156                          	C_LINE	160,"/usr/local/share/z88dk//include/stdlib.h"
+   160                          	C_LINE	161,"/usr/local/share/z88dk//include/stdlib.h"
+   161                          	C_LINE	163,"/usr/local/share/z88dk//include/stdlib.h"
+   163                          	C_LINE	164,"/usr/local/share/z88dk//include/stdlib.h"
+   164                          	C_LINE	189,"/usr/local/share/z88dk//include/stdlib.h"
+   189                          	C_LINE	197,"/usr/local/share/z88dk//include/stdlib.h"
+   197                          	C_LINE	205,"/usr/local/share/z88dk//include/stdlib.h"
+   205                          	C_LINE	213,"/usr/local/share/z88dk//include/stdlib.h"
+   213                          	C_LINE	221,"/usr/local/share/z88dk//include/stdlib.h"
+   221                          	C_LINE	222,"/usr/local/share/z88dk//include/stdlib.h"
+   222                          	C_LINE	226,"/usr/local/share/z88dk//include/stdlib.h"
+   226                          	C_LINE	227,"/usr/local/share/z88dk//include/stdlib.h"
+   227                          	C_LINE	231,"/usr/local/share/z88dk//include/stdlib.h"
+   231                          	C_LINE	232,"/usr/local/share/z88dk//include/stdlib.h"
+   232                          	C_LINE	236,"/usr/local/share/z88dk//include/stdlib.h"
+   236                          	C_LINE	237,"/usr/local/share/z88dk//include/stdlib.h"
+   237                          	C_LINE	246,"/usr/local/share/z88dk//include/stdlib.h"
+   246                          	C_LINE	247,"/usr/local/share/z88dk//include/stdlib.h"
+   247                          	C_LINE	249,"/usr/local/share/z88dk//include/stdlib.h"
+   249                          	C_LINE	264,"/usr/local/share/z88dk//include/stdlib.h"
+   264                          	C_LINE	265,"/usr/local/share/z88dk//include/stdlib.h"
+   265                          	C_LINE	266,"/usr/local/share/z88dk//include/stdlib.h"
+   266                          	C_LINE	279,"/usr/local/share/z88dk//include/stdlib.h"
+   279                          	C_LINE	283,"/usr/local/share/z88dk//include/stdlib.h"
+   283                          	C_LINE	284,"/usr/local/share/z88dk//include/stdlib.h"
+   284                          	C_LINE	285,"/usr/local/share/z88dk//include/stdlib.h"
+   285                          	C_LINE	286,"/usr/local/share/z88dk//include/stdlib.h"
+   286                          	C_LINE	287,"/usr/local/share/z88dk//include/stdlib.h"
+   287                          	C_LINE	288,"/usr/local/share/z88dk//include/stdlib.h"
+   288                          	C_LINE	303,"/usr/local/share/z88dk//include/stdlib.h"
+   303                          	C_LINE	305,"/usr/local/share/z88dk//include/stdlib.h"
+   305                          	C_LINE	306,"/usr/local/share/z88dk//include/stdlib.h"
+   306                          	C_LINE	322,"/usr/local/share/z88dk//include/stdlib.h"
+   322                          	C_LINE	323,"/usr/local/share/z88dk//include/stdlib.h"
+   323                          	C_LINE	328,"/usr/local/share/z88dk//include/stdlib.h"
+   328                          	C_LINE	331,"/usr/local/share/z88dk//include/stdlib.h"
+   331                          	C_LINE	21,"/usr/local/share/z88dk//include/conio.h"
+/usr/local/share/z88dk//include/conio.h:
+    21                          	C_LINE	0,"/usr/local/share/z88dk//include/dos.h"
+/usr/local/share/z88dk//include/dos.h:
+                                	C_LINE	0,"/usr/local/share/z88dk//include/time.h"
+/usr/local/share/z88dk//include/time.h:
+                                	C_LINE	70,"/usr/local/share/z88dk//include/time.h"
+    70                          	C_LINE	73,"/usr/local/share/z88dk//include/time.h"
+    73                          	C_LINE	93,"/usr/local/share/z88dk//include/time.h"
+    93                          	C_LINE	94,"/usr/local/share/z88dk//include/time.h"
+    94                          	C_LINE	95,"/usr/local/share/z88dk//include/time.h"
+    95                          	C_LINE	96,"/usr/local/share/z88dk//include/time.h"
+    96                          	C_LINE	97,"/usr/local/share/z88dk//include/time.h"
+    97                          	C_LINE	101,"/usr/local/share/z88dk//include/time.h"
+   101                          	C_LINE	104,"/usr/local/share/z88dk//include/time.h"
+   104                          	C_LINE	146,"/usr/local/share/z88dk//include/time.h"
+   146                          	C_LINE	155,"/usr/local/share/z88dk//include/time.h"
+   155                          	C_LINE	156,"/usr/local/share/z88dk//include/time.h"
+   156                          	C_LINE	160,"/usr/local/share/z88dk//include/time.h"
+   160                          	C_LINE	161,"/usr/local/share/z88dk//include/time.h"
+   161                          	C_LINE	18,"/usr/local/share/z88dk//include/dos.h"
+/usr/local/share/z88dk//include/dos.h:
+    18                          	C_LINE	0,"/usr/local/share/z88dk//include/sound.h"
+/usr/local/share/z88dk//include/sound.h:
+                                	C_LINE	23,"/usr/local/share/z88dk//include/sound.h"
+    23                          	C_LINE	24,"/usr/local/share/z88dk//include/sound.h"
+    24                          	C_LINE	25,"/usr/local/share/z88dk//include/sound.h"
+    25                          	C_LINE	26,"/usr/local/share/z88dk//include/sound.h"
+    26                          	C_LINE	27,"/usr/local/share/z88dk//include/sound.h"
+    27                          	C_LINE	30,"/usr/local/share/z88dk//include/sound.h"
+    30                          	C_LINE	31,"/usr/local/share/z88dk//include/sound.h"
+    31                          	C_LINE	32,"/usr/local/share/z88dk//include/sound.h"
+    32                          	C_LINE	33,"/usr/local/share/z88dk//include/sound.h"
+    33                          	C_LINE	34,"/usr/local/share/z88dk//include/sound.h"
+    34                          	C_LINE	35,"/usr/local/share/z88dk//include/sound.h"
+    35                          	C_LINE	36,"/usr/local/share/z88dk//include/sound.h"
+    36                          	C_LINE	39,"/usr/local/share/z88dk//include/sound.h"
+    39                          	C_LINE	42,"/usr/local/share/z88dk//include/sound.h"
+    42                          	C_LINE	43,"/usr/local/share/z88dk//include/sound.h"
+    43                          	C_LINE	47,"/usr/local/share/z88dk//include/sound.h"
+    47                          	C_LINE	48,"/usr/local/share/z88dk//include/sound.h"
+    48                          	C_LINE	52,"/usr/local/share/z88dk//include/sound.h"
+    52                          	C_LINE	53,"/usr/local/share/z88dk//include/sound.h"
+    53                          	C_LINE	57,"/usr/local/share/z88dk//include/sound.h"
+    57                          	C_LINE	60,"/usr/local/share/z88dk//include/sound.h"
+    60                          	C_LINE	63,"/usr/local/share/z88dk//include/sound.h"
+    63                          	C_LINE	66,"/usr/local/share/z88dk//include/sound.h"
+    66                          	C_LINE	69,"/usr/local/share/z88dk//include/sound.h"
+    69                          	C_LINE	70,"/usr/local/share/z88dk//include/sound.h"
+    70                          	C_LINE	71,"/usr/local/share/z88dk//include/sound.h"
+    71                          	C_LINE	72,"/usr/local/share/z88dk//include/sound.h"
+    72                          	C_LINE	75,"/usr/local/share/z88dk//include/sound.h"
+    75                          	C_LINE	78,"/usr/local/share/z88dk//include/sound.h"
+    78                          	C_LINE	108,"/usr/local/share/z88dk//include/sound.h"
+   108                          	C_LINE	263,"/usr/local/share/z88dk//include/sound.h"
+   263                          	C_LINE	267,"/usr/local/share/z88dk//include/sound.h"
+   267                          	C_LINE	268,"/usr/local/share/z88dk//include/sound.h"
+   268                          	C_LINE	269,"/usr/local/share/z88dk//include/sound.h"
+   269                          	C_LINE	270,"/usr/local/share/z88dk//include/sound.h"
+   270                          	C_LINE	271,"/usr/local/share/z88dk//include/sound.h"
+   271                          	C_LINE	272,"/usr/local/share/z88dk//include/sound.h"
+   272                          	C_LINE	273,"/usr/local/share/z88dk//include/sound.h"
+   273                          	C_LINE	274,"/usr/local/share/z88dk//include/sound.h"
+   274                          	C_LINE	275,"/usr/local/share/z88dk//include/sound.h"
+   275                          	C_LINE	276,"/usr/local/share/z88dk//include/sound.h"
+   276                          	C_LINE	277,"/usr/local/share/z88dk//include/sound.h"
+   277                          	C_LINE	278,"/usr/local/share/z88dk//include/sound.h"
+   278                          	C_LINE	279,"/usr/local/share/z88dk//include/sound.h"
+   279                          	C_LINE	280,"/usr/local/share/z88dk//include/sound.h"
+   280                          	C_LINE	281,"/usr/local/share/z88dk//include/sound.h"
+   281                          	C_LINE	282,"/usr/local/share/z88dk//include/sound.h"
+   282                          	C_LINE	283,"/usr/local/share/z88dk//include/sound.h"
+   283                          	C_LINE	284,"/usr/local/share/z88dk//include/sound.h"
+   284                          	C_LINE	285,"/usr/local/share/z88dk//include/sound.h"
+   285                          	C_LINE	286,"/usr/local/share/z88dk//include/sound.h"
+   286                          	C_LINE	287,"/usr/local/share/z88dk//include/sound.h"
+   287                          	C_LINE	288,"/usr/local/share/z88dk//include/sound.h"
+   288                          	C_LINE	289,"/usr/local/share/z88dk//include/sound.h"
+   289                          	C_LINE	290,"/usr/local/share/z88dk//include/sound.h"
+   290                          	C_LINE	291,"/usr/local/share/z88dk//include/sound.h"
+   291                          	C_LINE	292,"/usr/local/share/z88dk//include/sound.h"
+   292                          	C_LINE	293,"/usr/local/share/z88dk//include/sound.h"
+   293                          	C_LINE	294,"/usr/local/share/z88dk//include/sound.h"
+   294                          	C_LINE	295,"/usr/local/share/z88dk//include/sound.h"
+   295                          	C_LINE	296,"/usr/local/share/z88dk//include/sound.h"
+   296                          	C_LINE	297,"/usr/local/share/z88dk//include/sound.h"
+   297                          	C_LINE	298,"/usr/local/share/z88dk//include/sound.h"
+   298                          	C_LINE	299,"/usr/local/share/z88dk//include/sound.h"
+   299                          	C_LINE	300,"/usr/local/share/z88dk//include/sound.h"
+   300                          	C_LINE	301,"/usr/local/share/z88dk//include/sound.h"
+   301                          	C_LINE	302,"/usr/local/share/z88dk//include/sound.h"
+   302                          	C_LINE	303,"/usr/local/share/z88dk//include/sound.h"
+   303                          	C_LINE	304,"/usr/local/share/z88dk//include/sound.h"
+   304                          	C_LINE	305,"/usr/local/share/z88dk//include/sound.h"
+   305                          	C_LINE	306,"/usr/local/share/z88dk//include/sound.h"
+   306                          	C_LINE	307,"/usr/local/share/z88dk//include/sound.h"
+   307                          	C_LINE	308,"/usr/local/share/z88dk//include/sound.h"
+   308                          	C_LINE	309,"/usr/local/share/z88dk//include/sound.h"
+   309                          	C_LINE	310,"/usr/local/share/z88dk//include/sound.h"
+   310                          	C_LINE	311,"/usr/local/share/z88dk//include/sound.h"
+   311                          	C_LINE	312,"/usr/local/share/z88dk//include/sound.h"
+   312                          	C_LINE	313,"/usr/local/share/z88dk//include/sound.h"
+   313                          	C_LINE	314,"/usr/local/share/z88dk//include/sound.h"
+   314                          	C_LINE	315,"/usr/local/share/z88dk//include/sound.h"
+   315                          	C_LINE	316,"/usr/local/share/z88dk//include/sound.h"
+   316                          	C_LINE	317,"/usr/local/share/z88dk//include/sound.h"
+   317                          	C_LINE	318,"/usr/local/share/z88dk//include/sound.h"
+   318                          	C_LINE	319,"/usr/local/share/z88dk//include/sound.h"
+   319                          	C_LINE	320,"/usr/local/share/z88dk//include/sound.h"
+   320                          	C_LINE	321,"/usr/local/share/z88dk//include/sound.h"
+   321                          	C_LINE	322,"/usr/local/share/z88dk//include/sound.h"
+   322                          	C_LINE	323,"/usr/local/share/z88dk//include/sound.h"
+   323                          	C_LINE	324,"/usr/local/share/z88dk//include/sound.h"
+   324                          	C_LINE	19,"/usr/local/share/z88dk//include/dos.h"
+/usr/local/share/z88dk//include/dos.h:
+    19                          	C_LINE	21,"/usr/local/share/z88dk//include/dos.h"
+    21                          	C_LINE	27,"/usr/local/share/z88dk//include/dos.h"
+    27                          	C_LINE	23,"/usr/local/share/z88dk//include/conio.h"
+/usr/local/share/z88dk//include/conio.h:
+    23                          	C_LINE	0,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+/usr/local/share/z88dk//include/X11/Xz88dk.h:
+                                	C_LINE	0,"/usr/local/share/z88dk//include/X11/Xlib.h"
+/usr/local/share/z88dk//include/X11/Xlib.h:
+                                	C_LINE	0,"/usr/local/share/z88dk//include/games.h"
+/usr/local/share/z88dk//include/games.h:
+                                	C_LINE	22,"/usr/local/share/z88dk//include/games.h"
+    22                          	C_LINE	23,"/usr/local/share/z88dk//include/games.h"
+    23                          	C_LINE	26,"/usr/local/share/z88dk//include/games.h"
+    26                          	C_LINE	29,"/usr/local/share/z88dk//include/games.h"
+    29                          	C_LINE	30,"/usr/local/share/z88dk//include/games.h"
+    30                          	C_LINE	45,"/usr/local/share/z88dk//include/games.h"
+    45                          	C_LINE	50,"/usr/local/share/z88dk//include/games.h"
+    50                          	C_LINE	52,"/usr/local/share/z88dk//include/games.h"
+    52                          	C_LINE	65,"/usr/local/share/z88dk//include/games.h"
+    65                          	C_LINE	57,"/usr/local/share/z88dk//include/X11/Xlib.h"
+/usr/local/share/z88dk//include/X11/Xlib.h:
+    57                          	C_LINE	0,"/usr/local/share/z88dk//include/string.h"
+/usr/local/share/z88dk//include/string.h:
+                                	C_LINE	7,"/usr/local/share/z88dk//include/string.h"
+     7                          	C_LINE	8,"/usr/local/share/z88dk//include/string.h"
+     8                          	C_LINE	12,"/usr/local/share/z88dk//include/string.h"
+    12                          	C_LINE	14,"/usr/local/share/z88dk//include/string.h"
+    14                          	C_LINE	19,"/usr/local/share/z88dk//include/string.h"
+    19                          	C_LINE	20,"/usr/local/share/z88dk//include/string.h"
+    20                          	C_LINE	24,"/usr/local/share/z88dk//include/string.h"
+    24                          	C_LINE	25,"/usr/local/share/z88dk//include/string.h"
+    25                          	C_LINE	29,"/usr/local/share/z88dk//include/string.h"
+    29                          	C_LINE	30,"/usr/local/share/z88dk//include/string.h"
+    30                          	C_LINE	34,"/usr/local/share/z88dk//include/string.h"
+    34                          	C_LINE	35,"/usr/local/share/z88dk//include/string.h"
+    35                          	C_LINE	39,"/usr/local/share/z88dk//include/string.h"
+    39                          	C_LINE	41,"/usr/local/share/z88dk//include/string.h"
+    41                          	C_LINE	46,"/usr/local/share/z88dk//include/string.h"
+    46                          	C_LINE	47,"/usr/local/share/z88dk//include/string.h"
+    47                          	C_LINE	52,"/usr/local/share/z88dk//include/string.h"
+    52                          	C_LINE	53,"/usr/local/share/z88dk//include/string.h"
+    53                          	C_LINE	57,"/usr/local/share/z88dk//include/string.h"
+    57                          	C_LINE	59,"/usr/local/share/z88dk//include/string.h"
+    59                          	C_LINE	64,"/usr/local/share/z88dk//include/string.h"
+    64                          	C_LINE	65,"/usr/local/share/z88dk//include/string.h"
+    65                          	C_LINE	69,"/usr/local/share/z88dk//include/string.h"
+    69                          	C_LINE	72,"/usr/local/share/z88dk//include/string.h"
+    72                          	C_LINE	75,"/usr/local/share/z88dk//include/string.h"
+    75                          	C_LINE	78,"/usr/local/share/z88dk//include/string.h"
+    78                          	C_LINE	79,"/usr/local/share/z88dk//include/string.h"
+    79                          	C_LINE	83,"/usr/local/share/z88dk//include/string.h"
+    83                          	C_LINE	85,"/usr/local/share/z88dk//include/string.h"
+    85                          	C_LINE	90,"/usr/local/share/z88dk//include/string.h"
+    90                          	C_LINE	92,"/usr/local/share/z88dk//include/string.h"
+    92                          	C_LINE	97,"/usr/local/share/z88dk//include/string.h"
+    97                          	C_LINE	99,"/usr/local/share/z88dk//include/string.h"
+    99                          	C_LINE	104,"/usr/local/share/z88dk//include/string.h"
+   104                          	C_LINE	105,"/usr/local/share/z88dk//include/string.h"
+   105                          	C_LINE	109,"/usr/local/share/z88dk//include/string.h"
+   109                          	C_LINE	111,"/usr/local/share/z88dk//include/string.h"
+   111                          	C_LINE	116,"/usr/local/share/z88dk//include/string.h"
+   116                          	C_LINE	118,"/usr/local/share/z88dk//include/string.h"
+   118                          	C_LINE	123,"/usr/local/share/z88dk//include/string.h"
+   123                          	C_LINE	125,"/usr/local/share/z88dk//include/string.h"
+   125                          	C_LINE	133,"/usr/local/share/z88dk//include/string.h"
+   133                          	C_LINE	135,"/usr/local/share/z88dk//include/string.h"
+   135                          	C_LINE	139,"/usr/local/share/z88dk//include/string.h"
+   139                          	C_LINE	141,"/usr/local/share/z88dk//include/string.h"
+   141                          	C_LINE	145,"/usr/local/share/z88dk//include/string.h"
+   145                          	C_LINE	146,"/usr/local/share/z88dk//include/string.h"
+   146                          	C_LINE	150,"/usr/local/share/z88dk//include/string.h"
+   150                          	C_LINE	152,"/usr/local/share/z88dk//include/string.h"
+   152                          	C_LINE	157,"/usr/local/share/z88dk//include/string.h"
+   157                          	C_LINE	158,"/usr/local/share/z88dk//include/string.h"
+   158                          	C_LINE	162,"/usr/local/share/z88dk//include/string.h"
+   162                          	C_LINE	163,"/usr/local/share/z88dk//include/string.h"
+   163                          	C_LINE	167,"/usr/local/share/z88dk//include/string.h"
+   167                          	C_LINE	168,"/usr/local/share/z88dk//include/string.h"
+   168                          	C_LINE	172,"/usr/local/share/z88dk//include/string.h"
+   172                          	C_LINE	173,"/usr/local/share/z88dk//include/string.h"
+   173                          	C_LINE	177,"/usr/local/share/z88dk//include/string.h"
+   177                          	C_LINE	178,"/usr/local/share/z88dk//include/string.h"
+   178                          	C_LINE	182,"/usr/local/share/z88dk//include/string.h"
+   182                          	C_LINE	183,"/usr/local/share/z88dk//include/string.h"
+   183                          	C_LINE	187,"/usr/local/share/z88dk//include/string.h"
+   187                          	C_LINE	188,"/usr/local/share/z88dk//include/string.h"
+   188                          	C_LINE	192,"/usr/local/share/z88dk//include/string.h"
+   192                          	C_LINE	193,"/usr/local/share/z88dk//include/string.h"
+   193                          	C_LINE	197,"/usr/local/share/z88dk//include/string.h"
+   197                          	C_LINE	200,"/usr/local/share/z88dk//include/string.h"
+   200                          	C_LINE	203,"/usr/local/share/z88dk//include/string.h"
+   203                          	C_LINE	204,"/usr/local/share/z88dk//include/string.h"
+   204                          	C_LINE	208,"/usr/local/share/z88dk//include/string.h"
+   208                          	C_LINE	210,"/usr/local/share/z88dk//include/string.h"
+   210                          	C_LINE	215,"/usr/local/share/z88dk//include/string.h"
+   215                          	C_LINE	217,"/usr/local/share/z88dk//include/string.h"
+   217                          	C_LINE	222,"/usr/local/share/z88dk//include/string.h"
+   222                          	C_LINE	225,"/usr/local/share/z88dk//include/string.h"
+   225                          	C_LINE	228,"/usr/local/share/z88dk//include/string.h"
+   228                          	C_LINE	230,"/usr/local/share/z88dk//include/string.h"
+   230                          	C_LINE	235,"/usr/local/share/z88dk//include/string.h"
+   235                          	C_LINE	237,"/usr/local/share/z88dk//include/string.h"
+   237                          	C_LINE	242,"/usr/local/share/z88dk//include/string.h"
+   242                          	C_LINE	244,"/usr/local/share/z88dk//include/string.h"
+   244                          	C_LINE	249,"/usr/local/share/z88dk//include/string.h"
+   249                          	C_LINE	251,"/usr/local/share/z88dk//include/string.h"
+   251                          	C_LINE	256,"/usr/local/share/z88dk//include/string.h"
+   256                          	C_LINE	258,"/usr/local/share/z88dk//include/string.h"
+   258                          	C_LINE	263,"/usr/local/share/z88dk//include/string.h"
+   263                          	C_LINE	264,"/usr/local/share/z88dk//include/string.h"
+   264                          	C_LINE	268,"/usr/local/share/z88dk//include/string.h"
+   268                          	C_LINE	269,"/usr/local/share/z88dk//include/string.h"
+   269                          	C_LINE	273,"/usr/local/share/z88dk//include/string.h"
+   273                          	C_LINE	274,"/usr/local/share/z88dk//include/string.h"
+   274                          	C_LINE	278,"/usr/local/share/z88dk//include/string.h"
+   278                          	C_LINE	279,"/usr/local/share/z88dk//include/string.h"
+   279                          	C_LINE	283,"/usr/local/share/z88dk//include/string.h"
+   283                          	C_LINE	284,"/usr/local/share/z88dk//include/string.h"
+   284                          	C_LINE	288,"/usr/local/share/z88dk//include/string.h"
+   288                          	C_LINE	289,"/usr/local/share/z88dk//include/string.h"
+   289                          	C_LINE	293,"/usr/local/share/z88dk//include/string.h"
+   293                          	C_LINE	296,"/usr/local/share/z88dk//include/string.h"
+   296                          	C_LINE	297,"/usr/local/share/z88dk//include/string.h"
+   297                          	C_LINE	301,"/usr/local/share/z88dk//include/string.h"
+   301                          	C_LINE	304,"/usr/local/share/z88dk//include/string.h"
+   304                          	C_LINE	305,"/usr/local/share/z88dk//include/string.h"
+   305                          	C_LINE	309,"/usr/local/share/z88dk//include/string.h"
+   309                          	C_LINE	310,"/usr/local/share/z88dk//include/string.h"
+   310                          	C_LINE	314,"/usr/local/share/z88dk//include/string.h"
+   314                          	C_LINE	315,"/usr/local/share/z88dk//include/string.h"
+   315                          	C_LINE	319,"/usr/local/share/z88dk//include/string.h"
+   319                          	C_LINE	322,"/usr/local/share/z88dk//include/string.h"
+   322                          	C_LINE	323,"/usr/local/share/z88dk//include/string.h"
+   323                          	C_LINE	327,"/usr/local/share/z88dk//include/string.h"
+   327                          	C_LINE	329,"/usr/local/share/z88dk//include/string.h"
+   329                          	C_LINE	334,"/usr/local/share/z88dk//include/string.h"
+   334                          	C_LINE	337,"/usr/local/share/z88dk//include/string.h"
+   337                          	C_LINE	339,"/usr/local/share/z88dk//include/string.h"
+   339                          	C_LINE	343,"/usr/local/share/z88dk//include/string.h"
+   343                          	C_LINE	344,"/usr/local/share/z88dk//include/string.h"
+   344                          	C_LINE	348,"/usr/local/share/z88dk//include/string.h"
+   348                          	C_LINE	349,"/usr/local/share/z88dk//include/string.h"
+   349                          	C_LINE	352,"/usr/local/share/z88dk//include/string.h"
+   352                          	C_LINE	353,"/usr/local/share/z88dk//include/string.h"
+   353                          	C_LINE	410,"/usr/local/share/z88dk//include/string.h"
+   410                          	C_LINE	416,"/usr/local/share/z88dk//include/string.h"
+   416                          	C_LINE	422,"/usr/local/share/z88dk//include/string.h"
+   422                          	C_LINE	428,"/usr/local/share/z88dk//include/string.h"
+   428                          	C_LINE	61,"/usr/local/share/z88dk//include/X11/Xlib.h"
+/usr/local/share/z88dk//include/X11/Xlib.h:
+    61                          	C_LINE	0,"/usr/local/share/z88dk//include/X11/X.h"
+/usr/local/share/z88dk//include/X11/X.h:
+                                	C_LINE	63,"/usr/local/share/z88dk//include/X11/X.h"
+    63                          	C_LINE	66,"/usr/local/share/z88dk//include/X11/X.h"
+    66                          	C_LINE	69,"/usr/local/share/z88dk//include/X11/X.h"
+    69                          	C_LINE	71,"/usr/local/share/z88dk//include/X11/X.h"
+    71                          	C_LINE	72,"/usr/local/share/z88dk//include/X11/X.h"
+    72                          	C_LINE	73,"/usr/local/share/z88dk//include/X11/X.h"
+    73                          	C_LINE	74,"/usr/local/share/z88dk//include/X11/X.h"
+    74                          	C_LINE	75,"/usr/local/share/z88dk//include/X11/X.h"
+    75                          	C_LINE	76,"/usr/local/share/z88dk//include/X11/X.h"
+    76                          	C_LINE	77,"/usr/local/share/z88dk//include/X11/X.h"
+    77                          	C_LINE	78,"/usr/local/share/z88dk//include/X11/X.h"
+    78                          	C_LINE	80,"/usr/local/share/z88dk//include/X11/X.h"
+    80                          	C_LINE	77,"/usr/local/share/z88dk//include/X11/Xlib.h"
+/usr/local/share/z88dk//include/X11/Xlib.h:
+    77                          	C_LINE	82,"/usr/local/share/z88dk//include/X11/Xlib.h"
+    82                          	C_LINE	112,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   112                          	C_LINE	119,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   119                          	C_LINE	149,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   149                          	C_LINE	159,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   159                          	C_LINE	167,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   167                          	C_LINE	177,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   177                          	C_LINE	205,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   205                          	C_LINE	210,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   210                          	C_LINE	225,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   225                          	C_LINE	226,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   226                          	C_LINE	228,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   228                          	C_LINE	243,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   243                          	C_LINE	244,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   244                          	C_LINE	246,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   246                          	C_LINE	261,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   261                          	C_LINE	263,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   263                          	C_LINE	284,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   284                          	C_LINE	285,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   285                          	C_LINE	287,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   287                          	C_LINE	301,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   301                          	C_LINE	302,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   302                          	C_LINE	305,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   305                          	C_LINE	314,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   314                          	C_LINE	325,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   325                          	C_LINE	338,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   338                          	C_LINE	348,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   348                          	C_LINE	357,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   357                          	C_LINE	370,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   370                          	C_LINE	379,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   379                          	C_LINE	389,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   389                          	C_LINE	399,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   399                          	C_LINE	408,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   408                          	C_LINE	420,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   420                          	C_LINE	434,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   434                          	C_LINE	444,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   444                          	C_LINE	453,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   453                          	C_LINE	468,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   468                          	C_LINE	478,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   478                          	C_LINE	488,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   488                          	C_LINE	499,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   499                          	C_LINE	509,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   509                          	C_LINE	522,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   522                          	C_LINE	534,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   534                          	C_LINE	546,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   546                          	C_LINE	561,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   561                          	C_LINE	573,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   573                          	C_LINE	583,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   583                          	C_LINE	595,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   595                          	C_LINE	632,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   632                          	C_LINE	657,"/usr/local/share/z88dk//include/X11/Xlib.h"
+   657                          	C_LINE	0,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+/usr/local/share/z88dk//include/X11/Xz88dk.h:
+                                	C_LINE	691,"/usr/local/share/z88dk//include/X11/Xlib.h"
+/usr/local/share/z88dk//include/X11/Xlib.h:
+   691                          	C_LINE	7,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+/usr/local/share/z88dk//include/X11/Xz88dk.h:
+     7                          	C_LINE	15,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    15                          	C_LINE	16,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    16                          	C_LINE	17,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    17                          	C_LINE	18,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    18                          	C_LINE	19,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    19                          	C_LINE	20,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    20                          	C_LINE	22,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    22                          	C_LINE	27,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    27                          	C_LINE	28,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    28                          	C_LINE	30,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    30                          	C_LINE	32,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    32                          	C_LINE	34,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    34                          	C_LINE	35,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    35                          	C_LINE	37,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    37                          	C_LINE	38,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    38                          	C_LINE	41,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    41                          	C_LINE	42,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    42                          	C_LINE	43,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    43                          	C_LINE	44,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    44                          	C_LINE	45,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    45                          	C_LINE	46,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    46                          	C_LINE	48,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    48                          	C_LINE	50,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    50                          	C_LINE	51,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    51                          	C_LINE	52,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    52                          	C_LINE	53,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    53                          	C_LINE	58,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    58                          	C_LINE	59,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    59                          	C_LINE	60,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    60                          	C_LINE	61,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    61                          	C_LINE	62,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    62                          	C_LINE	67,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    67                          	C_LINE	68,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    68                          	C_LINE	69,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    69                          	C_LINE	71,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    71                          	C_LINE	72,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    72                          	C_LINE	77,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    77                          	C_LINE	84,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    84                          	C_LINE	85,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    85                          	C_LINE	86,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    86                          	C_LINE	87,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    87                          	C_LINE	92,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    92                          	C_LINE	93,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    93                          	C_LINE	99,"/usr/local/share/z88dk//include/X11/Xz88dk.h"
+    99                          	C_LINE	24,"/usr/local/share/z88dk//include/conio.h"
+/usr/local/share/z88dk//include/conio.h:
+    24                          	C_LINE	28,"/usr/local/share/z88dk//include/conio.h"
+    28                          	C_LINE	62,"/usr/local/share/z88dk//include/conio.h"
+    62                          	C_LINE	63,"/usr/local/share/z88dk//include/conio.h"
+    63                          	C_LINE	69,"/usr/local/share/z88dk//include/conio.h"
+    69                          	C_LINE	70,"/usr/local/share/z88dk//include/conio.h"
+    70                          	C_LINE	71,"/usr/local/share/z88dk//include/conio.h"
+    71                          	C_LINE	72,"/usr/local/share/z88dk//include/conio.h"
+    72                          	C_LINE	74,"/usr/local/share/z88dk//include/conio.h"
+    74                          	C_LINE	75,"/usr/local/share/z88dk//include/conio.h"
+    75                          	C_LINE	84,"/usr/local/share/z88dk//include/conio.h"
+    84                          	C_LINE	86,"/usr/local/share/z88dk//include/conio.h"
+    86                          	C_LINE	88,"/usr/local/share/z88dk//include/conio.h"
+    88                          	C_LINE	107,"/usr/local/share/z88dk//include/conio.h"
+   107                          	C_LINE	108,"/usr/local/share/z88dk//include/conio.h"
+   108                          	C_LINE	111,"/usr/local/share/z88dk//include/conio.h"
+   111                          	C_LINE	116,"/usr/local/share/z88dk//include/conio.h"
+   116                          	C_LINE	119,"/usr/local/share/z88dk//include/conio.h"
+   119                          	C_LINE	4,"espui.c"
+espui.c:
+     4                          	C_LINE	0,"/usr/local/share/z88dk//include/ctype.h"
+/usr/local/share/z88dk//include/ctype.h:
+                                	C_LINE	7,"/usr/local/share/z88dk//include/ctype.h"
+     7                          	C_LINE	8,"/usr/local/share/z88dk//include/ctype.h"
+     8                          	C_LINE	9,"/usr/local/share/z88dk//include/ctype.h"
+     9                          	C_LINE	10,"/usr/local/share/z88dk//include/ctype.h"
+    10                          	C_LINE	11,"/usr/local/share/z88dk//include/ctype.h"
+    11                          	C_LINE	12,"/usr/local/share/z88dk//include/ctype.h"
+    12                          	C_LINE	13,"/usr/local/share/z88dk//include/ctype.h"
+    13                          	C_LINE	14,"/usr/local/share/z88dk//include/ctype.h"
+    14                          	C_LINE	15,"/usr/local/share/z88dk//include/ctype.h"
+    15                          	C_LINE	16,"/usr/local/share/z88dk//include/ctype.h"
+    16                          	C_LINE	17,"/usr/local/share/z88dk//include/ctype.h"
+    17                          	C_LINE	18,"/usr/local/share/z88dk//include/ctype.h"
+    18                          	C_LINE	19,"/usr/local/share/z88dk//include/ctype.h"
+    19                          	C_LINE	20,"/usr/local/share/z88dk//include/ctype.h"
+    20                          	C_LINE	21,"/usr/local/share/z88dk//include/ctype.h"
+    21                          	C_LINE	22,"/usr/local/share/z88dk//include/ctype.h"
+    22                          	C_LINE	23,"/usr/local/share/z88dk//include/ctype.h"
+    23                          	C_LINE	24,"/usr/local/share/z88dk//include/ctype.h"
+    24                          	C_LINE	6,"espui.c"
+espui.c:
+     6                          	C_LINE	9,"espui.c"
+     9                          	SECTION	code_compiler
+     9                          
+     9                          ; Function printcentered flags 0x00000200 __smallc
+     9                          ; int printcentered(char * string)
+     9                          ; parameter 'char * string' at sp+2 size(2)
+     9                          	C_LINE	10,"espui.c::printcentered::0::0"
+espui.c::printcentered::0::0:
+    10                          ._printcentered
+    10   000000 c1              	pop	bc
+    10   000001 e1              	pop	hl
+    10   000002 e5              	push	hl
+    10   000003 c5              	push	bc
+    10   000004 cd0000          	call	strlen
+    10   000007 cb3c            	srl	h
+    10   000009 cb1d            	rr	l
+    10   00000b 110000          	ld	de,40
+    10   00000e eb              	ex	de,hl
+    10   00000f a7              	and	a
+    10   000010 ed52            	sbc	hl,de
+    10   000012 e5              	push	hl
+    10                          .i_2
+    10   000013 e1              	pop	hl
+    10   000014 e5              	push	hl
+    10   000015 110000          	ld	de,0
+    10   000018 eb              	ex	de,hl
+    10   000019 cd0000          	call	l_gt
+    10   00001c d20000          	jp	nc,i_3	;
+    10   00001f 210000          	ld	hl,32	;const
+    10   000022 e5              	push	hl
+    10   000023 cd0000          	call	fputc_cons
+    10   000026 c1              	pop	bc
+    10   000027 e1              	pop	hl
+    10   000028 2b              	dec	hl
+    10   000029 e5              	push	hl
+    10   00002a c30000          	jp	i_2	;EOS
+    10                          .i_3
+    10   00002d 210000          	ld	hl,4	;const
+    10   000030 39              	add	hl,sp
+    10   000031 cd0000          	call	l_gint	;
+    10   000034 e5              	push	hl
+    10   000035 cd0000          	call	puts
+    10   000038 c1              	pop	bc
+    10   000039 c1              	pop	bc
+    10   00003a c9              	ret
+    10                          
+    10                          
+    10                          	C_LINE	19,"espui.c::printcentered::0::2"
+espui.c::printcentered::0::2:
+    19                          
+    19                          ; Function printcenteredbold flags 0x00000200 __smallc
+    19                          ; int printcenteredbold(char * string)
+    19                          ; parameter 'char * string' at sp+2 size(2)
+    19                          	C_LINE	20,"espui.c::printcenteredbold::0::2"
+espui.c::printcenteredbold::0::2:
+    20                          ._printcenteredbold
+    20   00003b c1              	pop	bc
+    20   00003c e1              	pop	hl
+    20   00003d e5              	push	hl
+    20   00003e c5              	push	bc
+    20   00003f cd0000          	call	strlen
+    20   000042 cb3c            	srl	h
+    20   000044 cb1d            	rr	l
+    20   000046 110000          	ld	de,40
+    20   000049 eb              	ex	de,hl
+    20   00004a a7              	and	a
+    20   00004b ed52            	sbc	hl,de
+    20   00004d e5              	push	hl
+    20                          .i_4
+    20   00004e e1              	pop	hl
+    20   00004f e5              	push	hl
+    20   000050 110000          	ld	de,0
+    20   000053 eb              	ex	de,hl
+    20   000054 cd0000          	call	l_gt
+    20   000057 d20000          	jp	nc,i_5	;
+    20   00005a 210000          	ld	hl,32	;const
+    20   00005d e5              	push	hl
+    20   00005e cd0000          	call	fputc_cons
+    20   000061 c1              	pop	bc
+    20   000062 e1              	pop	hl
+    20   000063 2b              	dec	hl
+    20   000064 e5              	push	hl
+    20   000065 c30000          	jp	i_4	;EOS
+    20                          .i_5
+    20   000068 210000          	ld	hl,i_1+0
+    20   00006b e5              	push	hl
+    20   00006c 210000          	ld	hl,6	;const
+    20   00006f 39              	add	hl,sp
+    20   000070 cd0000          	call	l_gint	;
+    20   000073 e5              	push	hl
+    20   000074 3e00            	ld	a,2
+    20   000076 cd0000          	call	printf
+    20   000079 c1              	pop	bc
+    20   00007a c1              	pop	bc
+    20   00007b c1              	pop	bc
+    20   00007c c9              	ret
+    20                          
+    20                          
+    20                          	C_LINE	29,"espui.c::printcenteredbold::0::4"
+espui.c::printcenteredbold::0::4:
+    29                          
+    29                          ; Function printmenu flags 0x00000200 __smallc
+    29                          ; int printmenu(char opt, char * string, char opt1, char * string1)
+    29                          ; parameter 'char * string1' at sp+2 size(2)
+    29                          ; parameter 'char opt1' at sp+4 size(1)
+    29                          ; parameter 'char * string' at sp+6 size(2)
+    29                          ; parameter 'char opt' at sp+8 size(1)
+    29                          	C_LINE	30,"espui.c::printmenu::0::4"
+espui.c::printmenu::0::4:
+    30                          ._printmenu
+    30   00007d 210800          	ld	hl,8	;const
+    30   000080 cd0000          	call	l_gcharspsp	;
+    30   000083 210000          	ld	hl,0	;const
+    30   000086 d1              	pop	de
+    30   000087 cd0000          	call	l_eq
+    30   00008a d2ad00          	jp	nc,i_6	;
+    30   00008d 210d00          	ld	hl,i_1+13
+    30   000090 e5              	push	hl
+    30   000091 212400          	ld	hl,i_1+36
+    30   000094 e5              	push	hl
+    30   000095 210800          	ld	hl,8	;const
+    30   000098 cd0000          	call	l_gcharspsp	;
+    30   00009b 210800          	ld	hl,8	;const
+    30   00009e 39              	add	hl,sp
+    30   00009f cd0000          	call	l_gint	;
+    30   0000a2 e5              	push	hl
+    30   0000a3 3e04            	ld	a,4
+    30   0000a5 cd0000          	call	printf
+    30   0000a8 c1              	pop	bc
+    30   0000a9 c1              	pop	bc
+    30   0000aa c1              	pop	bc
+    30   0000ab c1              	pop	bc
+    30   0000ac c9              	ret
+    30                          
+    30                          
+    30                          .i_6
+    30   0000ad 210400          	ld	hl,4	;const
+    30   0000b0 cd0000          	call	l_gcharspsp	;
+    30   0000b3 e1              	pop	hl
+    30   0000b4 7c              	ld	a,h
+    30   0000b5 b5              	or	l
+    30   0000b6 cae200          	jp	z,i_7	;
+    30   0000b9 212600          	ld	hl,i_1+38
+    30   0000bc e5              	push	hl
+    30   0000bd 210a00          	ld	hl,10	;const
+    30   0000c0 cd0000          	call	l_gcharspsp	;
+    30   0000c3 210a00          	ld	hl,10	;const
+    30   0000c6 cd0000          	call	l_gintspsp	;
+    30   0000c9 210a00          	ld	hl,10	;const
+    30   0000cc cd0000          	call	l_gcharspsp	;
+    30   0000cf 210a00          	ld	hl,10	;const
+    30   0000d2 39              	add	hl,sp
+    30   0000d3 cd0000          	call	l_gint	;
+    30   0000d6 e5              	push	hl
+    30   0000d7 3e05            	ld	a,5
+    30   0000d9 cd0000          	call	printf
+    30   0000dc c1              	pop	bc
+    30   0000dd c1              	pop	bc
+    30   0000de c1              	pop	bc
+    30   0000df c1              	pop	bc
+    30   0000e0 c1              	pop	bc
+    30   0000e1 c9              	ret
+    30                          .i_7
+    30   0000e2 214e00          	ld	hl,i_1+78
+    30   0000e5 e5              	push	hl
+    30   0000e6 210a00          	ld	hl,10	;const
+    30   0000e9 cd0000          	call	l_gcharspsp	;
+    30   0000ec 210a00          	ld	hl,10	;const
+    30   0000ef 39              	add	hl,sp
+    30   0000f0 cd0000          	call	l_gint	;
+    30   0000f3 e5              	push	hl
+    30   0000f4 3e03            	ld	a,3
+    30   0000f6 cd0000          	call	printf
+    30   0000f9 c1              	pop	bc
+    30   0000fa c1              	pop	bc
+    30   0000fb c1              	pop	bc
+    30                          .i_8
+    30   0000fc c9              	ret
+    30                          
+    30                          
+    30                          	C_LINE	41,"espui.c::printmenu::0::6"
+espui.c::printmenu::0::6:
+    41                          
+    41                          ; Function printmessage flags 0x00000200 __smallc
+    41                          ; int printmessage(char * string)
+    41                          ; parameter 'char * string' at sp+2 size(2)
+    41                          	C_LINE	42,"espui.c::printmessage::0::6"
+espui.c::printmessage::0::6:
+    42                          ._printmessage
+    42   0000fd 216300          	ld	hl,i_1+99
+    42   000100 e5              	push	hl
+    42   000101 210400          	ld	hl,4	;const
+    42   000104 39              	add	hl,sp
+    42   000105 cd0000          	call	l_gint	;
+    42   000108 e5              	push	hl
+    42   000109 3e02            	ld	a,2
+    42   00010b cd0000          	call	printf
+    42   00010e c1              	pop	bc
+    42   00010f c1              	pop	bc
+    42   000110 c9              	ret
+    42                          
+    42                          
+    42                          	C_LINE	46,"espui.c::printmessage::0::7"
+espui.c::printmessage::0::7:
+    46                          
+    46                          ; Function getstring flags 0x00000200 __smallc
+    46                          ; int getstring(char * buffer)
+    46                          ; parameter 'char * buffer' at sp+2 size(2)
+    46                          	C_LINE	47,"espui.c::getstring::0::7"
+espui.c::getstring::0::7:
+    47                          ._getstring
+    47   000111 3b              	dec	sp
+    47   000112 210000          	ld	hl,0	;const
+    47   000115 e5              	push	hl
+    47                          .i_11
+    47   000116 210200          	ld	hl,2	;const
+    47   000119 39              	add	hl,sp
+    47   00011a e5              	push	hl
+    47   00011b 210000          	ld	hl,__sgoioblk
+    47   00011e e5              	push	hl
+    47   00011f cd0000          	call	fgetc
+    47   000122 c1              	pop	bc
+    47   000123 7d              	ld	a,l
+    47   000124 d1              	pop	de
+    47   000125 12              	ld	(de),a
+    47   000126 210200          	ld	hl,2	;const
+    47   000129 39              	add	hl,sp
+    47   00012a 7e              	ld	a,(hl)
+    47   00012b fe0a            	cp	10
+    47   00012d ca3501          	jp	z,i_13	;
+    47   000130 fe0d            	cp	13
+    47   000132 c24901          	jp	nz,i_12	;
+    47                          .i_13
+    47   000135 210500          	ld	hl,5	;const
+    47   000138 cd0000          	call	l_gintspsp	;
+    47   00013b c1              	pop	bc
+    47   00013c e1              	pop	hl
+    47   00013d e5              	push	hl
+    47   00013e c5              	push	bc
+    47   00013f d1              	pop	de
+    47   000140 19              	add	hl,de
+    47   000141 3600            	ld	(hl),0
+    47   000143 6e              	ld	l,(hl)
+    47   000144 2600            	ld	h,0
+    47   000146 33              	inc	sp
+    47   000147 c1              	pop	bc
+    47   000148 c9              	ret
+    47                          
+    47                          
+    47                          .i_12
+    47   000149 210200          	ld	hl,2	;const
+    47   00014c 39              	add	hl,sp
+    47   00014d 7e              	ld	a,(hl)
+    47   00014e fe08            	cp	8
+    47   000150 c27201          	jp	nz,i_16	;
+    47   000153 e1              	pop	hl
+    47   000154 e5              	push	hl
+    47   000155 110000          	ld	de,0
+    47   000158 eb              	ex	de,hl
+    47   000159 cd0000          	call	l_gt
+    47   00015c d27201          	jp	nc,i_16	;
+    47                          .i_17_i_16
+    47   00015f e1              	pop	hl
+    47   000160 2b              	dec	hl
+    47   000161 e5              	push	hl
+    47   000162 212000          	ld	hl,32	;const
+    47   000165 e5              	push	hl
+    47   000166 cd0000          	call	fputc_cons
+    47   000169 c1              	pop	bc
+    47   00016a 210800          	ld	hl,8	;const
+    47   00016d e5              	push	hl
+    47   00016e cd0000          	call	fputc_cons
+    47   000171 c1              	pop	bc
+    47                          .i_15
+    47   000172 210200          	ld	hl,2	;const
+    47   000175 39              	add	hl,sp
+    47   000176 cd0000          	call	l_gchar
+    47   000179 cd0000          	call	isprint
+    47   00017c 7c              	ld	a,h
+    47   00017d b5              	or	l
+    47   00017e ca1601          	jp	z,i_18	;
+    47   000181 210500          	ld	hl,5	;const
+    47   000184 cd0000          	call	l_gintspsp	;
+    47   000187 c1              	pop	bc
+    47   000188 e1              	pop	hl
+    47   000189 e5              	push	hl
+    47   00018a c5              	push	bc
+    47   00018b d1              	pop	de
+    47   00018c 19              	add	hl,de
+    47   00018d e5              	push	hl
+    47   00018e 210400          	ld	hl,4	;const
+    47   000191 39              	add	hl,sp
+    47   000192 d1              	pop	de
+    47   000193 7e              	ld	a,(hl)
+    47   000194 12              	ld	(de),a
+    47   000195 e1              	pop	hl
+    47   000196 23              	inc	hl
+    47   000197 e5              	push	hl
+    47   000198 c31601          	jp	i_9	;EOS
+    47                          .i_10
+    47   00019b 33              	inc	sp
+    47   00019c c1              	pop	bc
+    47   00019d c9              	ret
+    47                          
+    47                          
+    47                          	C_LINE	74,"espui.c::getstring::0::12"
+espui.c::getstring::0::12:
+    74                          
+    74                          ; Function getlong flags 0x00000200 __smallc
+    74                          ; long getlong()
+    74                          	C_LINE	75,"espui.c::getlong::0::12"
+espui.c::getlong::0::12:
+    75                          ._getlong
+    75   00019e 21e8ff          	ld	hl,65512	;const
+    75   0001a1 39              	add	hl,sp
+    75   0001a2 f9              	ld	sp,hl
+    75   0001a3 e5              	push	hl
+    75   0001a4 cd1101          	call	_getstring
+    75   0001a7 c1              	pop	bc
+    75   0001a8 210000          	ld	hl,0	;const
+    75   0001ab 39              	add	hl,sp
+    75   0001ac e5              	push	hl
+    75   0001ad 217900          	ld	hl,i_1+121
+    75   0001b0 e5              	push	hl
+    75   0001b1 211800          	ld	hl,24	;const
+    75   0001b4 39              	add	hl,sp
+    75   0001b5 e5              	push	hl
+    75   0001b6 3e03            	ld	a,3
+    75   0001b8 cd0000          	call	sscanf
+    75   0001bb c1              	pop	bc
+    75   0001bc c1              	pop	bc
+    75   0001bd c1              	pop	bc
+    75   0001be 211400          	ld	hl,20	;const
+    75   0001c1 39              	add	hl,sp
+    75   0001c2 cd0000          	call	l_glong
+    75   0001c5 d9              	exx
+    75   0001c6 211800          	ld	hl,24	;const
+    75   0001c9 39              	add	hl,sp
+    75   0001ca f9              	ld	sp,hl
+    75   0001cb d9              	exx
+    75   0001cc c9              	ret
+    75                          
+    75                          
+    75                          	C_LINE	82,"espui.c::getlong::0::13"
+espui.c::getlong::0::13:
+    82                          
+    82                          ; Function getint flags 0x00000200 __smallc
+    82                          ; int getint()
+    82                          	C_LINE	83,"espui.c::getint::0::13"
+espui.c::getint::0::13:
+    83                          ._getint
+    83   0001cd c5              	push	bc
+    83   0001ce cd9e01          	call	_getlong
+    83   0001d1 c1              	pop	bc
+    83   0001d2 c9              	ret
+    83                          
+    83                          
+    83                          	C_LINE	88,"espui.c::getint::0::14"
+espui.c::getint::0::14:
+    88                          
+    88                          ; Function getbyte flags 0x00000200 __smallc
+    88                          ; int getbyte()
+    88                          	C_LINE	89,"espui.c::getbyte::0::14"
+espui.c::getbyte::0::14:
+    89                          ._getbyte
+    89   0001d3 3b              	dec	sp
+    89   0001d4 210000          	ld	hl,0	;const
+    89   0001d7 39              	add	hl,sp
+    89   0001d8 e5              	push	hl
+    89   0001d9 cd9e01          	call	_getlong
+    89   0001dc 7d              	ld	a,l
+    89   0001dd d1              	pop	de
+    89   0001de 12              	ld	(de),a
+    89   0001df 210000          	ld	hl,0	;const
+    89   0001e2 39              	add	hl,sp
+    89   0001e3 cd0000          	call	l_gchar
+    89   0001e6 33              	inc	sp
+    89   0001e7 c9              	ret
+    89                          
+    89                          
+    89                          ; --- Start of Optimiser additions ---
+    89                          	defc	i_9 = i_11
+    89                          	defc	i_16 = i_15
+    89                          	defc	i_18 = i_9
+    89                          
+    89                          	SECTION	rodata_compiler
+    89                          .i_1
+    89                          	defm	""
+    89   000000 1b              	defb	27
+    89                          
+    89   000001 5b316d2500      	defm	"[1m%s"
+    89   000006 1b              	defb	27
+    89                          
+    89   000007 5b306d          	defm	"[0m"
+    89   00000a 0a              	defb	10
+    89                          
+    89                          	defm	""
+    89   00000b 0d              	defb	13
+    89                          
+    89                          	defm	""
+    89   00000c 00              	defb	0
+    89                          
+    89   00000d 0034317320      	defm	"%41s "
+    89   000012 1b              	defb	27
+    89                          
+    89   000013 5b316d0000      	defm	"[1m%c"
+    89   000018 1b              	defb	27
+    89                          
+    89   000019 5b00002e2d007320	defm	"[0m. %s "
+    89   000021 0a              	defb	10
+    89                          
+    89                          	defm	""
+    89   000022 0d              	defb	13
+    89                          
+    89                          	defm	""
+    89   000023 00              	defb	0
+    89                          
+    89   000024 00              	defm	" "
+    89   000025 00              	defb	0
+    89                          
+    89   000026 20202020        	defm	"    "
+    89   00002a 1b              	defb	27
+    89                          
+    89   00002b 13006d0400      	defm	"[1m%c"
+    89   000030 1b              	defb	27
+    89                          
+    89   000031 5b00002e20000033	defm	"[0m. %-34s "
+                347320          
+    89   00003c 1b              	defb	27
+    89                          
+    89   00003d 5b316d0000      	defm	"[1m%c"
+    89   000042 1b              	defb	27
+    89                          
+    89   000043 5b306d2e28007320	defm	"[0m. %s "
+    89   00004b 0a              	defb	10
+    89                          
+    89                          	defm	""
+    89   00004c 0d              	defb	13
+    89                          
+    89                          	defm	""
+    89   00004d 00              	defb	0
+    89                          
+    89   00004e 20202000        	defm	"    "
+    89   000052 1b              	defb	27
+    89                          
+    89   000053 5b31000063      	defm	"[1m%c"
+    89   000058 1b              	defb	27
+    89                          
+    89   000059 00302000202500  	defm	"[0m. %s"
+    89   000060 0a              	defb	10
+    89                          
+    89                          	defm	""
+    89   000061 0d              	defb	13
+    89                          
+    89                          	defm	""
+    89   000062 00              	defb	0
+    89                          
+    89                          	defm	""
+    89   000063 1b              	defb	27
+    89                          
+    89   000064 5b324e003200    	defm	"[23;2H"
+    89   00006a 1b              	defb	27
+    89                          
+    89   00006b 5b3106002d360000	defm	"[1m%-60s "
+                20              
+    89   000074 1b              	defb	27
+    89                          
+    89   000075 023000          	defm	"[0m"
+    89   000078 00              	defb	0
+    89                          
+    89   000079 256c64          	defm	"%ld"
+    89   00007c 00              	defb	0
+    89                          
+    89                          
+    89                          ; --- Start of Static Variables ---
+    89                          
+    89                          	SECTION	bss_compiler
+    89                          	SECTION	code_compiler
+    89                          
+    89                          
+    89                          ; --- Start of Scope Defns ---
+    89                          
+    89                          	GLOBAL	__CLIB_OPEN_MAX
+    89                          	GLOBAL	__fcb
+    89                          	GLOBAL	bdos
+    89                          	GLOBAL	bios
+    89                          	GLOBAL	getfcb
+    89                          	GLOBAL	cpm_cache_get
+    89                          	GLOBAL	cpm_cache_flush
+    89                          	GLOBAL	setfcb
+    89                          	GLOBAL	parsefcb
+    89                          	GLOBAL	putoffset
+    89                          	GLOBAL	swapuid
+    89                          	GLOBAL	_putoffset
+    89                          	GLOBAL	_fc_dir
+    89                          	GLOBAL	_fc_dirpos
+    89                          	GLOBAL	_fc_dirbuf
+    89                          	GLOBAL	change_volume
+    89                          	GLOBAL	get_current_volume
+    89                          	GLOBAL	dir_move_first
+    89                          	GLOBAL	dir_move_next
+    89                          	GLOBAL	dir_get_entry_type
+    89                          	GLOBAL	dir_get_entry_name
+    89                          	GLOBAL	dir_get_entry_size
+    89                          	GLOBAL	get_dir_name
+    89                          	GLOBAL	a_statusline
+    89                          	GLOBAL	a_keyspeed
+    89                          	GLOBAL	a_border
+    89                          	GLOBAL	a_paper
+    89                          	GLOBAL	a_ink
+    89                          	GLOBAL	a_curx
+    89                          	GLOBAL	a_cury
+    89                          	GLOBAL	a_machine
+    89                          	GLOBAL	a_machinever
+    89                          	GLOBAL	a_biosver
+    89                          	GLOBAL	a_memsize
+    89                          	GLOBAL	a_driveb
+    89                          	GLOBAL	a_serialport
+    89                          	GLOBAL	_gios_pb
+    89                          	GLOBAL	_gios_ctl
+    89                          	GLOBAL	_gios_intin
+    89                          	GLOBAL	_gios_ptsin
+    89                          	GLOBAL	_gios_intout
+    89                          	GLOBAL	_gios_ptsout
+    89                          	GLOBAL	gios
+    89                          	GLOBAL	gios_1pm
+    89                          	GLOBAL	gios_1pm_callee
+    89                          	GLOBAL	gios_2px
+    89                          	GLOBAL	gios_2px_callee
+    89                          	GLOBAL	gios_1px
+    89                          	GLOBAL	gios_1px_callee
+    89                          	GLOBAL	gios_text
+    89                          	GLOBAL	gios_esc
+    89                          	GLOBAL	open
+    89                          	GLOBAL	creat
+    89                          	GLOBAL	close
+    89                          	GLOBAL	read
+    89                          	GLOBAL	write
+    89                          	GLOBAL	lseek
+    89                          	GLOBAL	readbyte
+    89                          	GLOBAL	writebyte
+    89                          	GLOBAL	getcwd
+    89                          	GLOBAL	chdir
+    89                          	GLOBAL	getwd
+    89                          	GLOBAL	rmdir
+    89                          	GLOBAL	__RND_BLOCKSIZE
+    89                          	GLOBAL	rnd_loadblock
+    89                          	GLOBAL	rnd_saveblock
+    89                          	GLOBAL	rnd_erase
+    89                          	GLOBAL	__FOPEN_MAX
+    89                          	GLOBAL	__sgoioblk
+    89                          	GLOBAL	__sgoioblk_end
+    89                          	GLOBAL	fopen_zsock
+    89                          	GLOBAL	fileno
+    89                          	GLOBAL	fopen
+    89                          	GLOBAL	freopen
+    89                          	GLOBAL	fdopen
+    89                          	GLOBAL	_freopen1
+    89                          	GLOBAL	fmemopen
+    89                          	GLOBAL	funopen
+    89                          	GLOBAL	fclose
+    89                          	GLOBAL	fflush
+    89                          	GLOBAL	closeall
+    89                          	GLOBAL	fgets
+    89                          	GLOBAL	fputs
+    89                          	GLOBAL	fputc
+    89                          	GLOBAL	fputs_callee
+    89                          	GLOBAL	fputc_callee
+    89                          	GLOBAL	fgetc
+    89                          	GLOBAL	ungetc
+    89                          	GLOBAL	feof
+    89                          	GLOBAL	ferror
+    89                          	GLOBAL	puts
+    89                          	GLOBAL	ftell
+    89                          	GLOBAL	fgetpos
+    89                          	GLOBAL	fseek
+    89                          	GLOBAL	fread
+    89                          	GLOBAL	fwrite
+    89                          	GLOBAL	gets
+    89                          	GLOBAL	printf
+    89                          	GLOBAL	fprintf
+    89                          	GLOBAL	sprintf
+    89                          	GLOBAL	snprintf
+    89                          	GLOBAL	vfprintf
+    89                          	GLOBAL	vsnprintf
+    89                          	GLOBAL	printn
+    89                          	GLOBAL	scanf
+    89                          	GLOBAL	fscanf
+    89                          	GLOBAL	sscanf
+    89                          	GLOBAL	vfscanf
+    89                          	GLOBAL	vsscanf
+    89                          	GLOBAL	getarg
+    89                          	GLOBAL	fchkstd
+    89                          	GLOBAL	fgetc_cons
+    89                          	GLOBAL	fgetc_cons_inkey
+    89                          	GLOBAL	fputc_cons
+    89                          	GLOBAL	fgets_cons
+    89                          	GLOBAL	puts_cons
+    89                          	GLOBAL	fabandon
+    89                          	GLOBAL	fdtell
+    89                          	GLOBAL	fdgetpos
+    89                          	GLOBAL	rename
+    89                          	GLOBAL	remove
+    89                          	GLOBAL	getk
+    89                          	GLOBAL	getk_inkey
+    89                          	GLOBAL	printk
+    89                          	GLOBAL	perror
+    89                          	GLOBAL	set_fputc_cons
+    89                          	GLOBAL	fputc_cons_native
+    89                          	GLOBAL	fputc_cons_generic
+    89                          	GLOBAL	fputc_cons_ansi
+    89                          	GLOBAL	atoi
+    89                          	GLOBAL	atol
+    89                          	GLOBAL	itoa
+    89                          	GLOBAL	itoa_callee
+    89                          	GLOBAL	ltoa
+    89                          	GLOBAL	ltoa_callee
+    89                          	GLOBAL	strtol
+    89                          	GLOBAL	strtol_callee
+    89                          	GLOBAL	strtoul
+    89                          	GLOBAL	strtoul_callee
+    89                          	GLOBAL	ultoa
+    89                          	GLOBAL	ultoa_callee
+    89                          	GLOBAL	utoa
+    89                          	GLOBAL	utoa_callee
+    89                          	GLOBAL	rand
+    89                          	GLOBAL	srand
+    89                          	GLOBAL	mallinit
+    89                          	GLOBAL	sbrk
+    89                          	GLOBAL	sbrk_callee
+    89                          	GLOBAL	calloc
+    89                          	GLOBAL	calloc_callee
+    89                          	GLOBAL	free
+    89                          	GLOBAL	malloc
+    89                          	GLOBAL	realloc
+    89                          	GLOBAL	realloc_callee
+    89                          	GLOBAL	mallinfo
+    89                          	GLOBAL	mallinfo_callee
+    89                          	GLOBAL	HeapCreate
+    89                          	GLOBAL	HeapSbrk
+    89                          	GLOBAL	HeapSbrk_callee
+    89                          	GLOBAL	HeapCalloc
+    89                          	GLOBAL	HeapCalloc_callee
+    89                          	GLOBAL	HeapFree
+    89                          	GLOBAL	HeapFree_callee
+    89                          	GLOBAL	HeapAlloc
+    89                          	GLOBAL	HeapAlloc_callee
+    89                          	GLOBAL	HeapRealloc
+    89                          	GLOBAL	HeapRealloc_callee
+    89                          	GLOBAL	HeapInfo
+    89                          	GLOBAL	HeapInfo_callee
+    89                          	GLOBAL	exit
+    89                          	GLOBAL	atexit
+    89                          	GLOBAL	getenv
+    89                          	GLOBAL	getenv_r
+    89                          	GLOBAL	setenv
+    89                          	GLOBAL	unsetenv
+    89                          	GLOBAL	getopt
+    89                          	GLOBAL	_optarg
+    89                          	GLOBAL	_opterr
+    89                          	GLOBAL	_optind
+    89                          	GLOBAL	_optopt
+    89                          	GLOBAL	_optreset
+    89                          	GLOBAL	l_bsearch
+    89                          	GLOBAL	l_bsearch_callee
+    89                          	GLOBAL	l_qsort
+    89                          	GLOBAL	l_qsort_callee
+    89                          	GLOBAL	qsort_sccz80
+    89                          	GLOBAL	qsort_sccz80_callee
+    89                          	GLOBAL	qsort_sdcc
+    89                          	GLOBAL	qsort_sdcc_callee
+    89                          	GLOBAL	_div_
+    89                          	GLOBAL	_div__callee
+    89                          	GLOBAL	_divu_
+    89                          	GLOBAL	_divu__callee
+    89                          	GLOBAL	_ldiv_
+    89                          	GLOBAL	_ldiv__callee
+    89                          	GLOBAL	_ldivu_
+    89                          	GLOBAL	_ldivu__callee
+    89                          	GLOBAL	abs
+    89                          	GLOBAL	labs
+    89                          	GLOBAL	isqrt
+    89                          	GLOBAL	inp
+    89                          	GLOBAL	outp
+    89                          	GLOBAL	outp_callee
+    89                          	GLOBAL	swapendian
+    89                          	GLOBAL	bpoke
+    89                          	GLOBAL	bpoke_callee
+    89                          	GLOBAL	wpoke
+    89                          	GLOBAL	wpoke_callee
+    89                          	GLOBAL	bpeek
+    89                          	GLOBAL	wpeek
+    89                          	GLOBAL	t_delay
+    89                          	GLOBAL	sleep
+    89                          	GLOBAL	msleep
+    89                          	GLOBAL	extract_bits
+    89                          	GLOBAL	extract_bits_callee
+    89                          	GLOBAL	wcmatch
+    89                          	GLOBAL	unbcd
+    89                          	GLOBAL	time
+    89                          	GLOBAL	gmtime
+    89                          	GLOBAL	localtime
+    89                          	GLOBAL	mktime
+    89                          	GLOBAL	asctime
+    89                          	GLOBAL	ctime
+    89                          	GLOBAL	clock
+    89                          	GLOBAL	_FRAMES
+    89                          	GLOBAL	dostm_from_tm
+    89                          	GLOBAL	dostm_from_tm_callee
+    89                          	GLOBAL	tm_from_dostm
+    89                          	GLOBAL	tm_from_dostm_callee
+    89                          	GLOBAL	bit_open
+    89                          	GLOBAL	bit_open_di
+    89                          	GLOBAL	bit_close
+    89                          	GLOBAL	bit_close_ei
+    89                          	GLOBAL	bit_click
+    89                          	GLOBAL	bit_fx
+    89                          	GLOBAL	bit_fx2
+    89                          	GLOBAL	bit_fx3
+    89                          	GLOBAL	bit_fx4
+    89                          	GLOBAL	bit_fx5
+    89                          	GLOBAL	bit_fx6
+    89                          	GLOBAL	bit_fx7
+    89                          	GLOBAL	bit_synth
+    89                          	GLOBAL	bit_beep
+    89                          	GLOBAL	bit_beep_callee
+    89                          	GLOBAL	bit_noise
+    89                          	GLOBAL	bit_noise_callee
+    89                          	GLOBAL	patch_beep
+    89                          	GLOBAL	patch_beep_callee
+    89                          	GLOBAL	bit_frequency
+    89                          	GLOBAL	bit_play
+    89                          	GLOBAL	psg_play
+    89                          	GLOBAL	synth_phase
+    89                          	GLOBAL	_synth_phase_1
+    89                          	GLOBAL	_synth_phase_2
+    89                          	GLOBAL	_synth_phase_3
+    89                          	GLOBAL	_synth_phase_4
+    89                          	GLOBAL	synth_play
+    89                          	GLOBAL	buzzer_play
+    89                          	GLOBAL	playzb4
+    89                          	GLOBAL	bit_beepfx
+    89                          	GLOBAL	_bfx_0
+    89                          	GLOBAL	_bfx_1
+    89                          	GLOBAL	_bfx_2
+    89                          	GLOBAL	_bfx_3
+    89                          	GLOBAL	_bfx_4
+    89                          	GLOBAL	_bfx_5
+    89                          	GLOBAL	_bfx_6
+    89                          	GLOBAL	_bfx_7
+    89                          	GLOBAL	_bfx_8
+    89                          	GLOBAL	_bfx_9
+    89                          	GLOBAL	_bfx_10
+    89                          	GLOBAL	_bfx_11
+    89                          	GLOBAL	_bfx_12
+    89                          	GLOBAL	_bfx_13
+    89                          	GLOBAL	_bfx_14
+    89                          	GLOBAL	_bfx_15
+    89                          	GLOBAL	_bfx_16
+    89                          	GLOBAL	_bfx_17
+    89                          	GLOBAL	_bfx_18
+    89                          	GLOBAL	_bfx_19
+    89                          	GLOBAL	_bfx_20
+    89                          	GLOBAL	_bfx_21
+    89                          	GLOBAL	_bfx_22
+    89                          	GLOBAL	_bfx_23
+    89                          	GLOBAL	_bfx_24
+    89                          	GLOBAL	_bfx_25
+    89                          	GLOBAL	_bfx_26
+    89                          	GLOBAL	_bfx_27
+    89                          	GLOBAL	_bfx_28
+    89                          	GLOBAL	_bfx_29
+    89                          	GLOBAL	_bfx_30
+    89                          	GLOBAL	_bfx_31
+    89                          	GLOBAL	_bfx_32
+    89                          	GLOBAL	_bfx_33
+    89                          	GLOBAL	_bfx_34
+    89                          	GLOBAL	_bfx_35
+    89                          	GLOBAL	_bfx_36
+    89                          	GLOBAL	_bfx_37
+    89                          	GLOBAL	_bfx_38
+    89                          	GLOBAL	_bfx_39
+    89                          	GLOBAL	_bfx_40
+    89                          	GLOBAL	_bfx_41
+    89                          	GLOBAL	_bfx_42
+    89                          	GLOBAL	_bfx_43
+    89                          	GLOBAL	_bfx_44
+    89                          	GLOBAL	_bfx_45
+    89                          	GLOBAL	_bfx_46
+    89                          	GLOBAL	_bfx_47
+    89                          	GLOBAL	_bfx_48
+    89                          	GLOBAL	_bfx_49
+    89                          	GLOBAL	_bfx_50
+    89                          	GLOBAL	_bfx_51
+    89                          	GLOBAL	_bfx_52
+    89                          	GLOBAL	_bfx_53
+    89                          	GLOBAL	_bfx_54
+    89                          	GLOBAL	_bfx_55
+    89                          	GLOBAL	_bfx_56
+    89                          	GLOBAL	_bfx_57
+    89                          	GLOBAL	bksave
+    89                          	GLOBAL	bkrestore
+    89                          	GLOBAL	getsprite
+    89                          	GLOBAL	putsprite
+    89                          	GLOBAL	putsprite_callee
+    89                          	GLOBAL	joystick
+    89                          	GLOBAL	joystick_sc
+    89                          	GLOBAL	kjoystick
+    89                          	GLOBAL	_joystick_type
+    89                          	GLOBAL	bcmp
+    89                          	GLOBAL	bcmp_callee
+    89                          	GLOBAL	bcopy
+    89                          	GLOBAL	bcopy_callee
+    89                          	GLOBAL	bzero
+    89                          	GLOBAL	bzero_callee
+    89                          	GLOBAL	index
+    89                          	GLOBAL	index_callee
+    89                          	GLOBAL	rindex
+    89                          	GLOBAL	rindex_callee
+    89                          	GLOBAL	strset
+    89                          	GLOBAL	strset_callee
+    89                          	GLOBAL	strnset
+    89                          	GLOBAL	strnset_callee
+    89                          	GLOBAL	rawmemchr
+    89                          	GLOBAL	rawmemchr_callee
+    89                          	GLOBAL	_memlwr_
+    89                          	GLOBAL	_memlwr__callee
+    89                          	GLOBAL	_memstrcpy_
+    89                          	GLOBAL	_memstrcpy__callee
+    89                          	GLOBAL	_memupr_
+    89                          	GLOBAL	_memupr__callee
+    89                          	GLOBAL	_strrstrip_
+    89                          	GLOBAL	ffs
+    89                          	GLOBAL	ffsl
+    89                          	GLOBAL	memccpy
+    89                          	GLOBAL	memccpy_callee
+    89                          	GLOBAL	memchr
+    89                          	GLOBAL	memchr_callee
+    89                          	GLOBAL	memcmp
+    89                          	GLOBAL	memcmp_callee
+    89                          	GLOBAL	memcpy
+    89                          	GLOBAL	memcpy_callee
+    89                          	GLOBAL	memmem
+    89                          	GLOBAL	memmem_callee
+    89                          	GLOBAL	memmove
+    89                          	GLOBAL	memmove_callee
+    89                          	GLOBAL	memrchr
+    89                          	GLOBAL	memrchr_callee
+    89                          	GLOBAL	memset
+    89                          	GLOBAL	memset_callee
+    89                          	GLOBAL	memset_wr
+    89                          	GLOBAL	memset_wr_callee
+    89                          	GLOBAL	memswap
+    89                          	GLOBAL	memswap_callee
+    89                          	GLOBAL	stpcpy
+    89                          	GLOBAL	stpcpy_callee
+    89                          	GLOBAL	stpncpy
+    89                          	GLOBAL	stpncpy_callee
+    89                          	GLOBAL	strcasecmp
+    89                          	GLOBAL	strcasecmp_callee
+    89                          	GLOBAL	strcat
+    89                          	GLOBAL	strcat_callee
+    89                          	GLOBAL	strchr
+    89                          	GLOBAL	strchr_callee
+    89                          	GLOBAL	strchrnul
+    89                          	GLOBAL	strchrnul_callee
+    89                          	GLOBAL	strcmp
+    89                          	GLOBAL	strcmp_callee
+    89                          	GLOBAL	strcoll
+    89                          	GLOBAL	strcoll_callee
+    89                          	GLOBAL	strcpy
+    89                          	GLOBAL	strcpy_callee
+    89                          	GLOBAL	strcspn
+    89                          	GLOBAL	strcspn_callee
+    89                          	GLOBAL	strdup
+    89                          	GLOBAL	strerror
+    89                          	GLOBAL	stricmp
+    89                          	GLOBAL	stricmp_callee
+    89                          	GLOBAL	strlcat
+    89                          	GLOBAL	strlcat_callee
+    89                          	GLOBAL	strlcpy
+    89                          	GLOBAL	strlcpy_callee
+    89                          	GLOBAL	strlen
+    89                          	GLOBAL	strlwr
+    89                          	GLOBAL	strncasecmp
+    89                          	GLOBAL	strncasecmp_callee
+    89                          	GLOBAL	strncat
+    89                          	GLOBAL	strncat_callee
+    89                          	GLOBAL	strnchr
+    89                          	GLOBAL	strnchr_callee
+    89                          	GLOBAL	strncmp
+    89                          	GLOBAL	strncmp_callee
+    89                          	GLOBAL	strncpy
+    89                          	GLOBAL	strncpy_callee
+    89                          	GLOBAL	strndup
+    89                          	GLOBAL	strndup_callee
+    89                          	GLOBAL	strnicmp
+    89                          	GLOBAL	strnicmp_callee
+    89                          	GLOBAL	strnlen
+    89                          	GLOBAL	strnlen_callee
+    89                          	GLOBAL	strpbrk
+    89                          	GLOBAL	strpbrk_callee
+    89                          	GLOBAL	strrchr
+    89                          	GLOBAL	strrchr_callee
+    89                          	GLOBAL	strrcspn
+    89                          	GLOBAL	strrcspn_callee
+    89                          	GLOBAL	strrev
+    89                          	GLOBAL	strrspn
+    89                          	GLOBAL	strrspn_callee
+    89                          	GLOBAL	strrstrip
+    89                          	GLOBAL	strsep
+    89                          	GLOBAL	strsep_callee
+    89                          	GLOBAL	strspn
+    89                          	GLOBAL	strspn_callee
+    89                          	GLOBAL	strstr
+    89                          	GLOBAL	strstr_callee
+    89                          	GLOBAL	strstrip
+    89                          	GLOBAL	strtok
+    89                          	GLOBAL	strtok_callee
+    89                          	GLOBAL	strtok_r
+    89                          	GLOBAL	strtok_r_callee
+    89                          	GLOBAL	strupr
+    89                          	GLOBAL	strxfrm
+    89                          	GLOBAL	strxfrm_callee
+    89                          	GLOBAL	strrstr
+    89                          	GLOBAL	strrstr_callee
+    89                          	GLOBAL	memopi
+    89                          	GLOBAL	memopi_callee
+    89                          	GLOBAL	memopd
+    89                          	GLOBAL	memopd_callee
+    89                          	GLOBAL	__builtin_memset
+    89                          	GLOBAL	__builtin_memcpy
+    89                          	GLOBAL	__builtin_strcpy
+    89                          	GLOBAL	__builtin_strchr
+    89                          	GLOBAL	__x_proportional
+    89                          	GLOBAL	__y_proportional
+    89                          	GLOBAL	__xchar_proportional
+    89                          	GLOBAL	__X_int1
+    89                          	GLOBAL	__X_int2
+    89                          	GLOBAL	__X_int3
+    89                          	GLOBAL	__x_must_expose
+    89                          	GLOBAL	XOpenDisplay
+    89                          	GLOBAL	XCloseDisplay
+    89                          	GLOBAL	DefaultScreen
+    89                          	GLOBAL	RootWindow
+    89                          	GLOBAL	XCreateSimpleWindow
+    89                          	GLOBAL	XDestroyWindow
+    89                          	GLOBAL	XCreateGC
+    89                          	GLOBAL	XFreeGC
+    89                          	GLOBAL	XDisplayName
+    89                          	GLOBAL	DisplayWidth
+    89                          	GLOBAL	DisplayHeight
+    89                          	GLOBAL	DefaultDepth
+    89                          	GLOBAL	BlackPixel
+    89                          	GLOBAL	WhitePixel
+    89                          	GLOBAL	XMapWindow
+    89                          	GLOBAL	XSetForeground
+    89                          	GLOBAL	XSetLineAttributes
+    89                          	GLOBAL	XSetDashes
+    89                          	GLOBAL	XSetStandardProperties
+    89                          	GLOBAL	XSelectInput
+    89                          	GLOBAL	XNextEvent
+    89                          	GLOBAL	XCheckWindowEvent
+    89                          	GLOBAL	XCheckTypedEvent
+    89                          	GLOBAL	XFlush
+    89                          	GLOBAL	XTextWidth
+    89                          	GLOBAL	XLoadQueryFont
+    89                          	GLOBAL	XDrawString
+    89                          	GLOBAL	XUnloadFont
+    89                          	GLOBAL	XSetFont
+    89                          	GLOBAL	XCreateBitmapFromData
+    89                          	GLOBAL	XDrawRectangle
+    89                          	GLOBAL	XDrawPoint
+    89                          	GLOBAL	XDrawLine
+    89                          	GLOBAL	XClearWindow
+    89                          	GLOBAL	_xfindchar
+    89                          	GLOBAL	_xfputc
+    89                          	GLOBAL	textcolor
+    89                          	GLOBAL	textbackground
+    89                          	GLOBAL	wherex
+    89                          	GLOBAL	wherey
+    89                          	GLOBAL	gotoxy
+    89                          	GLOBAL	gotoxy_callee
+    89                          	GLOBAL	screensize
+    89                          	GLOBAL	screensize_callee
+    89                          	GLOBAL	cprintf
+    89                          	GLOBAL	cputs
+    89                          	GLOBAL	cgets
+    89                          	GLOBAL	kbhit
+    89                          	GLOBAL	getch
+    89                          	GLOBAL	cvpeek
+    89                          	GLOBAL	cvpeekr
+    89                          	GLOBAL	bordercolor
+    89                          	GLOBAL	isalnum
+    89                          	GLOBAL	isalpha
+    89                          	GLOBAL	isascii
+    89                          	GLOBAL	isbdigit
+    89                          	GLOBAL	iscntrl
+    89                          	GLOBAL	isdigit
+    89                          	GLOBAL	isgraph
+    89                          	GLOBAL	isupper
+    89                          	GLOBAL	islower
+    89                          	GLOBAL	isodigit
+    89                          	GLOBAL	isoob
+    89                          	GLOBAL	isprint
+    89                          	GLOBAL	ispunct
+    89                          	GLOBAL	isspace
+    89                          	GLOBAL	isxdigit
+    89                          	GLOBAL	toascii
+    89                          	GLOBAL	tolower
+    89                          	GLOBAL	toupper
+    89                          	GLOBAL	_printcentered
+    89                          	GLOBAL	_printcenteredbold
+    89                          	GLOBAL	_printmenu
+    89                          	GLOBAL	_printmessage
+    89                          	GLOBAL	_getstring
+    89                          	GLOBAL	_getlong
+    89                          	GLOBAL	_getint
+    89                          	GLOBAL	_getbyte
+    89                          
+    89                          
+    89                          ; --- End of Scope Defns ---
+    89                          
+    89                          
+    89                          ; --- End of Compilation ---
+    89                          
