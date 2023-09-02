@@ -1,0 +1,32 @@
+
+
+extern void clear_screen_test();
+extern void set_resolution_test();
+extern void set_font_test();
+extern void copy_rectangle_test();
+extern void draw_bitmap_test();
+extern void draw_char_test();
+extern void draw_ellipse_test();
+extern void draw_glyph_test();
+extern void draw_line_test();
+extern void draw_rectangle_test();
+extern void fill_ellipse_test();
+extern void fill_rectangle_test();
+extern void get_pixel_test();
+extern void invert_rectangle_test();
+extern void draw_line_to_test();
+extern void move_cursor_to_test();
+extern void scroll_test();
+extern void set_brush_color_test();
+extern void set_line_end_test();
+extern void set_pen_color_test();
+extern void set_pen_width_test();
+extern void set_pixel_test();
+extern void set_glyph_options_test();
+extern void set_palette_item_test();
+extern void set_mouse_cursor_test();
+extern void set_mouse_cursor_position_test();
+extern void remove_sprites_test();
+extern void set_sprite_map_test();
+extern void set_sprite_location_test();
+extern void set_sprite_visibility_test();

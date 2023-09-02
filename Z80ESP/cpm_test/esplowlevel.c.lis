@@ -1,0 +1,819 @@
+/tmp/tmpXXWV4NCi.asm:
+     1                          MODULE esplowlevel_c
+     2                          LINE 0, "esplowlevel.c"
+esplowlevel.c:
+                                
+     1                          ;* * * * *  Small-C/Plus z88dk * * * * *
+     2                          ;  Version: 19460-7def40868-20220403
+     3                          ;
+     4                          ;	Reconstructed for z80 Module Assembler
+     5                          ;
+     6                          ;	Module compile time: Tue Aug 22 13:06:54 2023
+     7                          
+     8                          
+     9                          	C_LINE	0,"esplowlevel.c"
+                                
+                                	MODULE	esplowlevel_c
+                                
+                                
+                                	INCLUDE "z80_crt0.hdr"
+/usr/local/share/z88dk/lib/z80_crt0.hdr:
+     1                          ;
+     2                          ;	Header file which contains all required variables from the
+     3                          ;	startup that need to be exposed to individual C files
+     4                          ;
+     5                          ;	Stick in this file any routines which are needed or implicitly
+     6                          ;	implied by sccz80.
+     7                          ;
+     8                          ;	This file is included by every module
+     9                          ;	To handle multi module programs which use floating point
+    10                          ;	routines in different modules, we have got rid of
+    11                          ;	the conditional assembly around the float routines
+    12                          
+    13                          
+    14                          	EXTERN	base_graphics	; Address of graphics screen
+    15                          
+    16                          	EXTERN	_cpfar2near	; Far->near conversion (z88)
+    17                          	EXTERN	packintrout	; Process interrupt (z88 apps)
+    18                          
+    19                          	EXTERN	l_dcal		; jp(hl)
+    20                          	EXTERN	cleanup		; cleanup before program exit
+    21                          
+    22                          
+    23                          	EXTERN	l_jphl		; another jp(hl)
+    24                          	EXTERN	l_jpix		; jp(ix)
+    25                          	EXTERN	l_jpiy		; jp(iy)
+    26                          
+    27                          	EXTERN	l_ldi
+    28                          	EXTERN	l_ldi_128
+    29                          	EXTERN	l_ldi_256
+    30                          
+    31                          	EXTERN	l_outi
+    32                          	EXTERN	l_outi_128
+    33                          	EXTERN	l_outi_256
+    34                          
+    35                          	EXTERN	l_ini
+    36                          	EXTERN	l_ini_128
+    37                          	EXTERN	l_ini_256
+    38                          	EXTERN	l_ini_512
+    39                          
+    40                          
+    41                          	; Used for banked calls for __banked for sccz80 + sdcc
+    42                          	EXTERN	banked_call
+    43                          
+    44                          
+    45                          ;------------------------------------
+    46                          ; Scopes for integer library routines
+    47                          ;------------------------------------
+    48                          
+    49                          	EXTERN	l_getptr	;Get 3 byte pointer
+    50                          	EXTERN	l_putptr	;Put 3 byte pointer
+    51                          	EXTERN	l_gchar		;Get signed char
+    52                          	EXTERN	l_gcharsp	;Get signed char  (peephole opt)
+    53                          	EXTERN	l_gcharspsp	;Get signed char and push  (peephole opt)
+    54                          	EXTERN	l_g2charspsp	;Get 2 signed char and push  (peephole opt)
+    55                          	EXTERN	l_sxt		;Sign extend char
+    56                          	EXTERN	l_gint		;Get int ld hl,(hl)
+    57                          	EXTERN	l_gintsp	;Get int (peephole opt)
+    58                          	EXTERN	l_gintspchar	;Get int,char (peephole opt)
+    59                          	EXTERN	l_gintspsp	;Get int and push (peephole opt)
+    60                          	EXTERN	l_g2intspsp	;Get 2 int and push (peephole opt)
+    61                          	EXTERN	l_gintsp2de	;Get int, multiply by 2 and add from SP by de
+    62                          	EXTERN	l_gint7de	;Get int, multiply by 7 and add from SP by de
+    63                          	EXTERN	l_gint_eq	;Get int and test == 0
+    64                          	EXTERN	l_ghtonsint	;Get reverse order int
+    65                          	EXTERN	l_pint		;Put int: ld (de),hl
+    66                          	EXTERN	l_pint_eq	;Put int and test == 0
+    67                          	EXTERN	l_pint_pop	;Put int and pop place address
+    68                          	EXTERN	l_or		;Int logical or
+    69                          	EXTERN	l_xor		;Int logical xor
+    70                          	EXTERN	l_and		;Int logical and
+    71                          	EXTERN	l_eq		;Int equality
+    72                          	EXTERN	l_ne		;Int inequality
+    73                          	EXTERN	l_gt		;Int signed de >  hl
+    74                          	EXTERN	l_le		;Int signed de <= hl
+    75                          	EXTERN	l_ge		;Int signed de >= hl
+    76                          	EXTERN	l_lt		;Int signed de <  hl
+    77                          	EXTERN	l_uge		;Int unsigned de >= hl
+    78                          	EXTERN	l_ult		;Int unsigned de <  hl
+    79                          	EXTERN	l_ugt		;Int unsigned de >  hl
+    80                          	EXTERN	l_ule		;Int unsigned de <= hl
+    81                          	EXTERN	l_cmp		;Int signed compare
+    82                          	EXTERN	l_ucmp		;Int unsigned compare
+    83                          	EXTERN	l_asr		;Int signed de >> hl
+    84                          	EXTERN	l_asr_hl_by_e	;Int signed hl >> e
+    85                          	EXTERN	l_asr_u		;Int unsigned de >> hl
+    86                          	EXTERN	l_asr_u_hl_by_e	;Int unsigned hl >> e
+    87                          	EXTERN	l_asl		;Int de << hl
+    88                          	EXTERN	l_sub		;Int subtract hl = de - hl
+    89                          	EXTERN	l_neg		;Int negate
+    90                          	EXTERN	l_com		;Int ~
+    91                          	EXTERN	l_lneg		;Int logical negate
+    92                          	EXTERN	l_bool		;Int boolean test
+    93                          	EXTERN	l_cm_de	;
+    94                          	EXTERN	l_cm_bc
+    95                          	EXTERN	l_deneg
+    96                          	EXTERN	l_bcneg
+    97                          	EXTERN	l_case		;Integer case
+    98                          	EXTERN	l_mult		;Integer hl = hl * de
+    99                          	EXTERN	l_mult_u	;Integer unsigned *
+   100                          	EXTERN	l_div		;Integer signed / hl=de/hl, de=de%hl
+   101                          	EXTERN	l_div_u		;Integer unsigned /
+   102                          	EXTERN	l_mod		;Integer % (for gbz80) hl=de%hl
+   103                          	EXTERN	l_mod_u		;Integer unsigned % (for gbz80)
+   104                          
+   105                          ;------------------
+   106                          ;Long functions now
+   107                          ;------------------
+   108                          
+   109                          	EXTERN	lpush2		;Push a long under the stack
+   110                          	EXTERN	l_int2long_s	;Int->long signed conversion
+   111                          	EXTERN	l_int2long_s_float	;Int->long->float signed conversion (optimizer: use -O3)
+   112                          	EXTERN	l_int2long_u_float	;uInt->ulong->float signed conversion
+   113                          	EXTERN	l_glong		;Get long
+   114                          	EXTERN	l_glongsp	;Get long (peephole opt)
+   115                          	EXTERN	l_glonghlp	;Get pointer, then get long
+   116                          	EXTERN	l_glong2sp	;Get long and copy on stack (peephole opt)
+   117                          	EXTERN	l_glong2sp_hlp
+   118                          	EXTERN	l_long_add
+   119                          	EXTERN	l_long_and
+   120                          	EXTERN	l_long_asl
+   121                          	EXTERN	l_long_asr
+   122                          	EXTERN	l_long_aslo	;Long << shift in c
+   123                          	EXTERN	l_long_asro	;Long >> shift in c (signed)
+   124                          	EXTERN	l_long_bool
+   125                          	EXTERN	l_long_cmp
+   126                          	EXTERN	l_long_com
+   127                          	EXTERN	l_long_eq
+   128                          	EXTERN	l_long_ge
+   129                          	EXTERN	l_long_gt
+   130                          	EXTERN	l_long_le
+   131                          	EXTERN	l_long_lneg
+   132                          	EXTERN	l_long_lt
+   133                          	EXTERN	l_long_ne
+   134                          	EXTERN	l_long_neg
+   135                          	EXTERN	l_long_or
+   136                          	EXTERN	l_long_sub
+   137                          	EXTERN	l_long_ucmp
+   138                          	EXTERN	l_long_uge
+   139                          	EXTERN	l_long_ugt
+   140                          	EXTERN	l_long_ule
+   141                          	EXTERN	l_long_ult
+   142                          	EXTERN	l_long_xor
+   143                          	EXTERN	l_plong
+   144                          	EXTERN	l_inclong	;Increment long
+   145                          	EXTERN	l_declong	;Decrement long
+   146                          	EXTERN	l_long_div
+   147                          	EXTERN	l_long_div_u
+   148                          	EXTERN	l_long_mod
+   149                          	EXTERN	l_long_mod_u
+   150                          	EXTERN	l_long_mult
+   151                          	EXTERN	l_long_mult_u
+   152                          	EXTERN	l_long_asr_u	;Long unsigned >>
+   153                          	EXTERN	l_long_asr_uo	;Long unsigned >> shift in c
+   154                          	EXTERN	l_long_case
+   155                          
+   156                          ;--------------------------------------------------------------
+   157                          ; Floating point support routines, mostly in library
+   158                          ;--------------------------------------------------------------
+   159                          
+   160                          	EXTERN	dadd
+   161                          	EXTERN	ddiv
+   162                          	EXTERN	dsub
+   163                          	EXTERN	dmul
+   164                          
+   165                          	EXTERN	dge
+   166                          	EXTERN	dgt
+   167                          	EXTERN	dleq
+   168                          	EXTERN	dlt
+   169                          	EXTERN	deq
+   170                          	EXTERN	dne
+   171                          
+   172                          	EXTERN	minusfa		;FA=-FA
+   173                          
+   174                          	EXTERN	dswap		;Exchange FA with top of stack
+   175                          	EXTERN	float		;Convert int to float
+   176                          	EXTERN	ufloat		;unsigned int to float
+   177                          	EXTERN	ifix		;Convert float to int
+   178                          
+   179                          	EXTERN	dstore		;FA->(de)
+   180                          	EXTERN	dload		;FA<-(hl)
+   181                          	EXTERN	dldpsh		;(hl)->(stack)
+   182                          	EXTERN	dpush		;FA->(stack)
+   183                          	EXTERN	dpush2		;FA->(stack under)
+   184                          	EXTERN	dpush3		;FA->(stack under,long)
+   185                          
+   186                          	EXTERN	fa		;may not be needed in this file
+   187                          	EXTERN	extra		;ditto
+   188                          	EXTERN	__atof2		;string->fa conversion
+   189                          	EXTERN	l_f48_ldexp	;FA * pow2(N)
+   190                          	EXTERN	l_f48_f16tof	;Convert _Float16 to float
+   191                          	EXTERN	l_f48_ftof16	;Convert float to _Float16
+   192                          
+   193                          	; 16 bit float ABI
+   194                          	EXTERN	l_f16_add
+   195                          	EXTERN	l_f16_sub
+   196                          	EXTERN	l_f16_mul
+   197                          	EXTERN	l_f16_div
+   198                          	EXTERN	l_f16_le
+   199                          	EXTERN	l_f16_lt
+   200                          	EXTERN	l_f16_ge
+   201                          	EXTERN	l_f16_gt
+   202                          	EXTERN	l_f16_eq
+   203                          	EXTERN	l_f16_ne
+   204                          	EXTERN	l_f16_swap
+   205                          	EXTERN	l_f16_schar2f
+   206                          	EXTERN	l_f16_uchar2f
+   207                          	EXTERN	l_f16_sint2f
+   208                          	EXTERN	l_f16_uint2f
+   209                          	EXTERN	l_f16_slong2f
+   210                          	EXTERN	l_f16_ulong2f
+   211                          	EXTERN	l_f16_f2sint
+   212                          	EXTERN	l_f16_f2uint
+   213                          	EXTERN	l_f16_f2slong
+   214                          	EXTERN	l_f16_f2ulong
+   215                          	EXTERN	l_f16_ldexp
+   216                          	EXTERN	l_f16_invf	;Only for ieee16
+   217                          	EXTERN	l_f16_f16tof	;A noop
+   218                          	EXTERN	l_f16_ftof16	;A noop
+   219                          
+   220                          	; 32 bit float ABI
+   221                          	EXTERN	l_f32_add
+   222                          	EXTERN	l_f32_sub
+   223                          	EXTERN	l_f32_mul
+   224                          	EXTERN	l_f32_div
+   225                          	EXTERN	l_f32_le
+   226                          	EXTERN	l_f32_lt
+   227                          	EXTERN	l_f32_ge
+   228                          	EXTERN	l_f32_gt
+   229                          	EXTERN	l_f32_eq
+   230                          	EXTERN	l_f32_ne
+   231                          	EXTERN	l_f32_swap
+   232                          	EXTERN	l_f32_negate
+   233                          	EXTERN	l_f32_schar2f
+   234                          	EXTERN	l_f32_uchar2f
+   235                          	EXTERN	l_f32_sint2f
+   236                          	EXTERN	l_f32_uint2f
+   237                          	EXTERN	l_f32_slong2f
+   238                          	EXTERN	l_f32_ulong2f
+   239                          	EXTERN	l_f32_f2sint
+   240                          	EXTERN	l_f32_f2uint
+   241                          	EXTERN	l_f32_f2slong
+   242                          	EXTERN	l_f32_f2ulong
+   243                          	EXTERN	l_f32_ldexp
+   244                          	EXTERN	l_f32_invf	;Only for math32
+   245                          	EXTERN	l_f32_f16tof	;Convert _Float16 to float
+   246                          	EXTERN	l_f32_ftof16	;Convert float to _Float16
+   247                          
+   248                          	; 64 bit float ABI
+   249                          	EXTERN	l_f64_load
+   250                          	EXTERN	l_f64_add
+   251                          	EXTERN	l_f64_sub
+   252                          	EXTERN	l_f64_mul
+   253                          	EXTERN	l_f64_div
+   254                          	EXTERN	l_f64_le
+   255                          	EXTERN	l_f64_lt
+   256                          	EXTERN	l_f64_ge
+   257                          	EXTERN	l_f64_gt
+   258                          	EXTERN	l_f64_eq
+   259                          	EXTERN	l_f64_ne
+   260                          	EXTERN	l_f64_negate
+   261                          	EXTERN	l_f64_swap
+   262                          	EXTERN	l_f64_store
+   263                          	EXTERN	l_f64_dpush
+   264                          	EXTERN	l_f64_dldpsh
+   265                          	EXTERN	l_f64_dpush2
+   266                          	EXTERN	l_f64_dpush3
+   267                          	EXTERN	l_f64_schar2f
+   268                          	EXTERN	l_f64_uchar2f
+   269                          	EXTERN	l_f64_sint2f
+   270                          	EXTERN	l_f64_uint2f
+   271                          	EXTERN	l_f64_slong2f
+   272                          	EXTERN	l_f64_ulong2f
+   273                          	EXTERN	l_f64_f2sint
+   274                          	EXTERN	l_f64_f2uint
+   275                          	EXTERN	l_f64_f2slong
+   276                          	EXTERN	l_f64_f2ulong
+   277                          	EXTERN	l_f64_ldexp
+   278                          	EXTERN	l_f64_f16tof	;Convert _Float16 to float
+   279                          	EXTERN	l_f64_ftof16	;Convert float to _Float16
+   280                          
+   281                          
+   282                          ;--------------------------------------------------
+   283                          ; Routines for picking up variables from far memory
+   284                          ;--------------------------------------------------
+   285                          
+   286                          	EXTERN	lp_gchar
+   287                          	EXTERN	lp_gdoub
+   288                          	EXTERN	lp_gint
+   289                          	EXTERN	lp_glong
+   290                          	EXTERN	lp_gptr
+   291                          	EXTERN	lp_pchar
+   292                          	EXTERN	lp_pdoub
+   293                          	EXTERN	lp_pint
+   294                          	EXTERN	lp_plong
+   295                          	EXTERN	lp_pptr
+   296                          
+   297                          	EXTERN	l_farcall	; Long call
+   298                          
+   299                          
+   300                          ;--------------------------------------------------
+   301                          ; Routines for handling 64 bit integers for sccz80
+   302                          ;--------------------------------------------------
+   303                          
+   304                          	EXTERN	__i64_acc
+   305                          	EXTERN	l_i64_load
+   306                          	EXTERN	l_i64_store
+   307                          	EXTERN	l_i64_push
+   308                          	EXTERN	l_i64_add
+   309                          	EXTERN	l_i64_sub
+   310                          	EXTERN	l_i64_mult
+   311                          	EXTERN	l_i64_mult_u
+   312                          	EXTERN	l_i64_mod
+   313                          	EXTERN	l_i64_mod_u
+   314                          	EXTERN	l_i64_div
+   315                          	EXTERN	l_i64_div_u
+   316                          	EXTERN	l_i64_or
+   317                          	EXTERN	l_i64_xor
+   318                          	EXTERN	l_i64_and
+   319                          	EXTERN	l_i64_asr_u
+   320                          	EXTERN	l_i64_asr_uo
+   321                          	EXTERN	l_i64_asr
+   322                          	EXTERN	l_i64_asro
+   323                          	EXTERN	l_i64_asl
+   324                          	EXTERN	l_i64_aslo
+   325                          	EXTERN	l_i64_inc
+   326                          	EXTERN	l_i64_dec
+   327                          	EXTERN	l_i64_eq0
+   328                          	EXTERN	l_i64_eq
+   329                          	EXTERN	l_i64_ne
+   330                          	EXTERN	l_i64_ge
+   331                          	EXTERN	l_i64_gt
+   332                          	EXTERN	l_i64_uge
+   333                          	EXTERN	l_i64_ugt
+   334                          	EXTERN	l_i64_le
+   335                          	EXTERN	l_i64_lt
+   336                          	EXTERN	l_i64_ule
+   337                          	EXTERN	l_i64_ult
+   338                          	EXTERN	l_i64_lneg
+   339                          	EXTERN	l_i64_neg
+   340                          	EXTERN	l_i64_com
+   341                          	EXTERN	l_i64_case
+   342                          	EXTERN	l_i64_push_under_int
+   343                          	EXTERN	l_i64_push_under_int_mhl
+   344                          	EXTERN	l_i64_copy
+   345                          	EXTERN	l_i64_slong2i64
+   346                          	EXTERN	l_i64_ulong2i64
+   347                          	EXTERN	l_i64_sint2i64
+   348                          	EXTERN	l_i64_uint2i64
+   349                          	EXTERN	l_i64_u64_toi32
+   350                          
+   351                          
+   352                          ;-------------------
+   353                          ; Routines for SDCC
+   354                          ;-------------------
+   355                          
+   356                          	EXTERN	__divsint_rrx_s
+   357                          	EXTERN	__divsint_rrx_hds
+   358                          	EXTERN	__divuint_rrx_s
+   359                          	EXTERN	__divuint_rrx_hds
+   360                          	EXTERN	__divsuchar_rrx_s
+   361                          	EXTERN	__divuschar_rrx_s
+   362                          	EXTERN	__divuchar_rrx_s
+   363                          	EXTERN	__divuchar_rrx_hds
+   364                          	EXTERN	__moduchar_rrx_s
+   365                          	EXTERN	__moduchar_rrx_hds
+   366                          	EXTERN	__moduschar_rrx_s
+   367                          	EXTERN	__modsuchar_rrx_s
+   368                          	EXTERN	__modschar_rrx_s
+   369                          	EXTERN	__modschar_rrx_hds
+   370                          	EXTERN	__modsint_rrx_s
+   371                          	EXTERN	__modsint_rrx_hds
+   372                          	EXTERN	__moduint_rrx_s
+   373                          	EXTERN	__moduint_rrx_hds
+   374                          	EXTERN	__get_remainder
+   375                          	EXTERN	__divunsigned
+   376                          	EXTERN	__div_signexte
+   377                          	EXTERN	__divu16
+   378                          	EXTERN	__div16
+   379                          	EXTERN	__div8
+   380                          	EXTERN	__muluchar_rrx_s
+   381                          	EXTERN	__muluchar_rrx_hds
+   382                          	EXTERN	__mulsuchar_rrx_s
+   383                          	EXTERN	__muluschar_rrx_s
+   384                          	EXTERN	__mulschar_rrx_s
+   385                          	EXTERN	__mulschar_rrx_hds
+   386                          	EXTERN	__mulint_rrx_s
+   387                          	EXTERN	__mulint_rrx_hds
+   388                          	EXTERN	__mul16
+   389                          	EXTERN	__rrulong_rrx_s
+   390                          	EXTERN	__rrslong_rrx_s
+   391                          	EXTERN	__rlslong_rrx_s
+   392                          	EXTERN	__rlulong_rrx_s
+   393                          	EXTERN	__muluchar
+   394                          	EXTERN	__mulschar
+   395                          
+   396                          	EXTERN	l_push_di
+   397                          	EXTERN	l_pop_ei
+   398                          
+   399                          	EXTERN	l_debug_push_frame
+   400                          	EXTERN	l_debug_pop_frame
+   401                          
+   402                          
+esplowlevel.c:
+                                
+                                
+                                	C_LINE	8,"esplowlevel.c"
+     8                          	SECTION	code_compiler
+     8                          
+     8                          ; Function esp0_outbyte flags 0x00000a00 __smallc __naked
+     8                          ; int esp0_outbyte(char c)
+     8                          ; parameter 'char c' at sp+2 size(1)
+     8                          	C_LINE	9,"esplowlevel.c::esp0_outbyte::0::0"
+esplowlevel.c::esp0_outbyte::0::0:
+     9                          ._esp0_outbyte
+     9   000000 c1                  pop bc
+     9   000001 e1                  pop hl
+     9   000002 e5                  push hl
+     9   000003 c5                  push bc
+     9   000004 7d                  ld a,l
+     9   000005 f5                  PUSH AF
+     9   000006 0e00                LD C,0
+     9                          OUTESP0_1:
+     9   000008 0c                  INC C
+     9   000009 ca2400              JP Z,OUTESP0_TIMEOUT
+     9   00000c db9e                IN A,( $9E )
+     9   00000e e602                AND 2
+     9   000010 c20800              JP NZ, OUTESP0_1
+     9   000013 f1                  POP AF
+     9   000014 d39c                OUT( $9C ),A
+     9   000016 0ee0                LD C,$E0
+     9                          OUTESP0_2:
+     9   000018 0c                  INC C
+     9   000019 ca2300              JP Z,OUTESP0_3
+     9   00001c db9e                IN A,( $9E )
+     9   00001e e602                AND 2
+     9   000020 ca1800              JP Z, OUTESP0_2
+     9                          OUTESP0_3:
+     9   000023 c9                  RET
+     9                          OUTESP0_TIMEOUT:
+     9   000024 f1                  POP AF
+     9   000025 c9                  RET
+     9                          	C_LINE	41,"esplowlevel.c::esp0_outbyte::0::1"
+esplowlevel.c::esp0_outbyte::0::1:
+    41                          
+    41                          ; Function esp0_inbytewait flags 0x00000a00 __smallc __naked
+    41                          ; int esp0_inbytewait()
+    41                          	C_LINE	42,"esplowlevel.c::esp0_inbytewait::0::1"
+esplowlevel.c::esp0_inbytewait::0::1:
+    42                          ._esp0_inbytewait
+    42                          INESP0_WAIT:
+    42   000026 0e00                    LD      C,0
+    42                          INESP0_WAIT_1:
+    42   000028 0c                      INC     C
+    42   000029 ca4f00                  JP      Z,INESP0_TIMEOUT
+    42   00002c db9e                    IN      A,( $9E )
+    42   00002e e602                    AND     2
+    42   000030 c22800                  JP      NZ,INESP0_WAIT_1
+    42   000033 db9e                    IN      A,( $9E )
+    42   000035 e601                    AND     1
+    42   000037 ca2800                  JP      Z,INESP0_WAIT_1
+    42   00003a db9c                    IN      A,( $9C )
+    42   00003c f5                      PUSH    AF
+    42   00003d 0ee0                    LD      C,$E0
+    42                          INESP0_WAIT_2:
+    42   00003f 0c                      INC     C
+    42   000040 ca4a00                  JP      Z,INESP0_3
+    42   000043 db9e                    IN      A,( $9E )
+    42   000045 e602                    AND     2
+    42   000047 ca3f00                  JP      Z,INESP0_WAIT_2
+    42                          INESP0_3:
+    42   00004a f1                      POP     AF
+    42   00004b 6f                      LD      L,A
+    42   00004c 2600                    LD      H,0
+    42   00004e c9                      RET
+    42                          INESP0_TIMEOUT:
+    42   00004f 210000                  LD      HL,0
+    42   000052 c9                      RET
+    42                          	C_LINE	75,"esplowlevel.c::esp0_inbytewait::0::2"
+esplowlevel.c::esp0_inbytewait::0::2:
+    75                          
+    75                          ; Function esp0_outstruct flags 0x00000200 __smallc
+    75                          ; int esp0_outstruct(char * data, int len)
+    75                          ; parameter 'int len' at sp+2 size(2)
+    75                          ; parameter 'char * data' at sp+4 size(2)
+    75                          	C_LINE	76,"esplowlevel.c::esp0_outstruct::0::2"
+esplowlevel.c::esp0_outstruct::0::2:
+    76                          ._esp0_outstruct
+    76   000053 210000          	ld	hl,0	;const
+    76   000056 e5              	push	hl
+    76   000057 c35d00          	jp	i_4	;EOS
+    76                          .i_2
+    76   00005a e1              	pop	hl
+    76   00005b 23              	inc	hl
+    76   00005c e5              	push	hl
+    76                          .i_4
+    76   00005d d1              	pop	de
+    76   00005e d5              	push	de
+    76   00005f 210400          	ld	hl,4	;const
+    76   000062 39              	add	hl,sp
+    76   000063 cd0000          	call	l_gint	;
+    76   000066 cd0000          	call	l_lt
+    76   000069 d28400          	jp	nc,i_3	;
+    76   00006c 210600          	ld	hl,6	;const
+    76   00006f 39              	add	hl,sp
+    76   000070 34              	inc	(hl)
+    76   000071 7e              	ld	a,(hl)
+    76   000072 23              	inc	hl
+    76   000073 2001            	jr	nz,ASMPC+3
+    76   000075 34              	inc	(hl)
+    76   000076 66              	ld	h,(hl)
+    76   000077 6f              	ld	l,a
+    76   000078 2b              	dec	hl
+    76   000079 cd0000          	call	l_gchar
+    76   00007c e5              	push	hl
+    76   00007d cd0000          	call	_esp0_outbyte
+    76   000080 c1              	pop	bc
+    76   000081 c35a00          	jp	i_2	;EOS
+    76                          .i_3
+    76   000084 c1              	pop	bc
+    76   000085 c9              	ret
+    76                          
+    76                          
+    76                          	C_LINE	80,"esplowlevel.c::esp0_outstruct::0::3"
+esplowlevel.c::esp0_outstruct::0::3:
+    80                          
+    80                          ; Function esp0_outlong flags 0x00000200 __smallc
+    80                          ; int esp0_outlong(long value)
+    80                          ; parameter 'long value' at sp+2 size(4)
+    80                          	C_LINE	81,"esplowlevel.c::esp0_outlong::0::3"
+esplowlevel.c::esp0_outlong::0::3:
+    81                          ._esp0_outlong
+    81   000086 210200          	ld	hl,2	;const
+    81   000089 39              	add	hl,sp
+    81   00008a 6e              	ld	l,(hl)
+    81   00008b 2600            	ld	h,0
+    81   00008d e5              	push	hl
+    81   00008e cd0000          	call	_esp0_outbyte
+    81   000091 c1              	pop	bc
+    81   000092 210300          	ld	hl,3	;const
+    81   000095 39              	add	hl,sp
+    81   000096 6e              	ld	l,(hl)
+    81   000097 2600            	ld	h,0
+    81   000099 e5              	push	hl
+    81   00009a cd0000          	call	_esp0_outbyte
+    81   00009d c1              	pop	bc
+    81   00009e 210400          	ld	hl,4	;const
+    81   0000a1 39              	add	hl,sp
+    81   0000a2 6e              	ld	l,(hl)
+    81   0000a3 2600            	ld	h,0
+    81   0000a5 e5              	push	hl
+    81   0000a6 cd0000          	call	_esp0_outbyte
+    81   0000a9 c1              	pop	bc
+    81   0000aa 210500          	ld	hl,5	;const
+    81   0000ad 39              	add	hl,sp
+    81   0000ae 6e              	ld	l,(hl)
+    81   0000af 2600            	ld	h,0
+    81   0000b1 e5              	push	hl
+    81   0000b2 cd0000          	call	_esp0_outbyte
+    81   0000b5 c1              	pop	bc
+    81   0000b6 c9              	ret
+    81                          
+    81                          
+    81                          	C_LINE	87,"esplowlevel.c::esp0_outlong::0::4"
+esplowlevel.c::esp0_outlong::0::4:
+    87                          
+    87                          ; Function esp0_outint flags 0x00000200 __smallc
+    87                          ; int esp0_outint(int value)
+    87                          ; parameter 'int value' at sp+2 size(2)
+    87                          	C_LINE	88,"esplowlevel.c::esp0_outint::0::4"
+esplowlevel.c::esp0_outint::0::4:
+    88                          ._esp0_outint
+    88   0000b7 210200          	ld	hl,2	;const
+    88   0000ba 39              	add	hl,sp
+    88   0000bb 6e              	ld	l,(hl)
+    88   0000bc 2600            	ld	h,0
+    88   0000be e5              	push	hl
+    88   0000bf cd0000          	call	_esp0_outbyte
+    88   0000c2 c1              	pop	bc
+    88   0000c3 210300          	ld	hl,3	;const
+    88   0000c6 39              	add	hl,sp
+    88   0000c7 6e              	ld	l,(hl)
+    88   0000c8 2600            	ld	h,0
+    88   0000ca e5              	push	hl
+    88   0000cb cd0000          	call	_esp0_outbyte
+    88   0000ce c1              	pop	bc
+    88   0000cf c9              	ret
+    88                          
+    88                          
+    88                          	C_LINE	93,"esplowlevel.c::esp0_outint::0::5"
+esplowlevel.c::esp0_outint::0::5:
+    93                          
+    93                          ; Function esp1_outbyte flags 0x00000a00 __smallc __naked
+    93                          ; int esp1_outbyte(char c)
+    93                          ; parameter 'char c' at sp+2 size(1)
+    93                          	C_LINE	94,"esplowlevel.c::esp1_outbyte::0::5"
+esplowlevel.c::esp1_outbyte::0::5:
+    94                          ._esp1_outbyte
+    94   0000d0 c1                  pop bc
+    94   0000d1 e1                  pop hl
+    94   0000d2 e5                  push hl
+    94   0000d3 c5                  push bc
+    94   0000d4 7d                  ld a,l
+    94   0000d5 f5                  PUSH AF
+    94   0000d6 0e00                LD C,0
+    94                          OUTESP1_1:
+    94   0000d8 0c                  INC C
+    94   0000d9 caf400              JP Z,OUTESP1_TIMEOUT
+    94   0000dc db9e                IN A,( $9E )
+    94   0000de e610                AND $10
+    94   0000e0 c2d800              JP NZ, OUTESP1_1
+    94   0000e3 f1                  POP AF
+    94   0000e4 d39d                OUT( $9D ),A
+    94   0000e6 0ee0                LD C,$E0
+    94                          OUTESP1_2:
+    94   0000e8 0c                  INC C
+    94   0000e9 caf300              JP Z,OUTESP1_3
+    94   0000ec db9e                IN A,( $9E )
+    94   0000ee e610                AND $10
+    94   0000f0 cae800              JP Z, OUTESP1_2
+    94                          OUTESP1_3:
+    94   0000f3 c9                  RET
+    94                          OUTESP1_TIMEOUT:
+    94   0000f4 f1                  POP AF
+    94   0000f5 c9                  RET
+    94                          	C_LINE	126,"esplowlevel.c::esp1_outbyte::0::6"
+esplowlevel.c::esp1_outbyte::0::6:
+   126                          
+   126                          ; Function esp1_inbytewait flags 0x00000a00 __smallc __naked
+   126                          ; int esp1_inbytewait()
+   126                          	C_LINE	127,"esplowlevel.c::esp1_inbytewait::0::6"
+esplowlevel.c::esp1_inbytewait::0::6:
+   127                          ._esp1_inbytewait
+   127                          INESP1_WAIT:
+   127   0000f6 0e00                    LD      C,0
+   127                          INESP1_WAIT_1:
+   127   0000f8 0c                      INC     C
+   127   0000f9 ca1f01                  JP      Z,INESP1_TIMEOUT
+   127   0000fc db9e                    IN      A,( $9E )
+   127   0000fe e610                    AND     $10
+   127   000100 c2f800                  JP      NZ,INESP1_WAIT_1
+   127   000103 db9e                    IN      A,( $9E )
+   127   000105 e608                    AND     8
+   127   000107 caf800                  JP      Z,INESP1_WAIT_1
+   127   00010a db9d                    IN      A,( $9D )
+   127   00010c f5                      PUSH    AF
+   127   00010d 0ee0                    LD      C,$E0
+   127                          INESP1_WAIT_2:
+   127   00010f 0c                      INC     C
+   127   000110 ca1a01                  JP      Z,INESP1_3
+   127   000113 db9e                    IN      A,( $9E )
+   127   000115 e610                    AND     $10
+   127   000117 ca0f01                  JP      Z,INESP1_WAIT_2
+   127                          INESP1_3:
+   127   00011a f1                      POP     AF
+   127   00011b 6f                      LD      L,A
+   127   00011c 2600                    LD      H,0
+   127   00011e c9                      RET
+   127                          INESP1_TIMEOUT:
+   127   00011f 210000                  LD      HL,0
+   127   000122 c9                      RET
+   127                          	C_LINE	160,"esplowlevel.c::esp1_inbytewait::0::7"
+esplowlevel.c::esp1_inbytewait::0::7:
+   160                          
+   160                          ; Function esp1_outstruct flags 0x00000200 __smallc
+   160                          ; int esp1_outstruct(char * data, int len)
+   160                          ; parameter 'int len' at sp+2 size(2)
+   160                          ; parameter 'char * data' at sp+4 size(2)
+   160                          	C_LINE	161,"esplowlevel.c::esp1_outstruct::0::7"
+esplowlevel.c::esp1_outstruct::0::7:
+   161                          ._esp1_outstruct
+   161   000123 210000          	ld	hl,0	;const
+   161   000126 e5              	push	hl
+   161   000127 c32d01          	jp	i_7	;EOS
+   161                          .i_5
+   161   00012a e1              	pop	hl
+   161   00012b 23              	inc	hl
+   161   00012c e5              	push	hl
+   161                          .i_7
+   161   00012d d1              	pop	de
+   161   00012e d5              	push	de
+   161   00012f 210400          	ld	hl,4	;const
+   161   000132 39              	add	hl,sp
+   161   000133 cd0000          	call	l_gint	;
+   161   000136 cd0000          	call	l_lt
+   161   000139 d25401          	jp	nc,i_6	;
+   161   00013c 210600          	ld	hl,6	;const
+   161   00013f 39              	add	hl,sp
+   161   000140 34              	inc	(hl)
+   161   000141 7e              	ld	a,(hl)
+   161   000142 23              	inc	hl
+   161   000143 2001            	jr	nz,ASMPC+3
+   161   000145 34              	inc	(hl)
+   161   000146 66              	ld	h,(hl)
+   161   000147 6f              	ld	l,a
+   161   000148 2b              	dec	hl
+   161   000149 cd0000          	call	l_gchar
+   161   00014c e5              	push	hl
+   161   00014d cdd000          	call	_esp1_outbyte
+   161   000150 c1              	pop	bc
+   161   000151 c32a01          	jp	i_5	;EOS
+   161                          .i_6
+   161   000154 c1              	pop	bc
+   161   000155 c9              	ret
+   161                          
+   161                          
+   161                          	C_LINE	165,"esplowlevel.c::esp1_outstruct::0::8"
+esplowlevel.c::esp1_outstruct::0::8:
+   165                          
+   165                          ; Function esp1_outlong flags 0x00000200 __smallc
+   165                          ; int esp1_outlong(long value)
+   165                          ; parameter 'long value' at sp+2 size(4)
+   165                          	C_LINE	166,"esplowlevel.c::esp1_outlong::0::8"
+esplowlevel.c::esp1_outlong::0::8:
+   166                          ._esp1_outlong
+   166   000156 210200          	ld	hl,2	;const
+   166   000159 39              	add	hl,sp
+   166   00015a 6e              	ld	l,(hl)
+   166   00015b 2600            	ld	h,0
+   166   00015d e5              	push	hl
+   166   00015e cdd000          	call	_esp1_outbyte
+   166   000161 c1              	pop	bc
+   166   000162 210300          	ld	hl,3	;const
+   166   000165 39              	add	hl,sp
+   166   000166 6e              	ld	l,(hl)
+   166   000167 2600            	ld	h,0
+   166   000169 e5              	push	hl
+   166   00016a cdd000          	call	_esp1_outbyte
+   166   00016d c1              	pop	bc
+   166   00016e 210400          	ld	hl,4	;const
+   166   000171 39              	add	hl,sp
+   166   000172 6e              	ld	l,(hl)
+   166   000173 2600            	ld	h,0
+   166   000175 e5              	push	hl
+   166   000176 cdd000          	call	_esp1_outbyte
+   166   000179 c1              	pop	bc
+   166   00017a 210500          	ld	hl,5	;const
+   166   00017d 39              	add	hl,sp
+   166   00017e 6e              	ld	l,(hl)
+   166   00017f 2600            	ld	h,0
+   166   000181 e5              	push	hl
+   166   000182 cdd000          	call	_esp1_outbyte
+   166   000185 c1              	pop	bc
+   166   000186 c9              	ret
+   166                          
+   166                          
+   166                          	C_LINE	172,"esplowlevel.c::esp1_outlong::0::9"
+esplowlevel.c::esp1_outlong::0::9:
+   172                          
+   172                          ; Function esp1_outint flags 0x00000200 __smallc
+   172                          ; int esp1_outint(int value)
+   172                          ; parameter 'int value' at sp+2 size(2)
+   172                          	C_LINE	173,"esplowlevel.c::esp1_outint::0::9"
+esplowlevel.c::esp1_outint::0::9:
+   173                          ._esp1_outint
+   173   000187 210200          	ld	hl,2	;const
+   173   00018a 39              	add	hl,sp
+   173   00018b 6e              	ld	l,(hl)
+   173   00018c 2600            	ld	h,0
+   173   00018e e5              	push	hl
+   173   00018f cdd000          	call	_esp1_outbyte
+   173   000192 c1              	pop	bc
+   173   000193 210300          	ld	hl,3	;const
+   173   000196 39              	add	hl,sp
+   173   000197 6e              	ld	l,(hl)
+   173   000198 2600            	ld	h,0
+   173   00019a e5              	push	hl
+   173   00019b cdd000          	call	_esp1_outbyte
+   173   00019e c1              	pop	bc
+   173   00019f c9              	ret
+   173                          
+   173                          
+   173                          ; --- Start of Optimiser additions ---
+   173                          
+   173                          
+   173                          ; --- Start of Static Variables ---
+   173                          
+   173                          	SECTION	bss_compiler
+   173                          	SECTION	code_compiler
+   173                          
+   173                          
+   173                          ; --- Start of Scope Defns ---
+   173                          
+   173                          	GLOBAL	_esp0_outbyte
+   173                          	GLOBAL	_esp0_inbytewait
+   173                          	GLOBAL	_esp0_outstruct
+   173                          	GLOBAL	_esp0_outlong
+   173                          	GLOBAL	_esp0_outint
+   173                          	GLOBAL	_esp1_outbyte
+   173                          	GLOBAL	_esp1_inbytewait
+   173                          	GLOBAL	_esp1_outstruct
+   173                          	GLOBAL	_esp1_outlong
+   173                          	GLOBAL	_esp1_outint
+   173                          
+   173                          
+   173                          ; --- End of Scope Defns ---
+   173                          
+   173                          
+   173                          ; --- End of Compilation ---
+   173                          

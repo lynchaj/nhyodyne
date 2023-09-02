@@ -1252,6 +1252,18 @@ The Chars in Buffer from Connection# opcode returns the numbser of bytes in the 
 Input Parameters: 1 byte - Connection Number  
 Returns: 1 byte - number of bytes in the buffer 
 
+OP CODE|Description|Values
+-------|-----------|------
+30 |Get MAC Address| IN-BYTE  IN-BYTE  IN-BYTE  IN-BYTE  IN-BYTE  IN-BYTE    
+
+The Get Mac Address opcode returns the six byte MAC address of the ESP32
+
+The following information is returned in the following order:
+* MAC Address, 6 bytes
+
+Input Parameters: None  
+Returns: 6 bytes  
+
 
 ## ESP32 Serial Opcodes
 

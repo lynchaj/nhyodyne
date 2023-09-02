@@ -287,6 +287,10 @@ void processOpcode(uint8_t b)
         espMouse.getMouse();
         stateMachine = 0;
         break;
+    case 30: // Get MAC Address
+        espWifi.getMacAddress();
+        stateMachine = 0;
+        break;
 
     case 255: // HARDWARE DISCOVERY
         stateMachine = 0;

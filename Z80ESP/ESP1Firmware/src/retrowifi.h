@@ -31,6 +31,7 @@ public:
     void inByteFromConnection(uint8_t b);
     void queuedBytesFromConnection(uint8_t b);
     void listenForIncomingConnection();
+    void getMacAddress();
 
 private:
     IPAddress getStoredIP(const char *Parameter);
