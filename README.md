@@ -19,6 +19,8 @@ FreeRouting  https://github.com/freerouting/freerouting
 
 JLCPCB  https://jlcpcb.com/
 
+RpProto https://www.rpproto.com/
+
 # Additional Design Goals
 There are several additional design goals for the Z80 MBC.
 
