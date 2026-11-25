@@ -54,7 +54,7 @@ Can I use these designs in my science fair, school project, etc?  Sure, but plea
 
 What if I want to fork my own project based on your work?  It's OK with me and I wish you the best of luck.  I'll be happy to answer questions as best I can and as time allows.
 
-Can these designs be used commercially?  Not really and I'd prefer they be kept for hobbyists because that's they're intended purpose.  If you take these designs partially or in whole commercial you are on your own and accept all associated risk.  These are intended for hobbyist and educational use only.
+Can these designs be used commercially?  Not really and I'd prefer they be kept for hobbyists because that's they're intended purpose.  If you take these designs partially or in whole commercial you are on your own and accept all associated risk.  These are intended for hobbyist and educational use but you can use them for what ever you like consistent with the BSD-3 clause license.
 
 Why are all the PCBs green?  I like green PCBs and am a bit of a traditionalist from back in the day when PCBs only came in green.  Also it is a good color choice to see the traces underneath and provides good contrast compared to other colors.  That being said, you can make your PCBs any color you like when you order them.
 
